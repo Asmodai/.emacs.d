@@ -1,0 +1,8 @@
+*~
+/**/*~
+*.elc
+/**/*.elc
+*.bak
+/**/*.bak
+/auto-save-list
+/cache/**/*
