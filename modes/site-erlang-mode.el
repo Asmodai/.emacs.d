@@ -2,8 +2,8 @@
 ;;;
 ;;; site-erlang-mode.el --- Erlang mode.
 ;;;
-;;; Time-stamp: <Tuesday Jan 24, 2012 14:39:39 asmodai>
-;;; Revision:   1
+;;; Time-stamp: <Tuesday Jan 24, 2012 22:00:07 asmodai>
+;;; Revision:   5
 ;;;
 ;;; Copyright (c) 2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -40,14 +40,18 @@
   ;;
   ;; Start by setting up Erlang variables
   (setq erlang-root-dir (if windows-p
-                            "c:/Program Files/erl5.9"
+                            "c:/Progra~1/erl5.9"
                             "/usr/local/otp"))
   
   ;;
   ;; Tell emacs where to find the Erlang binary
   (setq exec-path (if windows-p
-                      (cons "c:/Program Files/erl5.9/bin" exec-path)
+                      (cons "c:/Progra~1/erl5.9/bin" exec-path)
                       (cons "/usr/local/otp/bin" exec-path)))
+  
+  ;;
+  ;; Deal with Erlang hanging
+  (setf inferior-erlang-prompt-timeout t)
   
   ;;
   ;; Load erlang-mode

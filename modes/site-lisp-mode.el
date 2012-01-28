@@ -2,8 +2,8 @@
 ;;;
 ;;; site-lisp-mode.el --- Lisp mode hacks.
 ;;;
-;;; Time-stamp: <Tuesday Jan 24, 2012 15:36:35 asmodai>
-;;; Revision:   14
+;;; Time-stamp: <Thursday Jan 26, 2012 11:25:15 asmodai>
+;;; Revision:   16
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -310,18 +310,6 @@ To see an example of the output, look at site-lisp-mode.el."
 ;;;
 ;;; Configure the ParEdit sexpr editor
 (when (featurep 'paredit)
-  (add-hook 'emacs-lisp-mode-hook (lambda ()
-                                    (paredit-mode +1)))
-
-  (add-hook 'lisp-mode-hook (lambda ()
-                              (paredit-mode +1)))
-
-  (add-hook 'lisp-interaction-mode-hook (lambda ()
-                                          (paredit-mode +1)))
-
-  (add-hook 'scheme-mode-hook (lambda ()
-                                (paredit-mode +1)))
-
   (when slime-p
     (add-hook 'slime-repl-mode-hook (lambda ()
                                       (paredit-mode +1)))
@@ -359,31 +347,11 @@ text.  Move the cursor to the new line."
   ;;
   ;; We want `highlight-parentheses' to work with autopair.
   (defun hi-parens-autopair ()
-    (highlight-parentheses-mode)
+    (highlight-parentheses-mode t)
     (setq autopair-handle-action-fns
           (list 'autopair-default-handle-action
                 '(lambda (action pair pos-before)
-                  (hl-paren-color-update)))))
-
-  ;;
-  ;; Add hooks.
-  (add-hook 'emacs-lisp-mode-hook 'hi-parens-autopair)
-  (add-hook 'lisp-mode-hook 'hi-parens-autopair)
-  (add-hook 'scheme-mode-hook 'hi-parens-autopair))
-
-;;; }}}
-;;; ------------------------------------------------------------------
-
-;;; ------------------------------------------------------------------
-;;; {{{ Company hooks:
-
-(when (featurep 'company)
-  ;;
-  ;; Add hooks for our Lisp modes
-  (add-hook 'emacs-lisp-mode-hook 'company-mode)
-  (add-hook 'lisp-mode-hook 'company-mode)
-  (add-hook 'scheme-mode-hook 'company-mode)
-  (add-hook 'inferior-lisp-mode-hook 'company-mode))
+                  (hl-paren-color-update))))))
 
 ;;; }}}
 ;;; ------------------------------------------------------------------
@@ -394,24 +362,60 @@ text.  Move the cursor to the new line."
 ;;;
 ;;; Hooks for auto-fill, font-lock, and SLIME.
 (when emacs>=19-p
+  ;;
+  ;; I know these could be represented better, but I'd rather they
+  ;; have fewer calls.
+  ;;
+  
+  (defun my-interactive-lisp-mode-hooks ()
+    (when (or emacs=20-p
+              emacs=21-p)
+      (turn-on-font-lock)
+      (font-lock-mode t))
+    (when (featurep 'paredit)
+      (paredit-mode +1))
+    (when (featurep 'company)
+      (company-mode t))
+    (when (featurep 'highlight-parentheses)
+      (hi-parens-autopair))
+    (show-paren-mode t)
+    (auto-fill-mode t)
+    (folding-mode t))
+  
+  (defun my-inferior-lisp-mode-hooks ()
+    (when (or emacs=20-p
+              emacs=21-p)
+      (turn-on-font-lock)
+      (font-lock-mode t))
+    (when (featurep 'paredit)
+      (paredit-mode +1))
+    (when (featurep 'company)
+      (company-mode t))
+    (when (featurep 'highlight-parentheses)
+      (hi-parens-autopair))
+    (when slime-p
+      (inferior-slime-mode t))
+    (show-paren-mode t))
   
   (defun my-lisp-mode-hooks ()
-    (when (or emacs=20-p emacs=21-p)
+    (when (or emacs=20-p
+              emacs=21-p)
       (turn-on-font-lock)
       (font-lock-mode 1))
+    (when slime-p
+      (slime-mode t))
+    (when (featurep 'paredit)
+      (paredit-mode +1))
+    (when (featurep 'company)
+      (company-mode t))
+    (when (featurep 'highlight-parentheses)
+      (hi-parens-autopair))
+    (show-paren-mode t)
     (auto-fill-mode t)
-    (show-paren-mode t))
+    (show-paren-mode t)
+    (folding-mode t))
 
   (when slime-p
-    ;;
-    ;; Set up SLIME for lisp-mode.
-    (add-hook 'lisp-mode-hook '(lambda ()
-                                (slime-mode t)))
-
-    ;;
-    ;; Set up inferior lisp mode.
-    (add-hook 'inferior-lisp-mode-hook '(lambda ()
-                                         (inferior-slime-mode t)))
     ;;
     ;; Set up company mode.
     (add-hook 'slime-load-hook '(lambda ()
@@ -419,6 +423,8 @@ text.  Move the cursor to the new line."
 
   ;;
   ;; Hooks for modes derived from emacs-lisp-mode
+  (add-hook 'lisp-interaction-mode-hook 'my-interactive-lisp-mode-hooks)
+  (add-hook 'inferior-lisp-mode-hook 'my-inferior-lisp-mode-hooks)
   (add-hook 'emacs-lisp-mode-hook 'my-lisp-mode-hooks)
   (add-hook 'lisp-mode-hook 'my-lisp-mode-hooks)
   (add-hook 'scheme-mode-hook 'my-lisp-mode-hooks))

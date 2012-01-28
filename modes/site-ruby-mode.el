@@ -2,8 +2,8 @@
 ;;;
 ;;; site-ruby-mode.el --- Ruby Mode
 ;;;
-;;; Time-stamp: <Tuesday Jan 24, 2012 15:35:26 asmodai>
-;;; Revision:   10
+;;; Time-stamp: <Thursday Jan 26, 2012 11:26:03 asmodai>
+;;; Revision:   13
 ;;;
 ;;; Copyright (c) 2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -47,8 +47,11 @@
               emacs=21-p)
       (turn-on-font-lock)
       (font-lock-mode 1))
+    (when (featurep 'company)
+      (company-mode t))
     (auto-fill-mode t)
-    (inf-ruby-keys))
+    (inf-ruby-keys)
+    (folding-mode t))
 
   (setq
    ;;
@@ -64,11 +67,6 @@
   ;; Hooks
   (add-hook 'c-mode-hook 'ruby-style-c-mode)
   (add-hook 'c++-mode-hook 'ruby-style-c-mode)
-  (add-hook 'ruby-mode 'my-ruby-mode-hooks)
-  
-  ;;
-  ;; Company mode
-  (when (featurep 'company)
-    (add-hook 'ruby-mode 'company-mode)))
+  (add-hook 'ruby-mode 'my-ruby-mode-hooks))
 
 ;;; ruby-mode.el ends here

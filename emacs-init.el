@@ -2,8 +2,8 @@
 ;;;
 ;;; emacs-init.el --- Version-specific init code
 ;;;
-;;; Time-stamp: <Tuesday Jan 24, 2012 18:48:52 asmodai>
-;;; Revision:   15
+;;; Time-stamp: <Saturday Jan 28, 2012 16:27:51 asmodai>
+;;; Revision:   27
 ;;;
 ;;; Copyright (c) 2012  <asmodai@gmail.com>
 ;;;
@@ -111,6 +111,8 @@
   ;;
   ;; Configure comint
   (when windows-p
+    (require 'comint)
+    
     ;;
     ;; Tell comint that our shell likes to echo.
     (defun comint-false-echo ()
@@ -119,10 +121,11 @@
     ;;
     ;; Add it to the comint mode
     (add-hook 'comint-mode-hook 'comint-false-echo)
-    
+
     ;;
     ;; If the above doesn't work, change the cmd.exe arguments.
-    (setq explicit-cmd.exe-args '("/q")))
+    (setq explicit-cmd.exe-args '("/q")
+          explicit-cmdproxy.exe-args '("/q")))
    
   ;;
   ;; Emacs >= 20 has the right time-stamp options.
@@ -379,9 +382,9 @@
   ;;
   ;; Enable folding mode on open if possible.
   (when (featurep 'folding)
-      (add-hook 'find-file-hooks
-            (lambda ()
-              (folding-mode t)))))
+    (add-hook 'find-file-hooks
+              (lambda ()
+                (folding-mode t)))))
 
 
 ;;; }}}
