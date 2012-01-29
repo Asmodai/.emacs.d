@@ -2,8 +2,8 @@
 ;;;
 ;;; emacs-init.el --- Version-specific init code
 ;;;
-;;; Time-stamp: <Sunday Jan 29, 2012 22:41:18 asmodai>
-;;; Revision:   44
+;;; Time-stamp: <Sunday Jan 29, 2012 22:49:36 asmodai>
+;;; Revision:   45
 ;;;
 ;;; Copyright (c) 2012  <asmodai@gmail.com>
 ;;;
@@ -117,7 +117,9 @@
     ;;
     ;; Tell comint that our shell likes to echo.
     (defun comint-false-echo ()
-      (setq comint-process-echoes t))
+      (if (eq major-mode 'inferior-emacs-lisp-mode)
+          (setq comint-process-echoes nil)
+          (setq comint-process-echoes t)))
     
     ;;
     ;; Add it to the comint mode
