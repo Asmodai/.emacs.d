@@ -13,7 +13,7 @@
 ;;; Keywords:   (>>>1<<<)
 ;;; URL:        not distributed yet
 ;;;
-;;; {{{ License:
+;;;{{{ License:
 ;;;
 ;;; This code is free software; you can redistribute it and/or modify
 ;;; it under the terms of the version 2.1 of the GNU Lesser General
@@ -33,11 +33,10 @@
 ;;; Software Foundation, Inc., 59 Temple Place, Suite  330, Boston, MA
 ;;; 02111-1307  USA
 ;;;
-;;; }}}
+;;;}}}
+;;;{{{ Commentary:
 ;;;
-;;; {{{ Commentary:
-;;;
-;;; }}}
+;;;}}}
 
 #+genera
 (error "Please do not load this file into a Symbolics system.
@@ -72,4 +71,3 @@ This is only for Common Lisp systems that support ASDF.")
 >>>TEMPLATE-DEFINITION-SECTION<<<
 ("TITLE" "Enter a description for this file: " "" "" "")
 ("PACKAGE" "Package to define (in UPPER CASE): " "" "" "")
-

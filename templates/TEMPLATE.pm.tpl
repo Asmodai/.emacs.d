@@ -13,7 +13,7 @@
 # Keywords:   
 # URL:        not distributed yet
 #
-# {{{ License:
+#{{{ License:
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -30,17 +30,17 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 # 02111-1307, USA.
 #
-# }}}
-# {{{ Commentary:
+#}}}
+#{{{ Commentary:
 #
-# }}}
+#}}}
 
 (>>>POINT<<<)
 
 1;
 __END__
 # ===================================================================
-# {{{ perldoc:
+#{{{ perldoc:
 
 =head1 NAME
 
@@ -60,10 +60,9 @@ Written by (>>>USER_NAME<<<) E<lt>(>>>AUTHOR<<<)E<gt>
 
 =cut
 
-# }}}
+#}}}
 # ===================================================================
 
 # (>>>FILE<<<) ends here
-
 >>>TEMPLATE-DEFINITION-SECTION<<<
 ("TITLE" "Enter a description for this file: " "" "" "")
