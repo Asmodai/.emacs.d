@@ -2,8 +2,8 @@
 ;;;
 ;;; site-lisp-mode.el --- Lisp mode hacks.
 ;;;
-;;; Time-stamp: <Sunday Jan 29, 2012 02:01:44 asmodai>
-;;; Revision:   22
+;;; Time-stamp: <Sunday Jan 29, 2012 17:32:53 asmodai>
+;;; Revision:   24
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -259,28 +259,56 @@ To see an example of the output, look at site-lisp-mode.el."
 ;;;{{{ Key bindings:
 
 ;;;
-;;; Key bindings for Franz' ELI mode.
-(when allegro-p
-  (global-set-key [(control f9)] 'start-allegro-cl)
-  (global-set-key [(control f10)] 'lisp-localhost))
+;;; Bindings for an Emacs that doesn't use a Symbolics keyboard
+(unless (featurep 'symbolics)
+  ;;
+  ;; Bindings for Franz' ELI mode.
+  (when allegro-p
+    (global-set-key [(control f9)] 'start-allegro-cl)
+    (global-set-key [(control f10)] 'lisp-localhost))
+  
+  ;;
+  ;; Bindings for SLIME.
+  (when slime-p
+    (global-set-key [(control f9)] 'slime)
+    (global-set-key [(control f10)] 'slime-connect)
+    (global-set-key (kbd "<backtab>") 'slime-complete-symbol)
+    (global-set-key [(meta r)] 'slime-reindent-region))
+  
+  ;;
+  ;; Bindings for our custom comments.
+  (when emacs>=19-p
+    (global-set-key [(f6)] 'make-group-lisp-comment)
+    (global-set-key [(f7)] 'make-major-lisp-comment)
+    (global-set-key [(f8)] 'make-minor-lisp-comment)
+    (global-set-key [(f9)] 'make-plain-lisp-comment)))
 
 ;;;
-;;; Key bindings for SLIME.
-(when slime-p
-  (global-set-key [(control f9)] 'slime)
-  (global-set-key [(control f10)] 'slime-connect)
-  (global-set-key (kbd "<backtab>") 'slime-complete-symbol)
-  (global-set-key [(meta r)] 'slime-reindent-region))
-
-;;;
-;;; Key bindings for comments.
-(when emacs>=19-p
-  (global-set-key [(f6)] 'make-group-lisp-comment)
-  (global-set-key [(f7)] 'make-major-lisp-comment)
-  (global-set-key [(f8)] 'make-minor-lisp-comment)
-  (global-set-key [(f9)] 'make-plain-lisp-comment))
-
-;;; TODO: Comment bindings for Emacs = 18.
+;;; Bindings for an Emacs that uses a Symbolics keyboard.
+(when (featurep 'symbolics)
+  ;;
+  ;; Bindings for Franz' ELI mode.
+  (when allegro-p
+    (global-set-key [(control f9)] 'start-allegro-cl)
+    (define-select-key "l" 'lisp-localhost))
+  
+  ;;
+  ;; Bindings for SLIME.
+  (when slime-p
+    (define-select-key "s" 'slime)
+    (define-select-key "l" 'slime-connect)
+    (global-set-key (kbd "<backtab>") 'slime-complete-symbol)
+    (global-set-key (vector +symbolics-complete-key+)
+                    'slime-complete-symbol)
+    (global-set-key [(meta r)] 'slime-reindent-retion))
+  
+  ;;
+  ;; Bindings for custom comments.
+  (when emacs>=19-p
+    (define-function-key "1" 'make-group-lisp-comment)
+    (define-function-key "2" 'make-major-lisp-comment)
+    (define-function-key "3" 'make-minor-lisp-comment)
+    (define-function-key "4" 'make-plain-lisp-comment)))
                   
 ;;;}}}
 ;;; ==================================================================
@@ -381,6 +409,7 @@ text.  Move the cursor to the new line."
       (company-mode t))
     (when (featurep 'highlight-parentheses)
       (hi-parens-autopair))
+    (eldoc-mode t)
     (show-paren-mode t)
     (auto-fill-mode t))
   
@@ -434,6 +463,8 @@ text.  Move the cursor to the new line."
       (company-mode t))
     (when (featurep 'highlight-parentheses)
       (hi-parens-autopair))
+    (when (eq major-mode 'emacs-lisp-mode)
+      (eldoc-mode t))
     (show-paren-mode t)
     (auto-fill-mode t)
     (show-paren-mode t))

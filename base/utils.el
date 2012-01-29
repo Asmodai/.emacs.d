@@ -2,8 +2,8 @@
 ;;;
 ;;; utils.el --- Various utilities
 ;;;
-;;; Time-stamp: <Sunday Jan 29, 2012 00:36:28 asmodai>
-;;; Revision:   11
+;;; Time-stamp: <Sunday Jan 29, 2012 17:49:40 asmodai>
+;;; Revision:   14
 ;;;
 ;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -58,7 +58,7 @@
 (defun %running-on (host)
   "Returns T if the strin given in HOST matches the string contained
 in `system-name'."
-  (string-match (concat "^" host) (system-name)))
+  (eq (string-match (concat "^" host) (system-name)) 0))
 
 (defconst running-on-lisp-machine-p
   (or (%running-on "lisp-machine")

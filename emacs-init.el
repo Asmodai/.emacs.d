@@ -2,8 +2,8 @@
 ;;;
 ;;; emacs-init.el --- Version-specific init code
 ;;;
-;;; Time-stamp: <Sunday Jan 29, 2012 01:54:10 asmodai>
-;;; Revision:   37
+;;; Time-stamp: <Sunday Jan 29, 2012 22:41:18 asmodai>
+;;; Revision:   44
 ;;;
 ;;; Copyright (c) 2012  <asmodai@gmail.com>
 ;;;
@@ -176,6 +176,17 @@
 (when emacs>=22-p
   (compile-load "paredit")
   
+  ;;
+  ;; TODO: Perhaps interrogate to see if the Symbolics keyboard is
+  ;; actually wired up to the machine :)
+  (when running-on-yorktown-p
+    (let ((synp (y-or-n-p-with-timeout
+                 "Are you using a Symbolics keyboard? "
+                 5
+                 nil)))
+      (when synp
+        (compile-load "symbolics"))))
+
   (when unix-p
     (require 'tramp))
   
@@ -315,7 +326,8 @@
   (compile-load "site-html-mode")
   (compile-load "site-perl-mode")
   (compile-load "site-ruby-mode")
-  (compile-load "site-erlang-mode"))
+  (compile-load "site-erlang-mode")
+  (compile-load "site-page-break-mode"))
 
 ;;;}}}
 ;;; ------------------------------------------------------------------
