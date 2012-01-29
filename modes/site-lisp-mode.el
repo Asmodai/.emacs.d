@@ -2,8 +2,8 @@
 ;;;
 ;;; site-lisp-mode.el --- Lisp mode hacks.
 ;;;
-;;; Time-stamp: <Sunday Jan 29, 2012 17:32:53 asmodai>
-;;; Revision:   24
+;;; Time-stamp: <Sunday Jan 29, 2012 22:53:14 asmodai>
+;;; Revision:   25
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -473,6 +473,7 @@ text.  Move the cursor to the new line."
   ;; Hooks for modes derived from emacs-lisp-mode
   (add-hook 'lisp-interaction-mode-hook 'my-interactive-lisp-mode-hooks)
   (add-hook 'inferior-lisp-mode-hook 'my-inferior-lisp-mode-hooks)
+  (add-hook 'ielm-mode-hook 'my-interactive-lisp-mode-hooks)
   (add-hook 'emacs-lisp-mode-hook 'my-lisp-mode-hooks)
   (add-hook 'lisp-mode-hook 'my-slime-lisp-mode-hooks)
   (add-hook 'scheme-mode-hook 'my-lisp-mode-hooks))
