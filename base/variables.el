@@ -2,8 +2,8 @@
 ;;;
 ;;; variables.el --- Various variables.
 ;;;
-;;; Time-stamp: <Monday Feb 21, 2011 22:30:43 asmodai>
-;;; Revision:   6
+;;; Time-stamp: <Sunday Jan 29, 2012 00:36:47 asmodai>
+;;; Revision:   8
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -13,7 +13,7 @@
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
-;;; {{{ License:
+;;;{{{ License:
 ;;;
 ;;; This program is free software: you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public
@@ -31,10 +31,12 @@
 ;;; License along with this program.  If not, see
 ;;; <http://www.gnu.org/licenses/>.
 ;;;
-;;; }}}
-;;; {{{ Commentary:
+;;;}}}
+;;;{{{ Commentary:
 ;;;
-;;; }}}
+;;;
+;;;
+;;;}}}
 
 (setq user-url-address          "http://unixware.kicks-ass.org/"
       user-full-name            "Paul Ward"
@@ -45,23 +47,23 @@
 ;;; GNU Emacs-specific settings
 (when emacs-p
   (setq scroll-step 1
-	find-function-source-path nil
-	font-menu-ignore-scale-fonts nil
-	lookup-syntax-properties nil
-	modeline-scrolling-method 'scrollbar))
+        find-function-source-path nil
+        font-menu-ignore-scale-fonts nil
+        lookup-syntax-properties nil
+        modeline-scrolling-method 'scrollbar))
 
 ;;;
 ;;; W3-specific settings
 (when (featurep 'w3)
   (setq browser-url-browser-function 'browse-url-w3
-	browse-url-new-window-flag t
-	browse-url-w3-new-window-is-tab t
-	browse-url-netscape-version 6
-	browse-url-save-file t))
+        browse-url-new-window-flag t
+        browse-url-w3-new-window-is-tab t
+        browse-url-netscape-version 6
+        browse-url-save-file t))
 
 ;;;
 ;;; Common settings
-(setq abbrev-mode t			; `abbrevs' needs to exist
+(setq abbrev-mode t                     ; `abbrevs' needs to exist
       complex-buffers-menu-p t
       zmacs-regions t
       buffers-menu-grouping-function

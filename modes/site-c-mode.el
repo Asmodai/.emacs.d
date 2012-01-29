@@ -2,8 +2,8 @@
 ;;;
 ;;; site-c-mode.el --- C mode hacks.
 ;;;
-;;; Time-stamp: <Tuesday Jan 24, 2012 00:13:48 asmodai>
-;;; Revision:   5
+;;; Time-stamp: <Sunday Jan 29, 2012 00:40:53 asmodai>
+;;; Revision:   6
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -13,7 +13,7 @@
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
-;;; {{{ License:
+;;;{{{ License:
 ;;;
 ;;; This program is free software: you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public
@@ -31,10 +31,10 @@
 ;;; License along with this program.  If not, see
 ;;; <http://www.gnu.org/licenses/>.
 ;;;
-;;; }}}
-;;; {{{ Commentary:
+;;;}}}
+;;;{{{ Commentary:
 ;;;
-;;; }}}
+;;;}}}
 
 ;;; Comment editing.
 (when emacs>=21-p
@@ -135,4 +135,3 @@
   (add-hook 'c-mode-common-hook 'my-common-c-mode-hooks))
 
 ;;; site-c-mode.el ends here
-

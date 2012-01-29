@@ -2,8 +2,8 @@
 ;;;
 ;;; utils.el --- Various utilities
 ;;;
-;;; Time-stamp: <Tuesday Jan 24, 2012 13:27:24 asmodai>
-;;; Revision:   10
+;;; Time-stamp: <Sunday Jan 29, 2012 00:36:28 asmodai>
+;;; Revision:   11
 ;;;
 ;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -13,7 +13,7 @@
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
-;;; {{{ License:
+;;;{{{ License:
 ;;;
 ;;; This program is free software: you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public
@@ -31,15 +31,15 @@
 ;;; License along with this program.  If not, see
 ;;; <http://www.gnu.org/licenses/>.
 ;;;
-;;; }}}
-;;; {{{ Commentary:
+;;;}}}
+;;;{{{ Commentary:
 ;;;
 ;;;
 ;;;
-;;; }}}
+;;;}}}
 
 ;;; ==================================================================
-;;; {{{ Machine predicates:
+;;;{{{ Machine predicates:
 
 ;;;
 ;;; Physical hosts:
@@ -86,11 +86,11 @@ in `system-name'."
 (defconst running-on-galaxy-p (%running-on "galaxy")
   "T if Emacs is running on `galaxy'.")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ General utilities:
+;;;{{{ General utilities:
 
 ;;;
 ;;; Port of `emacs-program-name' for emacsen other than XEmacs.
@@ -346,7 +346,7 @@ deactivation of the region."
            emacs>=20-p)
   (require 'msb))
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; utils.el ends here

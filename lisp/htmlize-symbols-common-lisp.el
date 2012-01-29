@@ -2,8 +2,8 @@
 ;;;
 ;;; htmlize-symbols-common-lisp.el --- Htmlize Common Lisp hacks
 ;;;
-;;; Time-stamp: <Monday Jan 23, 2012 23:42:11 asmodai>
-;;; Revision:   17
+;;; Time-stamp: <Sunday Jan 29, 2012 00:39:50 asmodai>
+;;; Revision:   18
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;; Copyright (c) 2007, Volkan YAZICI <volkan.yazici@gmail.com>
@@ -14,7 +14,7 @@
 ;;; Keywords:   
 ;;; URL:        http://unixware.kicks-ass.org/
 ;;;
-;;; {{{ License:
+;;;}}} License:
 ;;;
 ;;; Redistribution and use in source and binary forms, with or without
 ;;; modification, are  permitted provided that the following conditions are
@@ -39,22 +39,22 @@
 ;;; NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;
-;;; }}}
-;;; {{{ Commentary:
+;;;}}}
+;;;}}} Commentary:
 ;;;
-;;; }}}
+;;;}}}
 
 ;;; ==================================================================
-;;; {{{ Base URI:
+;;;}}} Base URI:
 
 (defvar *clhs-base-uri* "http://www.lispworks.com/reference/HyperSpec/"
   "Common Lisp HyperSpec URI.")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Symbols that already have font-lock info in Emacs:
+;;;}}} Symbols that already have font-lock info in Emacs:
 
 (defvar *clhs-no-font-lock*
   '(("defclass" . "Body/m_defcla.htm")
@@ -148,11 +148,11 @@
     ("signal" . "Body/f_signal.htm"))
   "Common Lisp symbols already handled by Emacs font locking.")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Lambda list keywords:
+;;;}}} Lambda list keywords:
 
 (defvar *clhs-lambda-list-keywords*
   '(("&amp;allow-other-keys" . "Body/03_da.htm")
@@ -165,11 +165,11 @@
     ("&amp;whole" . "Body/03_dd.htm"))
   "Common Lisp lambda list keywords")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Variables:
+;;;}}} Variables:
 
 (defvar *clhs-variables*
   '(("**" . "Body/v__stst_.htm")
@@ -284,11 +284,11 @@
     ("single-float-negative-epsilon" . "Body/v_short_.htm"))
   "Common Lisp variables.")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Ambiguous symbols:
+;;;}}} Ambiguous symbols:
 
 (defvar *clhs-ambiguous-symbols*
   '(("*" . "Body/a_st.htm")
@@ -327,11 +327,11 @@
     ("vector" . "Body/a_vector.htm"))
   "Common Lisp symbols that have ambiguity.")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Functions:
+;;;}}} Functions:
 
 (defvar *clhs-functions*
   '(("/=" . "Body/f_eq_sle.htm")
@@ -942,11 +942,11 @@
     ("zerop" . "Body/f_zerop.htm"))
   "Common Lisp functions.")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Macros:
+;;;}}} Macros:
 
 (defvar *clhs-macros*
   '(("call-method" . "Body/m_call_m.htm")
@@ -982,11 +982,11 @@
     ("untrace" . "Body/m_tracec.htm"))
   "Common Lisp macros.")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Types:
+;;;}}} Types:
 
 (defvar *clhs-types*
   '(("array" . "Body/t_array.htm")
@@ -1043,11 +1043,11 @@
     ("unsigned-byte" . "Body/t_unsgn_.htm"))
   "Common Lisp types.")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Conditions:
+;;;}}} Conditions:
 
 (defvar *clhs-conditions*
   '(("arithmetic-error" . "Body/e_arithm.htm")
@@ -1081,11 +1081,11 @@
     ("warning" . "Body/e_warnin.htm"))
   "Common Lisp conditions.")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Special operators:
+;;;}}} Special operators:
 
 (defvar *clhs-special-operators*
   '(("load-time-value" . "Body/s_ld_tim.htm")
@@ -1094,11 +1094,11 @@
     ("setq" . "Body/s_setq.htm"))
   "Common Lisp special operators.")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Declarations:
+;;;}}} Declarations:
 
 (defvar *clhs-declarations*
   '(("compilation-speed" . "Body/d_optimi.htm")
@@ -1117,7 +1117,7 @@
     ("speed" . "Body/d_optimi.htm"))
   "Common Lisp declarations.")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; These are the symbols that already have font-lock faces supplied

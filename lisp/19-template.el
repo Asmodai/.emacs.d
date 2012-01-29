@@ -1,9 +1,9 @@
 ;;; -*- Mode: Emacs-Lisp -*-
 ;;;
-;;; template.el --- Emacs 19 template insertion
+;;; 19-template.el --- Emacs 19 template insertion
 ;;;
-;;; Time-stamp: <Thursday Mar 10, 2011 13:05:24 asmodai>
-;;; Revision:   3
+;;; Time-stamp: <Sunday Jan 29, 2012 00:47:34 asmodai>
+;;; Revision:   4
 ;;;
 ;;; Copyright (c) 1998, 1999 Stefan Hornburg <racke@gundel.han.de>
 ;;; Copyright (c) 2011 Paul Ward <asmodai@gmail.com>
@@ -14,7 +14,7 @@
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
-;;; {{{ License:
+;;;{{{ License:
 ;;;
 ;;; This program is free software: you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public
@@ -32,17 +32,17 @@
 ;;; License along with this program.  If not, see
 ;;; <http://www.gnu.org/licenses/>.
 ;;;
-;;; }}}
-;;; {{{ Commentary:
+;;;}}}
+;;;{{{ Commentary:
 ;;;
-;;; }}}
+;;;}}}
 
 (eval-when-compile
   (require 'cl))
 
 (defvar *template-directory*
   (expand-file-name
-   ".emacs.d/19/templates/"
+   ".emacs.d/templates-19/"
    (home-path-for-system))
   "Default directory for templates.")
 

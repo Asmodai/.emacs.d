@@ -2,8 +2,8 @@
 ;;;
 ;;; site-lisp-mode.el --- Lisp mode hacks.
 ;;;
-;;; Time-stamp: <Thursday Jan 26, 2012 11:25:15 asmodai>
-;;; Revision:   16
+;;; Time-stamp: <Sunday Jan 29, 2012 00:45:57 asmodai>
+;;; Revision:   17
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -13,7 +13,7 @@
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
-;;; {{{ License:
+;;;{{{ License:
 ;;;
 ;;; This program is free software: you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public
@@ -31,10 +31,10 @@
 ;;; License along with this program.  If not, see
 ;;; <http://www.gnu.org/licenses/>.
 ;;;
-;;; }}}
-;;; {{{ Commentary:
+;;;}}}
+;;;{{{ Commentary:
 ;;;
-;;; }}}
+;;;}}}
 
 ;;;
 ;;; There are two inferior Lisp systems that could be used here:
@@ -58,7 +58,7 @@ Can be one of:
 `nil'       - Unsupported or old Lisp.")
 
 ;;; ==================================================================
-;;; {{{ Utilities and predicates:
+;;;{{{ Utilities and predicates:
 
 (defconst allegro-p
   (eq *interactive-lisp-mode* 'allegro)
@@ -82,11 +82,11 @@ Can be one of:
   (setq *interactive-lisp-mode* nil
         slime-p nil))
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Franz Allegro Common Lisp:
+;;;{{{ Franz Allegro Common Lisp:
 
 (when allegro-p
   ;;
@@ -153,11 +153,11 @@ Can be one of:
                                    "*common-lisp-localhost*"
                                    "~/.eli-startup")))
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ SLIME:
+;;;{{{ SLIME:
 
 (when slime-p
   ;;
@@ -186,11 +186,11 @@ Can be one of:
              '(slime slime-asdf slime-repl))))
     (slime-setup slime-packages)))
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Neat comments which should really be else-where:
+;;;{{{ Neat comments which should really be else-where:
 
 (defun my-comment-region (start end)
   "Comment the region defined by `start' and `end' with a \"correct\"
@@ -222,7 +222,8 @@ To see an example of the output, look at site-lisp-mode.el."
                     "{{{ " name ":\n\n"
                     "}}}\n"
                     chars "\n"))
-    (let ((end (point)))
+    (let ((end (point))
+          (comment-padding ""))
       (my-comment-region start end))))
 
 (defun make-group-lisp-comment (&rest args)
@@ -251,11 +252,11 @@ To see an example of the output, look at site-lisp-mode.el."
   (interactive "*")
   (my-insert-comment "Comment"))
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Key bindings:
+;;;{{{ Key bindings:
 
 ;;;
 ;;; Key bindings for Franz' ELI mode.
@@ -281,14 +282,14 @@ To see an example of the output, look at site-lisp-mode.el."
 
 ;;; TODO: Comment bindings for Emacs = 18.
                   
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Other mode hacks:
+;;;{{{ Other mode hacks:
 
 ;;; ------------------------------------------------------------------
-;;; {{{ Common Lisp indentation:
+;;;{{{ Common Lisp indentation:
 
 (when emacs>=19-p
   ;;
@@ -301,11 +302,11 @@ To see an example of the output, look at site-lisp-mode.el."
       (setq lisp-indent-function
             (function common-lisp-indent-function))))
 
-;;; }}}
+;;;}}}
 ;;; ------------------------------------------------------------------
 
 ;;; ------------------------------------------------------------------
-;;; {{{ ParEdit mode:
+;;;{{{ ParEdit mode:
 
 ;;;
 ;;; Configure the ParEdit sexpr editor
@@ -335,11 +336,11 @@ text.  Move the cursor to the new line."
 
   (global-set-key (kbd "RET") 'electrify-return-if-match))
 
-;;; }}}
+;;;}}}
 ;;; ------------------------------------------------------------------
 
 ;;; ------------------------------------------------------------------
-;;; {{{ Parenthesis highlighting:
+;;;{{{ Parenthesis highlighting:
 
 ;;;
 ;;; Configure parenthesis highlighting.
@@ -353,11 +354,11 @@ text.  Move the cursor to the new line."
                 '(lambda (action pair pos-before)
                   (hl-paren-color-update))))))
 
-;;; }}}
+;;;}}}
 ;;; ------------------------------------------------------------------
 
 ;;; ------------------------------------------------------------------
-;;; {{{ Other mode hooks:
+;;;{{{ Other mode hooks:
 
 ;;;
 ;;; Hooks for auto-fill, font-lock, and SLIME.
@@ -429,10 +430,10 @@ text.  Move the cursor to the new line."
   (add-hook 'lisp-mode-hook 'my-lisp-mode-hooks)
   (add-hook 'scheme-mode-hook 'my-lisp-mode-hooks))
 
-;;; }}}
+;;;}}}
 ;;; ------------------------------------------------------------------
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; site-lisp-mode.el ends here

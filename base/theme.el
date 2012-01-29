@@ -2,8 +2,8 @@
 ;;;
 ;;; theme.el --- Emacs colour theme.
 ;;;
-;;; Time-stamp: <Monday Jan 23, 2012 19:06:42 asmodai>
-;;; Revision:   26
+;;; Time-stamp: <Sunday Jan 29, 2012 00:35:56 asmodai>
+;;; Revision:   27
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -13,7 +13,7 @@
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
-;;; {{{ License:
+;;;{{{ License:
 ;;;
 ;;; This program is free software: you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public
@@ -31,13 +31,15 @@
 ;;; License along with this program.  If not, see
 ;;; <http://www.gnu.org/licenses/>.
 ;;;
-;;; }}}
-;;; {{{ Commentary:
+;;;}}}
+;;;{{{ Commentary:
 ;;;
-;;; }}}
+;;;
+;;;
+;;;}}}
 
 ;;; ==================================================================
-;;; {{{ Basic UI elements:
+;;;{{{ Basic UI elements:
 
 (when (fboundp 'set-background-color)
   (set-background-color "black"))
@@ -51,11 +53,11 @@
 (when (fboundp 'set-border-color)
   (set-border-color "black"))
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Faces:
+;;;{{{ Faces:
 
 ;;; The following faces are missing in Emacs 21.
 (when emacs=21-p
@@ -70,11 +72,11 @@
     "Font Lock mode face used to highlight comment delimiters."
     :group 'font-lock-faces))
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Theme:
+;;;{{{ Theme:
 
 ;;; Only if we're on Emacs>=20
 (when emacs>=20-p
@@ -92,7 +94,7 @@
           ;; have Consolas.
           '(default ((t (:family "DejaVu Sans Mono"
                          :size 9
-			 :height 90
+ :height 90
                          :background "black"
                          :foreground "white")))))
          ((and windows-p (not windows-nt-p))
@@ -102,7 +104,7 @@
           ;; later on.
           '(default ((t (:family "Courier New"
                          :size 9
-			 :height 90
+ :height 90
                          :background "black"
                          :foreground "white")))))
          ((and unix-p                   ; Unix
@@ -142,10 +144,10 @@
          (t
           ;; Give up and let Emacs decide.
           '(default ((t (:size 9
-			 :height 90
+ :height 90
                          :background "black"
                          :foreground "white"))))))
-   ;;; {{{ UI elements:
+   ;;;{{{ UI elements:
    '(blank-space-face ((t (nil))))
    '(blank-tab-face ((t (nil))))
    '(border ((t (nil))))
@@ -186,15 +188,15 @@
    '(vcursor ((t (:background "lawngreen"))))
    '(vertical-divider ((t (:background "gray70" :foreground "black"))))
    '(zmacs-region ((t (:background "gray20" :foreground "yellow"))))
-   ;;; }}}
-   ;;; {{{ Standard font-lock faces:
+   ;;;}}}
+   ;;;{{{ Standard font-lock faces:
    '(bold ((t (:bold t))))
    '(bold-italic ((t (:italic t
                       :bold t))))
    '(italic ((t (:italic t))))
    '(underline ((t (:underline t))))
-   ;;; }}}
-   ;;; {{{ Common colours:
+   ;;;}}}
+   ;;;{{{ Common colours:
    '(blue ((t (:foreground "blue"))))
    '(cyan ((t (:foreground "cyan"))))
    '(green ((t (:foreground "green"))))
@@ -202,8 +204,8 @@
    '(red ((t (:foreground "red"))))
    '(white ((t (:foreground "white"))))
    '(yellow ((t (:foreground "yellow"))))
-   ;;; }}}
-   ;;; {{{ Font-lock colours:
+   ;;;}}}
+   ;;;{{{ Font-lock colours:
    '(font-lock-builtin-face ((t (:foreground "mediumorchid"))))
    '(font-lock-comment-delimiter-face ((t (:foreground "steelblue"))))
    '(font-lock-comment-face ((t (:foreground "mediumaquamarine"))))
@@ -221,8 +223,8 @@
    '(font-lock-variable-name-face ((t (:foreground "orangered"
                                        :bold t))))
    '(font-lock-warning-face ((t (:foreground "red" :bold t))))
-   ;;; }}}
-   ;;; {{{ Widget faces:
+   ;;;}}}
+   ;;;{{{ Widget faces:
    '(widget-button ((t (:bold t))))
    '(widget-button-face ((t (:background "gray10" :bold t))))
    '(widget-button-pressed-face ((t (:foreground "red"))))
@@ -231,8 +233,8 @@
    '(widget-field-face ((t (:background "gray15"))))
    '(widget-inactive-face ((t (:foreground "gray40" :background "gray10"))))
    '(widget-single-line-field-face ((t (:background "gray15"))))
-   ;;; }}}
-   ;;; {{{ Customize faces:
+   ;;;}}}
+   ;;;{{{ Customize faces:
    '(custom-button ((t (:bold t))))
    '(custom-comment ((t (:background "gray15"))))
    '(custom-documentation ((t (:foreground "green2"))))
@@ -258,13 +260,13 @@
    '(custom-invalid-face ((t (:foreground "yellow" :background "red"))))
    '(custom-saved-face ((t (:underline t))))
    '(custom-rogue-face ((t (:foreground "pink" :background "black"))))
-   ;;; }}}
-   ;;; {{{ ISearch faces:
+   ;;;}}}
+   ;;;{{{ ISearch faces:
    '(isearch ((t (:background "gray10" :foreground "azure"))))
    '(isearch-secondary ((t (:foreground "red3"))))
    '(isearch-fail ((t (:foreground "red" :bold t))))
-   ;;; }}}
-   ;;; {{{ CPerl faces:
+   ;;;}}}
+   ;;;{{{ CPerl faces:
    '(cperl-array-face ((t (:foreground "skyblue" :bold t))))
    '(cperl-hash-face ((t (:foreground "hotpink" :bold t))))
    '(cperl-nonoverridable-face ((t (:foreground "chartreuse3"))))
@@ -272,11 +274,11 @@
                           :bold t))))
    '(cperl-pod-head-face ((t (:foreground "green3"))))
    '(cperl-pod-face ((t (:foreground "firebrick"))))
-   ;;; }}}
-   ;;; {{{ Dired faces:
+   ;;;}}}
+   ;;;{{{ Dired faces:
    '(dired-face-directory ((t (:bold t))))
-   ;;; }}}
-   ;;; {{{ ERC faces:
+   ;;;}}}
+   ;;;{{{ ERC faces:
    '(erc-capab-identify-unidentified ((t (:foreground "firebrick"))))
    '(erc-current-nick-face ((t (:foreground "turquoise" :bold t))))
    '(erc-header-line ((t (:background "gray30" :foreground "gray70"))))
@@ -288,23 +290,23 @@
                           :foreground "lightblue2"
                           :bold t))))
    '(erc-timestamp-face ((t (:foreground "green4" :bold t))))
-   ;;; }}}
-   ;;; {{{ Paren faces:
+   ;;;}}}
+   ;;;{{{ Paren faces:
    '(show-paren-match ((t (:background "gray15"
                            :foreground "lawngreen"
                            :bold t))))
    '(show-paren-mismatch ((t (:background "gray15"
                               :foreground "red"
                               :bold t))))
-   ;;; }}}
-   ;;; {{{ Browser faces:
+   ;;;}}}
+   ;;;{{{ Browser faces:
    '(link ((t (:foreground "slateblue" :underline t))))
    '(link-visited ((t (:foreground "magenta3" :underline t))))
-   ;;; }}}
-   ;;; {{{ IBuffer faces:
+   ;;;}}}
+   ;;;{{{ IBuffer faces:
    '(ibuffer-occur-match-face ((t (:foreground "firebrick"))))
-   ;;; }}}
-   ;;; {{{ Hyper-Apropos faces:
+   ;;;}}}
+   ;;;{{{ Hyper-Apropos faces:
    '(hyper-apropos-major-heading ((t (:foreground "steelblue"
                                       :bold t))))
    '(hyper-apropos-section-heading ((t (:foreground "cadetblue"
@@ -314,15 +316,15 @@
    '(hyper-apropos-hyperlink ((t (:foreground "slateblue"
                                   :underline t))))
    '(hyper-apropos-warning ((t (:foreground "red" :bold t))))
-   ;;; }}}
-   ;;; {{{ Info faces:
+   ;;;}}}
+   ;;;{{{ Info faces:
    '(info-xref ((t (:foreground "slateblue" :bold t :underline t))))
    '(info-node ((t (:foreground "steelblue" :bold t))))
-   ;;; }}}
-   ;;; {{{ Man viewer faces:   (n.b. not woman)
+   ;;;}}}
+   ;;;{{{ Man viewer faces:   (n.b. not woman)
    '(man-italic ((t (:foreground "blanchedalmond" :italic t))))
-   ;;; }}}
-   ;;; {{{ SLIME faces:
+   ;;;}}}
+   ;;;{{{ SLIME faces:
    '(sldb-restart-number-face ((t (:bold t))))
    '(slime-inspector-value-face ((t (:foreground "mediumblue"
                                      :bold t))))
@@ -330,20 +332,20 @@
                                         :bold t))))
    '(slime-repl-input-face ((t (:bold t))))
    '(slime-repl-output-mouseover-face ((t (:bold t))))
-   ;;; }}}
-   ;;; {{{ `About' faces:
+   ;;;}}}
+   ;;;{{{ `About' faces:
    '(about-headling-face ((t (:foreground "hotpink" :bold t))))
    '(about-link-face ((t (:foreground "steelblue" :underline t))))
-   ;;; }}}
-   ;;; {{{ Calendar faces:
+   ;;;}}}
+   ;;;{{{ Calendar faces:
    '(calendar-today-face ((t (:foreground "hotpink" :bold t))))
-   ;;; }}}
-   ;;; {{{ LaTeX faces:
+   ;;;}}}
+   ;;;{{{ LaTeX faces:
    '(font-latex-verbatim-face ((t (:foreground "salmon" :bold t))))
-   ;;; }}}
+   ;;;}}}
    ))
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; theme.el ends here

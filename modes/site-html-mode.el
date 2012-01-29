@@ -2,8 +2,8 @@
 ;;;
 ;;; site-html-mode.el --- HTML mode hacks.
 ;;;
-;;; Time-stamp: <Tuesday Jan 24, 2012 01:39:48 asmodai>
-;;; Revision:   10
+;;; Time-stamp: <Sunday Jan 29, 2012 00:41:37 asmodai>
+;;; Revision:   11
 ;;;
 ;;; Copyright (c) 2006-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -13,7 +13,7 @@
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
-;;; {{{ License:
+;;;{{{ License:
 ;;;
 ;;; This code is free software; you can redistribute it and/or modify
 ;;; it under the terms of the version 2.1 of the GNU Lesser General
@@ -33,11 +33,11 @@
 ;;; Software Foundation, Inc., 59 Temple Place, Suite  330, Boston, MA
 ;;; 02111-1307  USA
 ;;;
-;;; }}}
+;;;}}}
 ;;;
-;;; {{{ Commentary:
+;;;{{{ Commentary:
 ;;;
-;;; }}}
+;;;}}}
 
 (autoload 'css-mode "css-mode")
 
@@ -47,7 +47,7 @@
 (add-hook 'html-helper-timestamp-hook 'html-helper-default-insert-timestamp)
 
 ;;; ==================================================================
-;;; {{{ HTML Tidy (Unix only):
+;;;{{{ HTML Tidy (Unix only):
 
 (if unix-p
     (defun tidy-buffer ()
@@ -63,11 +63,11 @@
       (delete-file "/tmp/tidy-errors")
       (message "HTML Tidy applied to buffer.")))
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ htmlize/htmlfontify:
+;;;{{{ htmlize/htmlfontify:
 
 (eval-and-compile
   (progn
@@ -135,7 +135,7 @@
 (add-hook 'htmlize-after-hook '(lambda ()
                                 (font-lock-fontify-buffer)))
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; site-html-mode.el ends here

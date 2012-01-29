@@ -2,8 +2,8 @@
 ;;;
 ;;; licenses.el --- Boilerplate license insertion
 ;;;
-;;; Time-stamp: <Monday Jan 23, 2012 23:41:54 asmodai>
-;;; Revision:   2
+;;; Time-stamp: <Sunday Jan 29, 2012 00:40:20 asmodai>
+;;; Revision:   3
 ;;;
 ;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -13,7 +13,7 @@
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
-;;; {{{ License:
+;;;{{{ License:
 ;;;
 ;;; This program is free software: you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public
@@ -31,10 +31,10 @@
 ;;; License along with this program.  If not, see
 ;;; <http://www.gnu.org/licenses/>.
 ;;;
-;;; }}}
-;;; {{{ Commentary:
+;;;}}}
+;;;{{{ Commentary:
 ;;;
-;;; }}}
+;;;}}}
 
 (require 'easymenu)
 (require 'cl)
@@ -45,10 +45,10 @@
   "The default license to insert should none be chosen.")
 
 ;;; ==================================================================
-;;; {{{ Licenses:
+;;;{{{ Licenses:
 
 ;;; ------------------------------------------------------------------
-;;; {{{ GNU General Public License v2.0:
+;;;{{{ GNU General Public License v2.0:
 
 (defconst licenses-gnu-gpl-2.0
   (concat
@@ -68,11 +68,11 @@
    "02111-1307, USA.\n")
   "GNU GPL v2.0")
 
-;;; }}}
+;;;}}}
 ;;; ------------------------------------------------------------------
 
 ;;; ------------------------------------------------------------------
-;;; {{{ GNU General Public License v3.0:
+;;;{{{ GNU General Public License v3.0:
 
 (defconst licenses-gnu-gpl-3.0
   (concat
@@ -93,11 +93,11 @@
    "<http://www.gnu.org/licenses/>.\n")
   "GNU GPL v3.0")
 
-;;; }}}
+;;;}}}
 ;;; ------------------------------------------------------------------
 
 ;;; ------------------------------------------------------------------
-;;; {{{ GNU Lesser General Public License v2.1:
+;;;{{{ GNU Lesser General Public License v2.1:
 
 (defconst licenses-gnu-lgpl
   (concat
@@ -117,11 +117,11 @@
    "02111-1307  USA\n")
   "GNU LGPL 2.1")
 
-;;; }}}
+;;;}}}
 ;;; ------------------------------------------------------------------
 
 ;;; ------------------------------------------------------------------
-;;; {{{ Franz Lisp GNU Lesser General Public License:
+;;;{{{ Franz Lisp GNU Lesser General Public License:
 
 (defconst licenses-franz-llgpl
   (concat
@@ -145,11 +145,11 @@
    "Place, Suite 330, Boston, MA  02111-1307  USA\n")
   "Franz Lisp LGPL")
 
-;;; }}}
+;;;}}}
 ;;; ------------------------------------------------------------------
 
 ;;; ------------------------------------------------------------------
-;;; {{{ GNU Free Documentation License:
+;;;{{{ GNU Free Documentation License:
 
 (defconst licenses-gnu-fdl
   (concat
@@ -162,11 +162,11 @@
    "Free Documentation License\".\n")
   "GNU FDL")
 
-;;; }}}
+;;;}}}
 ;;; ------------------------------------------------------------------
 
 ;;; ------------------------------------------------------------------
-;;; {{{ MIT License:
+;;;{{{ MIT License:
 
 (defconst licenses-mit
   (concat
@@ -191,11 +191,11 @@
    "SOFTWARE.")
   "MIT")
 
-;;; }}}
+;;;}}}
 ;;; ------------------------------------------------------------------
 
 ;;; ------------------------------------------------------------------
-;;; {{{ BSD License:
+;;;{{{ BSD License:
 
 (defconst licenses-bsd
   (concat
@@ -223,15 +223,15 @@
    "SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n")
   "New BSD")
 
-;;; }}}
+;;;}}}
 ;;; ------------------------------------------------------------------
 
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Function:
+;;;{{{ Function:
 
 (defun licenses (lictype)
   "Insert a license into the current buffer at the current point."
@@ -261,7 +261,7 @@
             ((string= option "bsd") (insert-string licenses-bsd))))))
 
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 (provide 'licenses)

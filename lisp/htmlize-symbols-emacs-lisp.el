@@ -2,8 +2,8 @@
 ;;;
 ;;; htmlize-symbols-emacs-lisp.el --- Htmlize Emacs Lisp hacks
 ;;;
-;;; Time-stamp: <Monday Jan 23, 2012 23:42:05 asmodai>
-;;; Revision:   18
+;;; Time-stamp: <Sunday Jan 29, 2012 00:38:44 asmodai>
+;;; Revision:   19
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;; Copyright (c) 2007, Volkan YAZICI <volkan.yazici@gmail.com>
@@ -14,7 +14,7 @@
 ;;; Keywords:   
 ;;; URL:        http://unixware.kicks-ass.org/
 ;;;
-;;; {{{ License:
+;;;{{{ License:
 ;;;
 ;;; This program is free software: you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public
@@ -32,34 +32,34 @@
 ;;; License along with this program.  If not, see
 ;;; <http://www.gnu.org/licenses/>.
 ;;;
-;;; }}}
-;;; {{{ Commentary:
+;;;}}}
+;;;{{{ Commentary:
 ;;;
-;;; }}}
+;;;}}}
 
 ;;; ==================================================================
-;;; {{{ Base URI:
+;;;{{{ Base URI:
 
 (defvar *elisp-base-uri*
   "http://www.gnu.org/software/emacs/manual/html_node/"
   "Emacs Lisp documentation base URI.")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Lambda list keywords:
+;;;{{{ Lambda list keywords:
 
 (defvar *elisp-argument-list-keywords*
   '(("&amp;optional" . "elisp/Argument-List.html#Argument-List")
     ("&amp;rest" . "elisp/Argument-List.html#Argument-List"))
   "Emacs Lisp argument list keywords")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Custom faces:
+;;;{{{ Custom faces:
 
 (defvar custom-font-lock-emacs-command-face 
   'custom-font-lock-emacs-command-face
@@ -73,11 +73,11 @@
   "Font Lock mode face used to highlight Emacs commands."
   :group 'font-lock-faces)
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Emacs commands:
+;;;{{{ Emacs commands:
 
 (defvar *elisp-commands*
   '(("abbrev-prefix-mark" . "elisp/Abbrev-Expansion.html#index-abbrev_002dprefix_002dmark-3151")
@@ -342,11 +342,11 @@
     ("yank-pop" . "elisp/Yank-Commands.html#index-yank_002dpop-2558"))
   "Emacs commands.")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Emacs Lisp builtins:
+;;;{{{ Emacs Lisp builtins:
 
 (defvar *elisp-builtins*
   '(("defcustom" . "elisp/Variable-Definitions.html#index-defcustom-766")
@@ -452,11 +452,11 @@
     ("proclaim" . "cl/Declarations.html#index-proclaim-58"))
   "Emacs Lisp builtins.")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Emacs Lisp macros:
+;;;{{{ Emacs Lisp macros:
 
 (defvar *elisp-macros*
   '(("1value" . "elisp/Test-Coverage.html#index-g_t1value-1021")
@@ -485,11 +485,11 @@
   "Emacs Lisp macros.")
 
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Emacs Lisp functions (part 1):
+;;;{{{ Emacs Lisp functions (part 1):
 
 (defvar *elisp-functions*
   '(("1+" . "elisp/Arithmetic-Operations.html#index-g_t1_002b-174")
@@ -1631,11 +1631,11 @@
     ("upcase-initials" . "elisp/Case-Conversion.html#index-upcase_002dinitials-274"))
   "Emacs Lisp functions.")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Emacs Lisp functions (part 2):
+;;;{{{ Emacs Lisp functions (part 2):
 
 (defvar *elisp-functions-2*
   '(("use-global-map" . "elisp/Controlling-Active-Maps.html#index-use_002dglobal_002dmap-1492")
@@ -1713,11 +1713,11 @@
     ("zerop" . "elisp/Predicates-on-Numbers.html#index-zerop-151"))
   "Emacs Lisp Functions (continuation)")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Emacs Lisp functions (part 3):
+;;;{{{ Emacs Lisp functions (part 3):
 
 (defvar *elisp-functions-3*
   '(("acons" . "cl/Association-Lists.html#index-acons-179")
@@ -1847,15 +1847,15 @@
     ("cddddr" . "cl/List-Functions.html#index-caddr-141"))
   "Emacs Lisp functions (continuation)")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Emacs Lisp special forms:
+;;;{{{ Emacs Lisp special forms:
 
 (defvar *elisp-special-forms*
   '(
-    ;;; {{{ Special forms:
+    ;;;{{{ Special forms:
     ("and" . "elisp/Combining-Conditions.html#index-and-535")
     ("function" . "elisp/Anonymous-Functions.html#index-function-710")
     ("interactive" . "elisp/Using-Interactive.html#index-interactive-1209")
@@ -1864,8 +1864,8 @@
     ("quote" . "elisp/Quoting.html#index-quote-510")
     ("setq" . "elisp/Setting-Variables.html#index-setq-608")
     ("setq-default" . "elisp/Default-Value.html#index-setq_002ddefault-635")
-    ;;; }}}
-    ;;; {{{ Common Lisp special forms:
+    ;;;}}}
+    ;;;{{{ Common Lisp special forms:
     ("callf" . "cl/Modify-Macros.html#index-callf-24")
     ("callf2" . "cl/Modify-Macros.html#index-callf2-25")
     ("decf" . "cl/Modify-Macros.html#index-decf-16")
@@ -1886,19 +1886,19 @@
     ("rotatef" . "cl/Modify-Macros.html#index-rotatef-21")
     ("setf" . "cl/Basic-Setf.html#index-setf-13")
     ("shiftf" . "cl/Modify-Macros.html#index-shiftf-20")
-    ;;; }}}
+    ;;;}}}
     )
   "Emacs Lisp special forms.")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Emacs Lisp variables:
+;;;{{{ Emacs Lisp variables:
 
 (defvar *elisp-variables*
   '(
-    ;;; {{{ Variables:
+    ;;;{{{ Variables:
     ("t" . "elisp/nil-and-t.html#index-g_t_0040code_007bnil_007d-11")
     ("nil" . "elisp/nil-and-t.html#index-g_t_0040code_007bnil_007d-11")
     ("abbrev-expand-functions" . "elisp/Abbrev-Expansion.html#index-abbrev_002dexpand_002dfunctions-3158")
@@ -2327,8 +2327,8 @@
     ("x-super-keysym" . "elisp/X11-Keysyms.html#index-x_002dsuper_002dkeysym-3813")
     ("yank-undo-function" . "elisp/Yank-Commands.html#index-yank_002dundo_002dfunction-2559")
 
-    ;;; }}}
-    ;;; {{{ Common Lisp variables:
+    ;;;}}}
+    ;;;{{{ Common Lisp variables:
     ("*gensym-counter*" . "cl/Creating-Symbols.html#index-g_t_002agensym_002dcounter_002a-68")
     ("*random-state*" . "cl/Random-Numbers.html#index-g_t_002arandom_002dstate_002a-85")
     ("most-positive-float" . "cl/Implementation-Parameters.html#index-most_002dpositive_002dfloat-89")
@@ -2339,11 +2339,11 @@
     ("least-negative-normalized-float" . "cl/Implementation-Parameters.html#index-least_002dnegative_002dnormalized_002dfloat-94")
     ("float-epsilon" . "cl/Implementation-Parameters.html#index-float_002depsilon-95")
     ("float-negative-epsilon" . "cl/Implementation-Parameters.html#index-float_002dnegative_002depsilon-96")
-    ;;; }}}
+    ;;;}}}
     )
   "Emacs Lisp variables.")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; These are our symbols that already have font-lock faces supplied

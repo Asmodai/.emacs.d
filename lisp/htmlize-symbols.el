@@ -2,8 +2,8 @@
 ;;;
 ;;; htmlize-symbols.el --- Htmlize symbol hacks
 ;;;
-;;; Time-stamp: <Monday Jan 23, 2012 23:42:31 asmodai>
-;;; Revision:   28
+;;; Time-stamp: <Sunday Jan 29, 2012 00:37:28 asmodai>
+;;; Revision:   29
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;; Copyright (c) 2007, Volkan YAZICI <volkan.yazici@gmail.com>
@@ -14,7 +14,7 @@
 ;;; Keywords:   
 ;;; URL:        http://unixware.kicks-ass.org/
 ;;;
-;;; {{{ License:
+;;;{{{ License:
 ;;;
 ;;; Redistribution and use in source and binary forms, with or without
 ;;; modification, are  permitted provided that the following conditions are
@@ -39,15 +39,15 @@
 ;;; NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;
-;;; }}}
-;;; {{{ Commentary:
+;;;}}}
+;;;{{{ Commentary:
 ;;;
 ;;; This is is a modification of the functions in `htmlize.sh'.
 ;;;
 ;;; This does not do any font-lock clobbering, we should let Emacs determine
 ;;; what is a keyword, builtin, variable etc.
 ;;;
-;;; }}}
+;;;}}}
 
 (defun symbols->font-lock-keywords (symbols face)
   (list

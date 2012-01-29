@@ -2,8 +2,8 @@
 ;;;
 ;;; init.el --- Emacs initialisation file.
 ;;;
-;;; Time-stamp: <Tuesday Jan 24, 2012 18:49:20 asmodai>
-;;; Revision:   89
+;;; Time-stamp: <Sunday Jan 29, 2012 00:32:49 asmodai>
+;;; Revision:   90
 ;;;
 ;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -13,7 +13,7 @@
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
-;;; {{{ License:
+;;;{{{ License:
 ;;;
 ;;; This program is free software: you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public
@@ -31,17 +31,19 @@
 ;;; License along with this program.  If not, see
 ;;; <http://www.gnu.org/licenses/>.
 ;;;
-;;; }}}
-;;; {{{ Commentary:
+;;;}}}
+;;;{{{ Commentary:
 ;;;
 ;;; NOTICE:  This file is never bytecompiled.
 ;;;
 ;;; Emacsen this has been tested on:
+;;;   GNU Emacs 23.2.3       Windows 7
+;;;   GNU Emacs 23.3.1       Windows 7
 ;;;
-;;; }}}
+;;;}}}
 
 ;;; ==================================================================
-;;; {{{ Initial settings (removes startup messages et al):
+;;;{{{ Initial settings (removes startup messages et al):
 
 ;;;
 ;;; This will be the initial scratch buffer message.
@@ -64,11 +66,11 @@
 ;;; Copy this at your peril.
 (setq inhibit-startup-echo-area-message "asmodai")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Required elisp:
+;;;{{{ Required elisp:
 
 ;;;
 ;;; this is going to be quite hairy.  The Emacs we are running with
@@ -81,7 +83,7 @@
 ;;;
 
 ;;; ------------------------------------------------------------------
-;;; {{{ GNU Emacs 18 support:
+;;;{{{ GNU Emacs 18 support:
 
 ;;;
 ;;; These are functions I deen necessary to have available in order to
@@ -112,14 +114,14 @@
     (defmacro when (pred &rest body)
       (list 'cond (cons pred body))))
 
-;;; }}}
+;;;}}}
 ;;; ------------------------------------------------------------------
 
 ;;; ------------------------------------------------------------------
-;;; {{{ Predicates:
+;;;{{{ Predicates:
 
 ;;; ..................................................................
-;;; {{{ Flavour predicates:
+;;;{{{ Flavour predicates:
 
 (defconst xemacs-p
   (featurep 'xemacs)
@@ -129,13 +131,13 @@
   (not xemacs-p)
   "T if we are running in GNU Emacs.")
 
-;;; }}}
+;;;}}}
 ;;; ..................................................................
 
 ;;; ..................................................................
-;;; {{{ Version predicates:
+;;;{{{ Version predicates:
 
-;;; {{{ GNU Emacs:
+;;;{{{ GNU Emacs:
 
 (defconst emacs=18-p
   (and (not xemacs-p)
@@ -197,9 +199,9 @@
        (>= emacs-major-version 23))
   "T if we are running in GNU Emacs 23 or higher.")
 
-;;; }}}
+;;;}}}
 
-;;; {{{ XEmacs:
+;;;{{{ XEmacs:
 
 (defconst xemacs=19-p
   (and xemacs-p
@@ -231,13 +233,13 @@
        (>= emacs-major-version 21))
   "T if we are running in XEmacs 21 or higher.")
 
-;;; }}}
+;;;}}}
 
-;;; }}}
+;;;}}}
 ;;; ..................................................................
 
 ;;; ..................................................................
-;;; {{{ Operating System predicates:
+;;;{{{ Operating System predicates:
 
 (defconst windows-32-p
   (memq system-type '(ms-windows win386))
@@ -300,11 +302,11 @@
   (eq system-type 'emx)
   "T if we are running atop the EMX emulation layer.")
 
-;;; }}}
+;;;}}}
 ;;; ..................................................................
 
 ;;; ..................................................................
-;;; {{{ Windowing system predicates:
+;;;{{{ Windowing system predicates:
 
 (defconst x-windows-p
   (eq window-system 'x)
@@ -322,11 +324,11 @@
   (eq window-system nil)
   "T if we are running in a text-based terminal of some sort.")
 
-;;; }}}
+;;;}}}
 ;;; ..................................................................
 
 ;;; ..................................................................
-;;; {{{ Toolkit predicates:
+;;;{{{ Toolkit predicates:
 
 (defconst motif-p
   (featurep 'motif)
@@ -336,14 +338,14 @@
   (featurep 'x-toolkit)
   "T if this Emacs was built using the X Toolkit.")
 
-;;; }}}
+;;;}}}
 ;;; ..................................................................
 
-;;; }}}
+;;;}}}
 ;;; ------------------------------------------------------------------
 
 ;;; ------------------------------------------------------------------
-;;; {{{ User home directory resolution:
+;;;{{{ User home directory resolution:
 
 (defun home-path-for-system ()
   (cond
@@ -382,11 +384,11 @@
          (setq dir "C:\\"))
        dir))))
 
-;;; }}}
+;;;}}}
 ;;; ------------------------------------------------------------------
 
 ;;; ------------------------------------------------------------------
-;;; {{{ Configure `load-path':
+;;;{{{ Configure `load-path':
 
 (defvar default-load-paths
   '((t            . ".emacs.d/")        ; init.el directory.
@@ -432,11 +434,11 @@
                                load-path))))))
         default-load-paths)
 
-;;; }}}
+;;;}}}
 ;;; ------------------------------------------------------------------
 
 ;;; ------------------------------------------------------------------
-;;; {{{ Configure `custom-load-paths':
+;;;{{{ Configure `custom-load-paths':
 
 (defvar custom-load-paths
   '(;;
@@ -521,11 +523,11 @@
           xemacs>=19-p)
   (require 'cl))
 
-;;; }}}
+;;;}}}
 ;;; ------------------------------------------------------------------
 
 ;;; ------------------------------------------------------------------
-;;; {{{ Configure `custom-file':
+;;;{{{ Configure `custom-file':
 
 (setq custom-file
       (expand-file-name
@@ -541,11 +543,11 @@
          (xemacs=21-p    ".emacs.d/custom/custom-x21.el"))
        (home-path-for-system)))
 
-;;; }}}
+;;;}}}
 ;;; ------------------------------------------------------------------
 
 ;;; ------------------------------------------------------------------
-;;; {{{ Missing functionality in GNU Emacs:
+;;;{{{ Missing functionality in GNU Emacs:
 
 ;;;
 ;;; If we are on GNU Emacs 20.x then we need to deal with the fact
@@ -559,14 +561,14 @@
   (defalias 'font-lock-unfontify-buffer 'ignore)
   (require 'font-lock))
 
-;;; }}}
+;;;}}}
 ;;; ------------------------------------------------------------------
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Bytecode compiler hacks:
+;;;{{{ Bytecode compiler hacks:
 
 ;;;
 ;;; The bytecode cache directory is version-specific.
@@ -590,11 +592,11 @@ version.")
 ;;; Load in our bytecode compiler hacks.
 (load "bytecode")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Startup:
+;;;{{{ Startup:
 
 ;;;
 ;;; We're done with setting up Emacs Lisp, now's the time to actually
@@ -628,7 +630,7 @@ version.")
 ;;; Tell the user that we're done
 (message "Emacs is ready, happy hacking!")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; init.el ends here.

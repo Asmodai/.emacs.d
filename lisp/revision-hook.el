@@ -2,8 +2,8 @@
 ;;;
 ;;; revision-hook.el --- File revision hook.
 ;;;
-;;; Time-stamp: <Monday Jan 23, 2012 23:41:48 asmodai>
-;;; Revision:   2
+;;; Time-stamp: <Sunday Jan 29, 2012 00:40:32 asmodai>
+;;; Revision:   3
 ;;;
 ;;; Copyright (c) 2011-12 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -13,7 +13,7 @@
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
-;;; {{{ License:
+;;;{{{ License:
 ;;;
 ;;; This program is free software: you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public
@@ -31,10 +31,10 @@
 ;;; License along with this program.  If not, see
 ;;; <http://www.gnu.org/licenses/>.
 ;;;
-;;; }}}
-;;; {{{ Commentary:
+;;;}}}
+;;;{{{ Commentary:
 ;;;
-;;; }}}
+;;;}}}
 
 (eval-when-compile
   (require 'cl))

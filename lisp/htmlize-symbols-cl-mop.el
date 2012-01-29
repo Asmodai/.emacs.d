@@ -2,8 +2,8 @@
 ;;;
 ;;; htmlize-symbols-cl-mop.el --- Htmlize Common Lisp MOP hacks
 ;;;
-;;; Time-stamp: <Monday Jan 23, 2012 23:42:18 asmodai>
-;;; Revision:   7
+;;; Time-stamp: <Sunday Jan 29, 2012 00:37:57 asmodai>
+;;; Revision:   8
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;; Copyright (c) 2007, Volkan YAZICI <volkan.yazici@gmail.com>
@@ -14,7 +14,7 @@
 ;;; Keywords:   
 ;;; URL:        http://unixware.kicks-ass.org/
 ;;;
-;;; {{{ License:
+;;;{{{ License:
 ;;;
 ;;; Redistribution and use in source and binary forms, with or without
 ;;; modification, are  permitted provided that the following conditions are
@@ -39,22 +39,22 @@
 ;;; NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;
-;;; }}}
-;;; {{{ Commentary:
+;;;}}}
+;;;{{{ Commentary:
 ;;;
-;;; }}}
+;;;}}}
 
 ;;; ==================================================================
-;;; {{{ Base URI:
+;;;{{{ Base URI:
 
 (defvar *mop-base-uri* "http://www.alu.org/mop/"
   "Meta Object Protocol base URI.")
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ MOP builtins:
+;;;{{{ MOP builtins:
 
 (defvar *mop-builtins*
   '(("spec2" . "dictionary.html#spec2")
@@ -135,7 +135,7 @@
     ("validate-superclass" . "dictionary.html#validate-superclass")
     ("writer-method-class" . "dictionary.html#writer-method-class")))
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; All of the MOP symbols require font lock.

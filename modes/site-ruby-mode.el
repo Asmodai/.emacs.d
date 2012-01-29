@@ -2,8 +2,8 @@
 ;;;
 ;;; site-ruby-mode.el --- Ruby Mode
 ;;;
-;;; Time-stamp: <Thursday Jan 26, 2012 11:26:03 asmodai>
-;;; Revision:   13
+;;; Time-stamp: <Sunday Jan 29, 2012 00:46:25 asmodai>
+;;; Revision:   14
 ;;;
 ;;; Copyright (c) 2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -13,7 +13,7 @@
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
-;;; {{{ License:
+;;;{{{ License:
 ;;;
 ;;; This program is free software: you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public
@@ -31,10 +31,10 @@
 ;;; License along with this program.  If not, see
 ;;; <http://www.gnu.org/licenses/>.
 ;;;
-;;; }}}
-;;; {{{ Commentary:
+;;;}}}
+;;;{{{ Commentary:
 ;;;
-;;; }}}
+;;;}}}
 
 (when emacs>=19-p
   (setq ruby-program-name "c:/ruby193/bin/irb.bat --inf-ruby-mode")

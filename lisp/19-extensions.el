@@ -1,11 +1,11 @@
 ;;; -*- Mode: Emacs-Lisp -*-
 ;;;
-;;; extensions.el --- Emacs Lisp extensions for Emacs 19.
+;;; 19-extensions.el --- Emacs Lisp extensions for Emacs 19.
 ;;;
-;;; Time-stamp: <Wednesday Feb 16, 2011 11:01:59 asmodai>
-;;; Revision:   1
+;;; Time-stamp: <Sunday Jan 29, 2012 00:50:19 asmodai>
+;;; Revision:   3
 ;;;
-;;; Copyright (c) 2011 Paul Ward <asmodai@gmail.com>
+;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
 ;;; Author:     Paul Ward <asmodai@gmail.com>
 ;;; Maintainer: Paul Ward <asmodai@gmail.com>
@@ -13,7 +13,7 @@
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
-;;; {{{ License:
+;;;{{{ License:
 ;;;
 ;;; This program is free software: you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public
@@ -31,21 +31,21 @@
 ;;; License along with this program.  If not, see
 ;;; <http://www.gnu.org/licenses/>.
 ;;;
-;;; }}}
-;;; {{{ Commentary:
+;;;}}}
+;;;{{{ Commentary:
 ;;;
 ;;; This package provides some extra functionality for our custom
 ;;; Emacs 19 packages.  Some of this could be used in Emacs 20 and
 ;;; higher, but there are probably better versions already hidden away
 ;;; somewhere :)
 ;;;
-;;; }}}
+;;;}}}
 
 (eval-when-compile
   (require 'cl))
 
 ;;; ==================================================================
-;;; {{{ Buffer utilities:
+;;;{{{ Buffer utilities:
 
 (unless (fboundp 'buffer-file-basename)
   (defun buffer-file-basename (&optional buffer)
@@ -56,11 +56,11 @@
       (if fnam
           (car (reverse (split-string fnam "/" t)))))))
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ String utilities:
+;;;{{{ String utilities:
 
 (defconst split-string-default-separators "[ \f\t\n\r\v]+"
   "The default value of separators for `split-string'.
@@ -118,11 +118,11 @@ Modifies the match data; use `save-match-data' if necessary."
               (cons (substring string start) list)))
     (nreverse list)))
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Time/Date utilities:
+;;;{{{ Time/Date utilities:
 
 (defun get-month-number (month)
   "Returns the number of the given `month'; or 0 if the `month' is
@@ -194,10 +194,9 @@ If `time' is not specified, then the function defaults to the value of
            (format "%s %s" datestr (or tzoff tznam)))
           (t datestr))))
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 (provide 'extensions)
 
 ;;; extensions.el ends here
-

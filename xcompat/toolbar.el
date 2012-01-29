@@ -2,10 +2,10 @@
 ;;;
 ;;; toolbar.el --- Toolbar hacks
 ;;;
-;;; Time-stamp: <Tuesday Feb 15, 2011 17:23:06 asmodai>
-;;; Revision:   1
+;;; Time-stamp: <Sunday Jan 29, 2012 00:50:45 asmodai>
+;;; Revision:   2
 ;;;
-;;; Copyright (c) 2005-2011 Paul Ward <asmodai@gmail.com>
+;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
 ;;;
 ;;; Author:     Paul Ward <asmodai@gmail.com>
 ;;; Maintainer: Paul Ward <asmodai@gmail.com>
@@ -13,7 +13,7 @@
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
-;;; {{{ License:
+;;;{{{ License:
 ;;;
 ;;; This program is free software: you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public
@@ -31,10 +31,10 @@
 ;;; License along with this program.  If not, see
 ;;; <http://www.gnu.org/licenses/>.
 ;;;
-;;; }}}
-;;; {{{ Commentary:
+;;;}}}
+;;;{{{ Commentary:
 ;;;
-;;; }}}
+;;;}}}
 
 ;;; Set up the toolbar
 (when (featurep 'toolbar)
@@ -107,4 +107,3 @@
    [toolbar-info-icon toolbar-info t "Don't Panic!!"]))
 
 ;;; toolbar.el ends here
-

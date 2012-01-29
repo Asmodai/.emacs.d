@@ -2,8 +2,8 @@
 ;;;
 ;;; keys.el --- Custom key bindings
 ;;;
-;;; Time-stamp: <Tuesday Jan 24, 2012 12:52:58 asmodai>
-;;; Revision:   10
+;;; Time-stamp: <Sunday Jan 29, 2012 00:34:26 asmodai>
+;;; Revision:   11
 ;;;
 ;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -13,7 +13,7 @@
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
-;;; {{{ License:
+;;;{{{ License:
 ;;;
 ;;; This program is free software: you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public
@@ -31,13 +31,15 @@
 ;;; License along with this program.  If not, see
 ;;; <http://www.gnu.org/licenses/>.
 ;;;
-;;; }}}
-;;; {{{ Commentary:
+;;;}}}
+;;;{{{ Commentary:
 ;;;
-;;; }}}
+;;;
+;;;
+;;;}}}
 
 ;;; ==================================================================
-;;; {{{ Key bindings that work in all versions of Emacs:
+;;;{{{ Key bindings that work in all versions of Emacs:
 
 (global-set-key "\C-xw" 'what-line)
 
@@ -51,11 +53,11 @@
 
 (global-set-key "\C-cd" 'insert-date-string)
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Key bindings for Emacs 19 and above:
+;;;{{{ Key bindings for Emacs 19 and above:
 
 (when emacs>=19-p
   (global-set-key [(f2)] 'undo)
@@ -96,11 +98,11 @@
   (if (featurep 'ibuffer)
       (global-set-key "\C-x\C-b" 'ibuffer)))
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Key bindings for Emacs 21 and above:
+;;;{{{ Key bindings for Emacs 21 and above:
 
 (when (or xemacs>=21-p
           emacs>=21-p)
@@ -172,11 +174,11 @@
                       (interactive)
                       (insert "$")))))
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; ==================================================================
-;;; {{{ Special cases:
+;;;{{{ Special cases:
 
 ;;;
 ;;; OS/2 seems to have something against |.  It uses a broken bar
@@ -189,7 +191,7 @@
                     (interactive)
                     (insert "|"))))
 
-;;; }}}
+;;;}}}
 ;;; ==================================================================
 
 ;;; keys.el ends here

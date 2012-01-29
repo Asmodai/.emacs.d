@@ -2,8 +2,8 @@
 ;;;
 ;;; site-perl-mode.el --- Perl mode hacks.
 ;;;
-;;; Time-stamp: <Tuesday Jan 24, 2012 15:47:25 asmodai>
-;;; Revision:   8
+;;; Time-stamp: <Sunday Jan 29, 2012 00:46:16 asmodai>
+;;; Revision:   9
 ;;;
 ;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -13,7 +13,7 @@
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
-;;; {{{ License:
+;;;{{{ License:
 ;;;
 ;;; This program is free software: you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public
@@ -31,10 +31,10 @@
 ;;; License along with this program.  If not, see
 ;;; <http://www.gnu.org/licenses/>.
 ;;;
-;;; }}}
-;;; {{{ Commentary:
+;;;}}}
+;;;{{{ Commentary:
 ;;;
-;;; }}}
+;;;}}}
 
 (when emacs>=20-p
   ;;
@@ -70,4 +70,3 @@
         cperl-auto-newline nil))
 
 ;;; site-perl-mode.el ends here
-

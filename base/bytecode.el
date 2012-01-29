@@ -2,8 +2,8 @@
 ;;;
 ;;; bytecode.el --- Bytecode utilities
 ;;;
-;;; Time-stamp: <Tuesday Jan 24, 2012 12:52:09 asmodai>
-;;; Revision:   7
+;;; Time-stamp: <Sunday Jan 29, 2012 00:33:42 asmodai>
+;;; Revision:   8
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -13,7 +13,7 @@
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
-;;; {{{ License:
+;;;{{{ License:
 ;;;
 ;;; This program is free software: you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public
@@ -31,10 +31,10 @@
 ;;; License along with this program.  If not, see
 ;;; <http://www.gnu.org/licenses/>.
 ;;;
-;;; }}}
-;;; {{{ Commentary:
+;;;}}}
+;;;{{{ Commentary:
 ;;;
-;;; }}}
+;;;}}}
 
 (defun bytecode-filename (file)
   "Return the name of the bytecode filename in the cache directory."
