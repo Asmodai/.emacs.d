@@ -2,8 +2,8 @@
 ;;;
 ;;; emacs-init.el --- Version-specific init code
 ;;;
-;;; Time-stamp: <Sunday Jan 29, 2012 00:30:29 asmodai>
-;;; Revision:   29
+;;; Time-stamp: <Sunday Jan 29, 2012 01:54:10 asmodai>
+;;; Revision:   37
 ;;;
 ;;; Copyright (c) 2012  <asmodai@gmail.com>
 ;;;
@@ -107,6 +107,7 @@
    
   (compile-load "folding")
   (folding-install)
+  (folding-install-hooks)
   
   ;;
   ;; Configure comint
@@ -382,10 +383,8 @@
   ;;
   ;; Enable folding mode on open if possible.
   (when (featurep 'folding)
-    (add-hook 'find-file-hooks
-              (lambda ()
-                (folding-mode t)))))
-
+    (add-hook 'find-file-hooks (lambda ()
+                                 (folding-mode t)))))
 
 ;;;}}}
 ;;; ------------------------------------------------------------------

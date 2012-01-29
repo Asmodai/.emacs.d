@@ -2,8 +2,8 @@
 ;;;
 ;;; bytecode.el --- Bytecode utilities
 ;;;
-;;; Time-stamp: <Sunday Jan 29, 2012 00:33:42 asmodai>
-;;; Revision:   8
+;;; Time-stamp: <Sunday Jan 29, 2012 01:22:33 asmodai>
+;;; Revision:   9
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;

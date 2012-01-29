@@ -2,8 +2,8 @@
 ;;;
 ;;; site-lisp-mode.el --- Lisp mode hacks.
 ;;;
-;;; Time-stamp: <Sunday Jan 29, 2012 00:45:57 asmodai>
-;;; Revision:   17
+;;; Time-stamp: <Sunday Jan 29, 2012 02:01:44 asmodai>
+;;; Revision:   22
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -368,6 +368,8 @@ text.  Move the cursor to the new line."
   ;; have fewer calls.
   ;;
   
+  ;;
+  ;; For interactive lisp, e.g. *scratch* buffer.
   (defun my-interactive-lisp-mode-hooks ()
     (when (or emacs=20-p
               emacs=21-p)
@@ -380,9 +382,10 @@ text.  Move the cursor to the new line."
     (when (featurep 'highlight-parentheses)
       (hi-parens-autopair))
     (show-paren-mode t)
-    (auto-fill-mode t)
-    (folding-mode t))
+    (auto-fill-mode t))
   
+  ;;
+  ;; For non-SLIME inferior lisp modes.
   (defun my-inferior-lisp-mode-hooks ()
     (when (or emacs=20-p
               emacs=21-p)
@@ -394,17 +397,37 @@ text.  Move the cursor to the new line."
       (company-mode t))
     (when (featurep 'highlight-parentheses)
       (hi-parens-autopair))
-    (when slime-p
-      (inferior-slime-mode t))
     (show-paren-mode t))
   
+  ;;
+  ;; For SLIME lisp modes.
+  (defun my-slime-lisp-mode-hooks ()
+    (when (or emacs=20-p
+              emacs=21-p)
+      (turn-in-font-lock)
+      (font-lock-mode 1))
+    (when slime-p
+      (slime-mode t))
+    (when (featurep 'paredit)
+      (paredit-mode +1))
+    (when (featurep 'company)
+      (company-mode t))
+    (when (and slime-p
+               (featurep 'company))
+      (require 'slime-company))
+    (when (featurep 'highlight-parentheses)
+      (hi-parens-autopair))
+    (show-paren-mode t)
+    (auto-fill-mode t)
+    (show-paren-mode t))
+  
+  ;;
+  ;; For non-SLIME lisp modes.
   (defun my-lisp-mode-hooks ()
     (when (or emacs=20-p
               emacs=21-p)
       (turn-on-font-lock)
       (font-lock-mode 1))
-    (when slime-p
-      (slime-mode t))
     (when (featurep 'paredit)
       (paredit-mode +1))
     (when (featurep 'company)
@@ -413,21 +436,14 @@ text.  Move the cursor to the new line."
       (hi-parens-autopair))
     (show-paren-mode t)
     (auto-fill-mode t)
-    (show-paren-mode t)
-    (folding-mode t))
-
-  (when slime-p
-    ;;
-    ;; Set up company mode.
-    (add-hook 'slime-load-hook '(lambda ()
-                                 (require 'slime-company))))
+    (show-paren-mode t))
 
   ;;
   ;; Hooks for modes derived from emacs-lisp-mode
   (add-hook 'lisp-interaction-mode-hook 'my-interactive-lisp-mode-hooks)
   (add-hook 'inferior-lisp-mode-hook 'my-inferior-lisp-mode-hooks)
   (add-hook 'emacs-lisp-mode-hook 'my-lisp-mode-hooks)
-  (add-hook 'lisp-mode-hook 'my-lisp-mode-hooks)
+  (add-hook 'lisp-mode-hook 'my-slime-lisp-mode-hooks)
   (add-hook 'scheme-mode-hook 'my-lisp-mode-hooks))
 
 ;;;}}}

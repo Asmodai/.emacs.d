@@ -2,8 +2,8 @@
 ;;;
 ;;; keys.el --- Custom key bindings
 ;;;
-;;; Time-stamp: <Sunday Jan 29, 2012 00:34:26 asmodai>
-;;; Revision:   11
+;;; Time-stamp: <Sunday Jan 29, 2012 02:06:01 asmodai>
+;;; Revision:   16
 ;;;
 ;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -62,6 +62,7 @@
 (when emacs>=19-p
   (global-set-key [(f2)] 'undo)
   (global-set-key [(f3)] 'find-file)
+  (global-set-key "\C-\M-j" 'eval-print-last-sexp)
 
   ;; The following fail miserably on NeXTSTEP
   (when (not nextstep-p)
