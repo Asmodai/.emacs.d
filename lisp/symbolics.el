@@ -2,8 +2,8 @@
 ;;;
 ;;; symbolics.el --- Symbolics keyboard
 ;;;
-;;; Time-stamp: <Monday Jan 30, 2012 03:42:10 asmodai>
-;;; Revision:   65
+;;; Time-stamp: <Monday Jan 30, 2012 03:52:21 asmodai>
+;;; Revision:   67
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -114,7 +114,7 @@
 (eval-when-compile
   (require 'cl))
 
-(defvar !symbolics-debug! nil)
+(defvar !symbolics-debug! t)
 
 ;;;==================================================================
 ;;;{{{ Symbolics input decode map:
@@ -429,15 +429,17 @@
 
 ;;;
 ;;; Function key definitions:
-(define-function-key "r" 'redraw-display)
-(define-function-key [refresh] 'redraw-display)
-(define-function-key "q" 'print-buffer)
+(when (fboundp 'define-function-key)
+  (define-function-key "r" 'redraw-display)
+  (define-function-key [refresh] 'redraw-display)
+  (define-function-key "q" 'print-buffer))
 
 ;;;
 ;;; Select key definitions:
-(define-select-key "e" 'revisit-scratch)
-(define-select-key "i" 'ielm)
-(define-select-key "t" 'eshell)
+(when (fboundp 'define-select-key)
+  (define-select-key "e" 'revisit-scratch)
+  (define-select-key "i" 'ielm)
+  (define-select-key "t" 'eshell))
 
 ;;;
 ;;; There will probably be more definitions in site-lisp-mode.
