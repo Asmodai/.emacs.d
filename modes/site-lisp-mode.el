@@ -285,7 +285,9 @@ To see an example of the output, look at site-lisp-mode.el."
 
 ;;;
 ;;; Bindings for an Emacs that uses a Symbolics keyboard.
-(when (featurep 'symbolics)
+(when (and (featurep 'symbolics)
+	   (fboundp 'define-select-key)
+	   (fboundp 'define-function-key))
   ;;
   ;; Bindings for Franz' ELI mode.
   (when allegro-p
