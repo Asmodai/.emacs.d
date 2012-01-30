@@ -2,8 +2,8 @@
 ;;;
 ;;; site-lisp-mode.el --- Lisp mode hacks.
 ;;;
-;;; Time-stamp: <Sunday Jan 29, 2012 22:53:14 asmodai>
-;;; Revision:   25
+;;; Time-stamp: <Monday Jan 30, 2012 03:13:36 asmodai>
+;;; Revision:   26
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -298,8 +298,7 @@ To see an example of the output, look at site-lisp-mode.el."
     (define-select-key "s" 'slime)
     (define-select-key "l" 'slime-connect)
     (global-set-key (kbd "<backtab>") 'slime-complete-symbol)
-    (global-set-key (vector +symbolics-complete-key+)
-                    'slime-complete-symbol)
+    (global-set-key [(complete)] 'slime-complete-symbol)
     (global-set-key [(meta r)] 'slime-reindent-retion))
   
   ;;

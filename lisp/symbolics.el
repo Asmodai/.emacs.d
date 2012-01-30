@@ -2,8 +2,8 @@
 ;;;
 ;;; symbolics.el --- Symbolics keyboard
 ;;;
-;;; Time-stamp: <Sunday Jan 29, 2012 17:33:27 asmodai>
-;;; Revision:   59
+;;; Time-stamp: <Monday Jan 30, 2012 03:25:33 asmodai>
+;;; Revision:   61
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -114,32 +114,59 @@
 (eval-when-compile
   (require 'cl))
 
+(defvar !symbolics-debug! nil)
+
 ;;;==================================================================
-;;;{{{ Variables:
+;;;{{{ Symbolics input decode map:
 
-(defvar +symbolics-help-key+ 'f1
-  "The key code for the Symbolics `Help' key.")
+(defvar *symbolics-input-decode-map* (make-sparse-keymap)
+  "Key definitions for Symbolics lisp machine keyboards.")
 
-(defvar +symbolics-function-key+ 'f6
-  "The key code for the Symbolics `Function' key.")
+(when !symbolics-debug!
+  (setq *symbolics-input-decode-map* (make-sparse-keymap))
+  
+  (define-key *symbolics-input-decode-map* [f1]  [help])
+  (define-key *symbolics-input-decode-map* [f2]  [super])
+  (define-key *symbolics-input-decode-map* [f3]  [hyper])
+  (define-key *symbolics-input-decode-map* [f4]  [select])
+  (define-key *symbolics-input-decode-map* [f5]  [refresh])
+  (define-key *symbolics-input-decode-map* [f6]  [function])
+  (define-key *symbolics-input-decode-map* [f7]  [symbol])
+  (define-key *symbolics-input-decode-map* [f8]  [page])
+  (define-key *symbolics-input-decode-map* [f9]  [line])
+  (define-key *symbolics-input-decode-map* [f10] [clear])
+  (define-key *symbolics-input-decode-map* [f11] [complete])
+  (define-key *symbolics-input-decode-map* [f12] [network]))
 
-;;; NOTE: F12 for debugging
-(defvar +symbolics-select-key+ 'f12
-  "The key code for the Symbolics `Select' key.")
+(unless !symbolics-debug!
+  (define-key *symbolics-input-decode-map* [f1]  [help])
+  (define-key *symbolics-input-decode-map* [f2]  [square])
+  (define-key *symbolics-input-decode-map* [f3]  [circle])
+  (define-key *symbolics-input-decode-map* [f4]  [triangle])
+  (define-key *symbolics-input-decode-map* [f5]  [refresh])
+  (define-key *symbolics-input-decode-map* [f6]  [function])
+  (define-key *symbolics-input-decode-map* [f7]  [suspend])
+  (define-key *symbolics-input-decode-map* [f8]  [abort])
+  (define-key *symbolics-input-decode-map* [f9]  [resume])
+  (define-key *symbolics-input-decode-map* [f10] [clear])
+  (define-key *symbolics-input-decode-map* [f11] [complete])
+  (define-key *symbolics-input-decode-map* [f12] [network])
+  (define-key *symbolics-input-decode-map* [f13] [local])
+  (define-key *symbolics-input-decode-map* [f14] [select])
+  (define-key *symbolics-input-decode-map* [f15] [page])
+  (define-key *symbolics-input-decode-map* [f16] [line])
+  (define-key *symbolics-input-decode-map* [f17] [symbol])
+  (define-key *symbolics-input-decode-map* [f18] [symbol])
+  (define-key *symbolics-input-decode-map* [f19] [repeat])
+  (define-key *symbolics-input-decode-map* [f20] [hyper])
+  (define-key *symbolics-input-decode-map* [f21] [super])
+  (define-key *symbolics-input-decode-map* [f22] [super])
+  (define-key *symbolics-input-decode-map* [f23] [hyper]))
 
-;;; NOTE: F2 for debugging
-(defvar +symbolics-left-symbol-key+ 'f2
-  "The key code for the Symbolics left-hand `Symbol' key.")
-
-;;; NOTE: F3 for debugging
-(defvar +symbolics-right-symbol-key+ 'f3
-  "The key code for the Symbolics right-hand `Symbol' key.")
-
-(defvar +symbolics-refresh-key+ 'f5
-  "The key code for the Symbolics `Refresh' key.")
-
-(defvar +symbolics-complete-key+ 'f11
-  "The key code for the Symbolics `Complete' key.")
+(defun symbolics-keyboard-init ()
+  (let ((m (copy-keymap *symbolics-input-decode-map*)))
+    (set-keymap-parent m (keymap-parent input-decode-map))
+    (set-keymap-parent input-decode-map m)))
 
 ;;;}}}
 ;;;==================================================================
@@ -165,6 +192,17 @@
                str)))
     (replace-regexp-in-string "\\([[:space:]\n]\\)" "-" s)))
 
+(defun display-symbolics-keyboard-mapping ()
+  (interactive)
+  (with-help-window (help-buffer)
+    (princ (format "Mapping for the Symbolics keyboard:\n\n"))
+    (princ (format "  PC\t   Symbolics\n  --\t   ---------\n"))
+    (mapcar (lambda (x)
+              (princ (format "  %s\t-> %s\n"
+                             (car x)
+                             (cdr x))))
+            (reverse (cdr *symbolics-input-decode-map*)))))
+
 ;;;}}}
 ;;; ==================================================================
 
@@ -172,42 +210,30 @@
 ;;;{{{ Simple mapping:
 
 ;;;
-;;; Remove existing mappings for F2 through F24.
-;;;
-;;; We keep F1 so things don't require heaps of work to have a working
-;;; `help' key.
-(let ((keys '(f2  f3  f4  f5  f6  f7  f8  f9  f10 f11 f12
-              f13 f14 f15 f16 f17 f18 f19 f20 f21 f22 f23 f24)))
-  (dolist (key keys)
-    (global-unset-key (vector key))))
-
-;;;
 ;;; Define both `Hyper' and `Super' keys.
-(define-key function-key-map [f20] 'event-apply-hyper-modifier)
-(define-key function-key-map [f21] 'event-apply-super-modifier)
-(define-key function-key-map [f22] 'event-apply-super-modifier)
-(define-key function-key-map [f23] 'event-apply-hyper-modifier)
+(define-key function-key-map [super] 'event-apply-hyper-modifier)
+(define-key function-key-map [hyper] 'event-apply-super-modifier)
 
 ;;;
 ;;; Define `Suspend' so it does the same as C-z (or C-x C-z).
-(global-set-key [(f7)] 'suspend-frame)
+(global-set-key [(suspend)] 'suspend-frame)
 
 ;;;
 ;;; Define `Abort' so it does the same as C-g.
-(global-set-key [(f8)] 'keyboard-quit)
+(global-set-key [(abort)] 'keyboard-quit)
 
 ;;;
 ;;; Map the `Complete' key to whatever completion function we want to
 ;;; use.
-(global-set-key [(f11)] 'hippie-expand)
+(global-set-key [(complete-in-turn)] 'hippie-expand)
 
 ;;;
 ;;; The `Page' key will insert a pagebreak character (^L).
-(global-set-key [(f15)] 'insert-emacs-page-break)
+(global-set-key [(page)] 'insert-emacs-page-break)
 ;;;
 ;;; With Zmacs, the `Line' key will perform an operation similar to
 ;;; `NEWLINE-AND-INDENT'.
-(global-set-key [(f16)] 'newline-and-indent)
+(global-set-key [(line)] 'newline-and-indent)
 
 ;;;}}}
 ;;; ==================================================================
@@ -224,15 +250,14 @@
 
 ;;;
 ;;; Prefix key.
-(global-set-key (vector +symbolics-function-key+)
-                +symbolics-function-map+)
+(global-set-key [function] +symbolics-function-map+)
 
 ;;;
 ;;; Display our bindings.
 (defun display-function-bindings ()
   "Emacs version of `Function-Help'."
   (interactive)
-  (describe-bindings (vector +symbolics-function-key+)))
+  (describe-bindings [function]))
 
 ;;;
 ;;; Define a new `Function' operation using this.
@@ -252,27 +277,20 @@
 
 ;;;
 ;;; Prefix key.
-(global-set-key (vector +symbolics-select-key+)
-                +symbolics-select-map+)
+(global-set-key [select] +symbolics-select-map+)
 
 ;;;
 ;;; Display our bindings.
 (defun display-select-bindings ()
   "Emacs version of `Select-Help'."
   (interactive)
-  (describe-bindings (vector +symbolics-select-key+)))
+  (describe-bindings [select]))
 
 ;;;
 ;;; Define a new `Select' operation using this.
 (defmacro define-select-key (key fname)
   "Bind a `Select-' KEY combination to FNAME."
   `(define-key +symbolics-select-map+ ,key ,fname))
-
-;;;
-;;; Initial Symbolics-like map
-(when (fboundp 'define-select-key)
-  (define-select-key "e" 'revisit-scratch)
-  (define-select-key "t" 'eshell))
 
 ;;;}}}
 ;;;------------------------------------------------------------------
@@ -327,21 +345,15 @@
 (define-prefix-command '+symbolics-symbol-map+)
 
 ;;;
-;;; Prefix key, left.
-(global-set-key
- (vector +symbolics-left-symbol-key+) +symbolics-symbol-map+)
-
-;;;
-;;; Prefix key, right.
-(global-set-key
- (vector +symbolics-right-symbol-key+) +symbolics-symbol-map+)
+;;; Prefix key.
+(global-set-key [symbol] +symbolics-symbol-map+)
 
 ;;;
 ;;; Display our bindings.
 (defun display-symbol-bindings (&optional buffer)
   "Emacs version of `Symbol-Help'."
   (interactive)
-  (describe-bindings (vector +symbolics-symbol-map+)))
+  (describe-bindings [symbol]))
 
 ;;;
 ;;; Define a new symbol key.
@@ -417,6 +429,7 @@
 ;;;
 ;;; Select key definitions:
 (define-select-key "e" 'revisit-scratch)
+(define-select-key "i" 'ielm)
 (define-select-key "t" 'eshell)
 
 ;;;
