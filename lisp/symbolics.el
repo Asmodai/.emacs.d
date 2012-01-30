@@ -2,8 +2,8 @@
 ;;;
 ;;; symbolics.el --- Symbolics keyboard
 ;;;
-;;; Time-stamp: <Monday Jan 30, 2012 03:25:33 asmodai>
-;;; Revision:   61
+;;; Time-stamp: <Monday Jan 30, 2012 03:42:10 asmodai>
+;;; Revision:   65
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -163,10 +163,9 @@
   (define-key *symbolics-input-decode-map* [f22] [super])
   (define-key *symbolics-input-decode-map* [f23] [hyper]))
 
-(defun symbolics-keyboard-init ()
-  (let ((m (copy-keymap *symbolics-input-decode-map*)))
-    (set-keymap-parent m (keymap-parent input-decode-map))
-    (set-keymap-parent input-decode-map m)))
+(let ((m (copy-keymap *symbolics-input-decode-map*)))
+  (set-keymap-parent m (keymap-parent input-decode-map))
+  (set-keymap-parent input-decode-map m))
 
 ;;;}}}
 ;;;==================================================================
@@ -185,13 +184,6 @@
   (interactive)
   (switch-to-buffer "*scratch*"))
 
-(defun symbolise-charname (str)
-  "Takes a string and replaces all space characters with a `-'."
-  (let ((s (if (symbolp str)
-               (symbol-name str)
-               str)))
-    (replace-regexp-in-string "\\([[:space:]\n]\\)" "-" s)))
-
 (defun display-symbolics-keyboard-mapping ()
   (interactive)
   (with-help-window (help-buffer)
@@ -208,6 +200,15 @@
 
 ;;; ==================================================================
 ;;;{{{ Simple mapping:
+
+;;;
+;;; Clear existing function key mappings.
+(let ((keys '(f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15 f16
+              f17 f18 f19 f20 f21 f22 f23 f24 square circle triangle
+              refresh function suspend abort resume complete network
+              local select page line symbol repeat)))
+  (dolist (key keys)
+    (global-unset-key (vector key))))
 
 ;;;
 ;;; Define both `Hyper' and `Super' keys.
@@ -360,9 +361,15 @@
 (defmacro define-symbol-key (key symbol charname)
   "Define a key sequence that results with KEY, when pressed with the
   `Symbol' key, prints the given unicode SYMBOL to the buffer."
-  (let ((docstr (concat "Inserts a(n) " charname " at the current point."))
-        (mname (intern (concat "ucs-insert-"
-                               (symbolise-charname charname)))))
+  (let* ((docstr (concat "Inserts a(n) " charname " at the current point."))
+ (str (if (symbolp symbol)
+  (symbol-name symbol)
+  symbol))
+ (mname (intern (concat "ucs-insert-"
+(replace-regexp-in-string
+ "\\([[:space:]\n]\\)"
+ "-"
+ str)))))
     `(progn
        (defun ,mname (&rest ignore)
          ,docstr
@@ -376,7 +383,7 @@
 
 ;;;
 ;;; Symbolics Genera `Symbol' key mappings:
-(when (fboundp 'define-symbol-key)
+(when (fboundp 'define-symbol-key) 
   (define-symbol-key "'" "22C5" "dot operator")
   (define-symbol-key "A" "03B1" "Greek small letter alpha")
   (define-symbol-key "q" "2227" "logical AND")
@@ -423,7 +430,7 @@
 ;;;
 ;;; Function key definitions:
 (define-function-key "r" 'redraw-display)
-(define-function-key (vector +symbolics-refresh-key+) 'redraw-display)
+(define-function-key [refresh] 'redraw-display)
 (define-function-key "q" 'print-buffer)
 
 ;;;
