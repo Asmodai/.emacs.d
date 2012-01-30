@@ -2,8 +2,8 @@
 ;;;
 ;;; site-page-break-mode.el --- Page break handling
 ;;;
-;;; Time-stamp: <Sunday Jan 29, 2012 17:00:22 asmodai>
-;;; Revision:   10
+;;; Time-stamp: <Monday Jan 30, 2012 00:09:47 asmodai>
+;;; Revision:   11
 ;;;
 ;;; Copyright (c) 2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -82,7 +82,7 @@
   (if page-break-mode
       (add-hook 'window-configuration-change-hook
                 'page-break-mode-hook-function)
-      (remove-hook 'window-configuration-change-ook
+      (remove-hook 'window-configuration-change-hook
                    'page-break-mode-hook-function)))
 
 (defun turn-on-page-break-mode ()
