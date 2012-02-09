@@ -108,7 +108,7 @@
                          :background "black"
                          :foreground "white")))))
          ((and unix-p                   ; Unix
-               (not mac-osx-p)          ; ... but not Mac OS X
+               (not mac-os-x-p)         ; ... but not Mac OS X
                (not next-p))            ; ... but not NeXTSTEP
           ;; On Unix we use a different font depending on whether
           ;; Emacs has been compiled with Motif widgets or not.
@@ -129,7 +129,7 @@
                              :size 9
                              :background "black"
                              :foreground "white"))))))
-         (mac-osx-p
+         (mac-os-x-p
           ;; Use Monaco and be done with it.
           '(default ((t (:family "Monaco"
                          :size 10
