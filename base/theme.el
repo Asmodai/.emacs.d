@@ -2,8 +2,8 @@
 ;;;
 ;;; theme.el --- Emacs colour theme.
 ;;;
-;;; Time-stamp: <Sunday Jan 29, 2012 00:35:56 asmodai>
-;;; Revision:   27
+;;; Time-stamp: <Thursday Feb  9, 2012 10:54:59 asmodai>
+;;; Revision:   29
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -94,7 +94,7 @@
           ;; have Consolas.
           '(default ((t (:family "DejaVu Sans Mono"
                          :size 9
- :height 90
+                         :height 90
                          :background "black"
                          :foreground "white")))))
          ((and windows-p (not windows-nt-p))
@@ -104,7 +104,7 @@
           ;; later on.
           '(default ((t (:family "Courier New"
                          :size 9
- :height 90
+                         :height 90
                          :background "black"
                          :foreground "white")))))
          ((and unix-p                   ; Unix
@@ -119,6 +119,7 @@
               ;; rather than just assuming it is CDE.
               '(default ((t (:family "Interface User"
                              :size 10
+                             :height 100
                              :background "black"
                              :foreground "white"))))
               ;; We're not using Motif, so let's try our luck with
@@ -127,24 +128,27 @@
               ;; font.
               '(default ((t (:family "DejaVu Sans Mono"
                              :size 9
+                             :height 90
                              :background "black"
                              :foreground "white"))))))
          (mac-os-x-p
           ;; Use Monaco and be done with it.
           '(default ((t (:family "Monaco"
-                         :size 10
+                         :size 9
+                         :height 90
                          :background "black"
                          :foreground "white")))))
          (presentation-manager-p
           ;; Use System VIO as the font on OS/2.
           '(default ((t (:family "System VIO"
-                         :size 10
+                         :size 9
+                         :height 90
                          :background "black"
                          :foreground "white")))))
          (t
           ;; Give up and let Emacs decide.
           '(default ((t (:size 9
- :height 90
+                         :height 90
                          :background "black"
                          :foreground "white"))))))
    ;;;{{{ UI elements:
