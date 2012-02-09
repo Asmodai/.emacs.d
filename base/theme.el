@@ -109,7 +109,7 @@
                          :foreground "white")))))
          ((and unix-p                   ; Unix
                (not mac-os-x-p)         ; ... but not Mac OS X
-               (not next-p))            ; ... but not NeXTSTEP
+               (not next-mach-p))       ; ... but not NeXTSTEP
           ;; On Unix we use a different font depending on whether
           ;; Emacs has been compiled with Motif widgets or not.
           (if motif-p
