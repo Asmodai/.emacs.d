@@ -2,8 +2,8 @@
 ;;;
 ;;; licenses.el --- Boilerplate license insertion
 ;;;
-;;; Time-stamp: <Sunday Feb 19, 2012 08:31:39 asmodai>
-;;; Revision:   4
+;;; Time-stamp: <Sunday Feb 19, 2012 08:48:36 asmodai>
+;;; Revision:   10
 ;;;
 ;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -170,15 +170,15 @@
 
 (defconst licenses-apache
   (concat
-   "Licensed under the Apache License, Version 2.0 \"License\"); you\n"
-   " may not use this file except in compliance with the License. You may\n"
-   " obtain a copy of the License at\n"
-   "\n    http://www.apache.org/licenses/LICENSE-2.0\n"
-   " Unless required by applicable law or agreed to in writing, software\n"
-   " distributed under the License is distributed on an \"AS IS\" BASIS,\n"
-   " WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or"
-   " implied. See the License for the specific language governing"
-   " permissions and limitations under the License.")
+   "Licensed under the Apache License, Version 2.0 (the \"License\"); you\n"
+   "may not use this file except in compliance with the License. You may\n"
+   "obtain a copy of the License at\n"
+   " \n   http://www.apache.org/licenses/LICENSE-2.0\n \n"
+   "Unless required by applicable law or agreed to in writing, software\n"
+   "distributed under the License is distributed on an \"AS IS\" BASIS,\n"
+   "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or\n"
+   "implied. See the License for the specific language governing\n"
+   "permissions and limitations under the License.\n")
   "Apache License")
 
 ;;;}}}
@@ -252,6 +252,29 @@
 ;;; ==================================================================
 ;;;{{{ Function:
 
+(defun custom-comment-region (start end)
+  (interactive "*")
+  (let* ((tmode (downcase mode-name))
+         (chars (cond ((string= tmode "lisp")
+                       3)
+                      ((string= tmode "lisp interaction")
+                       3)
+                      ((string= tmode "scheme")
+                       3)
+                      ((string= tmode "emacs-lisp")
+                       3)
+                      (t
+                       1))))
+    (comment-region start end chars)))
+
+(defun insert-license (license)
+  (interactive "*")
+  (let ((start (point))
+        end)
+    (insert license)
+    (setf end (point))
+    (custom-comment-region start end)))
+
 (defun licenses (lictype)
   "Insert a license into the current buffer at the current point."
   (interactive "P")
@@ -272,14 +295,22 @@
                         (error "You need to set a default license.")
                         licenses-default))))
     (when option
-      (cond ((string= option "gpl2") (insert-string licenses-gnu-gpl-2.0))
-            ((string= option "gpl3") (insert-string licenses-gnu-gpl-3.0))
-            ((string= option "lgpl") (insert-string licenses-gnu-lgpl))
-            ((string= option "llgpl") (insert-string licenses-franz-llgpl))
-            ((string= option "fdl") (insert-string licenses-gnu-fdl))
-            ((string= option "mit") (insert-string licenses-mit))
-            ((string= option "bsd") (insert-string licenses-bsd))
-            ((string= option "apache") (insert-string licenses-apache))))))
+      (cond ((string= option "gpl2")
+             (insert-license licenses-gnu-gpl-2.0))
+            ((string= option "gpl3")
+             (insert-license licenses-gnu-gpl-3.0))
+            ((string= option "lgpl")
+             (insert-license licenses-gnu-lgpl))
+            ((string= option "llgpl")
+             (insert-license licenses-franz-llgpl))
+            ((string= option "fdl")
+             (insert-license licenses-gnu-fdl))
+            ((string= option "mit")
+             (insert-license licenses-mit))
+            ((string= option "bsd")
+             (insert-license licenses-bsd))
+            ((string= option "apache")
+             (insert-license licenses-apache))))))
 
 
 ;;;}}}
