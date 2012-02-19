@@ -2,8 +2,8 @@
 ;;;
 ;;; licenses.el --- Boilerplate license insertion
 ;;;
-;;; Time-stamp: <Sunday Jan 29, 2012 00:40:20 asmodai>
-;;; Revision:   3
+;;; Time-stamp: <Sunday Feb 19, 2012 08:31:39 asmodai>
+;;; Revision:   4
 ;;;
 ;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -165,6 +165,25 @@
 ;;;}}}
 ;;; ------------------------------------------------------------------
 
+;;;------------------------------------------------------------------
+;;;{{{ Apache License:
+
+(defconst licenses-apache
+  (concat
+   "Licensed under the Apache License, Version 2.0 \"License\"); you\n"
+   " may not use this file except in compliance with the License. You may\n"
+   " obtain a copy of the License at\n"
+   "\n    http://www.apache.org/licenses/LICENSE-2.0\n"
+   " Unless required by applicable law or agreed to in writing, software\n"
+   " distributed under the License is distributed on an \"AS IS\" BASIS,\n"
+   " WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or"
+   " implied. See the License for the specific language governing"
+   " permissions and limitations under the License.")
+  "Apache License")
+
+;;;}}}
+;;;------------------------------------------------------------------
+
 ;;; ------------------------------------------------------------------
 ;;;{{{ MIT License:
 
@@ -246,7 +265,8 @@
                            ("llgpl" 4)
                            ("fdl" 5)
                            ("mit" 6)
-                           ("bsd" 7))
+                           ("bsd" 7)
+                           ("apache" 8))
                          nil t nil))
                     (if (equal licenses-default nil)
                         (error "You need to set a default license.")
@@ -258,7 +278,8 @@
             ((string= option "llgpl") (insert-string licenses-franz-llgpl))
             ((string= option "fdl") (insert-string licenses-gnu-fdl))
             ((string= option "mit") (insert-string licenses-mit))
-            ((string= option "bsd") (insert-string licenses-bsd))))))
+            ((string= option "bsd") (insert-string licenses-bsd))
+            ((string= option "apache") (insert-string licenses-apache))))))
 
 
 ;;;}}}
