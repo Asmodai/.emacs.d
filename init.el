@@ -2,8 +2,8 @@
 ;;;
 ;;; init.el --- Emacs initialisation file.
 ;;;
-;;; Time-stamp: <Friday Mar 23, 2012 11:44:27 asmodai>
-;;; Revision:   91
+;;; Time-stamp: <Friday Mar 23, 2012 11:53:45 asmodai>
+;;; Revision:   92
 ;;;
 ;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -615,7 +615,7 @@ version.")
 ;;; Load in the master init file.
 (when (and (boundp 'emacs-p)
            (boundp 'xemacs-p))
-  (load "emacs-init"))
+  (load "master-init"))
 
 ;;;
 ;;; Load our custom key bindings.
