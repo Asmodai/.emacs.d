@@ -1,9 +1,9 @@
 ;;; -*- Mode: Emacs-Lisp -*-
 ;;;
-;;; emacs-init.el --- Version-specific init code
+;;; master.el --- Version-specific init code
 ;;;
-;;; Time-stamp: <Sunday Jan 29, 2012 22:49:36 asmodai>
-;;; Revision:   45
+;;; Time-stamp: <Friday Mar 23, 2012 11:42:59 asmodai>
+;;; Revision:   47
 ;;;
 ;;; Copyright (c) 2012  <asmodai@gmail.com>
 ;;;
@@ -219,6 +219,8 @@
   (compile-load "slime-company")
   (compile-load "inf-ruby-company")
   
+  (compile-load "treetop-mode")
+  
   (autoload 'company-mode "company" nil t))
 
 ;;;}}}
@@ -406,4 +408,4 @@
 ;;;}}}
 ;;; ==================================================================
 
-;;; emacs-init.el ends here
+;;; master.el ends here

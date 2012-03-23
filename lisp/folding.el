@@ -4420,6 +4420,7 @@ buffer without affecting the default value for a particular mode."
 (folding-add-to-marks-list 'emacs-lisp-mode        ";;;{{{"  ";;;}}}" nil t)
 (folding-add-to-marks-list 'erlang-mode            "%%{{{"  "%%}}}" nil t)
 (folding-add-to-marks-list 'ruby-mode              "#{{{" "#}}}" nil t)
+(folding-add-to-marks-list 'treetop-mode           "# {{{" "# }}}" nil t)
 (folding-add-to-marks-list 'finder-mode            "{{{"    "}}}" nil t)
 (folding-add-to-marks-list 'fortran-mode           "! {{{"  "! }}}" nil t)
 (folding-add-to-marks-list 'f90-mode               "! {{{"  "! }}}" nil t)

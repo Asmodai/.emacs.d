@@ -2,8 +2,8 @@
 ;;;
 ;;; init.el --- Emacs initialisation file.
 ;;;
-;;; Time-stamp: <Sunday Jan 29, 2012 00:32:49 asmodai>
-;;; Revision:   90
+;;; Time-stamp: <Friday Mar 23, 2012 11:44:27 asmodai>
+;;; Revision:   91
 ;;;
 ;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -39,6 +39,7 @@
 ;;; Emacsen this has been tested on:
 ;;;   GNU Emacs 23.2.3       Windows 7
 ;;;   GNU Emacs 23.3.1       Windows 7
+;;;   GNU Emacs 23.3.1       GNU/Linux
 ;;;
 ;;;}}}
 
@@ -391,9 +392,9 @@
 ;;;{{{ Configure `load-path':
 
 (defvar default-load-paths
-  '((t            . ".emacs.d/")        ; init.el directory.
-    (t            . ".emacs.d/base/")   ; Base init files
-    (t            . ".emacs.d/custom/") ; Custom files
+  '((t            . ".emacs.d/init/")   ; Location of main init files.
+    (t            . ".emacs.d/base/")   ; Base init files.
+    (t            . ".emacs.d/custom/") ; Custom files.
     (t            . ".emacs.d/lisp/")   ; General elisp packages.
     ;;
     ;; Mode hacks
