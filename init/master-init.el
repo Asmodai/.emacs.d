@@ -1,6 +1,6 @@
 ;;; -*- Mode: Emacs-Lisp -*-
 ;;;
-;;; master.el --- Version-specific init code
+;;; master-init.el --- Version-specific init code
 ;;;
 ;;; Time-stamp: <Friday Mar 23, 2012 11:42:59 asmodai>
 ;;; Revision:   47
@@ -408,4 +408,4 @@
 ;;;}}}
 ;;; ==================================================================
 
-;;; master.el ends here
+;;; master-init.el ends here
