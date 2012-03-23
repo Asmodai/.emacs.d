@@ -2,8 +2,8 @@
 ;;;
 ;;; electric-shift-lock-mode.el --- Electric shift locking, ala ZWEI.
 ;;;
-;;; Time-stamp: <Friday Mar 23, 2012 19:17:14 asmodai>
-;;; Revision:   3
+;;; Time-stamp: <Friday Mar 23, 2012 19:21:00 asmodai>
+;;; Revision:   4
 ;;;
 ;;; Copyright (c) 2012 Paul Ward <asmodai@gmail.com>
 ;;; Copyright (c) 2008 John Paul Wallington
@@ -127,7 +127,8 @@ syntactically valid then it will give up gracefully."
 
 (defun run-local-vars-shift-lock-mode-hook ()
   (let ((lc? (assoc 'Lowercase file-local-variables-alist)))
-    (when lc?
+    (when (and lc?
+               (eq major-mode 'lisp-mode))
       (if (or (eq (cdr lc?) 'Yes)
               (eq (cdr lc?) t))
           (electric-shift-lock-mode 0)
