@@ -2,8 +2,8 @@
 ;;;
 ;;; init.el --- Emacs initialisation file.
 ;;;
-;;; Time-stamp: <Friday Mar 23, 2012 11:53:45 asmodai>
-;;; Revision:   92
+;;; Time-stamp: <Thursday Apr 26, 2012 20:27:28 asmodai>
+;;; Revision:   94
 ;;;
 ;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -37,9 +37,11 @@
 ;;; NOTICE:  This file is never bytecompiled.
 ;;;
 ;;; Emacsen this has been tested on:
+;;;   GNU Emacs 22.1.1       Mac OS X 10.5
 ;;;   GNU Emacs 23.2.3       Windows 7
 ;;;   GNU Emacs 23.3.1       Windows 7
 ;;;   GNU Emacs 23.3.1       GNU/Linux
+;;;   GNU Emacs 23.4.1       Mac OS X 10.5
 ;;;
 ;;;}}}
 
@@ -170,6 +172,11 @@
        (= emacs-major-version 23))
   "T if we are running in GNU Emacs 23.")
 
+(defconst emacs=24-p
+  (and (not xemacs-p)
+       (= emacs-major-version 24))
+  "T if we are running in GNU Emacs 24.")
+
 ;;;
 ;;; The follwing are for major groupings of versions.  e.g. code that
 ;;; works in Emacs 21, 22, 23... etc.
@@ -199,6 +206,11 @@
   (and (not xemacs-p)
        (>= emacs-major-version 23))
   "T if we are running in GNU Emacs 23 or higher.")
+
+(defconst emacs>=24-p
+  (and (not xemacs-p)
+       (>= emacs-major-version 24))
+  "T if we are running in GNU Emacs 24 or higher.")
 
 ;;;}}}
 
