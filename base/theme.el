@@ -135,7 +135,7 @@
           ;; Use Monaco and be done with it.
           '(default ((t (:family "Monaco"
                          :size 11
-                         :height 90
+                         :height 110
                          :background "black"
                          :foreground "white")))))
          (presentation-manager-p
