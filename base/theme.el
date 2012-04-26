@@ -2,8 +2,8 @@
 ;;;
 ;;; theme.el --- Emacs colour theme.
 ;;;
-;;; Time-stamp: <Thursday Feb  9, 2012 10:54:59 asmodai>
-;;; Revision:   29
+;;; Time-stamp: <Thursday Apr 26, 2012 20:27:44 asmodai>
+;;; Revision:   31
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -134,7 +134,7 @@
          (mac-os-x-p
           ;; Use Monaco and be done with it.
           '(default ((t (:family "Monaco"
-                         :size 9
+                         :size 11
                          :height 90
                          :background "black"
                          :foreground "white")))))
