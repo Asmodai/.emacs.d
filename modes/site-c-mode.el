@@ -2,8 +2,8 @@
 ;;;
 ;;; site-c-mode.el --- C mode hacks.
 ;;;
-;;; Time-stamp: <Tuesday Aug 28, 2012 16:34:58 asmodai>
-;;; Revision:   20
+;;; Time-stamp: <Tuesday Aug 28, 2012 22:35:52 asmodai>
+;;; Revision:   28
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -82,7 +82,7 @@
       (c-comment-only-line-offset . 0)
       (c-basic-offset . 2)
       (c-hanging-braces-alist . ((substatement-open after)
-                                 (brace-list-open)))
+                                 (brace-list-open after)))
       (c-hanging-colons-alist . ((member-init-intro before)
                                  (inher-intro)
                                  (case-label after)
@@ -90,10 +90,12 @@
                                  (access-label after)))
       (c-cleanup-list . (scope-operator
                          empty-defun-braces
-                         brace-elseif-braces
+                         brace-else-brace
+                         brace-elseif-brace
                          brace-catch-brace
                          defun-close-semi
-                         list-close-comma))
+                         list-close-comma
+                         ))
       (c-offsets-alist . ((statement-block-intro . +)
                           (inline-open           . 0)
                           (arglist-close         . c-lineup-arglist)
@@ -117,7 +119,7 @@
                                  (inline-open after)
                                  (class-open after)
                                  (module-open after)
-                                 (brace-list-open)))
+                                 (brace-list-open after)))
       (c-hanging-colons-alist . ((member-init-intro before)
                                  (inher-intro)
                                  (case-label after)
@@ -125,7 +127,8 @@
                                  (access-label after)))
       (c-cleanup-list . (scope-operator
                          empty-defun-braces
-                         brace-elseif-braces
+                         brace-else-brace
+                         brace-elseif-brace
                          brace-catch-brace
                          defun-close-semi
                          list-close-comma))
@@ -185,13 +188,36 @@
     (if (eq major-mode 'c++-mode)
         (c-set-style "hackers-c++")
         (c-set-style "hackers-c"))
+    (when (featurep 'company)
+      (company-mode t))
+    (when (featurep 'highlight-parentheses)
+      (hi-parens-autopair))
+    (show-paren-mode t)
+    (eldoc-mode t)
     (c-toggle-auto-state 1)
     (c-toggle-syntactic-indentation 1)
     (c-toggle-electric-state 1)
-    (c-toggle-hungry-state 1)
-    (c-toggle-auto-hungry-state 1)
+    (c-toggle-hungry-state -1)
+    (c-toggle-auto-hungry-state -1)
+    (c-toggle-auto-newline 1)
+    (subword-mode 1)
     (auto-fill-mode t))
 
-  (add-hook 'c-mode-common-hook 'my-common-c-mode-hooks))
+  (add-hook 'c-mode-common-hook 'my-common-c-mode-hooks)
+
+  ;; CEDET/Semantic hooks
+  (when (featurep 'semantic)
+    (defun my-c-mode-cedet-hook ()
+      (local-set-key "." 'semantic-complete-self-insert)
+      (local-set-key ">" 'semantic-complete-self-insert)
+      (local-set-key [(control tab)] 'semantic-ia-complete-symbol))
+    
+    (add-hook 'c-mode-common-hook 'my-c-mode-cedet-hook)))
+
+;;;
+;;; Doxygen stuff.
+(when emacs>=22-p
+  (require 'doc-mode)
+  (add-hook 'c-mode-common-hook 'doc-mode))
 
 ;;; site-c-mode.el ends here

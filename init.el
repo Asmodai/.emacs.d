@@ -2,8 +2,8 @@
 ;;;
 ;;; init.el --- Emacs initialisation file.
 ;;;
-;;; Time-stamp: <Thursday Apr 26, 2012 20:27:28 asmodai>
-;;; Revision:   94
+;;; Time-stamp: <Tuesday Aug 28, 2012 21:51:20 asmodai>
+;;; Revision:   95
 ;;;
 ;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -423,6 +423,17 @@
     (emacs>=22-p  . ".emacs.d/third-party/w3/lisp/")
     (emacs>=22-p  . ".emacs.d/third-party/w3/contrib/")
     (emacs>=23-p  . ".emacs.d/third-party/company/")
+    ;;
+    ;; CEDET
+    (emacs>=23-p  . ".emacs.d/third-party/cedet-1.1/")
+    (emacs>=23-p  . ".emacs.d/third-party/cedet-1.1/cogre/")
+    (emacs>=23-p  . ".emacs.d/third-party/cedet-1.1/common/")
+    (emacs>=23-p  . ".emacs.d/third-party/cedet-1.1/ede/")
+    (emacs>=23-p  . ".emacs.d/third-party/cedet-1.1/eieio/")
+    (emacs>=23-p  . ".emacs.d/third-party/cedet-1.1/semantic/")
+    (emacs>=23-p  . ".emacs.d/third-party/cedet-1.1/speedbar/")
+    (emacs>=23-p  . ".emacs.d/third-party/cedet-1.1/srecode/")
+    (emacs>=23-p  . ".emacs.d/third-party/cedet-1.1/contrib/")
     ;;
     ;; Packages that have been tested with XEmacs
     (xemacs>=19-p . ".emacs.d/third-party/")

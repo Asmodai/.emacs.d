@@ -2,8 +2,8 @@
 ;;;
 ;;; master-init.el --- Version-specific init code
 ;;;
-;;; Time-stamp: <Friday Mar 23, 2012 11:42:59 asmodai>
-;;; Revision:   47
+;;; Time-stamp: <Tuesday Aug 28, 2012 22:17:13 asmodai>
+;;; Revision:   50
 ;;;
 ;;; Copyright (c) 2012  <asmodai@gmail.com>
 ;;;
@@ -203,6 +203,14 @@
 ;;;{{{ GNU Emacs 23:
 
 (when emacs=23-p
+  (load "cedet.el")
+  (global-ede-mode 1)
+  (semantic-load-enable-code-helpers)
+  (global-srecode-minor-mode 1)
+  
+  (unless (boundp 'x-max-tooltip-size)
+    (setq x-max-tooltip-size '(80 . 40)))  
+  
   (compile-load "erlang-start")
   (compile-load "ruby-mode")
   (compile-load "rdoc-mode")
@@ -214,6 +222,7 @@
   (compile-load "company-abbrev")
   (compile-load "company-css")
   (compile-load "company-elisp")
+  (compile-load "company-semantic")
   (compile-load "company-keywords")
   (compile-load "company-template")
   (compile-load "slime-company")
