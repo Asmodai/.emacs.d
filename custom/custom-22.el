@@ -46,7 +46,7 @@
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(default ((t (:family "DejaVu Sans Mono" :size 9 :height 90 :background "black" :foreground "white"))))
+ '(default ((t (:family "Monaco" :size 11 :background "black" :foreground "white"))))
  '(about-headling-face ((t (:foreground "hotpink" :bold t))))
  '(about-link-face ((t (:foreground "steelblue" :underline t))))
  '(blank-space-face ((t (nil))))
