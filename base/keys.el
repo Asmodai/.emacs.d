@@ -2,8 +2,8 @@
 ;;;
 ;;; keys.el --- Custom key bindings
 ;;;
-;;; Time-stamp: <Sunday Jan 29, 2012 02:06:01 asmodai>
-;;; Revision:   16
+;;; Time-stamp: <Sunday Jun 24, 2012 06:39:27 asmodai>
+;;; Revision:   17
 ;;;
 ;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -157,7 +157,15 @@
           w32-lwindow-modifier 'super
           w32-rwindow-modifier 'hyper))
 
-  ;;
+  ;; MacOS X keys
+  (when mac-os-x-p
+    (global-unset-key (kbd "M-3"))      ; Unbind M-3 first.
+    (global-set-key (kbd "M-3")         ; Bind so the UK keyboard can
+                    (lambda ()          ; generate the hash symbol.
+                      (interactive)
+                      (insert "#"))))
+  
+
   ;; Special keys on my Acer laptop
   (when running-on-yorktown-p
     (global-set-key [(meta kp-0)        ; This is just stupid really...
