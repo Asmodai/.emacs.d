@@ -2,8 +2,8 @@
 ;;;
 ;;; site-c-mode.el --- C mode hacks.
 ;;;
-;;; Time-stamp: <Sunday Jan 29, 2012 00:40:53 asmodai>
-;;; Revision:   6
+;;; Time-stamp: <Tuesday Aug 28, 2012 16:34:58 asmodai>
+;;; Revision:   20
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -48,17 +48,16 @@
                running-on-lisp-machine-p)) 
   (autoload 'csharp-mode "csharp-mode"
     "Major mode for editing C# code." t)
-  (autoload 'lsl-mode "lsl-mode"
-    "Major mode for editing LSL code." t)
 
   (setq auto-mode-alist
-        (append '(("\\.cs$" . csharp-mode)
-                  ("\\.lsl$" . lsl-mode))
+        (append '(("\\.cs$" . csharp-mode))
                 auto-mode-alist)))
 
 ;;;
 ;;; ctags
-(setq path-to-ctags "C:/Program Files/Emacs-23.2/bin/ctags")
+(setq path-to-ctags (if windows-p
+                        "C:/Program Files/Emacs-23.2/bin/ctags"
+                        "/usr/bin/ctags"))
 
 (defun create-tags (dir-name)
   "Create tags file."
@@ -77,7 +76,7 @@
   ;; We quite like `cc-mode'.
   (require 'cc-mode)
 
-  ;; Now, set up a custom indentation style.
+  ;; Custom C indentation style.
   (defconst hackers-c-style
     '((c-tab-always-indent . t)
       (c-comment-only-line-offset . 0)
@@ -91,45 +90,106 @@
                                  (access-label after)))
       (c-cleanup-list . (scope-operator
                          empty-defun-braces
-                         defun-close-semi))
+                         brace-elseif-braces
+                         brace-catch-brace
+                         defun-close-semi
+                         list-close-comma))
       (c-offsets-alist . ((statement-block-intro . +)
-                          (knr-argdecl-intro . +)
-                          (substatement-open . 0)
-                          (label . 0)
-                          (statement-cont . +)
-                          (case-label . 2)))
-      (c-echo-syntactic-information-p . t))
+                          (inline-open           . 0)
+                          (arglist-close         . c-lineup-arglist)
+                          (knr-argdecl-intro     . +)
+                          (substatement-open     . 0)
+                          (label                 . 0)
+                          (statement-cont        . +)
+                          (case-label            . +)))
+      (c-echo-syntactic-information-p . t)
+      (c-syntactic-indentation . t)
+      (c-report-syntactic-errors . t))
     "Custom BSD-derived C syntax style.")
+  
+  ;; Custom C++ indentation style.
+  (defconst hackers-c++-style
+    '((c-tab-always-indent . t)
+      (c-comment-only-line-offset . 0)
+      (c-basic-offset . 2)
+      (c-hanging-braces-alist . ((substatement-open after)
+                                 (namespace-open after)
+                                 (inline-open after)
+                                 (class-open after)
+                                 (module-open after)
+                                 (brace-list-open)))
+      (c-hanging-colons-alist . ((member-init-intro before)
+                                 (inher-intro)
+                                 (case-label after)
+                                 (label after)
+                                 (access-label after)))
+      (c-cleanup-list . (scope-operator
+                         empty-defun-braces
+                         brace-elseif-braces
+                         brace-catch-brace
+                         defun-close-semi
+                         list-close-comma))
+      (c-offsets-alist . ((statement-block-intro . +)
+                          (inline-open           . 0)
+                          (arglist-close         . c-lineup-arglist)
+                          (knr-argdecl-intro     . +)
+                          (substatement-open     . 0)
+                          (label                 . 0)
+                          (statement-cont        . +)
+                          (case-label            . +)))
+      (c-echo-syntactic-information-p . t)
+      (c-syntactic-indentation . t)
+      (c-report-syntactic-errors . t))
+    "Custom BSD-derived C++ syntax style.")
 
-  ;; Add the new style to the available styles.
-  (c-add-style "hackers" hackers-c-style)
+  ;; Add the new styles to the available styles.
+  (c-add-style "hackers-c" hackers-c-style)
+  (c-add-style "hackers-c++" hackers-c++-style)
 
   ;; Set up the default styles
   (if (or running-on-yorktown-p
           running-on-lisp-machine-p
           running-on-magellan-p)
       (setq-default c-default-style
-                    '((c-mode . "hackers")
-                      (c++-mode ."hackers")
-                      (objc-mode . "hackers")
-                      (java-mode . "hackers")
-                      (cperl-mode . "hackers")
-                      (other . "gnu")
-                      (lsl-mode . "hackers")
-                      (csharp-mode . "hackers")))
+                    '((c-mode      . "hackers-c")
+                      (c++-mode    . "hackers-c++")
+                      (objc-mode   . "hackers-c")
+                      (java-mode   . "hackers-c")
+                      (cperl-mode  . "hackers-c")
+                      (other       . "gnu")
+                      (csharp-mode . "hackers-c")))
       (setq-default c-default-style
-                    '((c-mode . "hackers")
-                      (c++-mode ."hackers")
-                      (objc-mode . "hackers")
-                      (java-mode . "hackers")
-                      (other . "gnu"))))
-
+                    '((c-mode      . "hackers-c")
+                      (c++-mode    . "hackers-c++")
+                      (objc-mode   . "hackers-c")
+                      (java-mode   . "hackers-c")
+                      (other       . "gnu"))))
+  
+  ;; Set some defaults
+  (add-to-list 'c-cleanup-list 'one-liner-defun)
+  
+  ;; Custom indentation commands.
+  (defun my-custom-c-indent ()
+    (save-excursion
+      (align-current)))
+  
+  (add-hook 'c-special-indent-hook 'my-custom-c-indent)
+  
   ;; Add some hooks
   (defun my-common-c-mode-hooks ()
     (when (or emacs=20-p emacs=21-p)
       (turn-on-font-lock)
       (font-lock-mode t))
-    (setq indent-tabs-mode nil)
+    (setq indent-tabs-mode nil
+          c-max-one-liner-length 80)
+    (if (eq major-mode 'c++-mode)
+        (c-set-style "hackers-c++")
+        (c-set-style "hackers-c"))
+    (c-toggle-auto-state 1)
+    (c-toggle-syntactic-indentation 1)
+    (c-toggle-electric-state 1)
+    (c-toggle-hungry-state 1)
+    (c-toggle-auto-hungry-state 1)
     (auto-fill-mode t))
 
   (add-hook 'c-mode-common-hook 'my-common-c-mode-hooks))
