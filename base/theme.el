@@ -2,8 +2,8 @@
 ;;;
 ;;; theme.el --- Emacs colour theme.
 ;;;
-;;; Time-stamp: <Thursday Apr 26, 2012 20:27:44 asmodai>
-;;; Revision:   31
+;;; Time-stamp: <Wednesday Aug 29, 2012 08:37:25 asmodai>
+;;; Revision:   34
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -346,6 +346,26 @@
    ;;;}}}
    ;;;{{{ LaTeX faces:
    '(font-latex-verbatim-face ((t (:foreground "salmon" :bold t))))
+   ;;;}}}
+   ;;;{{{ Semantic faces:
+   '(semantic-decoration-on-unknown-includes
+     ((t (:background "#1c1028"))))
+   '(semantic-decoration-on-fileless-includes
+     ((t (:background "#1c1028"))))
+   '(semantic-decoration-on-unparsed-includes
+     ((t (:background "#1c1028"))))
+   '(semantic-decoration-on-private-members-face
+     ((t (:background "#351e40"))))
+   '(semantic-decoration-on-protected-members-face
+     ((t (:background "#391700"))))
+   '(semantic-highlight-edits-face
+     ((t (:background "#340603"))))
+   '(semantic-highlight-func-current-tag-face
+     ((t (:background "#4c2900"))))
+   '(senator-momentary-highlight-face
+     ((t (:background "#202020"))))
+   '(sentator-read-only-face
+     ((t (:background "#230203"))))
    ;;;}}}
    ))
 
