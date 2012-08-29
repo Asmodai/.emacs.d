@@ -2,8 +2,8 @@
 ;;;
 ;;; site-c-mode.el --- C mode hacks.
 ;;;
-;;; Time-stamp: <Tuesday Aug 28, 2012 22:35:52 asmodai>
-;;; Revision:   28
+;;; Time-stamp: <Wednesday Aug 29, 2012 05:27:58 asmodai>
+;;; Revision:   31
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -208,9 +208,9 @@
   ;; CEDET/Semantic hooks
   (when (featurep 'semantic)
     (defun my-c-mode-cedet-hook ()
-      (local-set-key "." 'semantic-complete-self-insert)
-      (local-set-key ">" 'semantic-complete-self-insert)
-      (local-set-key [(control tab)] 'semantic-ia-complete-symbol))
+      (local-set-key [(control return)] 'semantic-ia-complete-symbol-menu)
+      (local-set-key [(control tab)] 'semantic-ia-complete-symbol)
+      (local-set-key "\C-c." 'senator-complete-symbol))
     
     (add-hook 'c-mode-common-hook 'my-c-mode-cedet-hook)))
 
