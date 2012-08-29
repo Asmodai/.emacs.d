@@ -2,6 +2,7 @@
 ;;
 ;; Copyright (C) 2007, 2009 Nikolaj Schumacher
 ;; Author: Nikolaj Schumacher <bugs * nschum de>
+;; Modified by: Paul Ward <asmodai@gmail.com>
 ;; Version: 0.2
 ;; Keywords: convenience tools
 ;; URL: http://nschum.de/src/emacs/doc-mode/
@@ -43,6 +44,9 @@
 ;; `doc-mode-fold-all'.
 ;;
 ;;; Change Log:
+;;
+;; 2012-08-29
+;;    Modified code to produce Doxygen markup to my standard.
 ;;
 ;; 2009-03-22 (0.2)
 ;;    Added `doc-mode-keywords-from-tag-func' as customizable option.
@@ -114,11 +118,17 @@ For using single-line comments, see `doc-mode-allow-single-line-comments'"
   :group 'doc-mode
   :type 'string)
 
-(defcustom doc-mode-template-keyword-char "@"
+(defcustom doc-mode-template-keyword-char "\\"
   "*The character used to begin keywords."
   :group 'doc-mode
   :type '(choice (const :tag "@" "@")
                  (const :tag "\\" "\\")
+                 (string :tag "Other")))
+
+(defcustom doc-mode-template-dwim-comment "!<"
+  "*The string to use for brief member comments."
+  :group 'doc-mode
+  :type '(choice (const :tag "!<")
                  (string :tag "Other")))
 
 (defcustom doc-mode-template-empty-line-after-summary nil
@@ -134,7 +144,7 @@ For using single-line comments, see `doc-mode-allow-single-line-comments'"
                  (const :tag "On" t)))
 
 (defcustom doc-mode-template-keywords
-  '("deprecated" "param" "return" "author" "exception" "throws" "version"
+  '("deprecated" "param" "returns" "author" "exception" "throws" "version"
     "since" "see" "sa" "todo")
   "*Keywords that should be listed in this order.
 All other keywords will be considered regular text."
@@ -165,7 +175,7 @@ This may also be a number, describing how far to indent the argument list."
                  (integer :tag "Indent" nil)
                  (const :tag "On" t)))
 
-(defcustom doc-mode-fill-column nil
+(defcustom doc-mode-fill-column 78
   "*The column at which to break text when formatting it.
 If this is nil, `comment-fill-column' is used."
   :group 'doc-mode
@@ -200,12 +210,13 @@ undetermined content should be created with `doc-mode-new-keyword'."
             "line" "link" "mainpage" "manonly" "msc" "name" "nosubgrouping"
             "note" "overload" "package" "page" "par" "paragraph"  "post" "pre"
             "private" "privatesection" "property" "protected" "protectedsection"
-            "public" "publicsection" "ref" "remarks" "return" "retval" "sa"
-            "section" "see" "serial" "serialData" "serialField"
-            "showinitializer" "since" "skip" "skipline" "subpage" "subsection"
-            "subsubsection" "test" "typedef" "until" "defvar" "verbatim"
-            "verbinclude" "version" "weakgroup" "xmlonly" "xrefitem" "$" "@"
-            "\\" "&" "~" "<" ">" "#" "%") t)
+            "public" "publicsection" "ref" "remarks" "return" "returns"
+            "retval" "sa" "section" "see" "serial" "serialData"
+            "serialField" "showinitializer" "since" "skip" "skipline"
+            "subpage" "subsection" "subsubsection" "test" "typedef" "until"
+            "defvar" "verbatim" "verbinclude" "version" "weakgroup"
+            "xmlonly" "xrefitem"
+            "$" "@" "\\" "&" "~" "<" ">" "#" "%") t)
          "\\>")
        (0 font-lock-keyword-face prepend))
       ;; don't highlight \n, it's too common in code
@@ -313,12 +324,106 @@ undetermined content should be created with `doc-mode-new-keyword'."
       (doc-mode-next-template (point-min))
     (error (error "No template found"))))
 
+;; This requires newcomment.el
+;;;###autoload
+(defun doc-mode-build-comment-start ()
+  (format "%s%s%s"
+          (remove-in-string comment-start " ")
+          doc-mode-template-dwim-comment
+          (if (string-match " " comment-start)
+              " "
+              "")))
+
+;;;###autoload
+(defun doc-mode-comment-indent (&optional continue)
+  (interactive "*")
+  (comment-normalize-vars)
+  (let* ((empty (save-excursion (beginning-of-line)
+                                (looking-at "[ \t]*$")))
+         (starter (or (and continue comment-continue)
+                      (and empty block-comment-start)
+                      (doc-mode-build-comment-start)))
+         (ender (or (and continue comment-contine "")
+                    (and empty block-comment-end)
+                    comment-end)))
+    (unless starter
+      (error "No comment syntax defined"))
+    (beginning-of-line)
+    (let* ((eolpos (line-end-position))
+           (begpos (comment-search-forward eolpos t))
+           cpos
+           indent)
+      (if begpos
+          (setq cpos (point-marker))
+          (save-excursion
+            (indent-to comment-column)
+            (setq begpos (point))
+            (insert starter)
+            (setq cpos (point-marker))
+            (insert ender)))
+      (goto-char begpos)
+      (setq indent (save-excursion (funcall comment-indent-function)))
+      (if (not indent)
+          (indent-according-to-mode)
+          (unless (save-excursion (skip-chars-backward " \t") (bolp))
+            (setq indent
+                  (min indent
+                       (+ (current-column)
+                          (- fill-column
+                             (save-excursion
+                               (end-of-line)
+                               (current-column)))))))
+          (if (= (current-column) indent)
+              (goto-char begpos)
+              (skip-chars-backwards " \t")
+              (delete-region (point) begpos)
+              (indent-to (if (bolp)
+                             indent
+                             (max indent (1+ (current-column)))))))
+      (goto-char cpos)
+      (set-marker cpos nil))))
+
+;;;###autoload
+(defun doc-mode-comment-dwim (arg)
+  (interactive "*P")
+  (comment-normalize-vars)
+  (if (and mark-active
+           transient-mark-mode)
+      (let ((beg (min (point) (mark)))
+            (end (max (point) (mark))))
+        (if (save-excursion
+              (goto-char beg)
+              (comment-forward (point-max))
+              (<= end (point)))
+            (uncomment-region beg end arg)
+            (comment-region beg end arg)))
+      (if (save-excursion
+            (beginning-of-line)
+            (not (looking-at "\\s-*$")))
+          (if arg
+              (comment-kill (and (integerp arg) arg))
+              (doc-mode-comment-indent))
+          (let ((add (if arg
+                         (prefix-numeric-value arg)
+                         (if (= (length comment-start) 1)
+                             comment-add
+                             0))))
+            (indent-according-to-mode)
+            (insert (comment-padright
+                     (doc-mode-comment-indent)
+                     add))
+            (save-excursion
+              (unless (string= "" comment-end)
+                (insert (comment-padleft comment-end add)))
+              (indent-according-to-mode))))))
+
 ;;; mode ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defvar doc-mode-lighter " doc")
 
 (defvar doc-mode-prefix-map
   (let ((map (make-sparse-keymap)))
+    (define-key map ";" 'doc-mode-comment-dwim)
     (define-key map "d" 'doc-mode-fix-tag-doc)
     (define-key map "c" 'doc-mode-check-tag-doc)
     (define-key map "t" 'doc-mode-toggle-tag-doc-folding)
@@ -545,10 +650,12 @@ returned.  Otherwise a cons of the doc's beginning and end is given."
 
 ;;; formating ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun doc-mode-new-keyword (keyword &optional argument)
+(defun doc-mode-new-keyword (keyword &optional argument string)
+  (unless string
+    (setq string "<doc>"))
   (if (equal keyword "param")
-      (list keyword argument '(prompt "<doc>"))
-    (list keyword '(prompt "<doc>"))))
+      (list keyword argument `(prompt ,string))
+      (list keyword `(prompt ,string))))
 
 (defun doc-mode-has-return-value-p (tag)
   "Test if TAG has a return value to format."
@@ -696,7 +803,9 @@ Returns (length LIST) if no occurrence was found."
   (let ((lists (make-vector (1+ (length doc-mode-template-keywords)) nil))
         description)
     (dolist (k keywords)
-      (if (or (stringp k) (and (eq (car k) 'prompt)))
+      (if (or (stringp k)
+              (and (eq (car k) 'prompt))
+              (and (string= (car k) "brief")))
           (push k description)
         (push k (elt lists (doc-mode-position (car k)
                                               doc-mode-template-keywords)))))
@@ -732,12 +841,15 @@ Returns (length LIST) if no occurrence was found."
     ;; fix return value
     (if (doc-mode-has-return-value-p tag)
         ;; add
-        (unless (doc-mode-find-keyword "return" keywords)
-          (push (doc-mode-new-keyword "return") keywords))
+        (unless (doc-mode-find-keyword "returns" keywords)
+          (push (doc-mode-new-keyword "returns") keywords))
       ;; remove
-      (setq keywords (doc-mode-filter-keyword "return" keywords)))
+      (setq keywords (doc-mode-filter-keyword "returns" keywords)))
     (unless (stringp (car keywords))
-      (push `(prompt ,(format "Description for %s." (semantic-tag-name tag)))
+      (push (doc-mode-new-keyword "brief"
+                                  ""
+                                  (format "Description for %s."
+                                          (semantic-tag-name tag)))
             keywords))
     (doc-mode-sort-keywords (nconc (doc-mode-update-parameters old-params
                                                                new-params)
