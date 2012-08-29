@@ -2,8 +2,8 @@
 ;;;
 ;;; site-c-mode.el --- C mode hacks.
 ;;;
-;;; Time-stamp: <Wednesday Aug 29, 2012 05:27:58 asmodai>
-;;; Revision:   31
+;;; Time-stamp: <Wednesday Aug 29, 2012 08:16:04 asmodai>
+;;; Revision:   40
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -38,6 +38,7 @@
 
 ;;; Comment editing.
 (when emacs>=21-p
+  (require 'autopair)
   (require 'c-comment-edit)
   (if (featurep 'c-comment-edit)
       (setq c-comment-leader "  ")))
@@ -52,6 +53,18 @@
   (setq auto-mode-alist
         (append '(("\\.cs$" . csharp-mode))
                 auto-mode-alist)))
+
+;;;
+;;; Semantic stuff.
+(when (and emacs>=22-p
+           (featurep 'semantic))
+  (require 'semantic-ia)
+  (require 'semantic-gcc)
+  (semantic-load-enable-excessive-code-helpers)
+  (setq semantic-load-turn-useful-things-on t)
+  (require 'semantic-load)
+  (global-semantic-stickyfunc-mode -1)
+  (global-semantic-decoration-mode -1))
 
 ;;;
 ;;; ctags
@@ -199,8 +212,9 @@
     (c-toggle-electric-state 1)
     (c-toggle-hungry-state -1)
     (c-toggle-auto-hungry-state -1)
-    (c-toggle-auto-newline 1)
+    (c-toggle-auto-newline -1)
     (subword-mode 1)
+    (autopair-mode 1)
     (auto-fill-mode t))
 
   (add-hook 'c-mode-common-hook 'my-common-c-mode-hooks)
