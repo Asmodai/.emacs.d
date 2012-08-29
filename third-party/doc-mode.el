@@ -118,7 +118,7 @@ For using single-line comments, see `doc-mode-allow-single-line-comments'"
   :group 'doc-mode
   :type 'string)
 
-(defcustom doc-mode-template-keyword-char "\\"
+(defcustom doc-mode-template-keyword-char "@"
   "*The character used to begin keywords."
   :group 'doc-mode
   :type '(choice (const :tag "@" "@")
@@ -511,10 +511,12 @@ undetermined content should be created with `doc-mode-new-keyword'."
   "Insert TEXT if a string, or a template if 'prompt."
   (if (stringp text)
       (insert text)
-    (let ((beg (point)))
-      (insert (cadr text))
-      (when doc-mode
-        (doc-mode-add-template beg (point))))))
+      (let ((beg (point)))
+        (insert (if (listp (cadr text))
+                    (cadadr text)
+                    (cadr text)))
+        (when doc-mode
+          (doc-mode-add-template beg (point))))))
 
 (defun doc-mode-insert-markup (markup &optional argument description)
   (insert doc-mode-template-keyword-char markup)
@@ -525,17 +527,19 @@ undetermined content should be created with `doc-mode-new-keyword'."
     (insert " ")
     (doc-mode-insert description)))
 
-(defun doc-mode-insert-line (line indent)
+(defun doc-mode-insert-line (line indent &optional one-liner)
   (indent-to-column indent)
   (let ((beg (point)))
-    (insert doc-mode-template-continue)
+    (unless one-liner
+      (insert doc-mode-template-continue))
     (if (and (consp line) (not (eq (car line) 'prompt)))
         (apply 'doc-mode-insert-markup line)
       (doc-mode-insert line))
     (delete-char (- (skip-chars-backward " \t")))
     (when (> (point) (+ beg 2))
       (save-excursion (fill-region beg (point) 'left t)))
-    (insert "\n")))
+    (unless one-liner
+      (insert "\n"))))
 
 (defun doc-mode-insert-keyword (keyword indent)
   (indent-to-column indent)
@@ -558,7 +562,9 @@ LINES is a list of keywords."
 
       (if (and (not (cdr keywords)) doc-mode-allow-single-line-comments)
           (progn (insert doc-mode-template-single-line-start)
-                 (doc-mode-insert (car keywords))
+                 (if (listp (cadr keywords))
+                     (doc-mode-insert-line (car keywords) 0 t)
+                     (doc-mode-insert (car keywords)))
                  (insert doc-mode-template-single-line-end "\n"))
         (insert doc-mode-template-start "\n")
 
