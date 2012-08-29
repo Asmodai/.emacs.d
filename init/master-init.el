@@ -2,8 +2,8 @@
 ;;;
 ;;; master-init.el --- Version-specific init code
 ;;;
-;;; Time-stamp: <Tuesday Aug 28, 2012 22:17:13 asmodai>
-;;; Revision:   50
+;;; Time-stamp: <Wednesday Aug 29, 2012 15:50:23 asmodai>
+;;; Revision:   55
 ;;;
 ;;; Copyright (c) 2012  <asmodai@gmail.com>
 ;;;
@@ -207,6 +207,16 @@
   (global-ede-mode 1)
   (semantic-load-enable-code-helpers)
   (global-srecode-minor-mode 1)
+  (global-semantic-decoration-mode 1)
+  (global-semantic-highlight-edits-mode 1)
+  (global-semantic-highlight-func-mode 1)
+  (global-semantic-show-unmatched-syntax-mode 1)
+  (setq-default cedet-graphviz-dot-command
+                (cond (mac-os-x-p
+                       "/usr/local/bin/dot")
+                      ((and unix-p
+                            (not mac-os-x-p))
+                       "/usr/bin/dot")))
   
   (unless (boundp 'x-max-tooltip-size)
     (setq x-max-tooltip-size '(80 . 40)))  
