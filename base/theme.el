@@ -2,8 +2,8 @@
 ;;;
 ;;; theme.el --- Emacs colour theme.
 ;;;
-;;; Time-stamp: <Wednesday Aug 29, 2012 08:37:25 asmodai>
-;;; Revision:   34
+;;; Time-stamp: <Wednesday Aug 29, 2012 09:31:05 asmodai>
+;;; Revision:   36
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -214,7 +214,7 @@
    '(font-lock-comment-delimiter-face ((t (:foreground "steelblue"))))
    '(font-lock-comment-face ((t (:foreground "mediumaquamarine"))))
    '(font-lock-constant-face ((t (:foreground "goldenrod3"))))
-   '(font-lock-doc-face ((t (:foreground "forestgreen"))))
+   '(font-lock-doc-face ((t (:foreground "mediumaquamarine"))))
    '(font-lock-function-name-face ((t (:foreground "yellow" :bold t))))
    '(font-lock-keyword-face ((t (:foreground "salmon"))))
    '(font-lock-negation-char-face ((t (:background "grey10"
@@ -349,22 +349,22 @@
    ;;;}}}
    ;;;{{{ Semantic faces:
    '(semantic-decoration-on-unknown-includes
-     ((t (:background "#1c1028"))))
+     ((t (:background "#4c0201"))))
    '(semantic-decoration-on-fileless-includes
-     ((t (:background "#1c1028"))))
+     ((t (:background "#263136"))))
    '(semantic-decoration-on-unparsed-includes
-     ((t (:background "#1c1028"))))
+     ((t (:background "#332636"))))
    '(semantic-decoration-on-private-members-face
-     ((t (:background "#351e40"))))
+     ((t (:background "#1c0d1b"))))
    '(semantic-decoration-on-protected-members-face
-     ((t (:background "#391700"))))
+     ((t (:background "#100223"))))
    '(semantic-highlight-edits-face
-     ((t (:background "#340603"))))
+     ((t (:background "#011c07"))))
    '(semantic-highlight-func-current-tag-face
-     ((t (:background "#4c2900"))))
+     ((t (:background "#171717"))))
    '(senator-momentary-highlight-face
      ((t (:background "#202020"))))
-   '(sentator-read-only-face
+   '(senator-read-only-face
      ((t (:background "#230203"))))
    ;;;}}}
    ))
