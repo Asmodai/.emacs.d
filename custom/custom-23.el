@@ -12,6 +12,7 @@
  '(ecb-prescan-directories-for-emptyness nil)
  '(ecb-source-file-regexps (quote ((".*" nil nil))))
  '(ecb-source-path (quote (("/" "/"))))
+ '(ede-project-directories (quote ("/Users/asmodai/Documents/Projects/killer-lsm")))
  '(erc-fool-highlight-type (quote all))
  '(erc-fools (quote ("\\\\(echelon\\\\)" "\\\\(silentnoise\\\\)")))
  '(erc-modules (quote (autojoin button capab-identify completion fill irccontrols list match menu move-to-prompt netsplit networks noncommands readonly ring stamp track unmorse)))
