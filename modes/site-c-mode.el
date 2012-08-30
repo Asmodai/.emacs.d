@@ -2,8 +2,8 @@
 ;;;
 ;;; site-c-mode.el --- C mode hacks.
 ;;;
-;;; Time-stamp: <Wednesday Aug 29, 2012 13:25:17 asmodai>
-;;; Revision:   48
+;;; Time-stamp: <Thursday Aug 30, 2012 08:04:43 asmodai>
+;;; Revision:   49
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -53,18 +53,6 @@
   (setq auto-mode-alist
         (append '(("\\.cs$" . csharp-mode))
                 auto-mode-alist)))
-
-;;;
-;;; Semantic stuff.
-(when (and emacs>=22-p
-           (featurep 'semantic))
-  (require 'semantic-ia)
-  (require 'semantic-gcc)
-  (semantic-load-enable-excessive-code-helpers)
-  (setq semantic-load-turn-useful-things-on t)
-  (require 'semantic-load)
-  (global-semantic-stickyfunc-mode -1)
-  (global-semantic-decoration-mode -1))
 
 ;;;
 ;;; ctags
@@ -199,18 +187,20 @@
   (defun my-common-c-mode-hooks ()
     (when (or emacs=20-p emacs=21-p)
       (turn-on-font-lock)
-      (font-lock-mode t))
+      (font-lock-mode 1))
     (setq indent-tabs-mode nil
           c-max-one-liner-length 80)
     (if (eq major-mode 'c++-mode)
         (c-set-style "hackers-c++")
         (c-set-style "hackers-c"))
     (when (featurep 'company)
-      (company-mode t))
+      (company-mode 1))
     (when (featurep 'highlight-parentheses)
       (hi-parens-autopair))
-    (show-paren-mode t)
-    (eldoc-mode t)
+    (when (featurep 'semantic)
+      (semantic-decoration-mode 1))
+    (show-paren-mode 1)
+    (eldoc-mode 1)
     (c-toggle-auto-state 1)
     (c-toggle-syntactic-indentation 1)
     (c-toggle-electric-state 1)
@@ -219,7 +209,7 @@
     (c-toggle-auto-newline -1)
     (subword-mode 1)
     (autopair-mode 1)
-    (auto-fill-mode t))
+    (auto-fill-mode 1))
 
   (add-hook 'c-mode-common-hook 'my-common-c-mode-hooks)
 

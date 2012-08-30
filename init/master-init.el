@@ -2,8 +2,8 @@
 ;;;
 ;;; master-init.el --- Version-specific init code
 ;;;
-;;; Time-stamp: <Wednesday Aug 29, 2012 15:50:23 asmodai>
-;;; Revision:   55
+;;; Time-stamp: <Thursday Aug 30, 2012 08:04:00 asmodai>
+;;; Revision:   59
 ;;;
 ;;; Copyright (c) 2012  <asmodai@gmail.com>
 ;;;
@@ -204,19 +204,36 @@
 
 (when emacs=23-p
   (load "cedet.el")
+  (require 'semantic-ia)
+  (require 'semantic-gcc)
   (global-ede-mode 1)
-  (semantic-load-enable-code-helpers)
+  (semantic-load-enable-excessive-code-helpers)
+  (setq semantic-load-turn-useful-things-on t)
+  (require 'semantic-load)
   (global-srecode-minor-mode 1)
   (global-semantic-decoration-mode 1)
   (global-semantic-highlight-edits-mode 1)
   (global-semantic-highlight-func-mode 1)
   (global-semantic-show-unmatched-syntax-mode 1)
-  (setq-default cedet-graphviz-dot-command
-                (cond (mac-os-x-p
-                       "/usr/local/bin/dot")
-                      ((and unix-p
-                            (not mac-os-x-p))
-                       "/usr/bin/dot")))
+  (global-semantic-stickyfunc-mode -1)
+  
+  (setq cedet-graphviz-dot-command
+        (cond (mac-os-x-p
+               "/usr/local/bin/dot")
+              ((and unix-p
+                    (not mac-os-x-p))
+               "/usr/bin/dot")))
+  
+  (setq cedet-graphviz-neato-command
+        (cond (mac-os-x-p
+               "/usr/local/bin/neato")
+              ((and unix-p
+                    (not mac-os-x-p))
+               "/usr/bin/neato")))
+  
+  (setq cedet-cscope-command
+        (cond (unix-p
+               "/usr/bin/cscope")))
   
   (unless (boundp 'x-max-tooltip-size)
     (setq x-max-tooltip-size '(80 . 40)))  
