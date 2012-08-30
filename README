@@ -3,38 +3,5 @@ Emacs Configuration Files
 
 This is my current .emacs.d/
 
-SLOC	Directory	SLOC-by-Language (Sorted)
-80477   third-party     lisp=79306,erlang=534,ruby=321,sh=306,awk=10
-9654    lisp            lisp=9654
-608     base            lisp=608
-545     xcompat         lisp=545
-507     modes           lisp=507
-307     top_dir         lisp=307
-160     init            lisp=160
-157     custom          lisp=157
-13      icons           sh=13
-6       templates       perl=3,sh=3
-0       templates-19    (none)
-
-Totals grouped by language (dominant language first):
-lisp:         91244 (98.71%)
-erlang:         534 (0.58%)
-sh:             322 (0.35%)
-ruby:           321 (0.35%)
-awk:             10 (0.01%)
-perl:             3 (0.00%)
-
-Total Physical Source Lines of Code (SLOC)                = 92,434
-Development Effort Estimate, Person-Years (Person-Months) = 23.18 (278.19)
- (Basic COCOMO model, Person-Months = 2.4 * (KSLOC**1.05))
-Schedule Estimate, Years (Months)                         = 1.77 (21.22)
- (Basic COCOMO model, Months = 2.5 * (person-months**0.38))
-Estimated Average Number of Developers (Effort/Schedule)  = 13.11
-Total Estimated Cost to Develop                           = $ 3,131,590
- (average salary = $56,286/year, overhead = 2.40).
-SLOCCount, Copyright (C) 2001-2004 David A. Wheeler
-SLOCCount is Open Source Software/Free Software, licensed under the GNU GPL.
-SLOCCount comes with ABSOLUTELY NO WARRANTY, and you are welcome to
-redistribute it under certain conditions as specified by the GNU GPL license;
-see the documentation for details.
-Please credit this data as "generated using David A. Wheeler's 'SLOCCount'."
+Please be aware that you will need to rebuild the CEDET sources in
+third-party/ should you use this on a fresh Emacs.
