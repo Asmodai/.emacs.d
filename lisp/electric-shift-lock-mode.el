@@ -2,8 +2,8 @@
 ;;;
 ;;; electric-shift-lock-mode.el --- Electric shift locking, ala ZWEI.
 ;;;
-;;; Time-stamp: <Friday Mar 23, 2012 19:21:00 asmodai>
-;;; Revision:   4
+;;; Time-stamp: <Thursday Aug 30, 2012 08:54:09 asmodai>
+;;; Revision:   5
 ;;;
 ;;; Copyright (c) 2012 Paul Ward <asmodai@gmail.com>
 ;;; Copyright (c) 2008 John Paul Wallington
@@ -126,6 +126,9 @@ syntactically valid then it will give up gracefully."
 (add-hook 'hack-local-variables-hook 'run-local-vars-shift-lock-mode-hook)
 
 (defun run-local-vars-shift-lock-mode-hook ()
+  "Lisp Machine Lisp has a `Lowercase' local variable which ZMACS uses
+to ascertain whether electric shift lock mode is used or not.  This
+function replicates that functionality."
   (let ((lc? (assoc 'Lowercase file-local-variables-alist)))
     (when (and lc?
                (eq major-mode 'lisp-mode))
@@ -137,7 +140,7 @@ syntactically valid then it will give up gracefully."
 (define-minor-mode shift-lock-mode
     "Toggle Electric Shift Lock mode.
 
-With arg, turn Electric Shift Lock mode off iff arg is a
+With arg, turn Electric Shift Lock mode off if arg is a
 non-positive number; if arg is nil, toggle Electric Shift Lock
 mode; anything else turns Electric Shift Lock mode on.
 

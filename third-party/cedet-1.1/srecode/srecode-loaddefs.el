@@ -310,7 +310,7 @@ Optional argument APPLICATION restricts searches to only template tables
 belonging to a specific application.  If APPLICATION is nil, then only
 tables that do not belong to an application will be searched.
 
-\(fn (TAB srecode-mode-table) TEMPLATE-NAME &optional CONTEXT APPLICATION)" nil nil)
+\(fn (tab srecode-mode-table) TEMPLATE-NAME &optional CONTEXT APPLICATION)" nil nil)
 
 (autoload 'srecode-template-get-table-for-binding "srecode-find" "\
 Find in the template name in mode table TAB, the template with BINDING.
@@ -320,7 +320,7 @@ Optional argument APPLICATION restricts searches to only template tables
 belonging to a specific application.  If APPLICATION is nil, then only
 tables that do not belong to an application will be searched.
 
-\(fn (TAB srecode-mode-table) BINDING &optional CONTEXT APPLICATION)" nil nil)
+\(fn (tab srecode-mode-table) BINDING &optional CONTEXT APPLICATION)" nil nil)
 
 (autoload 'srecode-read-template-name "srecode-find" "\
 Completing read for Semantic Recoder template names.
@@ -661,7 +661,7 @@ Insert TAG into the current buffer with SRecode.
 
 ;;;### (autoloads nil nil ("srecode-document-vars.el" "srecode-extract.el"
 ;;;;;;  "srecode-load.el" "srecode-template-wy.el" "srecode.el")
-;;;;;;  (20541 11898 22804))
+;;;;;;  (20543 29054 997184))
 
 ;;;***
 

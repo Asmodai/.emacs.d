@@ -2,8 +2,8 @@
 ;;;
 ;;; master-init.el --- Version-specific init code
 ;;;
-;;; Time-stamp: <Thursday Aug 30, 2012 08:04:00 asmodai>
-;;; Revision:   59
+;;; Time-stamp: <Thursday Aug 30, 2012 15:21:13 asmodai>
+;;; Revision:   66
 ;;;
 ;;; Copyright (c) 2012  <asmodai@gmail.com>
 ;;;
@@ -147,6 +147,10 @@
   (compile-load "newcomment")
   
   ;;
+  ;; This ought to work on Emacs 21, I think.
+  (compile-load "electric-shift-lock-mode")
+  
+  ;;
   ;; For some reason, `hfy-etags-cmd-alist' isn't available when
   ;; htmlfontify is compiled during `compile-load', so we have to
   ;; load it in before compiling.
@@ -202,14 +206,15 @@
 ;;; ------------------------------------------------------------------
 ;;;{{{ GNU Emacs 23:
 
-(when emacs=23-p
+(when emacs>=23-p
   (load "cedet.el")
   (require 'semantic-ia)
   (require 'semantic-gcc)
-  (global-ede-mode 1)
+  (require 'eassist)
   (semantic-load-enable-excessive-code-helpers)
   (setq semantic-load-turn-useful-things-on t)
   (require 'semantic-load)
+  (global-ede-mode 1)
   (global-srecode-minor-mode 1)
   (global-semantic-decoration-mode 1)
   (global-semantic-highlight-edits-mode 1)
@@ -395,7 +400,9 @@
   ;;
   ;; This write hook will untabify the entire document unless
   ;; `indent-tabs-mode' is non-NIL.
-  (add-hook 'write-file-hooks
+  (add-hook (if emacs=24-p
+                'before-save-hook
+                'write-file-hooks)
             (lambda ()
               (when (not indent-tabs-mode)
                 (untabify (point-min) (point-max))))))
@@ -426,11 +433,17 @@
   ;;
   ;; Auto-update the time stamp header.
   (when (featurep 'time-stamp)
-    (add-hook 'write-file-hooks 'time-stamp))
+    (add-hook (if emacs=24-p
+                  'before-save-hook
+                  'write-file-hooks)
+              'time-stamp))
 
   ;;
   ;; Auto-update the file header.
-  (add-hook 'write-file-hooks 'auto-update-file-header)
+  (add-hook (if emacs=24-p
+                'before-save-hook
+                'write-file-hooks)
+            'auto-update-file-header)
   
   ;;
   ;; Enable folding mode on open if possible.

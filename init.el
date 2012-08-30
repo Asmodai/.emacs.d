@@ -2,8 +2,8 @@
 ;;;
 ;;; init.el --- Emacs initialisation file.
 ;;;
-;;; Time-stamp: <Tuesday Aug 28, 2012 21:51:20 asmodai>
-;;; Revision:   95
+;;; Time-stamp: <Thursday Aug 30, 2012 14:50:31 asmodai>
+;;; Revision:   96
 ;;;
 ;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -37,11 +37,12 @@
 ;;; NOTICE:  This file is never bytecompiled.
 ;;;
 ;;; Emacsen this has been tested on:
-;;;   GNU Emacs 22.1.1       Mac OS X 10.5
+;;;   GNU Emacs 22.1.1       Mac OS X 10.5.8
 ;;;   GNU Emacs 23.2.3       Windows 7
 ;;;   GNU Emacs 23.3.1       Windows 7
 ;;;   GNU Emacs 23.3.1       GNU/Linux
-;;;   GNU Emacs 23.4.1       Mac OS X 10.5
+;;;   GNU Emacs 23.4.1       Mac OS X 10.5.8
+;;;   GNU Emacs 24.1.1       Mac OS X 10.5.8
 ;;;
 ;;;}}}
 
@@ -562,6 +563,7 @@
          (emacs=21-p     ".emacs.d/custom/custom-21.el")
          (emacs=22-p     ".emacs.d/custom/custom-22.el")
          (emacs=23-p     ".emacs.d/custom/custom-23.el")
+ (emacs=24-p     ".emacs.d/custom/custom-24.el")
          (xemacs=19-p    ".emacs.d/custom/custom-x19.el")
          (xemacs=20-p    ".emacs.d/custom/custom-x20.el")
          (xemacs=21-p    ".emacs.d/custom/custom-x21.el"))

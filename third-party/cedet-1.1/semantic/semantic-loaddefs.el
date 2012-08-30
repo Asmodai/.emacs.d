@@ -3,25 +3,11 @@
 ;;; Code:
 
 
-;;;### (autoloads (bison->wisent) "bison-wisent" "wisent/bison-wisent.el"
-;;;;;;  (20362 59691))
-;;; Generated autoloads from wisent/bison-wisent.el
-
-(autoload 'bison->wisent "bison-wisent" "\
-Treat the current buffer as a YACC or BISON file, and translate to wisent.
-Replaces all comments with wisent compatible comments.
-Finds % commands that wisent cannot handle, and comments them out.
-Deletes all actions, replacing them with small comments.
-
-\(fn)" t nil)
-
-;;;***
-
-;;;### (autoloads (semantic-bovine-debug-create-frame) "bovine-debug"
+;;;### (autoloads (semantic-bovine-debug-create-frame) "bovine/bovine-debug"
 ;;;;;;  "bovine/bovine-debug.el" (20362 59692))
 ;;; Generated autoloads from bovine/bovine-debug.el
 
-(autoload 'semantic-bovine-debug-create-frame "bovine-debug" "\
+(autoload 'semantic-bovine-debug-create-frame "bovine/bovine-debug" "\
 Create one bovine frame.
 NONTERM is the name of a rule we are currently parsing.
 RULE is the index into the list of rules in NONTERM.
@@ -39,15 +25,15 @@ LEXTOKEN, is a token returned by the lexer which is being matched.
 
 \(fn NONTERM RULE MATCH COLLECTION LEXTOKEN)" nil nil)
 
-(eieio-defclass-autoload 'semantic-bovine-debug-parser '(semantic-debug-parser) "bovine-debug" "Represents a parser and its state.")
+(eieio-defclass-autoload 'semantic-bovine-debug-parser '(semantic-debug-parser) "bovine/bovine-debug" "Represents a parser and its state.")
 
 ;;;***
 
-;;;### (autoloads (bovine-grammar-mode) "bovine-grammar" "bovine/bovine-grammar.el"
+;;;### (autoloads (bovine-grammar-mode) "bovine/bovine-grammar" "bovine/bovine-grammar.el"
 ;;;;;;  (20362 59692))
 ;;; Generated autoloads from bovine/bovine-grammar.el
 
-(autoload 'bovine-grammar-mode "bovine-grammar" "\
+(autoload 'bovine-grammar-mode "bovine/bovine-grammar" "\
 Major mode for editing Bovine grammars.
 
 \(fn)" t nil)
@@ -55,6 +41,283 @@ Major mode for editing Bovine grammars.
 (add-to-list 'auto-mode-alist '("\\.by$" . bovine-grammar-mode))
 
 (eval-after-load "speedbar" '(speedbar-add-supported-extension ".by"))
+
+;;;***
+
+;;;### (autoloads (semantic-bovinate-stream semantic-lambda) "bovine/semantic-bovine"
+;;;;;;  "bovine/semantic-bovine.el" (20362 59692))
+;;; Generated autoloads from bovine/semantic-bovine.el
+
+(defvar semantic-bovinate-nonterminal-check-obarray nil "\
+Obarray of streams already parsed for nonterminal symbols.
+Use this to detect infinite recursion during a parse.")
+
+(autoload 'semantic-lambda "bovine/semantic-bovine" "\
+Create a lambda expression to return a list including RETURN-VAL.
+The return list is a lambda expression to be used in a bovine table.
+
+\(fn &rest RETURN-VAL)" nil (quote macro))
+
+(autoload 'semantic-bovinate-stream "bovine/semantic-bovine" "\
+Bovinate STREAM, starting at the first NONTERMINAL rule.
+Use `bovine-toplevel' if NONTERMINAL is not provided.
+This is the core routine for converting a stream into a table.
+Return the list (STREAM SEMANTIC-STREAM) where STREAM are those
+elements of STREAM that have not been used.  SEMANTIC-STREAM is the
+list of semantic tokens found.
+
+\(fn STREAM &optional NONTERMINAL)" nil nil)
+
+(defalias 'semantic-parse-stream-default 'semantic-bovinate-stream)
+
+;;;***
+
+;;;### (autoloads (semantic-c-add-preprocessor-symbol semantic-default-c-setup
+;;;;;;  semantic-c-member-of-autocast semantic-lex-c-preprocessor-symbol-file
+;;;;;;  semantic-lex-c-preprocessor-symbol-map) "bovine/semantic-c"
+;;;;;;  "bovine/semantic-c.el" (20362 59692))
+;;; Generated autoloads from bovine/semantic-c.el
+
+(defvar semantic-lex-c-preprocessor-symbol-map nil "\
+Table of C Preprocessor keywords used by the Semantic C lexer.
+Each entry is a cons cell like this:
+  ( \"KEYWORD\" . \"REPLACEMENT\" )
+Where KEYWORD is the macro that gets replaced in the lexical phase,
+and REPLACEMENT is a string that is inserted in its place.  Empty string
+implies that the lexical analyzer will discard KEYWORD when it is encountered.
+
+Alternately, it can be of the form:
+  ( \"KEYWORD\" ( LEXSYM1 \"str\" 1 1 ) ... ( LEXSYMN \"str\" 1 1 ) )
+where LEXSYM is a symbol that would normally be produced by the
+lexical analyzer, such as `symbol' or `string'.  The string in the
+second position is the text that makes up the replacement.  This is
+the way to have multiple lexical symbols in a replacement.  Using the
+first way to specify text like \"foo::bar\" would not work, because :
+is a separate lexical symbol.
+
+A quick way to see what you would need to insert is to place a
+definition such as:
+
+#define MYSYM foo::bar
+
+into a C file, and do this:
+  \\[semantic-lex-spp-describe]
+
+The output table will describe the symbols needed.")
+
+(custom-autoload 'semantic-lex-c-preprocessor-symbol-map "bovine/semantic-c" nil)
+
+(defvar semantic-lex-c-preprocessor-symbol-file nil "\
+List of C/C++ files that contain preprocessor macros for the C lexer.
+Each entry is a filename and each file is parsed, and those macros
+are included in every C/C++ file parsed by semantic.
+You can use this variable instead of `semantic-lex-c-preprocessor-symbol-map'
+to store your global macros in a more natural way.")
+
+(custom-autoload 'semantic-lex-c-preprocessor-symbol-file "bovine/semantic-c" nil)
+
+(defvar semantic-c-member-of-autocast 't "\
+Non-nil means classes with a '->' operator will cast to its return type.
+
+For Examples:
+
+  class Foo {
+    Bar *operator->();
+  }
+
+  Foo foo;
+
+if `semantic-c-member-of-autocast' is non-nil :
+  foo->[here completion will list method of Bar]
+
+if `semantic-c-member-of-autocast' is nil :
+  foo->[here completion will list method of Foo]")
+
+(custom-autoload 'semantic-c-member-of-autocast "bovine/semantic-c" t)
+
+(autoload 'semantic-default-c-setup "bovine/semantic-c" "\
+Set up a buffer for semantic parsing of the C language.
+
+\(fn)" nil nil)
+
+(autoload 'semantic-c-add-preprocessor-symbol "bovine/semantic-c" "\
+Add a preprocessor symbol SYM with a REPLACEMENT value.
+
+\(fn SYM REPLACEMENT)" t nil)
+
+(add-hook 'c-mode-hook 'semantic-default-c-setup)
+
+(add-hook 'c++-mode-hook 'semantic-default-c-setup)
+
+(add-hook 'arduino-mode-hook 'semantic-default-c-setup)
+
+;;;***
+
+;;;### (autoloads (semantic-clang-activate) "bovine/semantic-clang"
+;;;;;;  "bovine/semantic-clang.el" (20362 59692))
+;;; Generated autoloads from bovine/semantic-clang.el
+
+(autoload 'semantic-clang-activate "bovine/semantic-clang" "\
+Activate clang completions for C/C++.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (semantic-default-elisp-setup) "bovine/semantic-el"
+;;;;;;  "bovine/semantic-el.el" (20362 59692))
+;;; Generated autoloads from bovine/semantic-el.el
+
+(autoload 'semantic-default-elisp-setup "bovine/semantic-el" "\
+Setup hook function for Emacs Lisp files and Semantic.
+
+\(fn)" nil nil)
+
+(add-hook 'emacs-lisp-mode-hook 'semantic-default-elisp-setup)
+
+(add-hook 'lisp-mode-hook 'semantic-default-elisp-setup)
+
+(eval-after-load "semanticdb" '(require 'semanticdb-el))
+
+;;;***
+
+;;;### (autoloads (semantic-default-f90-setup) "bovine/semantic-f90"
+;;;;;;  "bovine/semantic-f90.el" (20362 59692))
+;;; Generated autoloads from bovine/semantic-f90.el
+
+(autoload 'semantic-default-f90-setup "bovine/semantic-f90" "\
+Set up a buffer for semantic parsing of the F90 language.
+
+\(fn)" nil nil)
+
+(add-hook 'f90-mode-hook 'semantic-default-f90-setup)
+
+;;;***
+
+;;;### (autoloads (semantic-gcc-test-output-parser-this-machine semantic-gcc-test-output-parser
+;;;;;;  semantic-gcc-setup) "bovine/semantic-gcc" "bovine/semantic-gcc.el"
+;;;;;;  (20362 59692))
+;;; Generated autoloads from bovine/semantic-gcc.el
+
+(autoload 'semantic-gcc-setup "bovine/semantic-gcc" "\
+Setup Semantic C/C++ parsing based on GCC output.
+
+\(fn)" t nil)
+
+(autoload 'semantic-gcc-test-output-parser "bovine/semantic-gcc" "\
+Test the output parser against some collected strings.
+
+\(fn)" t nil)
+
+(autoload 'semantic-gcc-test-output-parser-this-machine "bovine/semantic-gcc" "\
+Test the output parser against the machine currently running Emacs.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (semantic-default-make-setup) "bovine/semantic-make"
+;;;;;;  "bovine/semantic-make.el" (20362 59692))
+;;; Generated autoloads from bovine/semantic-make.el
+
+(autoload 'semantic-default-make-setup "bovine/semantic-make" "\
+Set up a Makefile buffer for parsing with semantic.
+
+\(fn)" nil nil)
+
+(add-hook 'makefile-mode-hook 'semantic-default-make-setup)
+
+;;;***
+
+;;;### (autoloads (semantic-default-scheme-setup) "bovine/semantic-scm"
+;;;;;;  "bovine/semantic-scm.el" (20362 59692))
+;;; Generated autoloads from bovine/semantic-scm.el
+
+(autoload 'semantic-default-scheme-setup "bovine/semantic-scm" "\
+Setup hook function for Emacs Lisp files and Semantic.
+
+\(fn)" nil nil)
+
+(add-hook 'scheme-mode-hook 'semantic-default-scheme-setup)
+
+;;;***
+
+;;;### (autoloads (semantic-default-skel-setup) "bovine/semantic-skel"
+;;;;;;  "bovine/semantic-skel.el" (20362 59692))
+;;; Generated autoloads from bovine/semantic-skel.el
+
+(autoload 'semantic-default-skel-setup "bovine/semantic-skel" "\
+Set up a buffer for semantic parsing of the skeleton language.
+
+\(fn)" nil nil)
+
+;;;***
+
+;;;### (autoloads (semantic-load-enable-primary-exuberent-ctags-support)
+;;;;;;  "ctags/semantic-ectag-lang" "ctags/semantic-ectag-lang.el"
+;;;;;;  (20362 59692))
+;;; Generated autoloads from ctags/semantic-ectag-lang.el
+
+(autoload 'semantic-load-enable-primary-exuberent-ctags-support "ctags/semantic-ectag-lang" "\
+Enable all ectag supported parsers for new languages.
+This is support for any language that does not have a regular
+semantic parser.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (semantic-load-enable-secondary-exuberent-ctags-support)
+;;;;;;  "ctags/semantic-ectag-lang2" "ctags/semantic-ectag-lang2.el"
+;;;;;;  (20362 59692))
+;;; Generated autoloads from ctags/semantic-ectag-lang2.el
+
+(autoload 'semantic-load-enable-secondary-exuberent-ctags-support "ctags/semantic-ectag-lang2" "\
+Enable exuberent ctags support as a secondary parser.
+This is for semanticdb out-of-buffer parsing support.
+Any mode that has been tested to work will be added to this function.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (semantic-ectag-parse-buffer) "ctags/semantic-ectag-parse"
+;;;;;;  "ctags/semantic-ectag-parse.el" (20362 59692))
+;;; Generated autoloads from ctags/semantic-ectag-parse.el
+
+(autoload 'semantic-ectag-parse-buffer "ctags/semantic-ectag-parse" "\
+Execute Exuberent CTags on this buffer.
+Convert the output tags into Semantic tags.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (cedet-ectag-version-check) "ctags/semantic-ectag-util"
+;;;;;;  "ctags/semantic-ectag-util.el" (20362 59692))
+;;; Generated autoloads from ctags/semantic-ectag-util.el
+
+(autoload 'cedet-ectag-version-check "ctags/semantic-ectag-util" "\
+Check the version of the installed ctags command.
+If optional programatic argument NOERROR is non-nil, then
+instead of throwing an error if ctags isn't available, then
+return nil.
+
+\(fn &optional NOERROR)" t nil)
+
+;;;***
+
+;;;### (autoloads (semanticdb-enable-exuberent-ctags) "ctags/semanticdb-ectag"
+;;;;;;  "ctags/semanticdb-ectag.el" (20362 59692))
+;;; Generated autoloads from ctags/semanticdb-ectag.el
+
+(autoload 'semanticdb-enable-exuberent-ctags "ctags/semanticdb-ectag" "\
+Enable the use of exuberent ctags for out-of-buffer parsing for MODE.
+MODE is a `major-mode' symbol used.
+Throws an error if `semantic-ectag-program' is not of the correct
+version needed by Semantic ctags support.
+
+\(fn MODE)" t nil)
 
 ;;;***
 
@@ -310,115 +573,6 @@ Toggle between the implementation, and a prototype of tag under point.
 
 ;;;***
 
-;;;### (autoloads (semantic-bovinate-stream semantic-lambda) "semantic-bovine"
-;;;;;;  "bovine/semantic-bovine.el" (20362 59692))
-;;; Generated autoloads from bovine/semantic-bovine.el
-
-(defvar semantic-bovinate-nonterminal-check-obarray nil "\
-Obarray of streams already parsed for nonterminal symbols.
-Use this to detect infinite recursion during a parse.")
-
-(autoload 'semantic-lambda "semantic-bovine" "\
-Create a lambda expression to return a list including RETURN-VAL.
-The return list is a lambda expression to be used in a bovine table.
-
-\(fn &rest RETURN-VAL)" nil (quote macro))
-
-(autoload 'semantic-bovinate-stream "semantic-bovine" "\
-Bovinate STREAM, starting at the first NONTERMINAL rule.
-Use `bovine-toplevel' if NONTERMINAL is not provided.
-This is the core routine for converting a stream into a table.
-Return the list (STREAM SEMANTIC-STREAM) where STREAM are those
-elements of STREAM that have not been used.  SEMANTIC-STREAM is the
-list of semantic tokens found.
-
-\(fn STREAM &optional NONTERMINAL)" nil nil)
-
-(defalias 'semantic-parse-stream-default 'semantic-bovinate-stream)
-
-;;;***
-
-;;;### (autoloads (semantic-c-add-preprocessor-symbol semantic-default-c-setup
-;;;;;;  semantic-c-member-of-autocast semantic-lex-c-preprocessor-symbol-file
-;;;;;;  semantic-lex-c-preprocessor-symbol-map) "semantic-c" "bovine/semantic-c.el"
-;;;;;;  (20362 59692))
-;;; Generated autoloads from bovine/semantic-c.el
-
-(defvar semantic-lex-c-preprocessor-symbol-map nil "\
-Table of C Preprocessor keywords used by the Semantic C lexer.
-Each entry is a cons cell like this:
-  ( \"KEYWORD\" . \"REPLACEMENT\" )
-Where KEYWORD is the macro that gets replaced in the lexical phase,
-and REPLACEMENT is a string that is inserted in its place.  Empty string
-implies that the lexical analyzer will discard KEYWORD when it is encountered.
-
-Alternately, it can be of the form:
-  ( \"KEYWORD\" ( LEXSYM1 \"str\" 1 1 ) ... ( LEXSYMN \"str\" 1 1 ) )
-where LEXSYM is a symbol that would normally be produced by the
-lexical analyzer, such as `symbol' or `string'.  The string in the
-second position is the text that makes up the replacement.  This is
-the way to have multiple lexical symbols in a replacement.  Using the
-first way to specify text like \"foo::bar\" would not work, because :
-is a separate lexical symbol.
-
-A quick way to see what you would need to insert is to place a
-definition such as:
-
-#define MYSYM foo::bar
-
-into a C file, and do this:
-  \\[semantic-lex-spp-describe]
-
-The output table will describe the symbols needed.")
-
-(custom-autoload 'semantic-lex-c-preprocessor-symbol-map "semantic-c" nil)
-
-(defvar semantic-lex-c-preprocessor-symbol-file nil "\
-List of C/C++ files that contain preprocessor macros for the C lexer.
-Each entry is a filename and each file is parsed, and those macros
-are included in every C/C++ file parsed by semantic.
-You can use this variable instead of `semantic-lex-c-preprocessor-symbol-map'
-to store your global macros in a more natural way.")
-
-(custom-autoload 'semantic-lex-c-preprocessor-symbol-file "semantic-c" nil)
-
-(defvar semantic-c-member-of-autocast 't "\
-Non-nil means classes with a '->' operator will cast to its return type.
-
-For Examples:
-
-  class Foo {
-    Bar *operator->();
-  }
-
-  Foo foo;
-
-if `semantic-c-member-of-autocast' is non-nil :
-  foo->[here completion will list method of Bar]
-
-if `semantic-c-member-of-autocast' is nil :
-  foo->[here completion will list method of Foo]")
-
-(custom-autoload 'semantic-c-member-of-autocast "semantic-c" t)
-
-(autoload 'semantic-default-c-setup "semantic-c" "\
-Set up a buffer for semantic parsing of the C language.
-
-\(fn)" nil nil)
-
-(autoload 'semantic-c-add-preprocessor-symbol "semantic-c" "\
-Add a preprocessor symbol SYM with a REPLACEMENT value.
-
-\(fn SYM REPLACEMENT)" t nil)
-
-(add-hook 'c-mode-hook 'semantic-default-c-setup)
-
-(add-hook 'c++-mode-hook 'semantic-default-c-setup)
-
-(add-hook 'arduino-mode-hook 'semantic-default-c-setup)
-
-;;;***
-
 ;;;### (autoloads (semantic-chart-analyzer semantic-chart-tag-complexity
 ;;;;;;  semantic-chart-database-size semantic-chart-tags-by-class)
 ;;;;;;  "semantic-chart" "semantic-chart.el" (20362 59691))
@@ -452,17 +606,6 @@ items are charted.  TAGTABLE is passed to
 
 (autoload 'semantic-chart-analyzer "semantic-chart" "\
 Chart the extent of the context analysis.
-
-\(fn)" t nil)
-
-;;;***
-
-;;;### (autoloads (semantic-clang-activate) "semantic-clang" "bovine/semantic-clang.el"
-;;;;;;  (20362 59692))
-;;; Generated autoloads from bovine/semantic-clang.el
-
-(autoload 'semantic-clang-activate "semantic-clang" "\
-Activate clang completions for C/C++.
 
 \(fn)" t nil)
 
@@ -1101,60 +1244,6 @@ just the lexical token and not the string.
 
 ;;;***
 
-;;;### (autoloads (semantic-load-enable-primary-exuberent-ctags-support)
-;;;;;;  "semantic-ectag-lang" "ctags/semantic-ectag-lang.el" (20362
-;;;;;;  59692))
-;;; Generated autoloads from ctags/semantic-ectag-lang.el
-
-(autoload 'semantic-load-enable-primary-exuberent-ctags-support "semantic-ectag-lang" "\
-Enable all ectag supported parsers for new languages.
-This is support for any language that does not have a regular
-semantic parser.
-
-\(fn)" t nil)
-
-;;;***
-
-;;;### (autoloads (semantic-load-enable-secondary-exuberent-ctags-support)
-;;;;;;  "semantic-ectag-lang2" "ctags/semantic-ectag-lang2.el" (20362
-;;;;;;  59692))
-;;; Generated autoloads from ctags/semantic-ectag-lang2.el
-
-(autoload 'semantic-load-enable-secondary-exuberent-ctags-support "semantic-ectag-lang2" "\
-Enable exuberent ctags support as a secondary parser.
-This is for semanticdb out-of-buffer parsing support.
-Any mode that has been tested to work will be added to this function.
-
-\(fn)" t nil)
-
-;;;***
-
-;;;### (autoloads (semantic-ectag-parse-buffer) "semantic-ectag-parse"
-;;;;;;  "ctags/semantic-ectag-parse.el" (20362 59692))
-;;; Generated autoloads from ctags/semantic-ectag-parse.el
-
-(autoload 'semantic-ectag-parse-buffer "semantic-ectag-parse" "\
-Execute Exuberent CTags on this buffer.
-Convert the output tags into Semantic tags.
-
-\(fn)" t nil)
-
-;;;***
-
-;;;### (autoloads (cedet-ectag-version-check) "semantic-ectag-util"
-;;;;;;  "ctags/semantic-ectag-util.el" (20362 59692))
-;;; Generated autoloads from ctags/semantic-ectag-util.el
-
-(autoload 'cedet-ectag-version-check "semantic-ectag-util" "\
-Check the version of the installed ctags command.
-If optional programatic argument NOERROR is non-nil, then
-instead of throwing an error if ctags isn't available, then
-return nil.
-
-\(fn &optional NOERROR)" t nil)
-
-;;;***
-
 ;;;### (autoloads nil "semantic-ede-grammar" "semantic-ede-grammar.el"
 ;;;;;;  (20362 59691))
 ;;; Generated autoloads from semantic-ede-grammar.el
@@ -1216,23 +1305,6 @@ the semantic cache to see what needs to be changed.
 
 ;;;***
 
-;;;### (autoloads (semantic-default-elisp-setup) "semantic-el" "bovine/semantic-el.el"
-;;;;;;  (20362 59692))
-;;; Generated autoloads from bovine/semantic-el.el
-
-(autoload 'semantic-default-elisp-setup "semantic-el" "\
-Setup hook function for Emacs Lisp files and Semantic.
-
-\(fn)" nil nil)
-
-(add-hook 'emacs-lisp-mode-hook 'semantic-default-elisp-setup)
-
-(add-hook 'lisp-mode-hook 'semantic-default-elisp-setup)
-
-(eval-after-load "semanticdb" '(require 'semanticdb-el))
-
-;;;***
-
 ;;;### (autoloads (semantic-elp-load-old-run semantic-elp-analyze)
 ;;;;;;  "semantic-elp" "semantic-elp.el" (20362 59691))
 ;;; Generated autoloads from semantic-elp.el
@@ -1246,19 +1318,6 @@ Run the analyzer, using ELP to measure performance.
 Load an old run from FILE, and show it.
 
 \(fn FILE)" t nil)
-
-;;;***
-
-;;;### (autoloads (semantic-default-f90-setup) "semantic-f90" "bovine/semantic-f90.el"
-;;;;;;  (20362 59692))
-;;; Generated autoloads from bovine/semantic-f90.el
-
-(autoload 'semantic-default-f90-setup "semantic-f90" "\
-Set up a buffer for semantic parsing of the F90 language.
-
-\(fn)" nil nil)
-
-(add-hook 'f90-mode-hook 'semantic-default-f90-setup)
 
 ;;;***
 
@@ -1738,28 +1797,6 @@ Optional argument COLOR means highlight the prototype with font-lock colors.
 
 ;;;***
 
-;;;### (autoloads (semantic-gcc-test-output-parser-this-machine semantic-gcc-test-output-parser
-;;;;;;  semantic-gcc-setup) "semantic-gcc" "bovine/semantic-gcc.el"
-;;;;;;  (20362 59692))
-;;; Generated autoloads from bovine/semantic-gcc.el
-
-(autoload 'semantic-gcc-setup "semantic-gcc" "\
-Setup Semantic C/C++ parsing based on GCC output.
-
-\(fn)" t nil)
-
-(autoload 'semantic-gcc-test-output-parser "semantic-gcc" "\
-Test the output parser against some collected strings.
-
-\(fn)" t nil)
-
-(autoload 'semantic-gcc-test-output-parser-this-machine "semantic-gcc" "\
-Test the output parser against the machine currently running Emacs.
-
-\(fn)" t nil)
-
-;;;***
-
 ;;;### (autoloads (semantic-grammar-batch-build-packages) "semantic-grammar"
 ;;;;;;  "semantic-grammar.el" (20362 59691))
 ;;; Generated autoloads from semantic-grammar.el
@@ -2141,19 +2178,6 @@ Return a list of menu items for dealing with analyzer refs.
 
 ;;;***
 
-;;;### (autoloads (semantic-default-make-setup) "semantic-make" "bovine/semantic-make.el"
-;;;;;;  (20362 59692))
-;;; Generated autoloads from bovine/semantic-make.el
-
-(autoload 'semantic-default-make-setup "semantic-make" "\
-Set up a Makefile buffer for parsing with semantic.
-
-\(fn)" nil nil)
-
-(add-hook 'makefile-mode-hook 'semantic-default-make-setup)
-
-;;;***
-
 ;;;### (autoloads (semantic-mru-bookmark-mode global-semantic-mru-bookmark-mode
 ;;;;;;  global-semantic-mru-bookmark-mode) "semantic-mru-bookmark"
 ;;;;;;  "semantic-mru-bookmark.el" (20362 59691))
@@ -2195,7 +2219,7 @@ minor mode is enabled.
 ;;; Generated autoloads from semantic-regtest.el
 
 (autoload 'semantic-regtest-run-test "semantic-regtest" "\
-Not documented
+
 
 \(fn)" t nil)
 
@@ -2240,19 +2264,6 @@ file-names. See this function for details about the optional argument
 
 ;;;***
 
-;;;### (autoloads (semantic-default-scheme-setup) "semantic-scm"
-;;;;;;  "bovine/semantic-scm.el" (20362 59692))
-;;; Generated autoloads from bovine/semantic-scm.el
-
-(autoload 'semantic-default-scheme-setup "semantic-scm" "\
-Setup hook function for Emacs Lisp files and Semantic.
-
-\(fn)" nil nil)
-
-(add-hook 'scheme-mode-hook 'semantic-default-scheme-setup)
-
-;;;***
-
 ;;;### (autoloads (semantic-calculate-scope semantic-scope-tag-clone-with-scope
 ;;;;;;  semantic-scope-reset-cache) "semantic-scope" "semantic-scope.el"
 ;;;;;;  (20362 59691))
@@ -2276,17 +2287,6 @@ The class returned from the scope calculation is variable
 `semantic-scope-cache'.
 
 \(fn &optional POINT)" t nil)
-
-;;;***
-
-;;;### (autoloads (semantic-default-skel-setup) "semantic-skel" "bovine/semantic-skel.el"
-;;;;;;  (20362 59692))
-;;; Generated autoloads from bovine/semantic-skel.el
-
-(autoload 'semantic-default-skel-setup "semantic-skel" "\
-Set up a buffer for semantic parsing of the skeleton language.
-
-\(fn)" nil nil)
 
 ;;;***
 
@@ -2492,177 +2492,6 @@ is necessary to get the tag from which for faux TAG was most
 likely derived, then this function is needed.
 
 \(fn TAG)" nil nil)
-
-;;;***
-
-;;;### (autoloads (semantic-symref-find-text semantic-symref-find-file-references-by-name
-;;;;;;  semantic-symref-find-tags-by-completion semantic-symref-find-tags-by-regexp
-;;;;;;  semantic-symref-find-tags-by-name semantic-symref-find-references-by-name)
-;;;;;;  "semantic-symref" "symref/semantic-symref.el" (20362 59691))
-;;; Generated autoloads from symref/semantic-symref.el
-
-(autoload 'semantic-symref-find-references-by-name "semantic-symref" "\
-Find a list of references to NAME in the current project.
-Optional SCOPE specifies which file set to search.  Defaults to 'project.
-Refers to `semantic-symref-tool', to determine the reference tool to use
-for the current buffer.
-Returns an object of class `semantic-symref-result'.
-TOOL-RETURN is an optional symbol, which will be assigned the tool used
-to perform the search.  This was added for use by a test harness.
-
-\(fn NAME &optional SCOPE TOOL-RETURN)" t nil)
-
-(autoload 'semantic-symref-find-tags-by-name "semantic-symref" "\
-Find a list of tags by NAME in the current project.
-Optional SCOPE specifies which file set to search.  Defaults to 'project.
-Refers to `semantic-symref-tool', to determine the reference tool to use
-for the current buffer.
-Returns an object of class `semantic-symref-result'.
-
-\(fn NAME &optional SCOPE)" t nil)
-
-(autoload 'semantic-symref-find-tags-by-regexp "semantic-symref" "\
-Find a list of references to NAME in the current project.
-Optional SCOPE specifies which file set to search.  Defaults to 'project.
-Refers to `semantic-symref-tool', to determine the reference tool to use
-for the current buffer.
-Returns an object of class `semantic-symref-result'.
-
-\(fn NAME &optional SCOPE)" t nil)
-
-(autoload 'semantic-symref-find-tags-by-completion "semantic-symref" "\
-Find a list of references to NAME in the current project.
-Optional SCOPE specifies which file set to search.  Defaults to 'project.
-Refers to `semantic-symref-tool', to determine the reference tool to use
-for the current buffer.
-Returns an object of class `semantic-symref-result'.
-
-\(fn NAME &optional SCOPE)" t nil)
-
-(autoload 'semantic-symref-find-file-references-by-name "semantic-symref" "\
-Find a list of references to NAME in the current project.
-Optional SCOPE specifies which file set to search.  Defaults to 'project.
-Refers to `semantic-symref-tool', to determine the reference tool to use
-for the current buffer.
-Returns an object of class `semantic-symref-result'.
-
-\(fn NAME &optional SCOPE)" t nil)
-
-(autoload 'semantic-symref-find-text "semantic-symref" "\
-Find a list of occurrences of TEXT in the current project.
-TEXT is a regexp formatted for use with egrep.
-Optional SCOPE specifies which file set to search.  Defaults to 'project.
-Refers to `semantic-symref-tool', to determine the reference tool to use
-for the current buffer.
-Returns an object of class `semantic-symref-result'.
-
-\(fn TEXT &optional SCOPE)" t nil)
-
-;;;***
-
-;;;### (autoloads nil "semantic-symref-cscope" "symref/semantic-symref-cscope.el"
-;;;;;;  (20362 59691))
-;;; Generated autoloads from symref/semantic-symref-cscope.el
-
-(eieio-defclass-autoload 'semantic-symref-tool-cscope '(semantic-symref-tool-baseclass) "semantic-symref-cscope" "A symref tool implementation using CScope.\nThe CScope command can be used to generate lists of tags in a way\nsimilar to that of `grep'.  This tool will parse the output to generate\nthe hit list.\n\nSee the function `cedet-cscope-search' for more details.")
-
-;;;***
-
-;;;### (autoloads (semantic-symref-rename-local-variable semantic-symref-test-count-hits-in-tag
-;;;;;;  semantic-symref-hits-in-region) "semantic-symref-filter"
-;;;;;;  "symref/semantic-symref-filter.el" (20362 59691))
-;;; Generated autoloads from symref/semantic-symref-filter.el
-
-(autoload 'semantic-symref-hits-in-region "semantic-symref-filter" "\
-Find all occurrences of the symbol TARGET that match TARGET the tag.
-For each match, call HOOKFCN.
-HOOKFCN takes three arguments that match
-`semantic-analyze-current-symbol's use of HOOKFCN.
-  ( START END PREFIX )
-
-Search occurs in the current buffer between START and END.
-
-\(fn TARGET HOOKFCN START END)" nil nil)
-
-(autoload 'semantic-symref-test-count-hits-in-tag "semantic-symref-filter" "\
-Lookup in the current tag the symbol under point.
-the count all the other references to the same symbol within the
-tag that contains point, and return that.
-
-\(fn)" t nil)
-
-(autoload 'semantic-symref-rename-local-variable "semantic-symref-filter" "\
-Fancy way to rename the local variable under point.
-Depends on the SRecode Field editing API.
-
-\(fn)" t nil)
-
-;;;***
-
-;;;### (autoloads nil "semantic-symref-global" "symref/semantic-symref-global.el"
-;;;;;;  (20362 59691))
-;;; Generated autoloads from symref/semantic-symref-global.el
-
-(eieio-defclass-autoload 'semantic-symref-tool-global '(semantic-symref-tool-baseclass) "semantic-symref-global" "A symref tool implementation using GNU Global.\nThe GNU Global command can be used to generate lists of tags in a way\nsimilar to that of `grep'.  This tool will parse the output to generate\nthe hit list.\n\nSee the function `cedet-gnu-global-search' for more details.")
-
-;;;***
-
-;;;### (autoloads nil "semantic-symref-grep" "symref/semantic-symref-grep.el"
-;;;;;;  (20362 59691))
-;;; Generated autoloads from symref/semantic-symref-grep.el
-
-(eieio-defclass-autoload 'semantic-symref-tool-grep '(semantic-symref-tool-baseclass) "semantic-symref-grep" "A symref tool implementation using grep.\nThis tool uses EDE to find he root of the project, then executes\nfind-grep in the project.  The output is parsed for hits\nand those hits returned.")
-
-;;;***
-
-;;;### (autoloads nil "semantic-symref-idutils" "symref/semantic-symref-idutils.el"
-;;;;;;  (20362 59691))
-;;; Generated autoloads from symref/semantic-symref-idutils.el
-
-(eieio-defclass-autoload 'semantic-symref-tool-idutils '(semantic-symref-tool-baseclass) "semantic-symref-idutils" "A symref tool implementation using ID Utils.\nThe udutils command set can be used to generate lists of tags in a way\nsimilar to that of `grep'.  This tool will parse the output to generate\nthe hit list.\n\nSee the function `cedet-idutils-search' for more details.")
-
-;;;***
-
-;;;### (autoloads (semantic-symref-results-mode semantic-symref-regexp
-;;;;;;  semantic-symref-symbol semantic-symref) "semantic-symref-list"
-;;;;;;  "symref/semantic-symref-list.el" (20362 59691))
-;;; Generated autoloads from symref/semantic-symref-list.el
-
-(autoload 'semantic-symref "semantic-symref-list" "\
-Find references to the current tag.
-This command uses the currently configured references tool within the
-current project to find references to the current tag.  The
-references are the organized by file and the name of the function
-they are used in.
-Display the references in`semantic-symref-results-mode'.
-
-\(fn)" t nil)
-
-(autoload 'semantic-symref-symbol "semantic-symref-list" "\
-Find references to the symbol SYM.
-This command uses the currently configured references tool within the
-current project to find references to the input SYM.  The
-references are the organized by file and the name of the function
-they are used in.
-Display the references in`semantic-symref-results-mode'.
-
-\(fn SYM)" t nil)
-
-(autoload 'semantic-symref-regexp "semantic-symref-list" "\
-Find references to the a symbol regexp SYM.
-This command uses the currently configured references tool within the
-current project to find references to the input SYM.  The
-references are the organized by file and the name of the function
-they are used in.
-Display the references in`semantic-symref-results-mode'.
-
-\(fn SYM)" t nil)
-
-(autoload 'semantic-symref-results-mode "semantic-symref-list" "\
-Major-mode for displaying Semantic Symbol Reference RESULTS.
-RESULTS is an object of class `semantic-symref-results'.
-
-\(fn RESULTS)" t nil)
 
 ;;;***
 
@@ -2894,7 +2723,7 @@ Set up a buffer for parsing of Texinfo files.
 ;;; Generated autoloads from semantic-utest.el
 
 (autoload 'semantic-utest-main "semantic-utest" "\
-Not documented
+
 
 \(fn)" t nil)
 
@@ -3196,20 +3025,6 @@ warn instead.
 
 ;;;***
 
-;;;### (autoloads (semanticdb-enable-exuberent-ctags) "semanticdb-ectag"
-;;;;;;  "ctags/semanticdb-ectag.el" (20362 59692))
-;;; Generated autoloads from ctags/semanticdb-ectag.el
-
-(autoload 'semanticdb-enable-exuberent-ctags "semanticdb-ectag" "\
-Enable the use of exuberent ctags for out-of-buffer parsing for MODE.
-MODE is a `major-mode' symbol used.
-Throws an error if `semantic-ectag-program' is not of the correct
-version needed by Semantic ctags support.
-
-\(fn MODE)" t nil)
-
-;;;***
-
 ;;;### (autoloads (semanticdb-full-filename semanticdb-live-p semanticdb-file-loaded-p
 ;;;;;;  semanticdb-persistent-path semanticdb-default-save-directory
 ;;;;;;  semanticdb-default-file-name) "semanticdb-file" "semanticdb-file.el"
@@ -3254,12 +3069,12 @@ Return the project belonging to FILENAME if it was already loaded.
 Return non-nil if the file associated with OBJ is live.
 Live databases are objects associated with existing directories.
 
-\(fn (OBJ semanticdb-project-database))" nil nil)
+\(fn (obj semanticdb-project-database))" nil nil)
 
 (autoload 'semanticdb-full-filename "semanticdb-file" "\
 Fetch the full filename that OBJ refers to.
 
-\(fn (OBJ semanticdb-project-database-file))" nil nil)
+\(fn (obj semanticdb-project-database-file))" nil nil)
 
 ;;;***
 
@@ -3597,7 +3412,7 @@ Add a reference for the database table DBT based on INCLUDE-TAG.
 DBT is the database table that owns the INCLUDE-TAG.  The reference
 will be added to the database that INCLUDE-TAG refers to.
 
-\(fn (DBT semanticdb-abstract-table) INCLUDE-TAG)" nil nil)
+\(fn (dbt semanticdb-abstract-table) INCLUDE-TAG)" nil nil)
 
 ;;;***
 
@@ -3703,7 +3518,7 @@ Return a list ((DB-TABLE . TOKEN-OR-TOKEN-LIST) ...).
 (autoload 'semanticdb-typecache-notify-reset "semanticdb-typecache" "\
 Do a reset from a notify from a table we depend on.
 
-\(fn (TC semanticdb-typecache))" nil nil)
+\(fn (tc semanticdb-typecache))" nil nil)
 
 (autoload 'semanticdb-typecache-add-dependant "semanticdb-typecache" "\
 Add into the local typecache a dependant DEP.
@@ -3714,7 +3529,7 @@ Add into the local typecache a dependant DEP.
 Retrieve the typecache from the semanticdb TABLE.
 If there is no table, create one, and fill it in.
 
-\(fn (TABLE semanticdb-abstract-table))" nil nil)
+\(fn (table semanticdb-abstract-table))" nil nil)
 
 (eieio-defclass-autoload 'semanticdb-database-typecache '(semanticdb-abstract-db-cache) "semanticdb-typecache" "Structure for maintaining a typecache.")
 
@@ -3722,7 +3537,7 @@ If there is no table, create one, and fill it in.
 Retrieve the typecache from the semantic database DB.
 If there is no table, create one, and fill it in.
 
-\(fn (DB semanticdb-project-database))" nil nil)
+\(fn (db semanticdb-project-database))" nil nil)
 
 (autoload 'semanticdb-typecache-merge-streams "semanticdb-typecache" "\
 Merge into CACHE1 and CACHE2 together.  The Caches will be merged in place.
@@ -3928,31 +3743,217 @@ found, nil otherwise.
 
 ;;;***
 
-;;;### (autoloads (wisent-parse-toggle-verbose-flag) "wisent" "wisent/wisent.el"
+;;;### (autoloads (semantic-symref-find-text semantic-symref-find-file-references-by-name
+;;;;;;  semantic-symref-find-tags-by-completion semantic-symref-find-tags-by-regexp
+;;;;;;  semantic-symref-find-tags-by-name semantic-symref-find-references-by-name)
+;;;;;;  "symref/semantic-symref" "symref/semantic-symref.el" (20362
+;;;;;;  59691))
+;;; Generated autoloads from symref/semantic-symref.el
+
+(autoload 'semantic-symref-find-references-by-name "symref/semantic-symref" "\
+Find a list of references to NAME in the current project.
+Optional SCOPE specifies which file set to search.  Defaults to 'project.
+Refers to `semantic-symref-tool', to determine the reference tool to use
+for the current buffer.
+Returns an object of class `semantic-symref-result'.
+TOOL-RETURN is an optional symbol, which will be assigned the tool used
+to perform the search.  This was added for use by a test harness.
+
+\(fn NAME &optional SCOPE TOOL-RETURN)" t nil)
+
+(autoload 'semantic-symref-find-tags-by-name "symref/semantic-symref" "\
+Find a list of tags by NAME in the current project.
+Optional SCOPE specifies which file set to search.  Defaults to 'project.
+Refers to `semantic-symref-tool', to determine the reference tool to use
+for the current buffer.
+Returns an object of class `semantic-symref-result'.
+
+\(fn NAME &optional SCOPE)" t nil)
+
+(autoload 'semantic-symref-find-tags-by-regexp "symref/semantic-symref" "\
+Find a list of references to NAME in the current project.
+Optional SCOPE specifies which file set to search.  Defaults to 'project.
+Refers to `semantic-symref-tool', to determine the reference tool to use
+for the current buffer.
+Returns an object of class `semantic-symref-result'.
+
+\(fn NAME &optional SCOPE)" t nil)
+
+(autoload 'semantic-symref-find-tags-by-completion "symref/semantic-symref" "\
+Find a list of references to NAME in the current project.
+Optional SCOPE specifies which file set to search.  Defaults to 'project.
+Refers to `semantic-symref-tool', to determine the reference tool to use
+for the current buffer.
+Returns an object of class `semantic-symref-result'.
+
+\(fn NAME &optional SCOPE)" t nil)
+
+(autoload 'semantic-symref-find-file-references-by-name "symref/semantic-symref" "\
+Find a list of references to NAME in the current project.
+Optional SCOPE specifies which file set to search.  Defaults to 'project.
+Refers to `semantic-symref-tool', to determine the reference tool to use
+for the current buffer.
+Returns an object of class `semantic-symref-result'.
+
+\(fn NAME &optional SCOPE)" t nil)
+
+(autoload 'semantic-symref-find-text "symref/semantic-symref" "\
+Find a list of occurrences of TEXT in the current project.
+TEXT is a regexp formatted for use with egrep.
+Optional SCOPE specifies which file set to search.  Defaults to 'project.
+Refers to `semantic-symref-tool', to determine the reference tool to use
+for the current buffer.
+Returns an object of class `semantic-symref-result'.
+
+\(fn TEXT &optional SCOPE)" t nil)
+
+;;;***
+
+;;;### (autoloads nil "symref/semantic-symref-cscope" "symref/semantic-symref-cscope.el"
 ;;;;;;  (20362 59691))
+;;; Generated autoloads from symref/semantic-symref-cscope.el
+
+(eieio-defclass-autoload 'semantic-symref-tool-cscope '(semantic-symref-tool-baseclass) "symref/semantic-symref-cscope" "A symref tool implementation using CScope.\nThe CScope command can be used to generate lists of tags in a way\nsimilar to that of `grep'.  This tool will parse the output to generate\nthe hit list.\n\nSee the function `cedet-cscope-search' for more details.")
+
+;;;***
+
+;;;### (autoloads (semantic-symref-rename-local-variable semantic-symref-test-count-hits-in-tag
+;;;;;;  semantic-symref-hits-in-region) "symref/semantic-symref-filter"
+;;;;;;  "symref/semantic-symref-filter.el" (20362 59691))
+;;; Generated autoloads from symref/semantic-symref-filter.el
+
+(autoload 'semantic-symref-hits-in-region "symref/semantic-symref-filter" "\
+Find all occurrences of the symbol TARGET that match TARGET the tag.
+For each match, call HOOKFCN.
+HOOKFCN takes three arguments that match
+`semantic-analyze-current-symbol's use of HOOKFCN.
+  ( START END PREFIX )
+
+Search occurs in the current buffer between START and END.
+
+\(fn TARGET HOOKFCN START END)" nil nil)
+
+(autoload 'semantic-symref-test-count-hits-in-tag "symref/semantic-symref-filter" "\
+Lookup in the current tag the symbol under point.
+the count all the other references to the same symbol within the
+tag that contains point, and return that.
+
+\(fn)" t nil)
+
+(autoload 'semantic-symref-rename-local-variable "symref/semantic-symref-filter" "\
+Fancy way to rename the local variable under point.
+Depends on the SRecode Field editing API.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads nil "symref/semantic-symref-global" "symref/semantic-symref-global.el"
+;;;;;;  (20362 59691))
+;;; Generated autoloads from symref/semantic-symref-global.el
+
+(eieio-defclass-autoload 'semantic-symref-tool-global '(semantic-symref-tool-baseclass) "symref/semantic-symref-global" "A symref tool implementation using GNU Global.\nThe GNU Global command can be used to generate lists of tags in a way\nsimilar to that of `grep'.  This tool will parse the output to generate\nthe hit list.\n\nSee the function `cedet-gnu-global-search' for more details.")
+
+;;;***
+
+;;;### (autoloads nil "symref/semantic-symref-grep" "symref/semantic-symref-grep.el"
+;;;;;;  (20362 59691))
+;;; Generated autoloads from symref/semantic-symref-grep.el
+
+(eieio-defclass-autoload 'semantic-symref-tool-grep '(semantic-symref-tool-baseclass) "symref/semantic-symref-grep" "A symref tool implementation using grep.\nThis tool uses EDE to find he root of the project, then executes\nfind-grep in the project.  The output is parsed for hits\nand those hits returned.")
+
+;;;***
+
+;;;### (autoloads nil "symref/semantic-symref-idutils" "symref/semantic-symref-idutils.el"
+;;;;;;  (20362 59691))
+;;; Generated autoloads from symref/semantic-symref-idutils.el
+
+(eieio-defclass-autoload 'semantic-symref-tool-idutils '(semantic-symref-tool-baseclass) "symref/semantic-symref-idutils" "A symref tool implementation using ID Utils.\nThe udutils command set can be used to generate lists of tags in a way\nsimilar to that of `grep'.  This tool will parse the output to generate\nthe hit list.\n\nSee the function `cedet-idutils-search' for more details.")
+
+;;;***
+
+;;;### (autoloads (semantic-symref-results-mode semantic-symref-regexp
+;;;;;;  semantic-symref-symbol semantic-symref) "symref/semantic-symref-list"
+;;;;;;  "symref/semantic-symref-list.el" (20362 59691))
+;;; Generated autoloads from symref/semantic-symref-list.el
+
+(autoload 'semantic-symref "symref/semantic-symref-list" "\
+Find references to the current tag.
+This command uses the currently configured references tool within the
+current project to find references to the current tag.  The
+references are the organized by file and the name of the function
+they are used in.
+Display the references in`semantic-symref-results-mode'.
+
+\(fn)" t nil)
+
+(autoload 'semantic-symref-symbol "symref/semantic-symref-list" "\
+Find references to the symbol SYM.
+This command uses the currently configured references tool within the
+current project to find references to the input SYM.  The
+references are the organized by file and the name of the function
+they are used in.
+Display the references in`semantic-symref-results-mode'.
+
+\(fn SYM)" t nil)
+
+(autoload 'semantic-symref-regexp "symref/semantic-symref-list" "\
+Find references to the a symbol regexp SYM.
+This command uses the currently configured references tool within the
+current project to find references to the input SYM.  The
+references are the organized by file and the name of the function
+they are used in.
+Display the references in`semantic-symref-results-mode'.
+
+\(fn SYM)" t nil)
+
+(autoload 'semantic-symref-results-mode "symref/semantic-symref-list" "\
+Major-mode for displaying Semantic Symbol Reference RESULTS.
+RESULTS is an object of class `semantic-symref-results'.
+
+\(fn RESULTS)" t nil)
+
+;;;***
+
+;;;### (autoloads (bison->wisent) "wisent/bison-wisent" "wisent/bison-wisent.el"
+;;;;;;  (20362 59691))
+;;; Generated autoloads from wisent/bison-wisent.el
+
+(autoload 'bison->wisent "wisent/bison-wisent" "\
+Treat the current buffer as a YACC or BISON file, and translate to wisent.
+Replaces all comments with wisent compatible comments.
+Finds % commands that wisent cannot handle, and comments them out.
+Deletes all actions, replacing them with small comments.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (wisent-parse-toggle-verbose-flag) "wisent/wisent"
+;;;;;;  "wisent/wisent.el" (20362 59691))
 ;;; Generated autoloads from wisent/wisent.el
 
 (defvar wisent-parse-verbose-flag nil "\
 *Non-nil means to issue more messages while parsing.")
 
-(autoload 'wisent-parse-toggle-verbose-flag "wisent" "\
+(autoload 'wisent-parse-toggle-verbose-flag "wisent/wisent" "\
 Toggle whether to issue more messages while parsing.
 
 \(fn)" t nil)
 
 ;;;***
 
-;;;### (autoloads (wisent-calc-utest wisent-calc) "wisent-calc" "wisent/wisent-calc.el"
-;;;;;;  (20362 59691))
+;;;### (autoloads (wisent-calc-utest wisent-calc) "wisent/wisent-calc"
+;;;;;;  "wisent/wisent-calc.el" (20362 59691))
 ;;; Generated autoloads from wisent/wisent-calc.el
 
-(autoload 'wisent-calc "wisent-calc" "\
+(autoload 'wisent-calc "wisent/wisent-calc" "\
 Infix desktop calculator.
 Parse INPUT string and output the result of computation.
 
 \(fn INPUT)" t nil)
 
-(autoload 'wisent-calc-utest "wisent-calc" "\
+(autoload 'wisent-calc-utest "wisent/wisent-calc" "\
 Test the wisent calculator.
 
 \(fn)" t nil)
@@ -3960,19 +3961,19 @@ Test the wisent calculator.
 ;;;***
 
 ;;;### (autoloads (wisent-byte-compile-grammar wisent-compile-grammar
-;;;;;;  wisent-toggle-verbose-flag) "wisent-comp" "wisent/wisent-comp.el"
+;;;;;;  wisent-toggle-verbose-flag) "wisent/wisent-comp" "wisent/wisent-comp.el"
 ;;;;;;  (20362 59691))
 ;;; Generated autoloads from wisent/wisent-comp.el
 
 (defvar wisent-verbose-flag nil "\
 *Non-nil means to report verbose information on generated parser.")
 
-(autoload 'wisent-toggle-verbose-flag "wisent-comp" "\
+(autoload 'wisent-toggle-verbose-flag "wisent/wisent-comp" "\
 Toggle whether to report verbose information on generated parser.
 
 \(fn)" t nil)
 
-(autoload 'wisent-compile-grammar "wisent-comp" "\
+(autoload 'wisent-compile-grammar "wisent/wisent-comp" "\
 Compile the LALR(1) GRAMMAR.
 
 GRAMMAR is a list (TOKENS ASSOCS . NONTERMS) where:
@@ -4015,7 +4016,7 @@ where:
 
 \(fn GRAMMAR &optional START-LIST)" nil nil)
 
-(autoload 'wisent-byte-compile-grammar "wisent-comp" "\
+(autoload 'wisent-byte-compile-grammar "wisent/wisent-comp" "\
 Byte compile the `wisent-compile-grammar' FORM.
 Automatically called by the Emacs Lisp byte compiler as a
 `byte-compile' handler.
@@ -4025,23 +4026,23 @@ Automatically called by the Emacs Lisp byte compiler as a
 ;;;***
 
 ;;;### (autoloads (wisent-debug-show-entry wisent-cancel-debug-on-entry
-;;;;;;  wisent-debug-on-entry) "wisent-debug" "wisent/wisent-debug.el"
+;;;;;;  wisent-debug-on-entry) "wisent/wisent-debug" "wisent/wisent-debug.el"
 ;;;;;;  (20362 59691))
 ;;; Generated autoloads from wisent/wisent-debug.el
 
-(autoload 'wisent-debug-on-entry "wisent-debug" "\
+(autoload 'wisent-debug-on-entry "wisent/wisent-debug" "\
 Request AUTOMATON's FUNCTION to invoke debugger each time it is called.
 FUNCTION must be a semantic action symbol that exists in AUTOMATON.
 
 \(fn AUTOMATON FUNCTION)" t nil)
 
-(autoload 'wisent-cancel-debug-on-entry "wisent-debug" "\
+(autoload 'wisent-cancel-debug-on-entry "wisent/wisent-debug" "\
 Undo effect of \\[wisent-debug-on-entry] on AUTOMATON's FUNCTION.
 FUNCTION must be a semantic action symbol that exists in AUTOMATON.
 
 \(fn AUTOMATON FUNCTION)" t nil)
 
-(autoload 'wisent-debug-show-entry "wisent-debug" "\
+(autoload 'wisent-debug-show-entry "wisent/wisent-debug" "\
 Show the source of AUTOMATON's semantic action FUNCTION.
 FUNCTION must be a semantic action symbol that exists in AUTOMATON.
 
@@ -4049,11 +4050,11 @@ FUNCTION must be a semantic action symbol that exists in AUTOMATON.
 
 ;;;***
 
-;;;### (autoloads (wisent-grammar-mode) "wisent-grammar" "wisent/wisent-grammar.el"
+;;;### (autoloads (wisent-grammar-mode) "wisent/wisent-grammar" "wisent/wisent-grammar.el"
 ;;;;;;  (20362 59691))
 ;;; Generated autoloads from wisent/wisent-grammar.el
 
-(autoload 'wisent-grammar-mode "wisent-grammar" "\
+(autoload 'wisent-grammar-mode "wisent/wisent-grammar" "\
 Major mode for editing Wisent grammars.
 
 \(fn)" t nil)
@@ -4064,19 +4065,19 @@ Major mode for editing Wisent grammars.
 
 ;;;***
 
-;;;### (autoloads nil "wisent-java" "wisent/wisent-java.el" (20362
-;;;;;;  59691))
+;;;### (autoloads nil "wisent/wisent-java" "wisent/wisent-java.el"
+;;;;;;  (20362 59691))
 ;;; Generated autoloads from wisent/wisent-java.el
 
 (eval-after-load "semanticdb" '(require 'semanticdb-javap))
 
 ;;;***
 
-;;;### (autoloads (wisent-java-default-setup) "wisent-java-tags"
+;;;### (autoloads (wisent-java-default-setup) "wisent/wisent-java-tags"
 ;;;;;;  "wisent/wisent-java-tags.el" (20362 59691))
 ;;; Generated autoloads from wisent/wisent-java-tags.el
 
-(autoload 'wisent-java-default-setup "wisent-java-tags" "\
+(autoload 'wisent-java-default-setup "wisent/wisent-java-tags" "\
 Hook run to setup Semantic in `java-mode'.
 Use the alternate LALR(1) parser.
 
@@ -4086,11 +4087,11 @@ Use the alternate LALR(1) parser.
 
 ;;;***
 
-;;;### (autoloads (wisent-javascript-setup-parser) "wisent-javascript"
+;;;### (autoloads (wisent-javascript-setup-parser) "wisent/wisent-javascript"
 ;;;;;;  "wisent/wisent-javascript.el" (20362 59691))
 ;;; Generated autoloads from wisent/wisent-javascript.el
 
-(autoload 'wisent-javascript-setup-parser "wisent-javascript" "\
+(autoload 'wisent-javascript-setup-parser "wisent/wisent-javascript" "\
 Setup buffer for parse.
 
 \(fn)" nil nil)
@@ -4105,11 +4106,11 @@ Setup buffer for parse.
 
 ;;;***
 
-;;;### (autoloads (wisent-python-default-setup) "wisent-python" "wisent/wisent-python.el"
-;;;;;;  (20362 59691))
+;;;### (autoloads (wisent-python-default-setup) "wisent/wisent-python"
+;;;;;;  "wisent/wisent-python.el" (20362 59691))
 ;;; Generated autoloads from wisent/wisent-python.el
 
-(autoload 'wisent-python-default-setup "wisent-python" "\
+(autoload 'wisent-python-default-setup "wisent/wisent-python" "\
 Setup buffer for parse.
 
 \(fn)" nil nil)
@@ -4129,7 +4130,7 @@ Setup buffer for parse.
 ;;;;;;  "wisent/wisent-cim-wy.el" "wisent/wisent-expr.el" "wisent/wisent-grammar-macros.el"
 ;;;;;;  "wisent/wisent-java-tags-wy.el" "wisent/wisent-java-wy.el"
 ;;;;;;  "wisent/wisent-javascript-jv-wy.el" "wisent/wisent-python-wy.el")
-;;;;;;  (20541 11844 272643))
+;;;;;;  (20543 29008 958708))
 
 ;;;***
 

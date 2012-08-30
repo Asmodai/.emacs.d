@@ -2,8 +2,8 @@
 ;;;
 ;;; theme.el --- Emacs colour theme.
 ;;;
-;;; Time-stamp: <Thursday Aug 30, 2012 07:49:59 asmodai>
-;;; Revision:   65
+;;; Time-stamp: <Thursday Aug 30, 2012 12:15:15 asmodai>
+;;; Revision:   67
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -190,6 +190,9 @@
    '(minibuffer-prompt
      ((t (:foreground "purple"))))
    '(modeline
+     ((t (:foreground "#b8b66c"
+          :background "#2b113d"))))
+   '(mode-line
      ((t (:foreground "#b8b66c"
           :background "#2b113d"))))
    '(mode-line-inactive
@@ -519,9 +522,9 @@
    '(semantic-decoration-on-unparsed-includes
      ((t (:background "#1c151e"))))
    '(semantic-decoration-on-private-members-face
-     ((t (:background "#120811"))))
+     ((t (:background "#231021"))))
    '(semantic-decoration-on-protected-members-face
-     ((t (:background "#02072f"))))
+     ((t (:background "#010520"))))
    '(semantic-highlight-edits-face
      ((t (:background "#001205"))))
    '(semantic-highlight-func-current-tag-face
