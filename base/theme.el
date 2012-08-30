@@ -2,8 +2,8 @@
 ;;;
 ;;; theme.el --- Emacs colour theme.
 ;;;
-;;; Time-stamp: <Wednesday Aug 29, 2012 15:51:26 asmodai>
-;;; Revision:   57
+;;; Time-stamp: <Thursday Aug 30, 2012 07:49:59 asmodai>
+;;; Revision:   65
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -190,11 +190,11 @@
    '(minibuffer-prompt
      ((t (:foreground "purple"))))
    '(modeline
-     ((t (:foreground "#9b995b"
-          :background "#1a0a25"))))
+     ((t (:foreground "#b8b66c"
+          :background "#2b113d"))))
    '(mode-line-inactive
      ((t (:foreground "#51502f"
-          :background "#170a20"))))
+          :background "#160a1e"))))
    '(modeline-buffer-id
      ((t (:foreground "#35dc5d"))))
    '(modeline-mousable
@@ -273,7 +273,7 @@
    '(font-lock-doc-face
      ((t (:foreground "#669bcd"))))
    '(font-lock-function-name-face
-     ((t (:foreground "#b6bf57"
+     ((t (:foreground "#c4a259"
           :bold t))))
    '(font-lock-keyword-face
      ((t (:foreground "#e99487"))))
@@ -513,15 +513,15 @@
    ;;;}}}
    ;;;{{{ Semantic faces:
    '(semantic-decoration-on-unknown-includes
-     ((t (:background "#4c0201"))))
+     ((t (:background "#2f0101"))))
    '(semantic-decoration-on-fileless-includes
-     ((t (:background "#263136"))))
+     ((t (:background "#13191c"))))
    '(semantic-decoration-on-unparsed-includes
-     ((t (:background "#332636"))))
+     ((t (:background "#1c151e"))))
    '(semantic-decoration-on-private-members-face
-     ((t (:background "#1c0d1b"))))
+     ((t (:background "#120811"))))
    '(semantic-decoration-on-protected-members-face
-     ((t (:background "#100223"))))
+     ((t (:background "#02072f"))))
    '(semantic-highlight-edits-face
      ((t (:background "#001205"))))
    '(semantic-highlight-func-current-tag-face
@@ -529,7 +529,7 @@
    '(senator-momentary-highlight-face
      ((t (:background "#202020"))))
    '(senator-read-only-face
-     ((t (:background "#230203"))))
+     ((t (:background "#190102"))))
    ;;;}}}
    ))
 
