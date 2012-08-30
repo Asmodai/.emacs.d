@@ -2,8 +2,8 @@
 ;;;
 ;;; site-c-mode.el --- C mode hacks.
 ;;;
-;;; Time-stamp: <Thursday Aug 30, 2012 08:04:43 asmodai>
-;;; Revision:   49
+;;; Time-stamp: <Thursday Aug 30, 2012 08:08:59 asmodai>
+;;; Revision:   50
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -197,8 +197,6 @@
       (company-mode 1))
     (when (featurep 'highlight-parentheses)
       (hi-parens-autopair))
-    (when (featurep 'semantic)
-      (semantic-decoration-mode 1))
     (show-paren-mode 1)
     (eldoc-mode 1)
     (c-toggle-auto-state 1)
