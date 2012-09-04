@@ -2,8 +2,8 @@
 ;;;
 ;;; doc-mode.el --- Doxygen mode.
 ;;;
-;;; Time-stamp: <Tuesday Sep  4, 2012 17:23:22 asmodai>
-;;; Revision:   3
+;;; Time-stamp: <Tuesday Sep  4, 2012 17:47:41 asmodai>
+;;; Revision:   4
 ;;;
 ;;; Copyright (c) 2012 Paul Ward <asmodai@gmail.com>
 ;;; Copyright (C) 2007, 2009 Nikolaj Schumacher
@@ -554,7 +554,7 @@ undetermined content should be created with `doc-mode-new-keyword'."
                        (concat (buffer-substring (point-at-bol) (point))
                                doc-mode-template-continue
                                (make-string (doc-mode-line-indent keyword)
-                                            ? )))))
+                                            ?)))))
     (doc-mode-insert-line keyword indent)))
 
 (defun doc-mode-insert-doc (keywords &optional pos)
