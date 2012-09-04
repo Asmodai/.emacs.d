@@ -554,7 +554,7 @@ undetermined content should be created with `doc-mode-new-keyword'."
                        (concat (buffer-substring (point-at-bol) (point))
                                doc-mode-template-continue
                                (make-string (doc-mode-line-indent keyword)
-                                            ?)))))
+                                            ? )))))
     (doc-mode-insert-line keyword indent)))
 
 (defun doc-mode-insert-doc (keywords &optional pos)
