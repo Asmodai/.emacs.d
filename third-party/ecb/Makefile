@@ -52,7 +52,7 @@ EMACS=emacs
 #   Set this to the full path of your CEDET-installation.
 
 #CEDET=
-CEDET=c:/Programme/emacs-23.1/site-lisp/package-development/cedet
+CEDET=/Users/asmodai/.emacs.d/third-party/cedet-1.1/
 
 # You can set here more load-paths to arbitrary packages if you want. But
 # this is really not necessary!
@@ -82,14 +82,14 @@ LOADPATH=
 # not available let the related setting X empty! NOTE: For generating the
 # PDF-format you will need an installed TeX and Ghostscript!
 MAKEINFO=/usr/bin/makeinfo
-TEXI2DVI=/C/Programme/texmf/miktex/bin/texi2dvi
+TEXI2DVI=
 # You need either the dvipdfm-tool
 #DVIPDFM=/C/Programme/texmf/miktex/bin/dvipdfm
 DVIPDFM=
 # or the tools dvips and ps2pdf. If dvipdfm is available the Makefile uses
 # this one!
-DVIPS=/C/Programme/texmf/miktex/bin/dvips
-PS2PDF=/C/home/bin/ps2pdf
+DVIPS=
+PS2PDF=
 
 # To generate the online-formats just call "make online-help" for info- and
 # HTML-format and "make pdf" for PDF-format.
