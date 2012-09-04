@@ -2,8 +2,8 @@
 ;;;
 ;;; site-c-mode.el --- C mode hacks.
 ;;;
-;;; Time-stamp: <Tuesday Sep  4, 2012 10:13:37 asmodai>
-;;; Revision:   60
+;;; Time-stamp: <Tuesday Sep  4, 2012 18:31:35 asmodai>
+;;; Revision:   61
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -210,6 +210,7 @@
     (c-toggle-hungry-state -1)
     (c-toggle-auto-hungry-state -1)
     (c-toggle-auto-newline -1)
+    (ecb-minor-mode 1)
     (subword-mode 1)
     (autopair-mode 1)
     (auto-fill-mode 1))
