@@ -1,17 +1,17 @@
 ;;; -*- Mode: Emacs-Lisp -*-
 
 (custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(c-default-style (quote ((c-mode . "bsd") (lsl-mode . "bsd") (csharp-mode . "bsd") (c++-mode . "bsd") (cc-mode . "bsd") (objc-mode . "gnu") (java-mode . "java") (other . "gnu"))))
  '(column-number-mode t)
  '(ecb-cache-directory-contents (quote (("^/\\([^:/]*@\\)?\\([^@:/]*\\):.*" . 0) (".*" . 50) ("*.*.~*~" . 1000))))
  '(ecb-options-version "2.31")
  '(ecb-prescan-directories-for-emptyness nil)
  '(ecb-source-file-regexps (quote ((".*" nil nil))))
- '(ecb-source-path (quote (("/" "/"))))
+ '(ecb-source-path (quote (("/Users/asmodai/Documents/Projects/XHack" "XHack"))))
  '(ede-project-directories (quote ("/Users/asmodai/Documents/Projects/XHack" "/Users/asmodai/Documents/Projects/killer-lsm")))
  '(erc-fool-highlight-type (quote all))
  '(erc-fools (quote ("\\\\(echelon\\\\)" "\\\\(silentnoise\\\\)")))
@@ -46,10 +46,10 @@
  '(w3-default-homepage "http://localhost/"))
 
 (custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(default ((t (:stipple nil :background "black" :foreground "white" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :height 110 :width normal :foundry "apple" :family "Monaco"))))
  '(about-headling-face ((t (:foreground "hotpink" :bold t))))
  '(about-link-face ((t (:foreground "steelblue" :underline t))))

@@ -19,7 +19,8 @@
   :name "XHack"
   :file "~/Documents/Projects/XHack/CMakeLists.txt"
   :include-path '("/include"
-                  "/3rd-party")
+                  "/3rd-party/")
   :spp-table '(("isUnix" . ""))
   :system-include-path '(("/Library/Frameworks/QtCore.framework/Headers/")
-                         ("/Library/Frameworks/QtSql.framework/Headers/")))
+                         ("/Library/Frameworks/QtSql.framework/Headers/")
+                         ("~/Documents/Projects/XHack/3rd-party/")))

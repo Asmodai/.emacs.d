@@ -437,7 +437,7 @@
     (emacs>=23-p  . ".emacs.d/third-party/cedet-1.1/contrib/")
     ;;
     ;; ECB
-    (emacs>=23-p  . ".emacs.d/third-party/ecb-2.40/")
+    (emacs>=23-p  . ".emacs.d/third-party/ecb/")
     ;;
     ;; Packages that have been tested with XEmacs
     (xemacs>=19-p . ".emacs.d/third-party/")
