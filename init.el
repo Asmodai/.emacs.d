@@ -656,6 +656,10 @@ version.")
   (load "theme"))
 
 ;;;
+;;; One or two packages require this to be non-void.
+(setf stack-trace-on-error nil)
+
+;;;
 ;;; Tell the user that we're done
 (message "Emacs is ready, happy hacking!")
 
