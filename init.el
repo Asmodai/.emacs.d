@@ -2,8 +2,8 @@
 ;;;
 ;;; init.el --- Emacs initialisation file.
 ;;;
-;;; Time-stamp: <Thursday Aug 30, 2012 14:50:31 asmodai>
-;;; Revision:   96
+;;; Time-stamp: <Tuesday Sep  4, 2012 17:46:00 asmodai>
+;;; Revision:   97
 ;;;
 ;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -435,6 +435,9 @@
     (emacs>=23-p  . ".emacs.d/third-party/cedet-1.1/speedbar/")
     (emacs>=23-p  . ".emacs.d/third-party/cedet-1.1/srecode/")
     (emacs>=23-p  . ".emacs.d/third-party/cedet-1.1/contrib/")
+    ;;
+    ;; ECB
+    (emacs>=23-p  . ".emacs.d/third-party/ecb-2.40/")
     ;;
     ;; Packages that have been tested with XEmacs
     (xemacs>=19-p . ".emacs.d/third-party/")

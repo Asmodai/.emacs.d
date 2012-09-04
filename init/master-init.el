@@ -2,8 +2,8 @@
 ;;;
 ;;; master-init.el --- Version-specific init code
 ;;;
-;;; Time-stamp: <Thursday Aug 30, 2012 15:21:13 asmodai>
-;;; Revision:   66
+;;; Time-stamp: <Tuesday Sep  4, 2012 17:47:26 asmodai>
+;;; Revision:   67
 ;;;
 ;;; Copyright (c) 2012  <asmodai@gmail.com>
 ;;;
@@ -239,6 +239,12 @@
   (setq cedet-cscope-command
         (cond (unix-p
                "/usr/bin/cscope")))
+
+  ;; Load in CEDIT project definitions now.
+  (load "projects.el")
+  
+  ;; ECB.
+  (require 'ecb)
   
   (unless (boundp 'x-max-tooltip-size)
     (setq x-max-tooltip-size '(80 . 40)))  

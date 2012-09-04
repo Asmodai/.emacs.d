@@ -2,8 +2,8 @@
 ;;;
 ;;; site-c-mode.el --- C mode hacks.
 ;;;
-;;; Time-stamp: <Thursday Aug 30, 2012 08:08:59 asmodai>
-;;; Revision:   50
+;;; Time-stamp: <Tuesday Sep  4, 2012 10:13:37 asmodai>
+;;; Revision:   60
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -175,11 +175,16 @@
   ;; Custom indentation commands.
   (defun my-custom-c-indent ()
     (unless (or (eq (caar c-syntactic-context) 'c)
-                (eq (caar c-syntactic-context) 'brace-list-close))
+                (eq (caar c-syntactic-context) 'brace-list-close)
+                (eq (caar c-syntactic-context) 'topmost-intro))
       (save-excursion
-        (align (cadar c-syntactic-context)
-               (point)
-               nil))))
+        (let ((place (if (and (listp (cadr c-syntactic-context))
+                              (not (null (cadr c-syntactic-context)))
+                              (not (null (cadadr c-syntactic-context))))
+                         (- (cadadr c-syntactic-context) 255)
+                         (cadar c-syntactic-context))))
+          (if (not (null place))
+              (align place (point) nil))))))
   
   (add-hook 'c-special-indent-hook 'my-custom-c-indent)
   
