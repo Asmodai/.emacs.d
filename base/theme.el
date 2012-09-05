@@ -2,8 +2,8 @@
 ;;;
 ;;; theme.el --- Emacs colour theme.
 ;;;
-;;; Time-stamp: <Wednesday Sep  5, 2012 14:24:43 asmodai>
-;;; Revision:   74
+;;; Time-stamp: <Wednesday Sep  5, 2012 14:32:28 asmodai>
+;;; Revision:   75
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -88,7 +88,8 @@
    ;; are written out to Defaults by `ns-save-preferences',
    ;; irritating.
    (cond (terminal-p
-          ;; If we're running in a terminal, we want sane values
+          ;; If we're running in a terminal, we want sane values that
+          ;; are sane.  Black and white will do.
           '(default
             ((t (:background "black"
                  :foreground "white")))))
