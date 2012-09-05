@@ -2,8 +2,8 @@
 ;;;
 ;;; theme.el --- Emacs colour theme.
 ;;;
-;;; Time-stamp: <Wednesday Sep  5, 2012 01:55:19 asmodai>
-;;; Revision:   73
+;;; Time-stamp: <Wednesday Sep  5, 2012 14:24:43 asmodai>
+;;; Revision:   74
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -87,26 +87,33 @@
    ;; Emacs.app also ignores some of the font-lock details that
    ;; are written out to Defaults by `ns-save-preferences',
    ;; irritating.
-   (cond (windows-nt-p
+   (cond (terminal-p
+          ;; If we're running in a terminal, we want sane values
+          '(default
+            ((t (:background "black"
+                 :foreground "white")))))
+         (windows-nt-p
           ;; Consolas first appeared in Windows XP as far as I recall,
           ;; so it might not be available in earlier versions, that's
           ;; a risk I'm willing to take for now. So, just assume we
           ;; have Consolas.
-          '(default ((t (:family "DejaVu Sans Mono"
-                         :size 9
-                         :height 90
-                         :background "#0e0412"
-                         :foreground "#d7d7d7")))))
+          '(default
+            ((t (:family "DejaVu Sans Mono"
+                 :size 9
+                 :height 90
+                 :background "#0e0412"
+                 :foreground "#d7d7d7")))))
          ((and windows-p (not windows-nt-p))
           ;; Given that we are on a Windows that is /not/ Windows NT,
           ;; we probably do not have Consolas, so just go for Courier
           ;; New and be done with it.  This can always be fine-tuned
           ;; later on.
-          '(default ((t (:family "Courier New"
-                         :size 9
-                         :height 90
-                         :background "#0e0412"
-                         :foreground "#d7d7d7")))))
+          '(default
+            ((t (:family "Courier New"
+                 :size 9
+                 :height 90
+                 :background "#0e0412"
+                 :foreground "#d7d7d7")))))
          ((and unix-p                   ; Unix
                (not mac-os-x-p)         ; ... but not Mac OS X
                (not next-mach-p))       ; ... but not NeXTSTEP
@@ -117,40 +124,48 @@
               ;; in the CDE/Motif preferences.  TODO: would be nice to
               ;; find a way to determine if Emacs is running in CDE
               ;; rather than just assuming it is CDE.
-              '(default ((t (:family "Interface User"
-                             :size 10
-                             :height 100
-                             :background "#0e0412"
-                             :foreground "#d7d7d7"))))
+              '(default
+                ((t (:family "Interface User"
+                     :size 10
+                     :height 100
+                     :background "#0e0412"
+                     :foreground "#d7d7d7"))))
               ;; We're not using Motif, so let's try our luck with
               ;; DejaVu Sans Mono.  Probably a Bad Thing(tm) given
               ;; that not all Unix or Unix-like systems will have this
               ;; font.
-              '(default ((t (:family "DejaVu Sans Mono"
-                             :size 9
-                             :height 90
-                             :background "#0e0412"
-                             :foreground "#d7d7d7"))))))
+              '(default
+                ((t (:family "DejaVu Sans Mono"
+                     :size 9
+                     :height 90
+                     :background "#0e0412"
+                     :foreground "#d7d7d7"))))))
          (mac-os-x-p
           ;; Use Monaco and be done with it.
-          '(default ((t (:family "Monaco"
-                         :size 11
-                         :height 110
-                         :background "#0e0412"
-                         :foreground "#d7d7d7")))))
+          '(default
+            ((t (:family "Monaco"
+                 :size 11
+                 :height 110
+                 :background "#0e0412"
+                 :foreground "#d7d7d7")))))
          (presentation-manager-p
           ;; Use System VIO as the font on OS/2.
-          '(default ((t (:family "System VIO"
-                         :size 9
-                         :height 90
-                         :background "#0e0412"
-                         :foreground "#d7d7d7")))))
+          '(default
+            ((t (:family "System VIO"
+                 :size 9
+                 :height 90
+                 :background "#0e0412"
+                 :foreground "#d7d7d7")))))
          (t
           ;; Give up and let Emacs decide.
-          '(default ((t (:size 9
-                         :height 90
-                         :background "#0e0412"
-                         :foreground "#d7d7d7"))))))
+          '(default
+            ((t (:size 9
+                 :height 90
+                 :background "#0e0412"
+                 :foreground "#d7d7d7"))))))
+   ;;;
+   ;;; And now the rest
+   ;;;
    ;;;{{{ UI elements:
    '(blank-space-face
      ((t (nil))))

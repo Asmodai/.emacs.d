@@ -2,8 +2,8 @@
 ;;;
 ;;; init.el --- Emacs initialisation file.
 ;;;
-;;; Time-stamp: <Wednesday Sep  5, 2012 01:05:51 asmodai>
-;;; Revision:   101
+;;; Time-stamp: <Wednesday Sep  5, 2012 14:31:05 asmodai>
+;;; Revision:   103
 ;;;
 ;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
 ;;;

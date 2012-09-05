@@ -2,8 +2,8 @@
 ;;;
 ;;; site-c-mode.el --- C mode hacks.
 ;;;
-;;; Time-stamp: <Tuesday Sep  4, 2012 18:31:35 asmodai>
-;;; Revision:   61
+;;; Time-stamp: <Wednesday Sep  5, 2012 14:09:31 asmodai>
+;;; Revision:   64
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -74,9 +74,11 @@
 ;;;
 
 (when emacs>=19-p
+  ;;
   ;; We quite like `cc-mode'.
   (require 'cc-mode)
 
+  ;;
   ;; Custom C indentation style.
   (defconst hackers-c-style
     '((c-tab-always-indent . t)
@@ -95,8 +97,7 @@
                          brace-elseif-brace
                          brace-catch-brace
                          defun-close-semi
-                         list-close-comma
-                         ))
+                         list-close-comma))
       (c-offsets-alist . ((statement-block-intro . +)
                           (inline-open           . 0)
                           (arglist-close         . c-lineup-arglist)
@@ -110,6 +111,7 @@
       (c-report-syntactic-errors . t))
     "Custom BSD-derived C syntax style.")
   
+  ;;
   ;; Custom C++ indentation style.
   (defconst hackers-c++-style
     '((c-tab-always-indent . t)
@@ -146,10 +148,12 @@
       (c-report-syntactic-errors . t))
     "Custom BSD-derived C++ syntax style.")
 
+  ;;
   ;; Add the new styles to the available styles.
   (c-add-style "hackers-c" hackers-c-style)
   (c-add-style "hackers-c++" hackers-c++-style)
 
+  ;;
   ;; Set up the default styles
   (if (or running-on-yorktown-p
           running-on-lisp-machine-p
@@ -169,9 +173,20 @@
                       (java-mode   . "hackers-c")
                       (other       . "gnu"))))
   
+  ;;
   ;; Set some defaults
-  (add-to-list 'c-cleanup-list 'one-liner-defun)
+  (if emacs=22-p
+      ;;
+      ;; Emacs 22 seems to have a problem with c-cleanup-list.
+      (if (listp c-cleanup-list)
+          (add-to-list 'c-cleanup-list 'one-liner-defun)
+          (setf c-cleanup-list (append (list c-cleanup-list)
+                                       'one-liner-defun)))
+      ;;
+      ;; Works on everything else.
+      (add-to-list 'c-cleanup-list 'one-liner-defun))
   
+  ;;
   ;; Custom indentation commands.
   (defun my-custom-c-indent ()
     (unless (or (eq (caar c-syntactic-context) 'c)
@@ -188,6 +203,7 @@
   
   (add-hook 'c-special-indent-hook 'my-custom-c-indent)
   
+  ;;
   ;; Add some hooks
   (defun my-common-c-mode-hooks ()
     (when (or emacs=20-p emacs=21-p)
@@ -217,6 +233,7 @@
 
   (add-hook 'c-mode-common-hook 'my-common-c-mode-hooks)
 
+  ;;
   ;; CEDET/Semantic hooks
   (when (featurep 'semantic)
     (defun my-c-mode-cedet-hook ()
@@ -228,7 +245,7 @@
 
 ;;;
 ;;; Doxygen stuff.
-(when emacs>=22-p
+(when emacs>=23-p
   (require 'doc-mode)
   (add-hook 'c-mode-common-hook 'doc-mode))
 
