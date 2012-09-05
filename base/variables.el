@@ -1,9 +1,9 @@
-;;; -*- Mode: Emacs-Lisp -*-
+;; -*- Mode: Emacs-Lisp -*-
 ;;;
 ;;; variables.el --- Various variables.
 ;;;
-;;; Time-stamp: <Sunday Jan 29, 2012 00:36:47 asmodai>
-;;; Revision:   8
+;;; Time-stamp: <Wednesday Sep  5, 2012 18:33:15 asmodai>
+;;; Revision:   11
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -79,6 +79,8 @@
       overwrite-mode nil
       require-final-newline t
       teach-extended-commands-p t
-      teach-extended-commands-timeout t)
+      teach-extended-commands-timeout t
+      indicate-buffer-boundaries 'left
+      indicate-empty-lines t)
 
 ;;; variables.el ends here

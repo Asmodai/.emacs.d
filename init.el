@@ -2,8 +2,8 @@
 ;;;
 ;;; init.el --- Emacs initialisation file.
 ;;;
-;;; Time-stamp: <Wednesday Sep  5, 2012 17:35:52 asmodai>
-;;; Revision:   105
+;;; Time-stamp: <Wednesday Sep  5, 2012 18:32:21 asmodai>
+;;; Revision:   106
 ;;;
 ;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -648,6 +648,10 @@ version.")
 ;;;
 ;;; Load our custom key bindings.
 (compile-load "keys")
+
+;;;
+;;; Load in our custom variables.
+(compile-load "variables")
 
 ;;;
 ;;; Load our theme last, so we can clobber anything that might be in
