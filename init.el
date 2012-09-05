@@ -2,8 +2,8 @@
 ;;;
 ;;; init.el --- Emacs initialisation file.
 ;;;
-;;; Time-stamp: <Tuesday Sep  4, 2012 17:46:00 asmodai>
-;;; Revision:   97
+;;; Time-stamp: <Wednesday Sep  5, 2012 01:00:29 asmodai>
+;;; Revision:   100
 ;;;
 ;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -90,7 +90,7 @@
 ;;;{{{ GNU Emacs 18 support:
 
 ;;;
-;;; These are functions I deen necessary to have available in order to
+;;; These are functions I deem necessary to have available in order to
 ;;; make Emacs 18 usable from my perspective.  I am a Zetalisp and
 ;;; Common Lisp hacker.  I expect various Zmacs-like entities.  Emacs
 ;;; 18 does not provide them.
@@ -566,7 +566,7 @@
          (emacs=21-p     ".emacs.d/custom/custom-21.el")
          (emacs=22-p     ".emacs.d/custom/custom-22.el")
          (emacs=23-p     ".emacs.d/custom/custom-23.el")
- (emacs=24-p     ".emacs.d/custom/custom-24.el")
+         (emacs=24-p     ".emacs.d/custom/custom-24.el")
          (xemacs=19-p    ".emacs.d/custom/custom-x19.el")
          (xemacs=20-p    ".emacs.d/custom/custom-x20.el")
          (xemacs=21-p    ".emacs.d/custom/custom-x21.el"))
