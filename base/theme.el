@@ -2,8 +2,8 @@
 ;;;
 ;;; theme.el --- Emacs colour theme.
 ;;;
-;;; Time-stamp: <Wednesday Sep  5, 2012 15:24:32 asmodai>
-;;; Revision:   83
+;;; Time-stamp: <Wednesday Sep  5, 2012 15:38:17 asmodai>
+;;; Revision:   88
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -618,8 +618,8 @@
 
 (if terminal-p
     (custom-set-variables
-     '(hl-paren-colors (quote ("cyan" "red" "green"
-                               "magenta" "blue" "darkred"))))
+     '(hl-paren-colors (quote ("magenta" "cyan" "green"
+                               "red" "blue" "white"))))
     (custom-set-variables
      '(hl-paren-colors (quote ("firebrick1" "DarkRed" "IndianRed"
                                "LightCoral" "Salmon" "DarkSalmon")))))
