@@ -2,8 +2,8 @@
 ;;;
 ;;; theme.el --- Emacs colour theme.
 ;;;
-;;; Time-stamp: <Wednesday Sep  5, 2012 14:32:28 asmodai>
-;;; Revision:   75
+;;; Time-stamp: <Wednesday Sep  5, 2012 15:24:32 asmodai>
+;;; Revision:   83
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -65,10 +65,14 @@
     'font-lock-comment-delimiter-face
     "Face name used for comment delimiters.")
   (defface font-lock-comment-delimiter-face
-      '((((class color) (background dark)) (:foreground "steelblue"))
-        (((class color) (background light)) (:foreground "steelblue"))
-        (((class grayscale) (background light)) (:foreground "steelblue"))
-        (((class grayscale) (background dark)) (:foreground "steelblue")))
+      '((((class color) (background dark))
+         (:foreground "steelblue"))
+        (((class color) (background light))
+         (:foreground "steelblue"))
+        (((class grayscale) (background light))
+         (:foreground "steelblue"))
+        (((class grayscale) (background dark))
+         (:foreground "steelblue")))
     "Font Lock mode face used to highlight comment delimiters."
     :group 'font-lock-faces))
 
@@ -374,7 +378,7 @@
      ((t (:foreground "royalblue"))))
    '(custom-group-tag
      ((t (:underline t
-                     :foreground "cadetblue"))))
+          :foreground "cadetblue"))))
    '(custom-group-tag-1
      ((t (:foreground "royalblue"
           :weight bold
@@ -461,13 +465,21 @@
    ;;;}}}
    ;;;{{{ Paren faces:
    '(show-paren-match
-     ((t (:background "gray15"
-          :foreground "lawngreen"
-          :bold t))))
+     ((((min-colors 256))
+       (:background "gray15"
+        :foreground "lawngreen"
+        :bold t))
+      (((min-colors 8))
+       (:foreground "green"
+        :bold t))))
    '(show-paren-mismatch
-     ((t (:background "gray15"
-          :foreground "red"
-          :bold t))))
+     ((((min-colors 256))
+       (:background "gray15"
+        :foreground "red"
+        :bold t))
+      (((min-colors 8))
+       (:foreground "red"
+        :bold t))))
    ;;;}}}
    ;;;{{{ Browser faces:
    '(link
@@ -597,6 +609,23 @@
           :foreground "white"))))
    ;;;}}}
    ))
+
+;;;------------------------------------------------------------------
+;;;{{{ Paren highlighting:
+;;;
+;;; This isn't set via `custom-set-face', but rather
+;;;`custom-set-variable'.
+
+(if terminal-p
+    (custom-set-variables
+     '(hl-paren-colors (quote ("cyan" "red" "green"
+                               "magenta" "blue" "darkred"))))
+    (custom-set-variables
+     '(hl-paren-colors (quote ("firebrick1" "DarkRed" "IndianRed"
+                               "LightCoral" "Salmon" "DarkSalmon")))))
+
+;;;}}}
+;;;------------------------------------------------------------------
 
 ;;;}}}
 ;;; ==================================================================
