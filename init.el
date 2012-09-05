@@ -2,8 +2,8 @@
 ;;;
 ;;; init.el --- Emacs initialisation file.
 ;;;
-;;; Time-stamp: <Wednesday Sep  5, 2012 17:32:16 asmodai>
-;;; Revision:   104
+;;; Time-stamp: <Wednesday Sep  5, 2012 17:35:52 asmodai>
+;;; Revision:   105
 ;;;
 ;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -661,8 +661,7 @@ version.")
 
 ;;;
 ;;; Tell the user that we're done
-(message (format "Emacs is ready after %s, happy hacking!"
-                 (emacs-init-time)))
+(message "Emacs is ready, happy hacking!")
 
 ;;;}}}
 ;;; ==================================================================
