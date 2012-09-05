@@ -2,8 +2,8 @@
 ;;;
 ;;; master-init.el --- Version-specific init code
 ;;;
-;;; Time-stamp: <Wednesday Sep  5, 2012 02:29:44 asmodai>
-;;; Revision:   69
+;;; Time-stamp: <Wednesday Sep  5, 2012 16:02:41 asmodai>
+;;; Revision:   70
 ;;;
 ;;; Copyright (c) 2012  <asmodai@gmail.com>
 ;;;
@@ -372,13 +372,15 @@
   (compile-load "site-c-mode")
   (compile-load "site-html-mode")
   (compile-load "site-perl-mode")
-  (compile-load "site-ruby-mode")
+  
   (compile-load "site-erlang-mode")
   (compile-load "site-page-break-mode"))
 
-(when (and emacs>=23-p
-           running-on-lisp-machine-p)
-  (compile-load "site-octave-mode"))
+(when emacs>=23-p
+  (compile-load "site-ruby-mode")
+  
+  (when running-on-lisp-machine-p
+    (compile-load "site-octave-mode")))
 
 ;;;}}}
 ;;; ------------------------------------------------------------------

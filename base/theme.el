@@ -2,8 +2,8 @@
 ;;;
 ;;; theme.el --- Emacs colour theme.
 ;;;
-;;; Time-stamp: <Wednesday Sep  5, 2012 15:38:17 asmodai>
-;;; Revision:   88
+;;; Time-stamp: <Wednesday Sep  5, 2012 15:47:34 asmodai>
+;;; Revision:   92
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -215,9 +215,13 @@
    '(modeline
      ((t (:insert mode-line))))
    '(mode-line
-     ((t (:background "#2b113d"
-          :foreground "#b8b66c"
-          :box (:line-width 1 :color "#230b2f" :style released-button)))))
+     ((((min-colors 256))
+       (:background "#2b113d"
+        :foreground "#b8b66c"
+        :box (:line-width 1 :color "#230b2f" :style released-button)))
+      (((min-colors 8))
+       (:background "blue"
+        :foreground "orange"))))
    '(header-line
      ((t (:inherit mode-line
           :foreground "white"))))
