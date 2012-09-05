@@ -2,8 +2,8 @@
 ;;;
 ;;; symbolics.el --- Symbolics keyboard
 ;;;
-;;; Time-stamp: <Monday Jan 30, 2012 03:52:21 asmodai>
-;;; Revision:   67
+;;; Time-stamp: <Wednesday Sep  5, 2012 19:11:47 asmodai>
+;;; Revision:   69
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -306,39 +306,40 @@
 ;;;
 ;;; Glyph  Code   Unicode Name                             Sequence
 ;;; -----  ----   ------------                             --------
+;;;  ◊     25CA   LOZENGE                                  Symbol-escape
 ;;;  ⋅     22C5   DOT OPERATOR                             Symbol-'
-;;;  α     03B1   GREEK SMALL LETTER ALPHA                 Symbol-A
-;;;  ∧     2227   LOGICAL AND                              Symbol-q
-;;;  ε     03B5   GREEK SMALL LETTER EPSILON               Symbol-E
-;;;  λ     03BB   GREEK SMALL LETTER LAMBDA                Symbol-L
-;;;  δ     03B4   GREEK SMALL LETTER DELTA                 Symbol-D
 ;;;  ±     00B1   PLUS-MINUS SIGN                          Symbol-:
-;;;  ∞     221E   INFINITY                                 Symbol-i
-;;;  ⊂     2282   SUBSET OF                                Symobl-t
-;;;  ∩     2229   INTERSECTION                             Symbol-e
-;;;  ∀     2200   FOR ALL                                  Symbol-u
 ;;;  ⊗     2297   CIRCLED TIMES                            Symbol-*
-;;;  ←     2190   LEFTWARDS ARROW                          Symbol-j
 ;;;  ≠     2260   NOT EQUAL TO                             Symbol-equal
 ;;;  ≤     2264   LESS-THAN OR EQUAL TO                    Symbol-,
 ;;;  ≡     2261   IDENTICAL TO                             Symbol-`
 ;;;  ∫     222B   INTEGRAL                                 Symbol-/
-;;;  ↓     2193   DOWNWARDS ARROW                          Symbol-h
-;;;  β     03B2   GREEK SMALL LETTER BETA                  Symbol-B
 ;;;  ¬     00AC   NOT SIGN                                 Symbol-minus
-;;;  π     03C0   GREEK SMALL LETTER PI                    Symbol-P
-;;;  γ     03B3   GREEK SMALL LETTER GAMMA                 Symbol-G
-;;;  ↑     2191   UPWARDS ARROW                            Symbol-g
 ;;;  ⊕     2295   CIRCLED PLUS                             Symbol-plus
-;;;  ∂     2202   PARTIAL DIFFERENTIAL                     Symbol-p
-;;;  ⊃     2283   SUPERSET OF                              Symbol-y
-;;;  ∪     222A   UNION                                    Symbol-r
-;;;  ∃     2203   THERE EXISTS                             Symbol-o
-;;;  ⇄     21C4   RIGHTWARDS ARROW OVER LEFTWARDS ARROW    Symbol-l
-;;;  →     2192   RIGHTWARDS ARROW                         Symbol-k
-;;;  ◊     25CA   LOZENGE                                  Symbol-escape
 ;;;  ≥     2265   GREATER-THAN OR EQUAL TO                 Symbol-.
+;;;
+;;;  α     03B1   GREEK SMALL LETTER ALPHA                 Symbol-A
+;;;  β     03B2   GREEK SMALL LETTER BETA                  Symbol-B
+;;;  δ     03B4   GREEK SMALL LETTER DELTA                 Symbol-D
+;;;  ∩     2229   INTERSECTION                             Symbol-e
+;;;  ε     03B5   GREEK SMALL LETTER EPSILON               Symbol-E
+;;;  ↑     2191   UPWARDS ARROW                            Symbol-g
+;;;  γ     03B3   GREEK SMALL LETTER GAMMA                 Symbol-G
+;;;  ↓     2193   DOWNWARDS ARROW                          Symbol-h
+;;;  ∞     221E   INFINITY                                 Symbol-i
+;;;  ←     2190   LEFTWARDS ARROW                          Symbol-j
+;;;  →     2192   RIGHTWARDS ARROW                         Symbol-k
+;;;  ⇄     21C4   RIGHTWARDS ARROW OVER LEFTWARDS ARROW    Symbol-l
+;;;  λ     03BB   GREEK SMALL LETTER LAMBDA                Symbol-L
+;;;  ∃     2203   THERE EXISTS                             Symbol-o
+;;;  ∂     2202   PARTIAL DIFFERENTIAL                     Symbol-p
+;;;  π     03C0   GREEK SMALL LETTER PI                    Symbol-P
+;;;  ∧     2227   LOGICAL AND                              Symbol-q
+;;;  ∪     222A   UNION                                    Symbol-r
+;;;  ⊂     2282   SUBSET OF                                Symobl-t
+;;;  ∀     2200   FOR ALL                                  Symbol-u
 ;;;  ∨     2228   LOGICAL OR                               Symbol-w
+;;;  ⊃     2283   SUPERSET OF                              Symbol-y
 ;;; 
 
 ;;;
@@ -362,14 +363,14 @@
   "Define a key sequence that results with KEY, when pressed with the
   `Symbol' key, prints the given unicode SYMBOL to the buffer."
   (let* ((docstr (concat "Inserts a(n) " charname " at the current point."))
- (str (if (symbolp symbol)
-  (symbol-name symbol)
-  symbol))
- (mname (intern (concat "ucs-insert-"
-(replace-regexp-in-string
- "\\([[:space:]\n]\\)"
- "-"
- str)))))
+         (str (if (symbolp symbol)
+                  (symbol-name symbol)
+                  symbol))
+         (mname (intern (concat "ucs-insert-"
+                                (replace-regexp-in-string
+                                 "\\([[:space:]\n]\\)"
+                                 "-"
+                                 str)))))
     `(progn
        (defun ,mname (&rest ignore)
          ,docstr
