@@ -2,8 +2,8 @@
 ;;;
 ;;; theme.el --- Emacs colour theme.
 ;;;
-;;; Time-stamp: <Wednesday Sep  5, 2012 16:48:05 asmodai>
-;;; Revision:   93
+;;; Time-stamp: <Wednesday Sep  5, 2012 18:43:07 asmodai>
+;;; Revision:   94
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -191,7 +191,8 @@
    '(error
      ((t (:foreground "darkred" :weight bold))))
    '(fringe
-     ((t (:background "grey7"))))
+     ((t (:foreground "grey40"
+          :background "grey7"))))
    '(gui-button-face
      ((t (:inherit custom-button))))
    '(gui-element
