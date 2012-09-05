@@ -2,8 +2,8 @@
 ;;;
 ;;; site-ruby-mode.el --- Ruby Mode
 ;;;
-;;; Time-stamp: <Sunday Jan 29, 2012 00:46:25 asmodai>
-;;; Revision:   14
+;;; Time-stamp: <Wednesday Sep  5, 2012 03:03:53 asmodai>
+;;; Revision:   15
 ;;;
 ;;; Copyright (c) 2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -37,7 +37,10 @@
 ;;;}}}
 
 (when emacs>=19-p
-  (setq ruby-program-name "c:/ruby193/bin/irb.bat --inf-ruby-mode")
+  (setq ruby-program-name
+        (if windows-p
+            "c:/ruby193/bin/irb.bat --inf-ruby-mode"
+            "/usr/bin/irb --inf-ruby-mode"))
 
   (autoload 'run-ruby "inf-ruby")
   (autoload 'inf-ruby-keys "inf-ruby")
