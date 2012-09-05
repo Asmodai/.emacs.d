@@ -1,9 +1,9 @@
-;; -*- Mode: Emacs-Lisp -*-
+;;; -*- Mode: Emacs-Lisp -*-
 ;;;
 ;;; variables.el --- Various variables.
 ;;;
-;;; Time-stamp: <Wednesday Sep  5, 2012 18:33:15 asmodai>
-;;; Revision:   11
+;;; Time-stamp: <Wednesday Sep  5, 2012 18:36:03 asmodai>
+;;; Revision:   12
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -67,9 +67,9 @@
       complex-buffers-menu-p t
       zmacs-regions t
       buffers-menu-grouping-function
-      'group-buffers-menu-by-mode-then-alphabetically
+         'group-buffers-menu-by-mode-then-alphabetically
       buffers-menu-sort-function 
-      'sort-buffers-menu-by-mode-then-alphabetically
+         'sort-buffers-menu-by-mode-then-alphabetically
       buffers-menu-submenus-for-groups-p t
       case-fold-search t
       case-replace t
@@ -79,8 +79,9 @@
       overwrite-mode nil
       require-final-newline t
       teach-extended-commands-p t
-      teach-extended-commands-timeout t
-      indicate-buffer-boundaries 'left
-      indicate-empty-lines t)
+      teach-extended-commands-timeout t)
+
+(setq-default indicate-buffer-boundaries 'left
+              indicate-empty-lines t)
 
 ;;; variables.el ends here
