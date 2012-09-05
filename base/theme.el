@@ -2,8 +2,8 @@
 ;;;
 ;;; theme.el --- Emacs colour theme.
 ;;;
-;;; Time-stamp: <Thursday Aug 30, 2012 12:15:15 asmodai>
-;;; Revision:   67
+;;; Time-stamp: <Wednesday Sep  5, 2012 01:55:19 asmodai>
+;;; Revision:   73
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -95,7 +95,7 @@
           '(default ((t (:family "DejaVu Sans Mono"
                          :size 9
                          :height 90
-                         :background "#0b0b0b"
+                         :background "#0e0412"
                          :foreground "#d7d7d7")))))
          ((and windows-p (not windows-nt-p))
           ;; Given that we are on a Windows that is /not/ Windows NT,
@@ -105,7 +105,7 @@
           '(default ((t (:family "Courier New"
                          :size 9
                          :height 90
-                         :background "#0b0b0b"
+                         :background "#0e0412"
                          :foreground "#d7d7d7")))))
          ((and unix-p                   ; Unix
                (not mac-os-x-p)         ; ... but not Mac OS X
@@ -120,7 +120,7 @@
               '(default ((t (:family "Interface User"
                              :size 10
                              :height 100
-                             :background "#0b0b0b"
+                             :background "#0e0412"
                              :foreground "#d7d7d7"))))
               ;; We're not using Motif, so let's try our luck with
               ;; DejaVu Sans Mono.  Probably a Bad Thing(tm) given
@@ -129,27 +129,27 @@
               '(default ((t (:family "DejaVu Sans Mono"
                              :size 9
                              :height 90
-                             :background "#0b0b0b"
+                             :background "#0e0412"
                              :foreground "#d7d7d7"))))))
          (mac-os-x-p
           ;; Use Monaco and be done with it.
           '(default ((t (:family "Monaco"
                          :size 11
                          :height 110
-                         :background "#0b0b0b"
+                         :background "#0e0412"
                          :foreground "#d7d7d7")))))
          (presentation-manager-p
           ;; Use System VIO as the font on OS/2.
           '(default ((t (:family "System VIO"
                          :size 9
                          :height 90
-                         :background "#0b0b0b"
+                         :background "#0e0412"
                          :foreground "#d7d7d7")))))
          (t
           ;; Give up and let Emacs decide.
           '(default ((t (:size 9
                          :height 90
-                         :background "#0b0b0b"
+                         :background "#0e0412"
                          :foreground "#d7d7d7"))))))
    ;;;{{{ UI elements:
    '(blank-space-face
@@ -158,6 +158,8 @@
      ((t (nil))))
    '(border
      ((t (nil))))
+   '(button
+     ((t (:inherit custom-button))))
    '(border-glyph
      ((t (nil))))
    '(buffers-tab
@@ -166,19 +168,20 @@
           :bold t))))
    '(cursor
      ((t (:background "green3"))))
+   '(error
+     ((t (:foreground "darkred" :weight bold))))
    '(fringe
      ((t (:background "grey7"))))
    '(gui-button-face
-     ((t (:background "gray75"))))
+     ((t (:inherit custom-button))))
    '(gui-element
      ((t (:background "gray80"))))
    '(highlight
-     ((t (:background "gray20"
-          :foreground "firebrick"))))
+     ((t (:inherit secondary-selection))))
    '(highlight-changes-delete-face
      ((t (:underline t
           :foreground "red"))))
-   '(highlight-changes-face 
+   '(highlight-changes-face
      ((t (:foreground "red"))))
    '(highline-face
      ((t (:background "grey95"))))
@@ -190,14 +193,20 @@
    '(minibuffer-prompt
      ((t (:foreground "purple"))))
    '(modeline
-     ((t (:foreground "#b8b66c"
-          :background "#2b113d"))))
+     ((t (:insert mode-line))))
    '(mode-line
-     ((t (:foreground "#b8b66c"
-          :background "#2b113d"))))
+     ((t (:background "#2b113d"
+          :foreground "#b8b66c"
+          :box (:line-width 1 :color "#230b2f" :style released-button)))))
+   '(header-line
+     ((t (:inherit mode-line
+          :foreground "white"))))
+   '(menu
+     ((t (:inherit header-line))))
    '(mode-line-inactive
-     ((t (:foreground "#51502f"
-          :background "#160a1e"))))
+     ((t (:background "#160a1e"
+          :foreground "#51502f"
+          :box (:line-width 1 :color "#230b2f" :style released-button)))))
    '(modeline-buffer-id
      ((t (:foreground "#35dc5d"))))
    '(modeline-mousable
@@ -206,6 +215,8 @@
    '(modeline-mousable-minor-mode
      ((t (:background "#1a0a25"
           :foreground "#611a1a"))))
+   '(mode-line-highlight
+     ((t (:inherit link :box nil :underline nil))))
    '(primary-selection
      ((t (:background "#171725" 
           :foreground "turquoise"))))
@@ -220,11 +231,9 @@
    '(text-cursor
      ((t (:background "green3"))))
    '(tool-bar
-     ((t (:background "grey"
-          :foreground "black"))))
+     ((t (:inherit header-line))))
    '(toolbar
-     ((t (:background "grey"
-          :foreground "black"))))
+     ((t (:inherit toolbar))))
    '(tooltip
      ((t (:background "lightyellow"
           :foreground "black"))))
@@ -301,78 +310,85 @@
    ;;;}}}
    ;;;{{{ Widget faces:
    '(widget-button
-     ((t (:bold t))))
-   '(widget-button-face
-     ((t (:background "gray10"
-          :bold t))))
-   '(widget-button-pressed-face
-     ((t (:foreground "red"))))
+     ((t (:inherit custom-button))))
+   '(widget-button-pressed
+     ((t (:inherit custom-button-pressed))))
    '(widget-documentation
-     ((t (:foreground "green4"
-          :italic t))))
-   '(widget-documentation-face
-     ((t (:foreground "green4"
-          :italic t))))
-   '(widget-field-face
+     ((t (:inherit custom-documentation))))
+   '(widget-field
      ((t (:background "gray15"))))
-   '(widget-inactive-face
+   '(widget-inactive
      ((t (:foreground "gray40"
           :background "gray10"))))
-   '(widget-single-line-field-face
+   '(widget-single-line-field
      ((t (:background "gray15"))))
    ;;;}}}
    ;;;{{{ Customize faces:
    '(custom-button
-     ((t (:bold t))))
-   '(custom-comment
-     ((t (:background "gray15"))))
-   '(custom-documentation
-     ((t (:foreground "green2"))))
-   '(custom-documentation-face
-     ((t (:foreground "green2"))))
-   '(custom-button-face
-     ((t (:foreground "black"
-          :background "grey75"))))
+     ((t (:background "#3b124e"
+          :foreground "#a2a244"
+          :box (:line-width 1 :color "#230b2f" :style released-button)))))
+   '(custom-button-mouse
+     ((t (:background "#651f86"
+          :foreground "white"
+          :box (:line-width 1 :style released-button)))))
+   '(custom-button-pressed
+     ((t (:inherit custom-button
+          :foreground "white"
+          :box (:line-width 1 :style pressed-button)))))
+   '(custom-button-pressed-unraised
+     ((t (:inherit custom-button-unraised
+          :foreground "white"))))
    '(custom-button-unraised
-     ((t (:background "grey65"
-          :foreground "black"))))
-   '(custom-variable-tag-face
-     ((t (:underline t
-          :foreground "mediumorchid"))))
-   '(custom-group-tag-face
-     ((t (:underline t
-          :foreground "cadetblue"))))
-   '(custom-state-face
-     ((t (:foreground "goldenrod3"))))
-   '(custom-face-tag-face
-     ((t (:foreground "royalblue"))))
-   '(custom-variable-button-face
-     ((t (:bold t
-          :underline t
-          :foreground "firebrick"))))
-   '(custom-set-face
-     ((t (:foreground "blue"
-          :background "white"))))
-   '(custom-changed-face
+     ((t (:inherit custom-button
+          :box nil))))
+   '(custom-changed
      ((t (:foreground "white"
           :background "royalblue"
           :bold t))))
-   '(custom-modified-face
-     ((t (:foreground "white"
-          :background "blue"))))
-   '(custom-invalid-face
+   '(custom-comment
+     ((t (:inherit font-lock-comment-face))))
+   '(custom-comment-tag
+     ((t (:inherit font-lock-comment-face 
+          :underline t))))
+   '(custom-documentation
+     ((t (:inherit font-lock-comment-face
+          :slant italic))))
+   '(custom-face-tag
+     ((t (:foreground "royalblue"))))
+   '(custom-group-tag
+     ((t (:underline t
+                     :foreground "cadetblue"))))
+   '(custom-group-tag-1
+     ((t (:foreground "royalblue"
+          :weight bold
+          :height 1.2))))
+   '(custom-invalid
      ((t (:foreground "yellow"
           :background "red"))))
-   '(custom-saved-face
-     ((t (:underline t))))
-   '(custom-rogue-face
+   '(custom-modified
+     ((t (:foreground "white"
+          :background "blue"))))
+   '(custom-rogue
      ((t (:foreground "pink"
           :background "black"))))
+   '(custom-saved
+     ((t (:underline t))))
+   '(custom-set
+     ((t (:foreground "blue"
+          :background "white"))))
+   '(custom-state
+     ((t (:foreground "goldenrod3"))))
+   '(custom-variable-button
+     ((t (:inherit font-lock-variable-name-face))))
+   '(custom-variable-tag
+     ((t (:underline t
+          :foreground "mediumorchid"))))
    ;;;}}}
    ;;;{{{ ISearch faces:
    '(isearch
      ((t (:background "gray10"
-          :foreground "azure"))))
+          :foreground "azure4"))))
    '(isearch-secondary
      ((t (:foreground "red3"))))
    '(isearch-fail
@@ -534,9 +550,41 @@
    '(senator-read-only-face
      ((t (:background "#190102"))))
    ;;;}}}
+   ;;;{{{ Speedbar:
+   '(speedbar-button-face
+     ((t (:inherit custom-button))))
+   '(speedbar-directory-face
+     ((t (:foreground "royalblue"))))
+   '(speedbar-file-face
+     ((t (:foreground "cadetblue"))))
+   '(speedbar-highlight-face
+     ((t (:inherit secondary-selection))))
+   '(speedbar-selected-face
+     ((t (:inherit custom-button-mouse))))
+   '(speedbar-separator-face
+     ((t (:background "blue"
+          :foreground "white"
+          :box (:line-width 1 :color "darkblue" :style released-button)))))
+   ;;;}}}
+   ;;;{{{ Company:
+   '(company-tooltip
+     ((t (:background "gray15"
+          :box (:line-width 1 :color "grey5" :style released-button)))))
+   '(company-tooltip-common
+     ((t (:inherit company-tooltip
+          :foreground "orange4"))))
+   '(company-tooltip-common-selection
+     ((t (:inherit company-tooltip-selection
+          :foreground "goldenrod"))))
+   '(company-tooltip-selection
+     ((t (:inherit company-tooltip
+          :foreground "white"))))
+   ;;;}}}
    ))
 
 ;;;}}}
 ;;; ==================================================================
 
 ;;; theme.el ends here
+
+  
