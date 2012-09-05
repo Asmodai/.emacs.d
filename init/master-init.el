@@ -2,8 +2,8 @@
 ;;;
 ;;; master-init.el --- Version-specific init code
 ;;;
-;;; Time-stamp: <Tuesday Sep  4, 2012 17:47:26 asmodai>
-;;; Revision:   67
+;;; Time-stamp: <Wednesday Sep  5, 2012 02:29:44 asmodai>
+;;; Revision:   69
 ;;;
 ;;; Copyright (c) 2012  <asmodai@gmail.com>
 ;;;
@@ -147,10 +147,6 @@
   (compile-load "newcomment")
   
   ;;
-  ;; This ought to work on Emacs 21, I think.
-  (compile-load "electric-shift-lock-mode")
-  
-  ;;
   ;; For some reason, `hfy-etags-cmd-alist' isn't available when
   ;; htmlfontify is compiled during `compile-load', so we have to
   ;; load it in before compiling.
@@ -249,6 +245,7 @@
   (unless (boundp 'x-max-tooltip-size)
     (setq x-max-tooltip-size '(80 . 40)))  
   
+  (compile-load "electric-shift-lock-mode")
   (compile-load "erlang-start")
   (compile-load "ruby-mode")
   (compile-load "rdoc-mode")
@@ -265,7 +262,6 @@
   (compile-load "company-template")
   (compile-load "slime-company")
   (compile-load "inf-ruby-company")
-  
   (compile-load "treetop-mode")
   
   (autoload 'company-mode "company" nil t))
@@ -379,6 +375,10 @@
   (compile-load "site-ruby-mode")
   (compile-load "site-erlang-mode")
   (compile-load "site-page-break-mode"))
+
+(when (and emacs>=23-p
+           running-on-lisp-machine-p)
+  (compile-load "site-octave-mode"))
 
 ;;;}}}
 ;;; ------------------------------------------------------------------
