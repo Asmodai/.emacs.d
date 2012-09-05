@@ -2,8 +2,8 @@
 ;;;
 ;;; theme.el --- Emacs colour theme.
 ;;;
-;;; Time-stamp: <Wednesday Sep  5, 2012 15:47:34 asmodai>
-;;; Revision:   92
+;;; Time-stamp: <Wednesday Sep  5, 2012 16:48:05 asmodai>
+;;; Revision:   93
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -107,7 +107,7 @@
                  :size 9
                  :height 90
                  :background "#0e0412"
-                 :foreground "#d7d7d7")))))
+                 :foreground "#c4b1cb")))))
          ((and windows-p (not windows-nt-p))
           ;; Given that we are on a Windows that is /not/ Windows NT,
           ;; we probably do not have Consolas, so just go for Courier
@@ -118,7 +118,7 @@
                  :size 9
                  :height 90
                  :background "#0e0412"
-                 :foreground "#d7d7d7")))))
+                 :foreground "#c4b1cb")))))
          ((and unix-p                   ; Unix
                (not mac-os-x-p)         ; ... but not Mac OS X
                (not next-mach-p))       ; ... but not NeXTSTEP
@@ -134,7 +134,7 @@
                      :size 10
                      :height 100
                      :background "#0e0412"
-                     :foreground "#d7d7d7"))))
+                     :foreground "#c4b1cb"))))
               ;; We're not using Motif, so let's try our luck with
               ;; DejaVu Sans Mono.  Probably a Bad Thing(tm) given
               ;; that not all Unix or Unix-like systems will have this
@@ -144,7 +144,7 @@
                      :size 9
                      :height 90
                      :background "#0e0412"
-                     :foreground "#d7d7d7"))))))
+                     :foreground "#c4b1cb"))))))
          (mac-os-x-p
           ;; Use Monaco and be done with it.
           '(default
@@ -152,7 +152,7 @@
                  :size 11
                  :height 110
                  :background "#0e0412"
-                 :foreground "#d7d7d7")))))
+                 :foreground "#c4b1cb")))))
          (presentation-manager-p
           ;; Use System VIO as the font on OS/2.
           '(default
@@ -160,14 +160,14 @@
                  :size 9
                  :height 90
                  :background "#0e0412"
-                 :foreground "#d7d7d7")))))
+                 :foreground "#c4b1cb")))))
          (t
           ;; Give up and let Emacs decide.
           '(default
             ((t (:size 9
                  :height 90
                  :background "#0e0412"
-                 :foreground "#d7d7d7"))))))
+                 :foreground "#c4b1cb"))))))
    ;;;
    ;;; And now the rest
    ;;;
@@ -517,13 +517,28 @@
           :bold t))))
    ;;;}}}
    ;;;{{{ Info faces:
-   '(info-xref
-     ((t (:foreground "slateblue"
-          :bold t
-          :underline t))))
+   '(info-menu-header
+     ((t (:inherit info-title-4
+          :weight bold))))
    '(info-node
-     ((t (:foreground "steelblue"
-          :bold t))))
+     ((t (:foreground "steelblue"))))
+   '(info-title-1
+     ((t (:inherit info-title-2
+          :height 1.2))))
+   '(info-title-2
+     ((t (:inherit info-title-3
+          :height 1.2))))
+   '(info-title-3
+     ((t (:inherit info-title-4
+          :height 1.2))))
+   '(info-title-4
+     ((t (:inherit default
+          :weight bold
+          :height 1.2))))
+   '(info-xref
+     ((t (:inherit link))))
+   '(info-xref-visited
+     ((t (:inherit link-visited))))
    ;;;}}}
    ;;;{{{ Man viewer faces:   (n.b. not woman)
    '(man-italic
