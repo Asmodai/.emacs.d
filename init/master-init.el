@@ -193,7 +193,6 @@
     (require 'tramp))
   
   (require 'image-mode)
-  (require 'w3)
   (require 'erc))
 
 ;;;}}}
@@ -346,7 +345,6 @@
     (compile-load "folding")
     (folding-install)
     
-    (require 'w3)
     (require 'erc)))
 
 ;;;}}}

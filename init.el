@@ -421,8 +421,6 @@
     (emacs>=23-p  . ".emacs.d/third-party/erlang/")
     (emacs>=21-p  . ".emacs.d/third-party/slime/")
     (emacs>=21-p  . ".emacs.d/third-party/slime/contrib/")
-    (emacs>=22-p  . ".emacs.d/third-party/w3/lisp/")
-    (emacs>=22-p  . ".emacs.d/third-party/w3/contrib/")
     (emacs>=23-p  . ".emacs.d/third-party/company/")
     ;;
     ;; CEDET
@@ -476,12 +474,8 @@
     ;;
     ;; NeXTSTEP
     (:system next-mach-p ("/LocalLibrary/emacs/site-lisp/"))
-    (:system next-mach-p ("/usr/local/gcl-2.2/elisp/"))
-    ;;
-    ;; Emacs 22 and higher
-    (:version emacs>=22-p (:merge-home ".emacs.d/third-party/w3"))
-    (:version emacs>=22-p (:merge-home ".emacs.d/third-party/w3/lisp/"))
-    )
+    (:system next-mach-p ("/usr/local/gcl-2.2/elisp/")))
+    
   "Custom load paths.")
 
 ;;;
