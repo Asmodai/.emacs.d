@@ -2,8 +2,8 @@
 ;;;
 ;;; site-octave-mode.el --- Support for GNU Octave.
 ;;;
-;;; Time-stamp: <Wednesday Sep  5, 2012 02:24:04 asmodai>
-;;; Revision:   4
+;;; Time-stamp: <Wednesday Sep  5, 2012 02:52:03 asmodai>
+;;; Revision:   7
 ;;;
 ;;; Copyright (c) 2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -52,15 +52,34 @@
 (defun my-octave-mode-hook ()
   (abbrev-mode 1)
   (auto-fill-mode 1)
-  (font-lock-mode 1))
+  (font-lock-mode 1)
+  (define-key octave-mode-map "\C-m"
+    'octave-reindent-then-newline-and-indent)
+  (define-key octave-mode-map [(control tab)]
+    'octave-complete-symbol))
 
 ;;;
 ;;; Add our custom hook function to the hook.
 (add-hook 'octave-mode-hook 'my-octave-mode-hook)
 
+(defvar +gnu-octave-wants-x11+ nil)
+
+(defun start-macos-x11-server ()
+  (unless (eq (process-status "macos-x11") 'run)
+    (start-process "macos-x11"
+                   nil
+                   "/Applications/Utilities/X11.app/Contents/MacOS/X11")))
+
+(defun stop-macos-x11-server ()
+  (unless (null (process-status "macos-x11"))
+    (kill-process "macos-x11")))
+
 ;;;
 ;;; Custom inferior Octave mode hook.
 (defun my-inferior-octave-mode-hook ()
+  (when +gnu-octave-wants-x11+
+    (start-macos-x11-server)
+    (setenv "DISPLAY" "127.0.0.1:0.0"))
   (turn-on-font-lock)
   (define-key inferior-octave-mode-map [up] 'comint-previous-input)
   (define-key inferior-octave-mode-map [down] 'comint-next-input))
