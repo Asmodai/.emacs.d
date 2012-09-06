@@ -2,8 +2,8 @@
 ;;;
 ;;; variables.el --- Various variables.
 ;;;
-;;; Time-stamp: <Wednesday Sep  5, 2012 18:36:03 asmodai>
-;;; Revision:   12
+;;; Time-stamp: <Thursday Sep  6, 2012 12:01:41 asmodai>
+;;; Revision:   13
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -53,13 +53,12 @@
         modeline-scrolling-method 'scrollbar))
 
 ;;;
-;;; W3-specific settings
-(when (featurep 'w3)
-  (setq browser-url-browser-function 'browse-url-w3
-        browse-url-new-window-flag t
-        browse-url-w3-new-window-is-tab t
-        browse-url-netscape-version 6
-        browse-url-save-file t))
+;;; Info-specific settings
+(setq Info-default-directory-list
+      (append '("~/.emacs.d/info/") Info-default-directory-list))
+(setq Info-additional-directory-list Info-default-directory-list)
+
+
 
 ;;;
 ;;; Common settings
