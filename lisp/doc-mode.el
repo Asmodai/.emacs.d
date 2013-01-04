@@ -2,8 +2,8 @@
 ;;;
 ;;; doc-mode.el --- Doxygen mode.
 ;;;
-;;; Time-stamp: <Tuesday Sep  4, 2012 17:47:41 asmodai>
-;;; Revision:   4
+;;; Time-stamp: <Friday Jan  4, 2013 16:49:08 asmodai>
+;;; Revision:   5
 ;;;
 ;;; Copyright (c) 2012 Paul Ward <asmodai@gmail.com>
 ;;; Copyright (C) 2007, 2009 Nikolaj Schumacher
@@ -80,6 +80,12 @@
   "*The string to insert at the beginning of each line in a comment."
   :group 'doc-mode
   :type 'string)
+
+(defcustom doc-mode-allow-single-line-comments nil
+  "*Determines whether doc-mode will allow single-line comments."
+  :group 'doc-mode
+  :type '(choice (const :tag "Off" nil)
+                 (const :tag "On"  t)))
 
 (defcustom doc-mode-template-single-line-start "/** "
   "*The string to insert at the beginning of a single-line comment.
@@ -468,6 +474,91 @@ undetermined content should be created with `doc-mode-new-keyword'."
                  'doc-mode-check-buffer t))
   (when font-lock-mode
     (font-lock-fontify-buffer)))
+
+;;;}}}
+;;;==================================================================
+
+;;;==================================================================
+;;;{{{ Folding:
+
+(defvar doc-mode-folds nil)
+(make-variable-buffer-local 'doc-mode-folds)
+
+(defun doc-mode-fold-doc (point)
+  (let ((bounds (doc-mode-find-doc-bounds point)))
+    (when bounds
+      (let* ((beg (plist-get bounds :beg))
+             (end (plist-get bounds :end))
+             (summary-bounds (doc-mode-find-summary beg end))
+             (before-overlay (make-overlay beg (car summary-bounds)))
+             (after-overlay (make-overlay (cdr summary-bounds) end))
+             (siblings (list before-overlay after-overlay)))
+        (when (> (count-lines beg end) 1)
+          (dolist (ov siblings)
+            (overlay-put ov 'invisible t)
+            (overlay-put ov 'isearch-open-invisible-temporary
+                         'doc-mode-unfold-by-overlay-temporary)
+            (overlay-put ov 'doc-mode-fold siblings))
+          (setq doc-mode-folds (nconc doc-mode-folds siblings)))))))
+
+(defun doc-mode-fold-tag-doc (tag)
+  (interactive (list (doc-mode-current-tag-or-bust)))
+  (unless doc-mode
+    (error "doc-mode is not enabled."))
+  (doc-mode-fold-doc (semantic-tag-start tag)))
+
+(defun doc-mode-unfold-by-overlay (overlay &rest foo)
+  (dolist (ov (overlay-get overlay 'doc-mode-fold))
+    (setq doc-mode-folds (delq ov doc-mode-folds))
+    (delete-overlay ov)
+    (setq isearch-opened-overlays (delq ov isearch-opened-overlays))))
+
+(defun doc-mode-unfold-by-overlay-temporary (overlay invisible)
+  (dolist (ov (overlay-get overlay 'doc-mode-fold))
+    (overlay-put ov 'invisible invisible)))
+
+(defun doc-mode-unfold-doc (point)
+  (interactive "d")
+  (unless doc-mode
+    (error "doc-mode is not enabled."))
+  (let ((bounds (doc-mode-find-doc-bounds point)))
+    (when bounds
+      (let* ((beg (plist-get bounds :beg))
+             (end (plist-get bounds :end))
+             (overlays (overlays-in beg end))
+             anything-done)
+        (dolist (ov overlays)
+          (when (overlay-get ov 'doc-mode-fold)
+            (setq anything-done t)
+            (delete-overlay ov)
+            (setq doc-mode-folds (delq ov doc-mode-folds))))
+        anything-done))))
+  
+(defun doc-mode-unfold-tag-doc (tag)
+  (interactive (list (doc-mode-current-tag-or-bust)))
+  (unless doc-mode
+    (error "doc-mode is not enabled."))
+  (doc-mode-unfold-doc (semantic-tag-start tag)))
+
+(defun doc-mode-fold-all (&optional arg)
+  (interactive "P")
+  (unless doc-mode
+    (error "doc-mode is not enabled."))
+  (if arg
+      (doc-mode-unfold-all)
+      (dolist (tag (doc-mode-find-eligible-tags))
+        (doc-mode-fold-tag-doc tag))))
+
+(defun doc-mode-unfold-all ()
+  (interactive)
+  (dolist (ov doc-mode-folds)
+    (delete-overlay ov))
+  (kill-local-variable 'doc-mode-folds))
+
+(defun doc-mode-toggle-tag-folding (tag)
+  (interactive (list (doc-mode-current-tag-or-bust)))
+  (or (doc-mode-unfold-tag-doc tag)
+      (doc-mode-fold-tag-doc tag)))
 
 ;;;}}}
 ;;;==================================================================
