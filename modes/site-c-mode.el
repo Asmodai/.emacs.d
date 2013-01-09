@@ -2,8 +2,8 @@
 ;;;
 ;;; site-c-mode.el --- C mode hacks.
 ;;;
-;;; Time-stamp: <Wednesday Sep  5, 2012 15:58:52 asmodai>
-;;; Revision:   66
+;;; Time-stamp: <Wednesday Jan  9, 2013 17:36:39 asmodai>
+;;; Revision:   131
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -36,145 +36,207 @@
 ;;;
 ;;;}}}
 
-;;; Comment editing.
+;;;==================================================================
+;;;{{{ Comment editing.:
+
 (when emacs>=21-p
   (require 'autopair)
   (require 'c-comment-edit)
+  
   (if (featurep 'c-comment-edit)
       (setq c-comment-leader "  ")))
 
-;;; C-family autoload support
+;;;}}}
+;;;==================================================================
+
+;;;==================================================================
+;;;{{{ Support for C-based languages:
+
 (when (and emacs>=21-p
            (or running-on-yorktown-p
-               running-on-lisp-machine-p)) 
+               running-on-challenger-p
+               running-on-magellan-p
+               running-on-lisp-machine-p))
   (autoload 'csharp-mode "csharp-mode"
     "Major mode for editing C# code." t)
-
+  
   (setq auto-mode-alist
         (append '(("\\.cs$" . csharp-mode))
                 auto-mode-alist)))
+;;;}}}
+;;;==================================================================
 
-;;;
-;;; ctags
-(setq path-to-ctags (if windows-p
-                        "C:/Program Files/Emacs-23.2/bin/ctags"
-                        "/usr/bin/ctags"))
+;;;==================================================================
+;;;{{{ CTAGS:
 
-(defun create-tags (dir-name)
+(when emacs>=21-p
+  (setq path-to-ctags (if windows-p
+                          "C:/Program Files/Emacs-23.2/bin/ctags"
+                          "/usr/bin/ctags"))
+  
+  (defun create-tags (dir-name)
   "Create tags file."
   (interactive "DDirectory: ")
   (shell-command
    (format "%s -f %s/TAGS -e -R %s"
            path-to-ctags
            dir-name
-           (directory-file-name dir-name))))
+           (directory-file-name dir-name)))))
 
-;;;
-;;; The rest of this file is meant for Emacs >= 19.
-;;;
+;;;}}}
+;;;==================================================================
+
+;;;==================================================================
+;;;{{{ Configure cc-mode:
 
 (when emacs>=19-p
-  ;;
-  ;; We quite like `cc-mode'.
-  (require 'cc-mode)
-
-  ;;
-  ;; Custom C indentation style.
-  (defconst hackers-c-style
-    '((c-tab-always-indent . t)
-      (c-comment-only-line-offset . 0)
-      (c-basic-offset . 2)
-      (c-hanging-braces-alist . ((substatement-open after)
-                                 (brace-list-open after)))
-      (c-hanging-colons-alist . ((member-init-intro before)
-                                 (inher-intro)
-                                 (case-label after)
-                                 (label after)
-                                 (access-label after)))
-      (c-cleanup-list . (scope-operator
-                         empty-defun-braces
-                         brace-else-brace
-                         brace-elseif-brace
-                         brace-catch-brace
-                         defun-close-semi
-                         list-close-comma))
-      (c-offsets-alist . ((statement-block-intro . +)
-                          (inline-open           . 0)
-                          (arglist-close         . c-lineup-arglist)
-                          (knr-argdecl-intro     . +)
-                          (substatement-open     . 0)
-                          (label                 . 0)
-                          (statement-cont        . +)
-                          (case-label            . +)))
-      (c-echo-syntactic-information-p . t)
-      (c-syntactic-indentation . t)
-      (c-report-syntactic-errors . t))
-    "Custom BSD-derived C syntax style.")
   
   ;;
-  ;; Custom C++ indentation style.
-  (defconst hackers-c++-style
-    '((c-tab-always-indent . t)
-      (c-comment-only-line-offset . 0)
+  ;; Require some stuff.
+  (require 'cc-mode)
+  (require 'align)
+  
+;;; ------------------------------------------------------------------
+;;;{{{ Lining up expressions the Google way:
+
+  (defun google-c-lineup-expression-plus-4 (langelem)
+    "Indents to the beginning of the current C expression plus 4 spaces.
+
+This implements title \"Function Declarations and Definitions\" of the Google
+C++ Style Guide for the case where the previous line ends with an open
+parenthese.
+
+\"Current C expression\", as per the Google Style Guide and as clarified by
+subsequent discussions,
+means the whole expression regardless of the number of nested parentheses, but
+excluding non-expression material such as \"if(\" and \"for(\" control
+structures.
+
+Suitable for inclusion in `c-offsets-alist'."
+    (save-excursion
+      (back-to-indentation)
+      (c-backward-syntactic-ws)
+      (back-to-indentation)
+      (if (looking-at "\\(\\(if\\|for\\|while\\)\\s *(\\)")
+          (goto-char (match-end 1)))
+      (vector (+ 4 (current-column)))))
+  
+;;;}}}
+;;;------------------------------------------------------------------
+
+;;; ------------------------------------------------------------------
+;;;{{{ An indentation based on the one Google have:
+
+  (defconst google-c-style
+    `((c-recognize-knr-p . nil)
+      (c-enable-xemacs-performance-kludge-p . t)
       (c-basic-offset . 2)
-      (c-hanging-braces-alist . ((substatement-open after)
+      (indent-tabs-mode . nil)
+      (c-comment-only-line-offset . 0)
+      (c-hanging-braces-alist . ((defun-open after)
+                                 (defun-close before after)
+                                 (class-open after)
+                                 (class-close before after)
                                  (namespace-open after)
                                  (inline-open after)
-                                 (class-open after)
-                                 (module-open after)
-                                 (brace-list-open after)))
-      (c-hanging-colons-alist . ((member-init-intro before)
-                                 (inher-intro)
-                                 (case-label after)
+                                 (inline-close before after)
+                                 (block-open after)
+                                 (block-close . c-snug-do-while)
+                                 (extern-lang-open after)
+                                 (extern-lang-close after)
+                                 (statement-case-open after)
+                                 (substatement-open after)))
+      (c-hanging-colons-alist . ((case-label)
                                  (label after)
-                                 (access-label after)))
-      (c-cleanup-list . (scope-operator
-                         empty-defun-braces
-                         brace-else-brace
+                                 (access-label after)
+                                 (member-init-intro before)
+                                 (inher-intro)))
+      (c-hanging-semi&comma-criteria
+       . (c-semi&comma-no-newlines-for-oneline-inliners
+          c-semi&comma-inside-parenlist
+          c-semi&comma-no-newlines-before-nonblanks))
+      (c-indent-comments-syntactically-p . t)
+      (comment-column . 40)
+      (c-cleanup-list . (brace-else-brace
                          brace-elseif-brace
                          brace-catch-brace
+                         empty-defun-braces
                          defun-close-semi
-                         list-close-comma))
-      (c-offsets-alist . ((statement-block-intro . +)
-                          (inline-open           . 0)
-                          (arglist-close         . c-lineup-arglist)
-                          (knr-argdecl-intro     . +)
-                          (substatement-open     . 0)
-                          (label                 . 0)
-                          (statement-cont        . +)
-                          (case-label            . +)))
-      (c-echo-syntactic-information-p . t)
-      (c-syntactic-indentation . t)
-      (c-report-syntactic-errors . t))
-    "Custom BSD-derived C++ syntax style.")
+                         list-close-comma
+                         scope-operator))
+      (c-offsets-alist . ((arglist-intro google-c-lineup-expression-plus-4)
+                          (func-decl-cont . ++)
+                          (member-init-intro . ++)
+                          (inher-intro . ++)
+                          (comment-intro . 0)
+                          (arglist-close . c-lineup-arglist)
+                          (topmost-intro . 0)
+                          (block-open . 0)
+                          (inline-open . 0)
+                          (substatement-open . 0)
+                          (statement-cont
+                           .
+                           (,(when (fboundp 'c-no-indent-after-java-annotations)
+                               'c-no-indent-after-java-annotations)
+                             ,(when (fboundp 'c-lineup-assignments)
+                                'c-lineup-assignments)
+                             ++))
+                          (label . /)
+                          (case-label . +)
+                          (statement-case-open . +)
+                          (statement-case-intro . +) ; case w/o {
+                          (access-label . /)
+                          (innamespace . 2))))
+    "Google C/C++ Programming Style")  
+  
+;;;}}}
+;;;------------------------------------------------------------------
 
-  ;;
-  ;; Add the new styles to the available styles.
-  (c-add-style "hackers-c" hackers-c-style)
-  (c-add-style "hackers-c++" hackers-c++-style)
+;;;------------------------------------------------------------------
+;;;{{{ Utilities for setting cc-mode:
 
-  ;;
-  ;; Set up the default styles
+  (defun google-set-c-style ()
+    (interactive)
+    (make-local-variable 'c-tab-always-indent)
+    (setq c-tab-always-indent t)
+    (c-add-style "Google" google-c-style t))
+  
+  (defun google-make-newline-indent ()
+    (interactive)
+    (define-key c-mode-base-map "\C-m" 'newline-and-indent)
+    (define-key c-mode-base-map [ret] 'newline-and-indent))
+  
+;;;}}}
+;;;------------------------------------------------------------------
+
+;;;------------------------------------------------------------------
+;;;{{{ Explicitly set the indentation style:
+
   (if (or running-on-yorktown-p
           running-on-lisp-machine-p
-          running-on-magellan-p)
+          running-on-magellan-p
+          running-on-challenger-p)
       (setq-default c-default-style
-                    '((c-mode      . "hackers-c")
-                      (c++-mode    . "hackers-c++")
-                      (objc-mode   . "hackers-c")
-                      (java-mode   . "hackers-c")
-                      (cperl-mode  . "hackers-c")
+                    '((c-mode      . "google-c-style")
+                      (c++-mode    . "google-c-style")
+                      (objc-mode   . "google-c-style")
+                      (java-mode   . "google-c-style")
+                      (cperl-mode  . "google-c-style")
                       (other       . "gnu")
-                      (csharp-mode . "hackers-c")))
+                      (csharp-mode . "google-c-style")))
       (setq-default c-default-style
-                    '((c-mode      . "hackers-c")
-                      (c++-mode    . "hackers-c++")
-                      (objc-mode   . "hackers-c")
-                      (java-mode   . "hackers-c")
+                    '((c-mode      . "google-c-style")
+                      (c++-mode    . "google-c-style")
+                      (objc-mode   . "google-c-style")
+                      (java-mode   . "google-c-style")
                       (other       . "gnu"))))
   
-  ;;
-  ;; Set some defaults
+;;;}}}
+;;;------------------------------------------------------------------
+
+;;;------------------------------------------------------------------
+;;;{{{ Clean up one-liner definitions:
+
   (if emacs=22-p
       ;;
       ;; Emacs 22 seems to have a problem with c-cleanup-list.
@@ -186,38 +248,26 @@
       ;; Works on everything else.
       (add-to-list 'c-cleanup-list 'one-liner-defun))
   
-  ;;
-  ;; Custom indentation commands.
-  (defun my-custom-c-indent ()
-    (unless (or (eq (caar c-syntactic-context) 'c)
-                (eq (caar c-syntactic-context) 'brace-list-close)
-                (eq (caar c-syntactic-context) 'topmost-intro))
-      (save-excursion
-        (let ((place (if (and (listp (cadr c-syntactic-context))
-                              (not (null (cadr c-syntactic-context)))
-                              (not (null (cadadr c-syntactic-context))))
-                         (- (cadadr c-syntactic-context) 255)
-                         (cadar c-syntactic-context))))
-          (if (not (null place))
-              (align place (point) nil))))))
-  
-  (add-hook 'c-special-indent-hook 'my-custom-c-indent)
-  
-  ;;
-  ;; Add some hooks
-  (defun my-common-c-mode-hooks ()
+;;;}}}
+;;;------------------------------------------------------------------
+
+;;;------------------------------------------------------------------
+;;;{{{ cc-mode hooks:
+
+    (defun my-common-c-mode-hooks ()
     (when (or emacs=20-p emacs=21-p)
       (turn-on-font-lock)
       (font-lock-mode 1))
     (setq indent-tabs-mode nil
           c-max-one-liner-length 80)
-    (if (eq major-mode 'c++-mode)
-        (c-set-style "hackers-c++")
-        (c-set-style "hackers-c"))
+    (google-set-c-style)
+    (google-make-newline-indent)
     (when (featurep 'company)
       (company-mode 1))
     (when (featurep 'highlight-parentheses)
       (hi-parens-autopair))
+    (when (featurep 'semantic)
+      (ede-minor-mode 1))
     (show-paren-mode 1)
     (eldoc-mode 1)
     (c-toggle-auto-state 1)
@@ -226,29 +276,119 @@
     (c-toggle-hungry-state -1)
     (c-toggle-auto-hungry-state -1)
     (c-toggle-auto-newline -1)
-    (when (featurep 'ecb)
-      (ecb-minor-mode 1))
     (when emacs>=23-p
       (subword-mode 1))
     (autopair-mode 1)
     (auto-fill-mode 1))
+    
+    (add-hook 'c-mode-common-hook 'my-common-c-mode-hooks)
+  
+;;;}}}
+;;;------------------------------------------------------------------
 
-  (add-hook 'c-mode-common-hook 'my-common-c-mode-hooks)
+;;;------------------------------------------------------------------
+;;;{{{ Set up the semantic bovinator:
+
+    (when (featurep 'semantic)
+      (defun my-c-mode-cedet-hook ()
+        (local-set-key [(control return)] 'semantic-ia-complete-symbol-menu)
+        (local-set-key [(control tab)] 'semantic-ia-complete-symbol)
+        (local-set-key "\C-c." 'senator-complete-symbol))
+      
+      (add-hook 'c-mode-common-hook 'my-c-mode-cedet-hook))
+    
+;;;}}}
+;;;------------------------------------------------------------------
+
+;;;------------------------------------------------------------------
+;;;{{{ Doxygen stuff:
+
+    (when emacs>=23-p
+      (require 'doc-mode)
+      (add-hook 'c-mode-common-hook 'doc-mode))
+
+;;;}}}
+;;;------------------------------------------------------------------
+
+;;; ------------------------------------------------------------------
+;;;{{{ Set up alignment:
 
   ;;
-  ;; CEDET/Semantic hooks
-  (when (featurep 'semantic)
-    (defun my-c-mode-cedet-hook ()
-      (local-set-key [(control return)] 'semantic-ia-complete-symbol-menu)
-      (local-set-key [(control tab)] 'semantic-ia-complete-symbol)
-      (local-set-key "\C-c." 'senator-complete-symbol))
-    
-    (add-hook 'c-mode-common-hook 'my-c-mode-cedet-hook)))
+  ;; Clean up any existing stuff
+  (when (or (boundp 'align-exclude-key-list)
+            (boundp 'align-custom-rules-list))
+    (makunbound 'align-exclude-key-list)
+    (makunbound 'align-custom-rules-list))
+  
+  (defvar align-exclude-key-list '(c-variable-declaration
+                                   c-assignment))
+  
+  (defvar align-custom-rules-list
+    `((c-assignment
+       (regexp . ,(concat "[^-=!^&*+<>/| \t\n]\\(\\s-*[-=!^&*+<>/|]*\\)"
+                          "=\\(\\s-*\\)\\([^= \t\n]\\|$\\)"))
+       (group . (1 2))
+       (justify . t)
+       (modes . align-c++-modes))
+      (c-variable-declaration
+       (regexp . ,(concat "[*&0-9A-Za-z_]\\(?:\\s-*>\\)?[&*]*\\(\\s-+[*&]*\\)"
+                          "[A-Za-z_][0-9A-Za-z:_]*\\s-*\\(\\()\\|"
+                          "=[^=\n].*\\|(.*)\\|\\(\\[.*\\]\\)*\\)?"
+                          "\\s-*[;,]\\|)\\s-*$\\)"))
+       (group . 1)
+       (modes . align-c++-modes)
+       (justify . t)
+       (valid
+        . ,(function
+            (lambda ()
+             (not (or (save-excursion
+                        (goto-char (match-beginning 1))
+                        (backward-word 1)
+                        (looking-at
+                         "\\(goto\\|return\\|new\\|delete\\|throw\\)"))
+                      (if (and (boundp 'font-lock-mode)
+                               font-lock-mode)
+                          (eq (get-text-property (point) 'face)
+                              'font-lock-comment-face)
+                          (eq (caar (c-guess-basic-syntax)) 'c))))))))))
+  
+  (defvar cc-mode::align-mode-rules-list (append align-rules-list))
+  
+  (dolist (key align-exclude-key-list)
+    (setq cc-mode::align-mode-rules-list
+          (remove (assq key cc-mode::align-mode-rules-list)
+                  cc-mode::align-mode-rules-list)))
+  
+  (setq cc-mode::align-mode-rules-list
+        (append align-custom-rules-list
+                cc-mode::align-mode-rules-list))
+  
+  (add-hook 'c-mode-common-hook
+            '(lambda ()
+              (setq align-mode-rules-list
+               cc-mode::align-mode-rules-list)))
+  
+  (defun perform-c-alignment ()
+    (unless (or (eq (caar c-syntactic-context) 'c)
+                (eq (caar c-syntactic-context) 'topmost-intro)
+                (eq (caar c-syntactic-context) 'brace-list-close))
+      (save-excursion
+        (let ((place (if (and (listp (cadr c-syntactic-context))
+                              (not (null (cadr c-syntactic-context)))
+                              (not (null (cadadr c-syntactic-context))))
+                         (cadadr c-syntactic-context)
+                         (cadar c-syntactic-context)))
+              (saved-point (point)))
+          (if (not (null place))
+              (align place (point) "\\({$\\|^\\s-*}\\|^\\(\\s-*\\)$\\)"))))))
+  
+  (add-hook 'c-special-indent-hook 'perform-c-alignment)
+  
+;;;}}}
+;;;------------------------------------------------------------------
+  )
 
-;;;
-;;; Doxygen stuff.
-(when emacs>=23-p
-  (require 'doc-mode)
-  (add-hook 'c-mode-common-hook 'doc-mode))
+;;;}}}
+;;;==================================================================
 
 ;;; site-c-mode.el ends here
