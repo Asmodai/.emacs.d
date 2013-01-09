@@ -2,8 +2,8 @@
 ;;;
 ;;; utils.el --- Various utilities
 ;;;
-;;; Time-stamp: <Sunday Jan 29, 2012 17:49:40 asmodai>
-;;; Revision:   14
+;;; Time-stamp: <Wednesday Jan  9, 2013 14:54:19 asmodai>
+;;; Revision:   15
 ;;;
 ;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -45,6 +45,7 @@
 ;;; Physical hosts:
 ;;;   lisp-machine          Mac OS X
 ;;;   magellan              GNU/Linux
+;;;   challenger            GNU/Linux
 ;;;   farragut              FreeBSD
 ;;;   lynx                  HP-UX
 ;;;   yorktown              Windows 7
@@ -67,6 +68,9 @@ in `system-name'."
 
 (defconst running-on-magellan-p (%running-on "magellan")
   "T if Emacs is running on `magellan'.")
+
+(defconst running-on-challenger-p (%running-on "challenger")
+  "T if Emacs is running on `challenger'")
 
 (defconst running-on-farragut-p (%running-on "farragut")
   "T if Emacs is running on `farragut'.")
