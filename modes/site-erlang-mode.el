@@ -36,16 +36,16 @@
 ;;;
 ;;;}}}
 
-(when emacs>=23-p
+(when (emacs>=23-p)
   ;;
   ;; Start by setting up Erlang variables
-  (setq erlang-root-dir (if windows-p
+  (setq erlang-root-dir (if (windows-p)
                             "c:/Progra~1/erl5.9"
                             "/usr/local/otp"))
   
   ;;
   ;; Tell emacs where to find the Erlang binary
-  (setq exec-path (if windows-p
+  (setq exec-path (if (windows-p)
                       (cons "c:/Progra~1/erl5.9/bin" exec-path)
                       (cons "/usr/local/otp/bin" exec-path)))
   

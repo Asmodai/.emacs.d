@@ -36,9 +36,9 @@
 ;;;
 ;;;}}}
 
-(when emacs>=19-p
+(when (emacs>=19-p)
   (setq ruby-program-name
-        (if windows-p
+        (if (windows-p)
             "c:/ruby193/bin/irb.bat --inf-ruby-mode"
             "/usr/bin/irb --inf-ruby-mode"))
 
@@ -46,8 +46,8 @@
   (autoload 'inf-ruby-keys "inf-ruby")
 
   (defun my-ruby-mode-hooks ()
-    (when (or emacs=20-p
-              emacs=21-p)
+    (when (or (emacs=20-p)
+              (emacs=21-p))
       (turn-on-font-lock)
       (font-lock-mode 1))
     (when (featurep 'company)

@@ -1,7 +1,6 @@
 
 (define-slime-contrib slime-autodoc
   "Show fancy arglist in echo area."
-  (:gnu-emacs-only t)
   (:license "GPL")
   (:authors "Luke Gorrie  <luke@bluetail.com>"
             "Lawrence Mitchell  <wence@gmx.li>"
@@ -9,7 +8,7 @@
             "Tobias C. Rittweiler  <tcr@freebits.de>")
   (:slime-dependencies slime-parse)
   (:swank-dependencies swank-arglists)
-  (:on-load 
+  (:on-load
    (dolist (h '(slime-mode-hook slime-repl-mode-hook sldb-mode-hook))
      (add-hook h 'slime-autodoc-maybe-enable)))
   (:on-unload
@@ -22,7 +21,7 @@
   (when slime-use-autodoc-mode
     (slime-autodoc-mode 1)
     (setq slime-echo-arglist-function
-          (lambda () 
+          (lambda ()
             (if slime-autodoc-mode
                 (eldoc-message (slime-autodoc))
                 (slime-show-arglist))))))
@@ -58,7 +57,7 @@
   (let ((name (etypecase name
                  (string name)
                  (symbol (symbol-name name)))))
-    (slime-eval `(swank:autodoc '(,name ,slime-cursor-marker)))))
+    (car (slime-eval `(swank:autodoc '(,name ,slime-cursor-marker))))))
 
 
 ;;;; Autodocs (automatic context-sensitive help)
@@ -72,24 +71,6 @@
               `(swank:autodoc ',buffer-form
                               :print-right-margin
                               ,(window-width (minibuffer-window)))))))
-
-(defun slime-autodoc-global-at-point ()
-  "Return the global variable name at point, if any."
-  (when-let (name (slime-symbol-at-point))
-    (and (slime-global-variable-name-p name) name)))
-
-(defcustom slime-global-variable-name-regexp "^\\(.*:\\)?\\([*+]\\).+\\2$"
-  "Regexp used to check if a symbol name is a global variable.
-
-Default value assumes +this+ or *that* naming conventions."
-  :type 'regexp
-  :group 'slime)
-
-(defun slime-global-variable-name-p (name)
-  "Is NAME a global variable?
-Globals are recognised purely by *this-naming-convention*."
-  (and (< (length name) 80) ; avoid overflows in regexp matcher
-       (string-match slime-global-variable-name-regexp name)))
 
 
 ;;;; Autodoc cache
@@ -159,7 +140,8 @@ If it's not in the cache, the cache will be updated asynchronously."
         (multiple-value-bind (cache-key retrieve-form)
             (slime-make-autodoc-rpc-form)
           (let* (cached
-                 (multilinep (or (slime-autodoc-multiline-cached (car cache-key))
+                 (multilinep (or (slime-autodoc-multiline-cached
+				  (car cache-key))
                                  multilinep)))
             (slime-autodoc-cache-multiline (car cache-key) cache-multiline)
             (cond
@@ -174,12 +156,14 @@ If it's not in the cache, the cache will be updated asynchronously."
                  (lexical-let ((cache-key cache-key)
                                (multilinep multilinep))
                    (lambda (doc)
-                     (unless (eq doc :not-available)
-                       (slime-store-into-autodoc-cache cache-key doc)
-                       ;; Now that we've got our information,
-                       ;; get it to the user ASAP.
-                       (eldoc-message
-                        (slime-format-autodoc doc multilinep))))))
+                     (destructuring-bind (doc cache-p) doc
+                       (unless (eq doc :not-available)
+                         (when cache-p
+                           (slime-store-into-autodoc-cache cache-key doc))
+                         ;; Now that we've got our information,
+                         ;; get it to the user ASAP.
+                         (eldoc-message
+                          (slime-format-autodoc doc multilinep)))))))
                nil))))))))
 
 (defvar slime-autodoc-cache-car nil)
@@ -198,7 +182,7 @@ If it's not in the cache, the cache will be updated asynchronously."
 
 (defun slime-autodoc-manually ()
   "Like slime-autodoc, but when called twice,
-or after slime-autodoc was already automatically called, 
+or after slime-autodoc was already automatically called,
 display multiline arglist"
   (interactive)
   (eldoc-message (slime-autodoc (or slime-autodoc-use-multiline-p
@@ -220,7 +204,7 @@ display multiline arglist"
     (message (format "Slime autodoc mode %s."
                      (if slime-autodoc-mode "enabled" "disabled")))))
 
-(defadvice eldoc-display-message-no-interference-p 
+(defadvice eldoc-display-message-no-interference-p
     (after slime-autodoc-message-ok-p)
   (when slime-autodoc-mode
     (setq ad-return-value
@@ -243,14 +227,14 @@ display multiline arglist"
 
 (defun slime-autodoc-to-string ()
   "Retrieve and return autodoc for form at point."
-  (let ((autodoc (slime-eval (second (slime-make-autodoc-rpc-form)))))
+  (let ((autodoc (car (slime-eval (second (slime-make-autodoc-rpc-form))))))
     (if (eq autodoc :not-available)
         :not-available
         (slime-canonicalize-whitespace autodoc))))
 
 (defun slime-check-autodoc-at-point (arglist)
-  (slime-test-expect (format "Autodoc in `%s' (at %d) is as expected" 
-                             (buffer-string) (point)) 
+  (slime-test-expect (format "Autodoc in `%s' (at %d) is as expected"
+                             (buffer-string) (point))
                      arglist
                      (slime-autodoc-to-string)
                      'equal))
@@ -263,10 +247,12 @@ display multiline arglist"
       ("(swank::emacs-connected*HERE*"    "(emacs-connected)")
       ("(swank::emacs-connected *HERE*"   "(emacs-connected)")
       ("(swank::create-socket*HERE*"      "(create-socket host port)")
-      ("(swank::create-socket *HERE*"     "(create-socket ===> host <=== port)")
-      ("(swank::create-socket foo *HERE*" "(create-socket host ===> port <===)")
+      ("(swank::create-socket *HERE*" "(create-socket ===> host <=== port)")
+      ("(swank::create-socket foo *HERE*"
+       "(create-socket host ===> port <===)")
 
-      ;; Test that autodoc differentiates between exported and unexported symbols.
+      ;; Test that autodoc differentiates between exported and
+      ;; unexported symbols.
       ("(swank:create-socket*HERE*" :not-available)
 
       ;; Test if cursor is on non-existing required parameter
@@ -278,27 +264,35 @@ display multiline arglist"
        t)
 
       ;; Test variable content display
-      ("(progn swank::default-server-port*HERE*" "DEFAULT-SERVER-PORT => 4005")
+      ("(progn swank::default-server-port*HERE*"
+       "DEFAULT-SERVER-PORT => 4005")
 
-      ;; Test that "variable content display" is not triggered for trivial constants.
-      ("(swank::create-socket t*HERE*"     "(create-socket ===> host <=== port)")
-      ("(swank::create-socket :foo*HERE*"  "(create-socket ===> host <=== port)")
+      ;; Test that "variable content display" is not triggered for
+      ;; trivial constants.
+      ("(swank::create-socket t*HERE*" "(create-socket ===> host <=== port)")
+      ("(swank::create-socket :foo*HERE*"
+       "(create-socket ===> host <=== port)")
 
       ;; Test with syntactic sugar
       ("#'(lambda () (swank::create-socket*HERE*" "(create-socket host port)")
       ("`(lambda () ,(swank::create-socket*HERE*" "(create-socket host port)")
-      ("(remove-if #'(lambda () (swank::create-socket*HERE*"    "(create-socket host port)")
-      ("`(remove-if #'(lambda () ,@(swank::create-socket*HERE*" "(create-socket host port)")
+      ("(remove-if #'(lambda () (swank::create-socket*HERE*"
+       "(create-socket host port)")
+      ("`(remove-if #'(lambda () ,@(swank::create-socket*HERE*"
+       "(create-socket host port)")
 
       ;; Test &optional
-      ("(swank::symbol-status foo *HERE*" 
-       "(symbol-status symbol &optional ===> (package (symbol-package symbol)) <===)")
+      ("(swank::symbol-status foo *HERE*"
+       "(symbol-status symbol &optional\
+ ===> (package (symbol-package symbol)) <===)")
 
       ;; Test context-sensitive autodoc (DEFMETHOD)
       ("(defmethod swank::arglist-dispatch (*HERE*"
-       "(defmethod arglist-dispatch (===> operator <=== arguments) &body body)")
+       "(defmethod arglist-dispatch\
+ (===> operator <=== arguments) &body body)")
       ("(defmethod swank::arglist-dispatch :before (*HERE*"
-       "(defmethod arglist-dispatch :before (===> operator <=== arguments) &body body)")
+       "(defmethod arglist-dispatch :before\
+ (===> operator <=== arguments) &body body)")
 
       ;; Test context-sensitive autodoc (APPLY)
       ("(apply 'swank::eval-for-emacs*HERE*"
@@ -306,26 +300,32 @@ display multiline arglist"
       ("(apply #'swank::eval-for-emacs*HERE*"
        "(apply #'eval-for-emacs &optional form buffer-package id &rest args)")
       ("(apply 'swank::eval-for-emacs foo *HERE*"
-       "(apply 'eval-for-emacs &optional form ===> buffer-package <=== id &rest args)")
+       "(apply 'eval-for-emacs &optional form\
+ ===> buffer-package <=== id &rest args)")
       ("(apply #'swank::eval-for-emacs foo *HERE*"
-       "(apply #'eval-for-emacs &optional form ===> buffer-package <=== id &rest args)")
+       "(apply #'eval-for-emacs &optional form\
+ ===> buffer-package <=== id &rest args)")
 
       ;; Test context-sensitive autodoc (ERROR, CERROR)
       ("(error 'simple-condition*HERE*"
-       "(error 'simple-condition &rest arguments &key format-arguments format-control)")
+       "(error 'simple-condition &rest arguments\
+ &key format-arguments format-control)")
       ("(cerror \"Foo\" 'simple-condition*HERE*"
-       "(cerror \"Foo\" 'simple-condition &rest arguments &key format-arguments format-control)")
-      
+       "(cerror \"Foo\" 'simple-condition\
+ &rest arguments &key format-arguments format-control)")
+
       ;; Test &KEY and nested arglists
       ("(swank::with-retry-restart (:msg *HERE*"
        "(with-retry-restart (&key ===> (msg \"Retry.\") <===) &body body)")
       ("(swank::with-retry-restart (:msg *HERE*(foo"
        "(with-retry-restart (&key ===> (msg \"Retry.\") <===) &body body)" t)
       ("(swank::start-server \"/tmp/foo\" :coding-system *HERE*"
-       "(start-server port-file &key (style swank:*communication-style*) (dont-close swank:*dont-close*) ===> (coding-system swank::*coding-system*) <===)")
-      
+       "(start-server port-file &key (style swank:*communication-style*)\
+ (dont-close swank:*dont-close*)\
+ ===> (coding-system swank::*coding-system*) <===)")
+
       ;; Test declarations and type specifiers
-      ("(declare (string *HERE*" 
+      ("(declare (string *HERE*"
        "(declare (string &rest ===> variables <===))")
       ("(declare ((string *HERE*"
        "(declare ((string &optional ===> size <===) &rest variables))")
@@ -336,8 +336,8 @@ display multiline arglist"
       ("(flet ((foo (x y) (+ x y))) (foo *HERE*" "(foo ===> x <=== y)")
       ("(macrolet ((foo (x y) `(+ ,x ,y))) (foo *HERE*" "(foo ===> x <=== y)")
       ("(labels ((foo (x y) (+ x y))) (foo *HERE*" "(foo ===> x <=== y)")
-      ("(labels ((foo (x y) (+ x y)) 
-                 (bar (y) (foo *HERE*" 
+      ("(labels ((foo (x y) (+ x y))
+                 (bar (y) (foo *HERE*"
        "(foo ===> x <=== y)"))
   (slime-check-top-level)
   (with-temp-buffer

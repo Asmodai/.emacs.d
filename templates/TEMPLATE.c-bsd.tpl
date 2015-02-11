@@ -44,9 +44,14 @@
  */
 /* }}} */
 
+/**
+ * @file (>>>FILE<<<)
+ * @author (>>>USER_NAME<<<)
+ * @brief (>>>TITLE<<<)
+ */
+
 (>>>POINT<<<)
 
 /* (>>>FILE<<<) ends here */
-
 >>>TEMPLATE-DEFINITION-SECTION<<<
 ("TITLE" "Enter a description for this file: " "" "" "")

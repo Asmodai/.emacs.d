@@ -2,8 +2,8 @@
 ;;;
 ;;; site-c-mode.el --- C mode hacks.
 ;;;
-;;; Time-stamp: <Wednesday Jan  9, 2013 17:36:39 asmodai>
-;;; Revision:   131
+;;; Time-stamp: <Monday Dec 23, 2013 19:58:51 asmodai>
+;;; Revision:   148
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -39,9 +39,11 @@
 ;;;==================================================================
 ;;;{{{ Comment editing.:
 
-(when emacs>=21-p
+(when (emacs>=21-p)
   (require 'autopair)
   (require 'c-comment-edit)
+  (compile-load "cmake-mode")
+  (compile-load "andersl-cmake-font-lock")
   
   (if (featurep 'c-comment-edit)
       (setq c-comment-leader "  ")))
@@ -52,11 +54,7 @@
 ;;;==================================================================
 ;;;{{{ Support for C-based languages:
 
-(when (and emacs>=21-p
-           (or running-on-yorktown-p
-               running-on-challenger-p
-               running-on-magellan-p
-               running-on-lisp-machine-p))
+(when (emacs>=21-p)
   (autoload 'csharp-mode "csharp-mode"
     "Major mode for editing C# code." t)
   
@@ -69,8 +67,8 @@
 ;;;==================================================================
 ;;;{{{ CTAGS:
 
-(when emacs>=21-p
-  (setq path-to-ctags (if windows-p
+(when (emacs>=21-p)
+  (setq path-to-ctags (if (windows-p)
                           "C:/Program Files/Emacs-23.2/bin/ctags"
                           "/usr/bin/ctags"))
   
@@ -89,12 +87,13 @@
 ;;;==================================================================
 ;;;{{{ Configure cc-mode:
 
-(when emacs>=19-p
+(when (emacs>=19-p)
   
   ;;
   ;; Require some stuff.
   (require 'cc-mode)
   (require 'align)
+  (require 'ppindent)
   
 ;;; ------------------------------------------------------------------
 ;;;{{{ Lining up expressions the Google way:
@@ -135,6 +134,8 @@ Suitable for inclusion in `c-offsets-alist'."
       (c-comment-only-line-offset . 0)
       (c-hanging-braces-alist . ((defun-open after)
                                  (defun-close before after)
+                                 (brace-list-open after)
+                                 (brace-list-intro after)
                                  (class-open after)
                                  (class-close before after)
                                  (namespace-open after)
@@ -146,7 +147,7 @@ Suitable for inclusion in `c-offsets-alist'."
                                  (extern-lang-close after)
                                  (statement-case-open after)
                                  (substatement-open after)))
-      (c-hanging-colons-alist . ((case-label)
+      (c-hanging-colons-alist . ((case-label after)
                                  (label after)
                                  (access-label after)
                                  (member-init-intro before)
@@ -166,8 +167,8 @@ Suitable for inclusion in `c-offsets-alist'."
                          scope-operator))
       (c-offsets-alist . ((arglist-intro google-c-lineup-expression-plus-4)
                           (func-decl-cont . ++)
-                          (member-init-intro . ++)
-                          (inher-intro . ++)
+                          (member-init-intro . +)
+                          (inher-intro . +)
                           (comment-intro . 0)
                           (arglist-close . c-lineup-arglist)
                           (topmost-intro . 0)
@@ -185,7 +186,7 @@ Suitable for inclusion in `c-offsets-alist'."
                           (case-label . +)
                           (statement-case-open . +)
                           (statement-case-intro . +) ; case w/o {
-                          (access-label . /)
+                          (access-label . -)
                           (innamespace . 2))))
     "Google C/C++ Programming Style")  
   
@@ -199,7 +200,7 @@ Suitable for inclusion in `c-offsets-alist'."
     (interactive)
     (make-local-variable 'c-tab-always-indent)
     (setq c-tab-always-indent t)
-    (c-add-style "Google" google-c-style t))
+    (c-add-style "google" google-c-style t))
   
   (defun google-make-newline-indent ()
     (interactive)
@@ -212,24 +213,14 @@ Suitable for inclusion in `c-offsets-alist'."
 ;;;------------------------------------------------------------------
 ;;;{{{ Explicitly set the indentation style:
 
-  (if (or running-on-yorktown-p
-          running-on-lisp-machine-p
-          running-on-magellan-p
-          running-on-challenger-p)
-      (setq-default c-default-style
-                    '((c-mode      . "google-c-style")
-                      (c++-mode    . "google-c-style")
-                      (objc-mode   . "google-c-style")
-                      (java-mode   . "google-c-style")
-                      (cperl-mode  . "google-c-style")
+  (setq-default c-default-style
+                    '((c-mode      . "google")
+                      (c++-mode    . "google")
+                      (objc-mode   . "google")
+                      (java-mode   . "google")
+                      (cperl-mode  . "google")
                       (other       . "gnu")
-                      (csharp-mode . "google-c-style")))
-      (setq-default c-default-style
-                    '((c-mode      . "google-c-style")
-                      (c++-mode    . "google-c-style")
-                      (objc-mode   . "google-c-style")
-                      (java-mode   . "google-c-style")
-                      (other       . "gnu"))))
+                      (csharp-mode . "google")))
   
 ;;;}}}
 ;;;------------------------------------------------------------------
@@ -237,7 +228,7 @@ Suitable for inclusion in `c-offsets-alist'."
 ;;;------------------------------------------------------------------
 ;;;{{{ Clean up one-liner definitions:
 
-  (if emacs=22-p
+  (if (emacs=22-p)
       ;;
       ;; Emacs 22 seems to have a problem with c-cleanup-list.
       (if (listp c-cleanup-list)
@@ -253,9 +244,10 @@ Suitable for inclusion in `c-offsets-alist'."
 
 ;;;------------------------------------------------------------------
 ;;;{{{ cc-mode hooks:
-
-    (defun my-common-c-mode-hooks ()
-    (when (or emacs=20-p emacs=21-p)
+  
+  (defun my-common-c-mode-hooks ()
+    (when (or (emacs=20-p)
+	      (emacs=21-p))
       (turn-on-font-lock)
       (font-lock-mode 1))
     (setq indent-tabs-mode nil
@@ -266,21 +258,24 @@ Suitable for inclusion in `c-offsets-alist'."
       (company-mode 1))
     (when (featurep 'highlight-parentheses)
       (hi-parens-autopair))
+    (when (featurep 'srecode)
+      (srecode-minor-mode))
     (when (featurep 'semantic)
+      (semantic-mode)
       (ede-minor-mode 1))
     (show-paren-mode 1)
     (eldoc-mode 1)
     (c-toggle-auto-state 1)
     (c-toggle-syntactic-indentation 1)
     (c-toggle-electric-state 1)
-    (c-toggle-hungry-state -1)
-    (c-toggle-auto-hungry-state -1)
-    (c-toggle-auto-newline -1)
-    (when emacs>=23-p
+    (c-toggle-hungry-state 1)
+    (c-toggle-auto-hungry-state 1)
+    (c-toggle-auto-newline 1)
+    (when (emacs>=23-p)
       (subword-mode 1))
     (autopair-mode 1)
     (auto-fill-mode 1))
-    
+  
     (add-hook 'c-mode-common-hook 'my-common-c-mode-hooks)
   
 ;;;}}}
@@ -291,9 +286,7 @@ Suitable for inclusion in `c-offsets-alist'."
 
     (when (featurep 'semantic)
       (defun my-c-mode-cedet-hook ()
-        (local-set-key [(control return)] 'semantic-ia-complete-symbol-menu)
-        (local-set-key [(control tab)] 'semantic-ia-complete-symbol)
-        (local-set-key "\C-c." 'senator-complete-symbol))
+        (local-set-key [(control tab)] 'semantic-ia-complete-symbol))
       
       (add-hook 'c-mode-common-hook 'my-c-mode-cedet-hook))
     
@@ -303,7 +296,7 @@ Suitable for inclusion in `c-offsets-alist'."
 ;;;------------------------------------------------------------------
 ;;;{{{ Doxygen stuff:
 
-    (when emacs>=23-p
+    (when (emacs>=23-p)
       (require 'doc-mode)
       (add-hook 'c-mode-common-hook 'doc-mode))
 
@@ -386,7 +379,57 @@ Suitable for inclusion in `c-offsets-alist'."
   
 ;;;}}}
 ;;;------------------------------------------------------------------
+  
+;;; ------------------------------------------------------------------
+;;;{{{ Fix for C++11's `enum class':
+  
+  (defun inside-class-enum-p (pos)
+    "Checks if POS is within the braces of a C++ \"enum class\"."
+    (ignore-errors
+      (save-excursion
+        (goto-char pos)
+        (up-list -1)
+        (backward-sexp 1)
+        (looking-back "enum[ \t]+class[ \t]+[^}]*"))))
+  
+  (defun align-enum-class (langelem)
+    (if (inside-class-enum-p (c-langelem-pos langelem))
+        0
+        (c-lineup-topmost-intro-cont langelem)))
+  
+  (defun align-enum-class-closing-brace (langelem)
+    (if (inside-class-enum-p (c-langelem-pos langelem))
+        '-
+        '+))
+  
+  (defun fix-enum-class ()
+    "Set up `c++-mode' to better handle \"enum class\"."
+    (add-to-list 'c-offsets-alist '(topmost-intro-cont . align-enum-class))
+    (add-to-list 'c-offsets-alist
+                   '(statement-cont . align-enum-class-closing-brace)))
+  
+  (add-hook 'c++-mode-hook 'fix-enum-class)
+
+;;;}}}
+;;;------------------------------------------------------------------
+
+
   )
+
+;;;}}}
+;;;==================================================================
+
+;;;==================================================================
+;;;{{{ Configure cmake:
+
+(if (featurep 'cmake-mode)
+    (setq auto-mode-alist
+          (append
+           '(("CMakeLists\\.txt\\'" . cmake-mode))
+           '(("\\.cmake\\'" . cmake-mode))
+           auto-mode-alist))
+    
+    (add-hook 'cmake-mode-hook 'andersl-cmake-font-lock-activate))
 
 ;;;}}}
 ;;;==================================================================

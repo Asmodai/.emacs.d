@@ -5,8 +5,8 @@
 #
 # Copyright (c) (>>>YEAR<<<) (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
 #
-# Time-stamp: <>
-# Revision:   0
+# Time-stamp: <Friday Sep 21, 2012 18:23:56 asmodai>
+# Revision:   1
 #
 # Author:     (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
 # Maintainer: (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
@@ -14,7 +14,7 @@
 # Keywords:   
 # URL:        not distributed yet
 #
-#{{{ License:
+# {{{ License:
 #
 # This program is free software: you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -32,10 +32,10 @@
 # License along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
-#}}}
-#{{{ Commentary:
+# }}}
+# {{{ Commentary:
 #
-#}}}
+# }}}
 
 (>>>POINT<<<)
 

@@ -25,21 +25,27 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, see  <http://www.gnu.org/licenses/>.
+// along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 // }}}
 // {{{ Commentary:
 
 // }}}
 
-#ifndef _(>>>FILE_SANS<<<)_h_
-#define _(>>>FILE_SANS<<<)_h_
+/**
+ * @file (>>>FILE<<<)
+ * @author (>>>USER_NAME<<<)
+ * @brief (>>>TITLE<<<)
+ */
+
+#pragma once
+#ifndef _(>>>FILE_SANS<<<)_hpp_
+#define _(>>>FILE_SANS<<<)_hpp_
 
 (>>>POINT<<<)
 
-#endif // !_(>>>FILE_SANS<<<)_h_
+#endif // !_(>>>FILE_SANS<<<)_hpp_
 
 // (>>>FILE<<<) ends here
-
 >>>TEMPLATE-DEFINITION-SECTION<<<
 ("TITLE" "Enter a description for this file: " "" "" "")

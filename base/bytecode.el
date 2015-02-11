@@ -1,4 +1,4 @@
-;;; -*- Mode: Emacs-Lisp -*-
+;;; -*- Mode: Emacs-Lisp; byte-compile-dynamic-docstrings: t -*-
 ;;;
 ;;; bytecode.el --- Bytecode utilities
 ;;;

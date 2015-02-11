@@ -1,9 +1,9 @@
-;;; -*- Mode: Emacs-Lisp -*-
+;;; -*- Mode: Emacs-Lisp; byte-compile-dynamic-docstrings:t -*-
 ;;;
 ;;; theme.el --- Emacs colour theme.
 ;;;
-;;; Time-stamp: <Wednesday Sep  5, 2012 18:43:07 asmodai>
-;;; Revision:   94
+;;; Time-stamp: <Monday Feb  2, 2015 05:57:05 asmodai>
+;;; Revision:   110
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -60,19 +60,17 @@
 ;;;{{{ Faces:
 
 ;;; The following faces are missing in Emacs 21.
-(when emacs=21-p
+(when (emacs=21-p)
   (defvar font-lock-comment-delimiter-face
     'font-lock-comment-delimiter-face
     "Face name used for comment delimiters.")
   (defface font-lock-comment-delimiter-face
-      '((((class color) (background dark))
+      '(((type graphic)
          (:foreground "steelblue"))
-        (((class color) (background light))
-         (:foreground "steelblue"))
-        (((class grayscale) (background light))
-         (:foreground "steelblue"))
-        (((class grayscale) (background dark))
-         (:foreground "steelblue")))
+        (((type tty) (min-colors 256))
+         (:foreground "color-24"))
+        ((type tty)
+         (:foreground "cyan")))     
     "Font Lock mode face used to highlight comment delimiters."
     :group 'font-lock-faces))
 
@@ -83,7 +81,7 @@
 ;;;{{{ Theme:
 
 ;;; Only if we're on Emacs>=20
-(when emacs>=20-p
+(when (emacs>=20-p)
   (custom-set-faces
    ;; NOTE: NeXTSTEP is not supported here as it stores most of
    ;; its face information in the Defaults database and I am at a
@@ -91,13 +89,13 @@
    ;; Emacs.app also ignores some of the font-lock details that
    ;; are written out to Defaults by `ns-save-preferences',
    ;; irritating.
-   (cond (terminal-p
+   (cond ((terminal-p)
           ;; If we're running in a terminal, we want sane values that
           ;; are sane.  Black and white will do.
           '(default
             ((t (:background "black"
                  :foreground "white")))))
-         (windows-nt-p
+         ((windows-nt-p)
           ;; Consolas first appeared in Windows XP as far as I recall,
           ;; so it might not be available in earlier versions, that's
           ;; a risk I'm willing to take for now. So, just assume we
@@ -108,7 +106,8 @@
                  :height 90
                  :background "#0e0412"
                  :foreground "#c4b1cb")))))
-         ((and windows-p (not windows-nt-p))
+         ((and (windows-p)
+               (not (windows-nt-p)))
           ;; Given that we are on a Windows that is /not/ Windows NT,
           ;; we probably do not have Consolas, so just go for Courier
           ;; New and be done with it.  This can always be fine-tuned
@@ -119,12 +118,12 @@
                  :height 90
                  :background "#0e0412"
                  :foreground "#c4b1cb")))))
-         ((and unix-p                   ; Unix
-               (not mac-os-x-p)         ; ... but not Mac OS X
-               (not next-mach-p))       ; ... but not NeXTSTEP
+         ((and (unix-p)                 ; Unix
+               (not (mac-os-x-p))       ; ... but not Mac OS X
+               (not (next-mach-p)))     ; ... but not NeXTSTEP
           ;; On Unix we use a different font depending on whether
           ;; Emacs has been compiled with Motif widgets or not.
-          (if motif-p
+          (if (motif-p)
               ;; We're using Motif, so use the font the user specified
               ;; in the CDE/Motif preferences.  TODO: would be nice to
               ;; find a way to determine if Emacs is running in CDE
@@ -139,13 +138,22 @@
               ;; DejaVu Sans Mono.  Probably a Bad Thing(tm) given
               ;; that not all Unix or Unix-like systems will have this
               ;; font.
-              '(default
-                ((t (:family "DejaVu Sans Mono"
-                     :size 9
-                     :height 90
-                     :background "#0e0412"
-                     :foreground "#c4b1cb"))))))
-         (mac-os-x-p
+              (if (or (running-on-voyager-p)
+                      (running-on-challenger-p)
+                      (running-on-paradox-p))
+                  '(default
+                    ((t (:family "Ubuntu Mono"
+                         :size 9
+                         :height 90
+                         :background "#0e0412"
+                         :foreground "#c4b1cb"))))
+                  '(default
+                    ((t (:family "DejaVu Sans Mono"
+                         :size 8
+                         :height 90
+                         :background "#0e0412"
+                         :foreground "#c4b1cb")))))))
+         ((mac-os-x-p)
           ;; Use Monaco and be done with it.
           '(default
             ((t (:family "Monaco"
@@ -153,7 +161,7 @@
                  :height 110
                  :background "#0e0412"
                  :foreground "#c4b1cb")))))
-         (presentation-manager-p
+         ((presentation-manager-p)
           ;; Use System VIO as the font on OS/2.
           '(default
             ((t (:family "System VIO"
@@ -216,22 +224,34 @@
    '(modeline
      ((t (:insert mode-line))))
    '(mode-line
-     ((((min-colors 256))
+     ((((type tty) (min-colors 256))
+       (:background "color-53"
+        :foreground "color-172"))
+      (((type graphic))
        (:background "#2b113d"
         :foreground "#b8b66c"
-        :box (:line-width 1 :color "#230b2f" :style released-button)))
-      (((min-colors 8))
+        ;:box (:line-width 1 :color "#230b2f" :style released-button)
+	))
+      (((type tty))
+       (:background "red"
+        :foreground "white"))))
+   '(mode-line-inactive
+     ((((type tty) (min-colors 256))
+       (:background "color-235"
+        :foreground "color-58"))
+      (((type graphic))
+       (:background "#160a1e"
+        :foreground "#51502f"
+        ;:box (:line-width 1 :color "#230b2f" :style released-button)
+	))
+      (((type tty))
        (:background "blue"
-        :foreground "orange"))))
+        :foreground "yellow"))))
    '(header-line
      ((t (:inherit mode-line
           :foreground "white"))))
    '(menu
      ((t (:inherit header-line))))
-   '(mode-line-inactive
-     ((t (:background "#160a1e"
-          :foreground "#51502f"
-          :box (:line-width 1 :color "#230b2f" :style released-button)))))
    '(modeline-buffer-id
      ((t (:foreground "#35dc5d"))))
    '(modeline-mousable
@@ -437,6 +457,8 @@
      ((t (:foreground "green3"))))
    '(cperl-pod-face
      ((t (:foreground "firebrick"))))
+   '(cperl-invalid-face
+     ((t (:background "red"))))
    ;;;}}}
    ;;;{{{ Dired faces:
    '(dired-face-directory ((t (:bold t))))
@@ -636,13 +658,18 @@
 ;;; This isn't set via `custom-set-face', but rather
 ;;;`custom-set-variable'.
 
-(if terminal-p
-    (custom-set-variables
-     '(hl-paren-colors (quote ("magenta" "cyan" "green"
-                               "red" "blue" "white"))))
-    (custom-set-variables
-     '(hl-paren-colors (quote ("firebrick1" "DarkRed" "IndianRed"
-                               "LightCoral" "Salmon" "DarkSalmon")))))
+(cond ((terminal-p)
+       (custom-set-variables
+        '(hl-paren-colors (quote ("magenta" "cyan" "green"
+                                  "red" "blue" "white")))))
+      ((256-colour-p)
+       (custom-set-variables
+        '(hl-paren-colors (quote ("color-124" "color-129" "color-163"
+                                  "color-127" "color-135" "color-161")))))
+      (t
+       (custom-set-variables
+        '(hl-paren-colors (quote ("firebrick1" "DarkRed" "IndianRed"
+                                  "LightCoral" "Salmon" "DarkSalmon"))))))
 
 ;;;}}}
 ;;;------------------------------------------------------------------

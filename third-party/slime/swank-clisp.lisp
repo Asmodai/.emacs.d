@@ -36,6 +36,10 @@
 
 (in-package :swank-backend)
 
+(eval-when (:compile-toplevel)
+  (unless (string< "2.44" (lisp-implementation-version))
+    (error "Need at least CLISP version 2.44")))
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
   ;;(use-package "SOCKET")
   (use-package "GRAY"))
@@ -135,11 +139,24 @@
                        :name file 
                        :type type)))))
 
+;;;; UTF 
+
+(defimplementation string-to-utf8 (string)
+  (let ((enc (load-time-value 
+              (ext:make-encoding :charset "utf-8" :line-terminator :unix)
+              t)))
+    (ext:convert-string-to-bytes string enc)))
+
+(defimplementation utf8-to-string (octets)
+  (let ((enc (load-time-value 
+              (ext:make-encoding :charset "utf-8" :line-terminator :unix)
+              t)))
+    (ext:convert-string-from-bytes octets enc)))
+
 ;;;; TCP Server
 
-(defimplementation create-socket (host port)
-  (declare (ignore host))
-  (socket:socket-server port))
+(defimplementation create-socket (host port &key backlog)
+  (socket:socket-server port :interface host :backlog (or backlog 5)))
 
 (defimplementation local-port (socket)
   (socket:socket-server-port socket))
@@ -151,9 +168,11 @@
                                       &key external-format buffering timeout)
   (declare (ignore buffering timeout))
   (socket:socket-accept socket
-                        :buffered nil ;; XXX should be t
-                        :element-type 'character
-                        :external-format external-format))
+                        :buffered buffering ;; XXX may not work if t
+                        :element-type (if external-format 
+                                          'character
+                                          '(unsigned-byte 8))
+                        :external-format (or external-format :default)))
 
 #-win32
 (defimplementation wait-for-input (streams &optional timeout)
@@ -171,6 +190,41 @@
             (let ((ready (loop for (s _ . x) in streams
                                if x collect s)))
               (when ready (return ready))))))))
+
+#+win32
+(defimplementation wait-for-input (streams &optional timeout)
+  (assert (member timeout '(nil t)))
+  (loop
+   (cond ((check-slime-interrupts) (return :interrupt))
+         (t 
+          (let ((ready (remove-if-not #'input-available-p streams)))
+            (when ready (return ready)))
+          (when timeout (return nil))
+          (sleep 0.1)))))
+
+#+win32
+;; Some facts to remember (for the next time we need to debug this):
+;;  - interactive-sream-p returns t for socket-streams
+;;  - listen returns nil for socket-streams
+;;  - (type-of <socket-stream>) is 'stream
+;;  - (type-of *terminal-io*) is 'two-way-stream
+;;  - stream-element-type on our sockets is usually (UNSIGNED-BYTE 8)
+;;  - calling socket:socket-status on non sockets signals an error,
+;;    but seems to mess up something internally.
+;;  - calling read-char-no-hang on sockets does not signal an error,
+;;    but seems to mess up something internally.
+(defun input-available-p (stream)
+  (case (stream-element-type stream)
+    (character
+     (let ((c (read-char-no-hang stream nil nil)))
+       (cond ((not c)
+              nil)
+             (t
+              (unread-char c stream)
+              t))))
+    (t
+     (eq (socket:socket-status (cons stream :input) 0 0)
+         :input))))
 
 ;;;; Coding systems
 
@@ -258,6 +312,11 @@ Return NIL if the symbol is unbound."
     (:function (describe (symbol-function symbol)))
     (:class (describe (find-class symbol)))))
 
+(defimplementation type-specifier-p (symbol)
+  (or (ignore-errors
+       (subtypep nil symbol))
+      (not (eq (type-specifier-arglist symbol) :not-available))))
+
 (defun fspec-pathname (spec)
   (let ((path spec)
 	type
@@ -280,74 +339,83 @@ Return NIL if the symbol is unbound."
       (fspec-pathname fspec)
     (list (if type (list name type) name)
 	  (cond (file
-		 (multiple-value-bind (truename c) (ignore-errors (truename file))
+		 (multiple-value-bind (truename c) 
+                     (ignore-errors (truename file))
 		   (cond (truename
-			  (make-location (list :file (namestring truename))
-					 (if (consp lines)
-					     (list* :line lines)
-					     (list :function-name (string name)))
-                                         (when (consp type)
-                                           (list :snippet (format nil "~A" type)))))
+			  (make-location 
+                           (list :file (namestring truename))
+                           (if (consp lines)
+                               (list* :line lines)
+                               (list :function-name (string name)))
+                           (when (consp type)
+                             (list :snippet (format nil "~A" type)))))
 			 (t (list :error (princ-to-string c))))))
-		(t (list :error (format nil "No source information available for: ~S"
-					fspec)))))))
+		(t (list :error 
+                         (format nil "No source information available for: ~S"
+                                 fspec)))))))
 
 (defimplementation find-definitions (name)
-  (mapcar #'(lambda (e) (fspec-location name e)) (documentation name 'sys::file)))
+  (mapcar #'(lambda (e) (fspec-location name e)) 
+          (documentation name 'sys::file)))
 
 (defun trim-whitespace (string)
   (string-trim #(#\newline #\space #\tab) string))
 
 (defvar *sldb-backtrace*)
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (when (string< "2.44" (lisp-implementation-version))
-    (pushnew :clisp-2.44+ *features*)))
-
 (defun sldb-backtrace ()
   "Return a list ((ADDRESS . DESCRIPTION) ...) of frames."
-  (do ((frames '())
-       (last nil frame)
-       (frame (sys::the-frame)
-              #+clisp-2.44+ (sys::frame-up 1 frame 1)
-              #-clisp-2.44+ (sys::frame-up-1 frame 1))) ; 1 = "all frames"
-      ((eq frame last) (nreverse frames))
-    (unless (boring-frame-p frame)
-      (push frame frames))))
+  (let* ((modes '((:all-stack-elements 1)
+                  (:all-frames 2)
+                  (:only-lexical-frames 3)
+                  (:only-eval-and-apply-frames 4)
+                  (:only-apply-frames 5)))
+         (mode (cadr (assoc :all-stack-elements modes))))
+    (do ((frames '())
+         (last nil frame)
+         (frame (sys::the-frame)
+                (sys::frame-up 1 frame mode)))
+        ((eq frame last) (nreverse frames))
+      (unless (boring-frame-p frame)
+        (push frame frames)))))
 
 (defimplementation call-with-debugging-environment (debugger-loop-fn)
   (let* (;;(sys::*break-count* (1+ sys::*break-count*))
          ;;(sys::*driver* debugger-loop-fn)
          ;;(sys::*fasoutput-stream* nil)
          (*sldb-backtrace*
-          (nthcdr 3 (member (sys::the-frame) (sldb-backtrace)))))
+          (let* ((f (sys::the-frame))
+                 (bt (sldb-backtrace))
+                 (rest (member f bt)))
+            (if rest (nthcdr 8 rest) bt))))
     (funcall debugger-loop-fn)))
 
 (defun nth-frame (index)
   (nth index *sldb-backtrace*))
 
 (defun boring-frame-p (frame)
-  (member (frame-type frame) '(stack-value bind-var bind-env)))
+  (member (frame-type frame) '(stack-value bind-var bind-env
+                               compiled-tagbody compiled-block)))
 
 (defun frame-to-string (frame)
   (with-output-to-string (s)
     (sys::describe-frame s frame)))
 
-;; FIXME: they changed the layout in 2.44 so the frame-to-string &
-;; string-matching silliness no longer works.
 (defun frame-type (frame)
   ;; FIXME: should bind *print-length* etc. to small values.
   (frame-string-type (frame-to-string frame)))
 
+;; FIXME: they changed the layout in 2.44 and not all patterns have
+;; been updated.
 (defvar *frame-prefixes*
-  '(("frame binding variables" bind-var)
+  '(("\\[[0-9]\\+\\] frame binding variables" bind-var)
     ("<1> #<compiled-function" compiled-fun)
     ("<1> #<system-function" sys-fun)
     ("<1> #<special-operator" special-op)
     ("EVAL frame" eval)
     ("APPLY frame" apply)
-    ("compiled tagbody frame" compiled-tagbody)
-    ("compiled block frame" compiled-block)
+    ("\\[[0-9]\\+\\] compiled tagbody frame" compiled-tagbody)
+    ("\\[[0-9]\\+\\] compiled block frame" compiled-block)
     ("block frame" block)
     ("nested block frame" block)
     ("tagbody frame" tagbody)
@@ -356,11 +424,12 @@ Return NIL if the symbol is unbound."
     ("handler frame" handler)
     ("unwind-protect frame" unwind-protect)
     ("driver frame" driver)
-    ("frame binding environments" bind-env)
+    ("\\[[0-9]\\+\\] frame binding environments" bind-env)
     ("CALLBACK frame" callback)
     ("- " stack-value)
     ("<1> " fun)
-    ("<2> " 2nd-frame)))
+    ("<2> " 2nd-frame)
+    ))
 
 (defun frame-string-type (string)
   (cadr (assoc-if (lambda (pattern) (is-prefix-p pattern string))
@@ -470,9 +539,7 @@ Return two values: NAME and VALUE"
         (venv-ref (next-venv env) (- i (/ (1- (length env)) 2))))))
 
 (defun %parse-stack-values (frame)
-  (labels ((next (fp)
-             #+clisp-2.44+ (sys::frame-down 1 fp 1)
-             #-clisp-2.44+ (sys::frame-down-1 fp 1))
+  (labels ((next (fp) (sys::frame-down 1 fp 1))
            (parse (fp accu)
              (let ((str (frame-to-string fp)))
                (cond ((is-prefix-p "- " str)
@@ -487,11 +554,8 @@ Return two values: NAME and VALUE"
                      (t (parse (next fp) accu))))))
     (parse (next frame) '())))
 
-(setq *features* (remove :clisp-2.44+ *features*))
-
-(defun is-prefix-p (pattern string)
-  (not (mismatch pattern string :end2 (min (length pattern)
-                                           (length string)))))
+(defun is-prefix-p (regexp string)
+  (if (regexp:match (concatenate 'string "^" regexp) string) t))
 
 (defimplementation return-from-frame (index form)
   (sys::return-from-eval-frame (nth-frame index) form))
@@ -573,10 +637,10 @@ Execute BODY with NAME's function slot set to FUNCTION."
            (list :error "No error location available")))))
 
 (defun signal-compiler-warning (cstring args severity orig-fn)
-  (signal (make-condition 'compiler-condition
-                          :severity severity
-                          :message (apply #'format nil cstring args)
-                          :location (compiler-note-location)))
+  (signal 'compiler-condition
+          :severity severity
+          :message (apply #'format nil cstring args)
+          :location (compiler-note-location))
   (apply orig-fn cstring args))
 
 (defun c-warn (cstring &rest args)
@@ -586,8 +650,15 @@ Execute BODY with NAME's function slot set to FUNCTION."
   (dynamic-flet ((sys::c-warn *orig-c-warn*))
     (signal-compiler-warning cstring args :style-warning *orig-c-style-warn*)))
 
-(defun c-error (cstring &rest args)
-  (signal-compiler-warning cstring args :error *orig-c-error*))
+(defun c-error (&rest args)
+  (signal 'compiler-condition
+          :severity :error
+          :message (apply #'format nil
+                          (if (= (length args) 3)
+                              (cdr args)
+                              args))
+          :location (compiler-note-location))
+  (apply *orig-c-error* args))
 
 (defimplementation call-with-compilation-hooks (function)
   (handler-bind ((warning #'handle-notification-condition))
@@ -598,11 +669,11 @@ Execute BODY with NAME's function slot set to FUNCTION."
 
 (defun handle-notification-condition (condition)
   "Handle a condition caused by a compiler warning."
-  (signal (make-condition 'compiler-condition
-                          :original-condition condition
-                          :severity :warning
-                          :message (princ-to-string condition)
-                          :location (compiler-note-location))))
+  (signal 'compiler-condition
+          :original-condition condition
+          :severity :warning
+          :message (princ-to-string condition)
+          :location (compiler-note-location)))
 
 (defimplementation swank-compile-file (input-file output-file
                                        load-p external-format

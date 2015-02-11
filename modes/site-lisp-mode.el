@@ -2,8 +2,8 @@
 ;;;
 ;;; site-lisp-mode.el --- Lisp mode hacks.
 ;;;
-;;; Time-stamp: <Monday Jan 30, 2012 03:43:26 asmodai>
-;;; Revision:   27
+;;; Time-stamp: <Wednesday Feb 11, 2015 07:36:55 asmodai>
+;;; Revision:   34
 ;;;
 ;;; Copyright (c) 2011-2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -44,114 +44,38 @@
 ;;; older Lisp that does not support either.)
 ;;;
 (defvar *interactive-lisp-mode*
-  (cond (running-on-lisp-machine-p 'slime)
-        (running-on-magellan-p 'slime)
-        (running-on-farragut-p 'slime)
-        (running-on-yorktown-p 'slime)
+  (cond ((running-on-paradox-p) 'slime)
+        ((running-on-magellan-p) 'slime)
+        ((running-on-voyager-p) 'slime)
+        ((running-on-challenger-p) 'slime)
+        ((running-on-yorktown-p) 'slime)
         (t nil))
   "Current Interactive Lisp mode.
 
 Can be one of:
 
 `slime'     - Connect to a Lisp using SLIME.
-`allegro'   - Connect to Allegro Common Lisp using ELI.
 `nil'       - Unsupported or old Lisp.")
 
 ;;; ==================================================================
 ;;;{{{ Utilities and predicates:
 
-(defconst allegro-p
-  (eq *interactive-lisp-mode* 'allegro)
-  "T if we are using Franz Allegro Common Lisps' ELI.")
+(defsubst slime-p ()
+  "T if we are using SLIME."
+  (eq *interactive-lisp-mode* 'slime))
 
-(defconst slime-p
-  (eq *interactive-lisp-mode* 'slime)
-  "T if we are using SLIME.")
-
-(defconst interactive-lisp-p
-  (or allegro-p slime-p)
-  "T if we are using a Lisp interactive mode.")
+(defsubst interactive-lisp-p ()
+  "T if we are using a Lisp interactive mode."
+  (not (null *interactive-lisp-mode*)))
 
 ;;;
 ;;; Sanity.  Slime will not load on older Emacsen.  ELI might if one
 ;;; has an old-enough copy of Allegro Common Lisp.
-(when (and (or emacs=18-p
-               emacs=19-p
-               emacs=20-p)
-           slime-p)
-  (setq *interactive-lisp-mode* nil
-        slime-p nil))
-
-;;;}}}
-;;; ==================================================================
-
-;;; ==================================================================
-;;;{{{ Franz Allegro Common Lisp:
-
-(when allegro-p
-  ;;
-  ;; GNU Emacs gets 'eli', and XEmacs gets 'xeli'.
-  (if xemacs-p
-      (compile-load "xeli/fi-site-init")
-      (compile-load "efi/fi-site-init"))
-
-  ;;
-  ;; Path to our Lisp image and the host to connect to.
-  (setq fi:common-lisp-image-name
-        (cond (windows-nt-p
-               "c:/acl82express/allegro-express.exe")
-              (linux-p
-               "~/Projects/Lisp/implementations/acl81_express/alisp"))
-        fi:common-lisp-host "localhost")
-
-  ;;
-  ;; Function to start up Allegro.
-  (defun start-allegro-cl ()
-    "Starts up Allegro Common Lisp using the image name defined in
-`fi:common-lisp-image-name'."
-    (interactive)
-    (fi:common-lisp fi:common-lisp-buffer-name
-                    fi:common-lisp-directory
-                    fi:common-lisp-image-name
-                    fi:common-lisp-image-arguments
-                    fi:common-lisp-host
-                    fi:common-lisp-image-file))
-
-  ;;
-  ;; Remove `fi:emacs-lisp-mode' because I do not like it.
-  (let ((acc nil))
-    (mapcar (function (lambda (x)
-                        (let ((mode (cdr x)))
-                          (if (not (eq mode 'fi:emacs-lisp-mode))
-                              (push x acc)))))
-            auto-mode-alist)
-    (setf auto-mode-alist (nreverse acc)))
-
-  ;;
-  ;; Custom version of `fi:exit-lisp' that doesn't cause the remote
-  ;; Lisp to exit.
-  (defun fi:exit-lisp ()
-    "Exits the local Lisp listener only."
-    (interactive)
-    (message "Exiting this session...")
-    (let ((cl-buffer (get-buffer fi:common-lisp-buffer-name)))
-      (when (and cl-buffer)
-        (let* ((screen (selected-frame)))
-          (if (and (string= (symbol-name (get major-mode 'screen-name))
-                            (frame-name screen))
-                   (one-window-p)
-                   nil)
-              (delete-frame screen)
-              (bury-buffer)))))
-    (message "Exiting this session... done."))
-
-  ;;
-  ;; Function to start ELI.
-  (defun lisp-localhost (&rest args)
-    (interactive)
-    (fi:start-interactive-via-file "localhost"
-                                   "*common-lisp-localhost*"
-                                   "~/.eli-startup")))
+(when (and (or (emacs=18-p)
+               (emacs=19-p)
+               (emacs=20-p))
+           (slime-p))
+  (setq *interactive-lisp-mode* nil))
 
 ;;;}}}
 ;;; ==================================================================
@@ -159,13 +83,16 @@ Can be one of:
 ;;; ==================================================================
 ;;;{{{ SLIME:
 
-(when slime-p
+(when (slime-p)
   ;;
   ;; Set the inferior Lisp program.
   (setq inferior-lisp-program
-        (cond (unix-p "sbcl --no-inform --no-linedit")
-              (windows-nt-p "c:/ccl/wx86cl.exe")
-              (t "lisp")))
+        (cond ((unix-p)
+               "sbcl --no-inform --no-linedit")
+              ((windows-nt-p)
+               "c:/ccl/wx86cl.exe")
+              (t
+               "lisp")))
 
   ;;
   ;; Load in SLIME.
@@ -174,14 +101,14 @@ Can be one of:
 
   ;;
   ;; `slime-autodoc' does not work on XEmacs.
-  (when emacs-p
+  (when (emacs-p)
     (compile-load "slime-fancy")
     (require 'slime-fancy))
 
   ;;
   ;; Configure which SLIME packages we want to load.
   (let ((slime-packages
-         (if emacs-p
+         (if (emacs-p)
              '(slime-fancy slime-asdf slime-repl slime-autodoc)
              '(slime slime-asdf slime-repl))))
     (slime-setup slime-packages)))
@@ -260,16 +187,10 @@ To see an example of the output, look at site-lisp-mode.el."
 
 ;;;
 ;;; Bindings for an Emacs that doesn't use a Symbolics keyboard
-(unless (featurep 'symbolics)
-  ;;
-  ;; Bindings for Franz' ELI mode.
-  (when allegro-p
-    (global-set-key [(control f9)] 'start-allegro-cl)
-    (global-set-key [(control f10)] 'lisp-localhost))
-  
+(unless (featurep 'symbolics)  
   ;;
   ;; Bindings for SLIME.
-  (when slime-p
+  (when (slime-p)
     (global-set-key [(control f9)] 'slime)
     (global-set-key [(control f10)] 'slime-connect)
     (global-set-key (kbd "<backtab>") 'slime-complete-symbol)
@@ -277,7 +198,7 @@ To see an example of the output, look at site-lisp-mode.el."
   
   ;;
   ;; Bindings for our custom comments.
-  (when emacs>=19-p
+  (when (emacs>=19-p)
     (global-set-key [(f6)] 'make-group-lisp-comment)
     (global-set-key [(f7)] 'make-major-lisp-comment)
     (global-set-key [(f8)] 'make-minor-lisp-comment)
@@ -286,17 +207,11 @@ To see an example of the output, look at site-lisp-mode.el."
 ;;;
 ;;; Bindings for an Emacs that uses a Symbolics keyboard.
 (when (and (featurep 'symbolics)
-	   (fboundp 'define-select-key)
-	   (fboundp 'define-function-key))
-  ;;
-  ;; Bindings for Franz' ELI mode.
-  (when allegro-p
-    (global-set-key [(control f9)] 'start-allegro-cl)
-    (define-select-key "l" 'lisp-localhost))
-  
+           (fboundp 'define-select-key)
+           (fboundp 'define-function-key))
   ;;
   ;; Bindings for SLIME.
-  (when slime-p
+  (when (slime-p)
     (define-select-key "s" 'slime)
     (define-select-key "l" 'slime-connect)
     (global-set-key (kbd "<backtab>") 'slime-complete-symbol)
@@ -305,7 +220,7 @@ To see an example of the output, look at site-lisp-mode.el."
   
   ;;
   ;; Bindings for custom comments.
-  (when emacs>=19-p
+  (when (emacs>=19-p)
     (define-function-key "1" 'make-group-lisp-comment)
     (define-function-key "2" 'make-major-lisp-comment)
     (define-function-key "3" 'make-minor-lisp-comment)
@@ -320,14 +235,14 @@ To see an example of the output, look at site-lisp-mode.el."
 ;;; ------------------------------------------------------------------
 ;;;{{{ Common Lisp indentation:
 
-(when emacs>=19-p
+(when (emacs>=19-p)
   ;;
   ;; Load in indentation hacks for Common Lisp.
   (compile-load "cl-indent-patches")
  
   ;;
   ;; Patch the indenting function for XEmacs.
-  (if xemacs-p
+  (if (xemacs-p)
       (setq lisp-indent-function
             (function common-lisp-indent-function))))
 
@@ -340,15 +255,6 @@ To see an example of the output, look at site-lisp-mode.el."
 ;;;
 ;;; Configure the ParEdit sexpr editor
 (when (featurep 'paredit)
-  (when slime-p
-    (add-hook 'slime-repl-mode-hook (lambda ()
-                                      (paredit-mode +1)))
-
-    (defun override-slime-repl-bindings ()
-      (define-key slime-repl-mode-map
-          (read-kbd-macro paredit-backward-delete-key) nil))
-    (add-hook 'slime-repl-mode-hook 'override-slime-repl-bindings))
-
   (defvar electrify-return-match "[\]}\)\"]")
 
   (defun electrify-return-if-match (arg)
@@ -391,7 +297,7 @@ text.  Move the cursor to the new line."
 
 ;;;
 ;;; Hooks for auto-fill, font-lock, and SLIME.
-(when emacs>=19-p
+(when (emacs>=19-p)
   ;;
   ;; I know these could be represented better, but I'd rather they
   ;; have fewer calls.
@@ -400,76 +306,131 @@ text.  Move the cursor to the new line."
   ;;
   ;; For interactive lisp, e.g. *scratch* buffer.
   (defun my-interactive-lisp-mode-hooks ()
-    (when (or emacs=20-p
-              emacs=21-p)
+    (when (or (emacs=20-p)
+              (emacs=21-p))
       (turn-on-font-lock)
-      (font-lock-mode t))
+      (font-lock-mode 1))
     (when (featurep 'paredit)
-      (paredit-mode +1))
+      (paredit-mode -1))
     (when (featurep 'company)
-      (company-mode t))
+      (company-mode 1))
     (when (featurep 'highlight-parentheses)
       (hi-parens-autopair))
-    (eldoc-mode t)
-    (show-paren-mode t)
-    (auto-fill-mode t))
+    (when (featurep 'semantic)
+      (ede-minor-mode -1)
+      (semantic-decoration-mode -1)
+      (semantic-highlight-edits-mode -1)
+      (semantic-highlight-func-mode -1)
+      (semantic-show-unmatched-syntax-mode -1)
+      (semantic-stickyfunc-mode -1))
+    (eldoc-mode 1)
+    (show-paren-mode 1)
+    (auto-fill-mode 1))
   
   ;;
   ;; For non-SLIME inferior lisp modes.
   (defun my-inferior-lisp-mode-hooks ()
-    (when (or emacs=20-p
-              emacs=21-p)
+    (when (or (emacs=20-p)
+              (emacs=21-p))
       (turn-on-font-lock)
-      (font-lock-mode t))
+      (font-lock-mode 1))
     (when (featurep 'paredit)
-      (paredit-mode +1))
+      (paredit-mode -1))
     (when (featurep 'company)
-      (company-mode t))
+      (company-mode 1))
     (when (featurep 'highlight-parentheses)
       (hi-parens-autopair))
-    (show-paren-mode t))
+    (when (featurep 'semantic)
+      (ede-minor-mode -1)
+      (semantic-decoration-mode -1)
+      (semantic-highlight-edits-mode -1)
+      (semantic-highlight-func-mode -1)
+      (semantic-show-unmatched-syntax-mode -1)
+      (semantic-stickyfunc-mode -1))
+    (eldoc-mode 1)
+    (show-paren-mode 1))
   
   ;;
   ;; For SLIME lisp modes.
   (defun my-slime-lisp-mode-hooks ()
-    (when (or emacs=20-p
-              emacs=21-p)
+    (when (or (emacs=20-p)
+              (emacs=21-p))
       (turn-in-font-lock)
       (font-lock-mode 1))
     (when slime-p
-      (slime-mode t))
+      (slime-mode 1))
     (when (featurep 'paredit)
-      (paredit-mode +1))
+      (paredit-mode 1))
     (when (featurep 'company)
-      (company-mode t))
-    (when (and slime-p
+      (company-mode 1))
+    (when (and (slime-p)
                (featurep 'company))
       (require 'slime-company))
     (when (featurep 'highlight-parentheses)
       (hi-parens-autopair))
-    (show-paren-mode t)
-    (auto-fill-mode t)
-    (show-paren-mode t))
+    (when (featurep 'semantic)
+      (ede-minor-mode -1)
+      (semantic-decoration-mode -1)
+      (semantic-highlight-edits-mode -1)
+      (semantic-highlight-func-mode -1)
+      (semantic-show-unmatched-syntax-mode -1)
+      (semantic-stickyfunc-mode -1))
+    (auto-fill-mode 1)
+    (eldoc-mode 1)
+    (show-paren-mode 1))
   
+  ;;
+  ;; For SLIME-repl mode.
+  (defun my-slime-repl-mode-hooks ()
+    (when (or (emacs=20-p)
+              (emacs=21-p))
+      (turn-in-font-lock)
+      (font-lock-mode 1))
+    (when (slime-p)
+      (slime-mode 1))
+    (when (featurep 'company)
+      (company-mode 1))
+    (when (and (slime-p)
+               (featurep 'company))
+      (require 'slime-company))
+    (when (featurep 'highlight-parentheses)
+      (hi-parens-autopair))
+    (when (featurep 'semantic)
+      (ede-minor-mode -1)
+      (semantic-decoration-mode -1)
+      (semantic-highlight-edits-mode -1)
+      (semantic-highlight-func-mode -1)
+      (semantic-show-unmatched-syntax-mode -1)
+      (semantic-stickyfunc-mode -1))
+    (eldoc-mode 1)
+    (show-paren-mode 1))
+
   ;;
   ;; For non-SLIME lisp modes.
   (defun my-lisp-mode-hooks ()
-    (when (or emacs=20-p
-              emacs=21-p)
+    (when (or (emacs=20-p)
+              (emacs=21-p))
       (turn-on-font-lock)
       (font-lock-mode 1))
     (when (featurep 'paredit)
-      (paredit-mode +1))
+      (paredit-mode 1))
     (when (featurep 'company)
-      (company-mode t))
+      (company-mode 1))
     (when (featurep 'highlight-parentheses)
       (hi-parens-autopair))
     (when (eq major-mode 'emacs-lisp-mode)
-      (eldoc-mode t))
-    (show-paren-mode t)
-    (auto-fill-mode t)
-    (show-paren-mode t))
-
+      (eldoc-mode 1))
+    (when (featurep 'semantic)
+      (ede-minor-mode -1)
+      (semantic-decoration-mode -1)
+      (semantic-highlight-edits-mode -1)
+      (semantic-highlight-func-mode -1)
+      (semantic-show-unmatched-syntax-mode -1)
+      (semantic-stickyfunc-mode -1))
+    (auto-fill-mode 1)
+    (eldoc-mode 1)
+    (show-paren-mode 1))
+  
   ;;
   ;; Hooks for modes derived from emacs-lisp-mode
   (add-hook 'lisp-interaction-mode-hook 'my-interactive-lisp-mode-hooks)
@@ -477,6 +438,7 @@ text.  Move the cursor to the new line."
   (add-hook 'ielm-mode-hook 'my-interactive-lisp-mode-hooks)
   (add-hook 'emacs-lisp-mode-hook 'my-lisp-mode-hooks)
   (add-hook 'lisp-mode-hook 'my-slime-lisp-mode-hooks)
+  (add-hook 'slime-repl-mode-hook 'my-slime-repl-mode-hooks)
   (add-hook 'scheme-mode-hook 'my-lisp-mode-hooks))
 
 ;;;}}}

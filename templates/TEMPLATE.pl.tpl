@@ -1,12 +1,11 @@
 #!/usr/bin/env perl
-# -*- Mode: CPerl; -*-
 #
 # (>>>FILE<<<) --- (>>>TITLE<<<)
 #
 # Copyright (c) (>>>YEAR<<<) (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
 #
-# Version:    1.0
 # Time-stamp: <>
+# Reviusion:  o
 #
 # Author:     (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
 # Maintainer: (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
@@ -39,5 +38,9 @@
 (>>>POINT<<<)
 
 # (>>>FILE<<<) ends here
+#
+# Local Variables: ***
+# mode:cperl ***
+# End: ***
 >>>TEMPLATE-DEFINITION-SECTION<<<
 ("TITLE" "Enter a description for this file: " "" "" "")

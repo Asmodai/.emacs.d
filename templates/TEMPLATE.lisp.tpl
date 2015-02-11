@@ -41,6 +41,8 @@
 #-genera
 (in-package #:cl-user)
 
+(>>>POINT<<<)
+
 ;;; (>>>FILE<<<) ends here
 >>>TEMPLATE-DEFINITION-SECTION<<<
 ("TITLE" "Enter a description for this file: " "" "" "")

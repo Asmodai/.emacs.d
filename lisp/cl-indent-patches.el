@@ -164,9 +164,10 @@ on lines."
 (def-lisp-indentation compiler-let 1)
 (def-lisp-indentation cond 0)
 (def-lisp-indentation ctypecase 1)
-(def-lisp-indentation defconstant (13 13 2))
+(def-lisp-indentation defconstant (13 2 2))
+(def-lisp-indentation defconst (10 2 2))
 (def-lisp-indentation define-setf-method defun)
-(def-lisp-indentation defparameter (14 14 2))
+(def-lisp-indentation defparameter (14 2 2))
 (def-lisp-indentation defsetf 3)
 (def-lisp-indentation defstruct 1)
 (def-lisp-indentation deftype defun)
@@ -242,7 +243,7 @@ on lines."
 (def-lisp-indentation *all 0)
 (def-lisp-indentation *when 1)
 (def-lisp-indentation *unless 1)
-(def-lisp-indentation *defvar (8 4 2))
+(def-lisp-indentation *defvar (8 2 2))
 (def-lisp-indentation *with-vp-set 1)
 
 ;; CM

@@ -44,6 +44,12 @@
  */
 /* }}} */
 
+/**
+ * @file (>>>FILE<<<)
+ * @author (>>>USER_NAME<<<)
+ * @brief (>>>TITLE<<<)
+ */
+
 #ifndef _(>>>FILE_SANS<<<)_h_
 #define _(>>>FILE_SANS<<<)_h_
 
@@ -52,6 +58,5 @@
 #endif /* !_(>>>FILE_SANS<<<)_h_ */
 
 /* (>>>FILE<<<) ends here */
-
 >>>TEMPLATE-DEFINITION-SECTION<<<
 ("TITLE" "Enter a description for this file: " "" "" "")

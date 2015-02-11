@@ -2,8 +2,8 @@
 ;;;
 ;;; doc-mode.el --- Doxygen mode.
 ;;;
-;;; Time-stamp: <Friday Jan  4, 2013 16:49:08 asmodai>
-;;; Revision:   5
+;;; Time-stamp: <Saturday Jun  1, 2013 04:08:41 asmodai>
+;;; Revision:   7
 ;;;
 ;;; Copyright (c) 2012 Paul Ward <asmodai@gmail.com>
 ;;; Copyright (C) 2007, 2009 Nikolaj Schumacher
@@ -65,6 +65,12 @@
   :group 'doc-mode
   :type '(choice (const :tag "Off" nil)
                  (const :tag "On"  t)))
+
+(defcustom doc-mode-jump-to-template t
+  "*Should the point be moved inside the template after inserting a doc."
+  :group 'doc-mode
+  :type '(choice (const :tag "Off" nil)
+          (const :tag "On" t)))
 
 (defcustom doc-mode-template-start "/**"
   "*The string to insert at the beginning of a comment."
@@ -206,7 +212,7 @@ undetermined content should be created with `doc-mode-new-keyword'."
       ;;
       ;; Type blocks
       (,(concat "\\([\\@]"
-                (regexp-opt '("category" "class" "enum" "typdef" "def"
+                (regexp-opt '("category" "class" "enum" "typedef" "def"
                               "struct" "exception" "throw" "throws"
                               "extends" "implements" "interface"
                               "property" "union") t)
@@ -384,7 +390,7 @@ undetermined content should be created with `doc-mode-new-keyword'."
                                (current-column)))))))
           (if (= (current-column) indent)
               (goto-char begpos)
-              (skip-chars-backwards " \t")
+              (skip-chars-backward " \t")
               (delete-region (point) begpos)
               (indent-to (if (bolp)
                              indent
@@ -474,91 +480,6 @@ undetermined content should be created with `doc-mode-new-keyword'."
                  'doc-mode-check-buffer t))
   (when font-lock-mode
     (font-lock-fontify-buffer)))
-
-;;;}}}
-;;;==================================================================
-
-;;;==================================================================
-;;;{{{ Folding:
-
-(defvar doc-mode-folds nil)
-(make-variable-buffer-local 'doc-mode-folds)
-
-(defun doc-mode-fold-doc (point)
-  (let ((bounds (doc-mode-find-doc-bounds point)))
-    (when bounds
-      (let* ((beg (plist-get bounds :beg))
-             (end (plist-get bounds :end))
-             (summary-bounds (doc-mode-find-summary beg end))
-             (before-overlay (make-overlay beg (car summary-bounds)))
-             (after-overlay (make-overlay (cdr summary-bounds) end))
-             (siblings (list before-overlay after-overlay)))
-        (when (> (count-lines beg end) 1)
-          (dolist (ov siblings)
-            (overlay-put ov 'invisible t)
-            (overlay-put ov 'isearch-open-invisible-temporary
-                         'doc-mode-unfold-by-overlay-temporary)
-            (overlay-put ov 'doc-mode-fold siblings))
-          (setq doc-mode-folds (nconc doc-mode-folds siblings)))))))
-
-(defun doc-mode-fold-tag-doc (tag)
-  (interactive (list (doc-mode-current-tag-or-bust)))
-  (unless doc-mode
-    (error "doc-mode is not enabled."))
-  (doc-mode-fold-doc (semantic-tag-start tag)))
-
-(defun doc-mode-unfold-by-overlay (overlay &rest foo)
-  (dolist (ov (overlay-get overlay 'doc-mode-fold))
-    (setq doc-mode-folds (delq ov doc-mode-folds))
-    (delete-overlay ov)
-    (setq isearch-opened-overlays (delq ov isearch-opened-overlays))))
-
-(defun doc-mode-unfold-by-overlay-temporary (overlay invisible)
-  (dolist (ov (overlay-get overlay 'doc-mode-fold))
-    (overlay-put ov 'invisible invisible)))
-
-(defun doc-mode-unfold-doc (point)
-  (interactive "d")
-  (unless doc-mode
-    (error "doc-mode is not enabled."))
-  (let ((bounds (doc-mode-find-doc-bounds point)))
-    (when bounds
-      (let* ((beg (plist-get bounds :beg))
-             (end (plist-get bounds :end))
-             (overlays (overlays-in beg end))
-             anything-done)
-        (dolist (ov overlays)
-          (when (overlay-get ov 'doc-mode-fold)
-            (setq anything-done t)
-            (delete-overlay ov)
-            (setq doc-mode-folds (delq ov doc-mode-folds))))
-        anything-done))))
-  
-(defun doc-mode-unfold-tag-doc (tag)
-  (interactive (list (doc-mode-current-tag-or-bust)))
-  (unless doc-mode
-    (error "doc-mode is not enabled."))
-  (doc-mode-unfold-doc (semantic-tag-start tag)))
-
-(defun doc-mode-fold-all (&optional arg)
-  (interactive "P")
-  (unless doc-mode
-    (error "doc-mode is not enabled."))
-  (if arg
-      (doc-mode-unfold-all)
-      (dolist (tag (doc-mode-find-eligible-tags))
-        (doc-mode-fold-tag-doc tag))))
-
-(defun doc-mode-unfold-all ()
-  (interactive)
-  (dolist (ov doc-mode-folds)
-    (delete-overlay ov))
-  (kill-local-variable 'doc-mode-folds))
-
-(defun doc-mode-toggle-tag-folding (tag)
-  (interactive (list (doc-mode-current-tag-or-bust)))
-  (or (doc-mode-unfold-tag-doc tag)
-      (doc-mode-fold-tag-doc tag)))
 
 ;;;}}}
 ;;;==================================================================
@@ -1050,6 +971,115 @@ Returns (length LIST) if no occurrence was found."
     (goto-char (semantic-tag-start tag))
     ;; check again with message
     (doc-mode-check-tag-doc tag t)))
+
+;;;}}}
+;;;------------------------------------------------------------------
+
+;;;------------------------------------------------------------------
+;;;{{{ Folding:
+
+(defvar doc-mode-folds nil)
+
+(make-variable-buffer-local 'doc-mode-folds)
+
+(defun doc-mode-fold-doc (point)
+  (let ((bounds (doc-mode-find-doc-bounds point)))
+    (when bounds
+      (let* ((beg (plist-get bounds :beg))
+             (end (plist-get bounds :end))
+             (summary-bounds (doc-mode-find-summary beg end))
+             (before-overlay (make-overlay beg (car summary-bounds)))
+             (after-overlay (make-overlay (cdr summary-bounds) end))
+             (siblings (list before-overlay after-overlay)))
+        (when (or doc-mode-fold-single-line-comments
+                  (> (count-lines beg end) 1))
+          (dolist (ov siblings)
+            (overlay-put ov 'invisible t)
+            (overlay-put ov 'isearch-open-invisible-temporary
+                         'doc-mode-unfold-by-overlay-temporary)
+            (overlay-put ov 'isearch-open-invisible 'doc-mode-unfold-by-overlay)
+            (overlay-put ov 'doc-mode-fold siblings))
+          (setq doc-mode-folds (nconc doc-mode-folds siblings)))))))
+
+;;;###autoload
+(defun doc-mode-fold-tag-doc (tag)
+  "Fold the documentation for TAG.
+If called interactively, use the tag given by `doc-mode-current-tag'."
+  (interactive (list (doc-mode-current-tag-or-bust)))
+  (unless doc-mode
+    (error "doc-mode not enabled"))
+  (doc-mode-fold-doc (semantic-tag-start tag)))
+
+(defun doc-mode-unfold-by-overlay (overlay &rest foo)
+  "Unfold OVERLAY and its siblings permanently"
+  (dolist (ov (overlay-get overlay 'doc-mode-fold))
+    ;; remove overlay
+    (setq doc-mode-folds (delq ov doc-mode-folds))
+    (delete-overlay ov)
+    ;; don't let isearch do anything with it
+    (setq isearch-opened-overlays (delq ov isearch-opened-overlays))))
+
+(defun doc-mode-unfold-by-overlay-temporary (overlay invisible)
+  "Unfold OVERLAY and its siblings temporarily."
+  (dolist (ov (overlay-get overlay 'doc-mode-fold))
+    (overlay-put ov 'invisible invisible)))
+
+;;;###autoload
+(defun doc-mode-unfold-doc (point)
+  "Unfold the comment before POINT."
+  (interactive "d")
+  (unless doc-mode
+    (error "doc-mode not enabled"))
+  (let ((bounds (doc-mode-find-doc-bounds point)))
+    (when bounds
+      (let* ((beg (plist-get bounds :beg))
+             (end (plist-get bounds :end))
+             (overlays (overlays-in beg end))
+             anything-done)
+        (dolist (ov overlays)
+          (when (overlay-get ov 'doc-mode-fold)
+            (setq anything-done t)
+            (delete-overlay ov)
+            (setq doc-mode-folds (delq ov doc-mode-folds))))
+        ;; return non-nil, if anything unfolded
+        ;; this is used to toggle
+        anything-done))))
+
+;;;###autoload
+(defun doc-mode-unfold-tag-doc (tag)
+  "Unfold the documentation for TAG.
+If called interactively, use the tag given by `doc-mode-current-tag'."
+  (interactive (list (doc-mode-current-tag-or-bust)))
+  (unless doc-mode
+    (error "doc-mode not enabled"))
+  (doc-mode-unfold-doc (semantic-tag-start tag)))
+
+;;;###autoload
+(defun doc-mode-fold-all (&optional arg)
+  (interactive "P")
+  (unless doc-mode
+    (error "doc-mode not enabled"))
+  (if arg
+      (doc-mode-unfold-all)
+      (dolist (tag (doc-mode-find-eligible-tags))
+        (doc-mode-fold-tag-doc tag))))
+
+;;;###autoload
+(defun doc-mode-unfold-all ()
+  (interactive)
+  (dolist (ov doc-mode-folds)
+    (delete-overlay ov))
+  (kill-local-variable 'doc-mode-folds))
+
+;;; toggle
+
+;;;###autoload
+(defun doc-mode-toggle-tag-doc-folding (tag)
+  "Toggle folding of TAG's documentation.
+If called interactively, use the tag given by `doc-mode-current-tag'."
+  (interactive (list (doc-mode-current-tag-or-bust)))
+  (or (doc-mode-unfold-tag-doc tag)
+      (doc-mode-fold-tag-doc tag)))
 
 ;;;}}}
 ;;;------------------------------------------------------------------

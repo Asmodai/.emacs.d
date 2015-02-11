@@ -49,7 +49,7 @@
 ;;; ==================================================================
 ;;;{{{ HTML Tidy (Unix only):
 
-(if unix-p
+(if (unix-p)
     (defun tidy-buffer ()
       "Run HTML Tidy on the current buffer."
       (interactive)

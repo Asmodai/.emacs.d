@@ -2,10 +2,10 @@
 ;;;
 ;;; init.el --- Emacs initialisation file.
 ;;;
-;;; Time-stamp: <Wednesday Sep  5, 2012 18:32:21 asmodai>
-;;; Revision:   106
+;;; Time-stamp: <Wednesday Feb  4, 2015 13:34:07 asmodai>
+;;; Revision:   129
 ;;;
-;;; Copyright (c) 2005-2012 Paul Ward <asmodai@gmail.com>
+;;; Copyright (c) 2005-2015 Paul Ward <asmodai@gmail.com>
 ;;;
 ;;; Author:     Paul Ward <asmodai@gmail.com>
 ;;; Maintainer: Paul Ward <asmodai@gmail.com>
@@ -38,26 +38,25 @@
 ;;;
 ;;; Emacsen this has been tested on:
 ;;;   GNU Emacs 22.1.1       Mac OS X 10.5.8
+;;;   GNU Emacs 23.1.1       GNU/Linux
 ;;;   GNU Emacs 23.2.3       Windows 7
 ;;;   GNU Emacs 23.3.1       Windows 7
 ;;;   GNU Emacs 23.3.1       GNU/Linux
 ;;;   GNU Emacs 23.4.1       Mac OS X 10.5.8
 ;;;   GNU Emacs 24.1.1       Mac OS X 10.5.8
+;;;   GNU Emacs 24.2.1       GNU/Linux
+;;;   GNU Emacs 24.3.1       GNU/Linux
 ;;;
 ;;;}}}
 
-;;; ==================================================================
+;;;==================================================================
 ;;;{{{ Initial settings (removes startup messages et al):
 
-;;;
 ;;; This will be the initial scratch buffer message.
 (defvar *my-scratch-message*
-  ";;; Oi yous, type yer stinkin crap here, or C-x C-f yersel ter visit a file.
-;;; Have fun, ya basterd!
-
+  ";;; Visit a file or type here.
 ")
 
-;;;
 ;;; Some preliminary variables.
 (setq-default debug-on-error t)         ; Debug on errors please.
 (setq initial-buffer-choice nil         ; No thanks.
@@ -66,17 +65,15 @@
       inhibit-startup-message t         ; Another alias for above.
       initial-scratch-message *my-scratch-message*)
 
-;;;
 ;;; Copy this at your peril.
 (setq inhibit-startup-echo-area-message "asmodai")
 
 ;;;}}}
-;;; ==================================================================
+;;;==================================================================
 
-;;; ==================================================================
+;;;==================================================================
 ;;;{{{ Required elisp:
 
-;;;
 ;;; this is going to be quite hairy.  The Emacs we are running with
 ;;; won't necessarily know what is correct re `load-path' in order to
 ;;; load in various required elisp files.  We are also equally as
@@ -84,12 +81,10 @@
 ;;; we need to define some variables and functions here in init.el in
 ;;; order to have enough functionality to deal with `load-path' and
 ;;; our custom elisp hacks.
-;;;
 
-;;; ------------------------------------------------------------------
+;;;------------------------------------------------------------------
 ;;;{{{ GNU Emacs 18 support:
 
-;;;
 ;;; These are functions I deem necessary to have available in order to
 ;;; make Emacs 18 usable from my perspective.  I am a Zetalisp and
 ;;; Common Lisp hacker.  I expect various Zmacs-like entities.  Emacs
@@ -98,9 +93,7 @@
 ;;; A note for myself.  This is Emacs, not Genera.  Do not attempt to
 ;;; implement lots of extraneous Lisp here.  Just implement the bare
 ;;; essentials.
-;;;
 
-;;;
 ;;; Our first job is to set up `emacs-major-version' and
 ;;; `emacs-minor-version' here so that our elisp will be aware that
 ;;; we are using Emacs 18.
@@ -112,184 +105,66 @@
                                                         3
                                                         5))))
 
-;;;
 ;;; Define `when' as a macro if it is not fbound.
 (if (not (fboundp 'when))
     (defmacro when (pred &rest body)
       (list 'cond (cons pred body))))
 
-;;;}}}
-;;; ------------------------------------------------------------------
+;;; Define `push' as a macro if it is not fbound.
+(if (not (fboundp 'push))
+    (defmacro push (value lst)
+      (list 'setq (list 'cons value lst))))
 
-;;; ------------------------------------------------------------------
-;;;{{{ Predicates:
-
-;;; ..................................................................
-;;;{{{ Flavour predicates:
-
-(defconst xemacs-p
-  (featurep 'xemacs)
-  "T if we are running in XEmacs.")
-
-(defconst emacs-p
-  (not xemacs-p)
-  "T if we are running in GNU Emacs.")
+;;; Define `cdadr' as a macro if it is not fbound.
+(if (not (fboundp 'caddr))
+    (defsubst cdadr (thing)
+      (cdr (car (cdr thing)))))
 
 ;;;}}}
-;;; ..................................................................
+;;;------------------------------------------------------------------
 
-;;; ..................................................................
-;;;{{{ Version predicates:
+;;;------------------------------------------------------------------
+;;;{{{ Operating system predicates:
 
-;;;{{{ GNU Emacs:
+;;; These need to be loaded early, thus do not get bytecode-compiled.
 
-(defconst emacs=18-p
-  (and (not xemacs-p)
-       (= emacs-major-version 18))
-  "T if we are running in GNU Emacs 18.")
+(defsubst windows-32-p ()
+  "T if we are running on Windows 386 through Windows 9x/Me."
+  (memq system-type '(ms-windows win386)))
 
-(defconst emacs=19-p
-  (and (not xemacs-p)
-       (= emacs-major-version 19))
-  "T if we are running in GNU Emacs 19.")
+(defsubst windows-nt-p ()
+  "T if we are running on Windows NT or higher."
+  (eq system-type 'windows-nt))
 
-(defconst emacs=20-p
-  (and (not xemacs-p)
-       (= emacs-major-version 20))
-  "T if we are running in GNU Emacs 20.")
+(defsubst windows-p ()
+  "T if we are running on some sort of Windows."
+  (or (windows-32-p)
+      (windows-nt-p)))
 
-(defconst emacs=21-p
-  (and (not xemacs-p)
-       (= emacs-major-version 21))
-  "T if we are running in GNU Emacs 21.")
+(defsubst ms-dos-p ()
+  "T if we are running on some version of DOS."
+  (memq system-type '(dos ms-dos)))
 
-(defconst emacs=22-p
-  (and (not xemacs-p)
-       (= emacs-major-version 22))
-  "T if we are running in GNU Emacs 22.")
-
-(defconst emacs=23-p
-  (and (not xemacs-p)
-       (= emacs-major-version 23))
-  "T if we are running in GNU Emacs 23.")
-
-(defconst emacs=24-p
-  (and (not xemacs-p)
-       (= emacs-major-version 24))
-  "T if we are running in GNU Emacs 24.")
-
-;;;
-;;; The follwing are for major groupings of versions.  e.g. code that
-;;; works in Emacs 21, 22, 23... etc.
-;;;
-
-(defconst emacs>=19-p
-  (and (not xemacs-p)
-       (>= emacs-major-version 19))
-  "T if we are running in GNU Emacs 19 or higher.")
-
-(defconst emacs>=20-p
-  (and (not xemacs-p)
-       (>= emacs-major-version 20))
-  "T if we are running in GNU Emacs 20 or higher.")
-
-(defconst emacs>=21-p
-  (and (not xemacs-p)
-       (>= emacs-major-version 21))
-  "T if we are running in GNU Emacs 21 or higher.")
-
-(defconst emacs>=22-p
-  (and (not xemacs-p)
-       (>= emacs-major-version 22))
-  "T if we are running in GNU Emacs 22 or higher.")
-
-(defconst emacs>=23-p
-  (and (not xemacs-p)
-       (>= emacs-major-version 23))
-  "T if we are running in GNU Emacs 23 or higher.")
-
-(defconst emacs>=24-p
-  (and (not xemacs-p)
-       (>= emacs-major-version 24))
-  "T if we are running in GNU Emacs 24 or higher.")
-
-;;;}}}
-
-;;;{{{ XEmacs:
-
-(defconst xemacs=19-p
-  (and xemacs-p
-       (= emacs-major-version 19))
-  "T if we are running in XEmacs 19.")
-
-(defconst xemacs=20-p
-  (and xemacs-p
-       (= emacs-major-version 20))
-  "T if we are running in XEmacs 20.")
-
-(defconst xemacs=21-p
-  (and xemacs-p
-       (= emacs-major-version 21))
-  "T if we are running in XEmacs 21.")
-
-(defconst xemacs>=19-p
-  (and xemacs-p
-       (>= emacs-major-version 19))
-  "T if we are running in XEmacs 19 or higher.")
-
-(defconst xemacs>=20-p
-  (and xemacs-p
-       (>= emacs-major-version 20))
-  "T if we are running in XEmacs 20 or higher.")
-
-(defconst xemacs>=21-p
-  (and xemacs-p
-       (>= emacs-major-version 21))
-  "T if we are running in XEmacs 21 or higher.")
-
-;;;}}}
-
-;;;}}}
-;;; ..................................................................
-
-;;; ..................................................................
-;;;{{{ Operating System predicates:
-
-(defconst windows-32-p
-  (memq system-type '(ms-windows win386))
-  "T if we are running on Windows 386 through Windows 9x/Me.")
-
-(defconst windows-nt-p
-  (eq system-type 'windows-nt)
-  "T if we are running on Windows NT or higher.")
-
-(defconst windows-p
-  (or windows-32-p windows-nt-p)
-  "T if we are running on some sort of Windows.")
-
-(defconst ms-dos-p
-  (memq system-type '(dos ms-dos))
-  "T if we are running on some version of DOS.")
-
-(defconst linux-p
+(defsubst linux-p ()
+  "T if we are running on GNU/Linux."
   (or (eq system-type 'linux)
-      (eq system-type 'gnu/linux))
-  "T if we are running on GNU/Linux.")
+      (eq system-type 'gnu/linux)))
 
-(defconst next-mach-p
-  (eq system-type 'next-mach)
-  "T if we are running on a NeXT Mach system.")
+(defsubst next-mach-p ()
+    "T if we are running on a NeXT Mach system."
+  (eq system-type 'next-mach))
 
-(defconst mac-os-x-p
-  (eq system-type 'darwin)
-  "T if we are running on Mac OS X or Darwin.")
+(defsubst mac-os-x-p ()
+  "T if we are running on Mac OS X or Darwin."
+  (eq system-type 'darwin))
 
-(defconst vms-p
+(defsubst vms-p ()
+  "T if we are running on VMS."
   (or (eq system-type 'vms)
-      (eq system-type 'vax-vms))
-  "T if we are running on VMS.")
+      (eq system-type 'vax-vms)))
 
-(defconst unix-p
+(defsubst unix-p ()
+  "T if we are running on a UNIX system of some sort."
   (or (memq system-type '(aix-v3        ; IBM AIX
                           berkeley-unix ; BSD
                           usg-unix-v    ; Unix System V
@@ -303,150 +178,157 @@
                           SCO\ sysv5uw7 ; Gee, thanks SCO.
                           unisoft-unix  ; Ancient Unix for the Sun 1
                           xenix))       ; MS/SCO Xenix
-      linux-p
-      next-mach-p
-      mac-os-x-p)
-  "T if we are running on a UNIX system of some sort.")
+      (linux-p)
+      (next-mach-p)
+      (mac-os-x-p)))
 
-(defconst cygwin-p
-  (eq system-type 'cygwin)
-  "T if we are running atop the Cygwin emulation layer.")
+(defsubst cygwin-p ()
+  "T if we are running atop the Cygwin emulation layer."
+  (eq system-type 'cygwin))
 
-(defconst emx-p
-  (eq system-type 'emx)
-  "T if we are running atop the EMX emulation layer.")
-
-;;;}}}
-;;; ..................................................................
-
-;;; ..................................................................
-;;;{{{ Windowing system predicates:
-
-(defconst x-windows-p
-  (eq window-system 'x)
-  "T if we are running inside the X Window System.")
-
-(defconst presentation-manager-p
-  (eq window-system 'pm)
-  "T if we are running inside OS/2's Presentation Manager.")
-
-(defconst nextstep-p
-  (eq window-system 'ns)
-  "T if we are running inside NeXTSTEP, GNUstep, or Cocoa.")
-
-(defconst terminal-p
-  (eq window-system nil)
-  "T if we are running in a text-based terminal of some sort.")
+(defsubst emx-p ()
+  "T if we are running atop the EMX emulation layer on IBM OS/2."
+  (eq system-type 'emx))
 
 ;;;}}}
-;;; ..................................................................
+;;;------------------------------------------------------------------
 
-;;; ..................................................................
-;;;{{{ Toolkit predicates:
-
-(defconst motif-p
-  (featurep 'motif)
-  "T if this Emacs was built using the Motif UI toolkit.")
-
-(defconst xt-p
-  (featurep 'x-toolkit)
-  "T if this Emacs was built using the X Toolkit.")
-
-;;;}}}
-;;; ..................................................................
-
-;;;}}}
-;;; ------------------------------------------------------------------
-
-;;; ------------------------------------------------------------------
-;;;{{{ User home directory resolution:
+;;;------------------------------------------------------------------
+;;;{{{ Home path resolution:
 
 (defun home-path-for-system ()
+  "Returns the path representing a users' home directory."
   (cond
-    ;;
     ;; On VMS, SYS$LOGIN should contain what we need.
-    (vms-p
+    ((vms-p)
      (getenv "SYS$LOGIN"))
-    ;;
     ;; For Unix, just assume HOME is set.
-    (unix-p
+    ((unix-p)
      (getenv "HOME"))
-    ;;
     ;; The environment variable that contains the user's home directory
     ;; on NT depends on which version is installed.  NT 3 and 4 use
     ;; HOMEDIR whereas 2000 and higher use USERPROFILE.
-    (windows-nt-p
+    ((windows-nt-p)
      (let ((dir (getenv "HOMEDIR")))
        (when (null dir)
          (setq dir (getenv "USERPROFILE")))
        dir))
-    ;;
     ;; Assume that HOME is available.  If it is not, then we just throw
     ;; all caution to the wind and guess at C:\.
-    (windows-32-p
+    ((windows-32-p)
      (let ((dir (getenv "HOME")))
        (when (null dir)
          (setq dir "C:\\"))
        dir))
-    ;;
     ;; If EMX is installed then there's usually a HOME defined in
     ;; CONFIG.SYS.  If there is no HOME defined, then just guess at
     ;; C:\.
-    (emx-p
+    ((emx-p)
      (let ((dir (getenv "HOME")))
        (when (null dir)
          (setq dir "C:\\"))
        dir))))
 
 ;;;}}}
-;;; ------------------------------------------------------------------
+;;;------------------------------------------------------------------
 
-;;; ------------------------------------------------------------------
+;;;------------------------------------------------------------------
+;;;{{{ Base load path:
+
+(defvar base-load-paths
+  '(".emacs.d/init/"
+    ".emacs.d/base/"
+    ".emacs.d/custom/"
+    ".emacs.d/lisp/")
+  "Default base system load paths.")
+
+;;; Parse `base-load-paths' here, in a way that works on Emacs 18.
+(mapcar (function
+         (lambda (path)
+          (let ((home (home-path-for-system)))
+            (setq load-path (append
+                             (list
+                              (file-name-as-directory
+                               (expand-file-name path home)))
+                             load-path)))))
+        base-load-paths)
+
+;;;}}}
+;;;------------------------------------------------------------------
+
+;;;------------------------------------------------------------------
+;;;{{{ Bytecode compiler:
+
+;;; The bytecode cache directory is version-specific.
+(defvar +bc-cache-directory+
+  (expand-file-name
+   (concat ".emacs.d/cache/"
+           (if (featurep 'xemacs)
+               "x")
+           (number-to-string emacs-major-version)
+           "/")
+   (home-path-for-system))
+  "The path of the directory containing cached bytecode for this Emacs
+version.")
+
+;;; If the cache directory does not exist, then create it.
+(when (not (file-exists-p +bc-cache-directory+))
+  (make-directory +bc-cache-directory+ t))
+
+;;; Load in our bytecode compiler hacks.
+(load "bytecode")
+
+;;; Now eat our own dog food.
+(compile-load "bytecode")
+
+;;; Now compile and load most of the base system.
+(compile-load "preds")
+(compile-load "funs")
+(compile-load "macros")
+(compile-load "fixes")
+
+;;;}}}
+;;;------------------------------------------------------------------
+
+;;;------------------------------------------------------------------
 ;;;{{{ Configure `load-path':
 
 (defvar default-load-paths
-  '((t            . ".emacs.d/init/")   ; Location of main init files.
-    (t            . ".emacs.d/base/")   ; Base init files.
-    (t            . ".emacs.d/custom/") ; Custom files.
-    (t            . ".emacs.d/lisp/")   ; General elisp packages.
-    ;;
-    ;; Mode hacks
-    (emacs>=19-p  . ".emacs.d/modes/")  ; Emacs 18 doesnt have any.
-    (xemacs>=19-p . ".emacs.d/modes/")
-    (xemacs>=19-p . ".emacs.d/xcompat/"); XEmacs compat code.
-    ;;
+  '(;; Mode hacks
+    ((emacs>=19-p)  . ".emacs.d/modes/")  ; Emacs 18 doesnt have any.
+    ((xemacs>=19-p) . ".emacs.d/modes/")
+    ((xemacs>=19-p) . ".emacs.d/xcompat/"); XEmacs compat code.
+
     ;; Third-party packages
-    (emacs>=20-p  . ".emacs.d/third-party/")
-    (emacs>=21-p  . ".emacs.d/third-party/ruby/")
-    (emacs>=23-p  . ".emacs.d/third-party/erlang/")
-    (emacs>=21-p  . ".emacs.d/third-party/slime/")
-    (emacs>=21-p  . ".emacs.d/third-party/slime/contrib/")
-    (emacs>=23-p  . ".emacs.d/third-party/company/")
-    ;;
-    ;; CEDET
-    (emacs>=23-p  . ".emacs.d/third-party/cedet-1.1/")
-    (emacs>=23-p  . ".emacs.d/third-party/cedet-1.1/cogre/")
-    (emacs>=23-p  . ".emacs.d/third-party/cedet-1.1/common/")
-    (emacs>=23-p  . ".emacs.d/third-party/cedet-1.1/ede/")
-    (emacs>=23-p  . ".emacs.d/third-party/cedet-1.1/eieio/")
-    (emacs>=23-p  . ".emacs.d/third-party/cedet-1.1/semantic/")
-    (emacs>=23-p  . ".emacs.d/third-party/cedet-1.1/speedbar/")
-    (emacs>=23-p  . ".emacs.d/third-party/cedet-1.1/srecode/")
-    (emacs>=23-p  . ".emacs.d/third-party/cedet-1.1/contrib/")
-    ;;
+    ((emacs>=20-p)  . ".emacs.d/third-party/")
+    ((emacs>=21-p)  . ".emacs.d/third-party/ruby/")
+    ((emacs>=23-p)  . ".emacs.d/third-party/erlang/")
+    ((emacs>=21-p)  . ".emacs.d/third-party/slime/")
+    ((emacs>=21-p)  . ".emacs.d/third-party/slime/contrib/")
+    ((emacs>=23-p)  . ".emacs.d/third-party/company/")
+
+    ;; CEDET (now part of GNU Emacs 24)
+    ((emacs=23-p)   . ".emacs.d/third-party/cedet-1.1/")
+    ((emacs=23-p)   . ".emacs.d/third-party/cedet-1.1/cogre/")
+    ((emacs=23-p)   . ".emacs.d/third-party/cedet-1.1/common/")
+    ((emacs=23-p)   . ".emacs.d/third-party/cedet-1.1/ede/")
+    ((emacs=23-p)   . ".emacs.d/third-party/cedet-1.1/eieio/")
+    ((emacs=23-p)   . ".emacs.d/third-party/cedet-1.1/semantic/")
+    ((emacs=23-p)   . ".emacs.d/third-party/cedet-1.1/speedbar/")
+    ((emacs=23-p)   . ".emacs.d/third-party/cedet-1.1/srecode/")
+    ((emacs=23-p)   . ".emacs.d/third-party/cedet-1.1/contrib/")
+
     ;; ECB
-    (emacs>=23-p  . ".emacs.d/third-party/ecb/")
-    ;;
+    ((emacs>=23-p)  . ".emacs.d/third-party/ecb/")
+
     ;; Packages that have been tested with XEmacs
-    (xemacs>=19-p . ".emacs.d/third-party/")
+    ((xemacs>=19-p) . ".emacs.d/third-party/")
     ;; Not tested ruby-mode with XEmacs.
-    (xemacs>=21-p . ".emacs.d/third-party/slime/")
-    (xemacs>=21-p . ".emacs.d/third-party/slime/contrib/"))
+    ((xemacs>=21-p) . ".emacs.d/third-party/slime/")
+    ((xemacs>=21-p) . ".emacs.d/third-party/slime/contrib/"))
   "Default locations for init.el to find other elisp code.")
 
-;;;
-;;; Parse `default-load-paths' here.  This is hairy as it gets to work
-;;; with Emacs 18!
+;;; Parse `default-load-paths' here.
 (mapcar (function
          (lambda (x)
           (let ((test (car x))
@@ -461,24 +343,21 @@
         default-load-paths)
 
 ;;;}}}
-;;; ------------------------------------------------------------------
+;;;------------------------------------------------------------------
 
-;;; ------------------------------------------------------------------
+;;;------------------------------------------------------------------
 ;;;{{{ Configure `custom-load-paths':
 
 (defvar custom-load-paths
-  '(;;
-    ;; Unix
-    (:system unix-p ("/usr/local/share/emacs/site-lisp"))
-    (:system unix-p ("/usr/share/emacs/site-lisp"))
-    ;;
+  '(;; Unix
+    (:system (unix-p) ("/usr/local/share/emacs/site-lisp"))
+    (:system (unix-p) ("/usr/share/emacs/site-lisp"))
+
     ;; NeXTSTEP
-    (:system next-mach-p ("/LocalLibrary/emacs/site-lisp/"))
-    (:system next-mach-p ("/usr/local/gcl-2.2/elisp/")))
-    
+    (:system (next-mach-p) ("/LocalLibrary/emacs/site-lisp/"))
+    (:system (next-mach-p) ("/usr/local/gcl-2.2/elisp/")))
   "Custom load paths.")
 
-;;;
 ;;; Parse `custom-load-paths' here.  This gets to work with Emacs 18!
 (let ((do-merge (function
                  (lambda (data)
@@ -488,13 +367,11 @@
                     ((eq (car data) ':merge-home)
                      (expand-file-name (car (cdr data))
                                        (home-path-for-system)))
-                    ;;
                     ;; Pathname requires two components be merged
                     ;; together.
                     ((eq (car data) ':merge)
                      (expand-file-name (car (cdr data))
                                        (car (cdr (cdr data)))))
-                    ;;
                     ;; Pathname is either a single component or
                     ;; something that we do not handle here yet.
                     (t 
@@ -502,34 +379,29 @@
   (mapcar (function
            (lambda (x)
             (let* ((type (car x))       ; `:system', `:version' et al.
-                   (test (car (cdr x))) ; `unix-p', `emacs-p' et al.
+                   (test (car (cdr x))) ; `(unix-p)', `(emacs-p)' et al.
                    (paths
                     (cond
-                      ;;
                       ;; Path is dependent on a particular machine.
                       ((eq type ':machine)
                        (if (eval test)
                            (apply do-merge
                                   (list (car (cdr (cdr x)))))))
-                      ;;
                       ;; Path is dependent on a particular operating
                       ;; system.
                       ((eq type ':system)
                        (if (eval test)
                            (apply do-merge
                                   (list (car (cdr (cdr x)))))))
-                      ;;
                       ;; Path is dependent on a particular version of
                       ;; Emacs.
                       ((eq type ':version)
                        (if (eval test)
                            (apply do-merge
                                   (list (car (cdr (cdr x)))))))
-                      ;;
                       ;; Path has no dependencies.
                       (t
                        (apply do-merge (list type))))))
-              ;;
               ;; Add the resulting path to `load-path'.
               (if (not (null paths))
                   (setq load-path
@@ -539,129 +411,70 @@
                          load-path))))))
           custom-load-paths))
 
-;;;
 ;;; The `cl' package is available from Emacs/XEmacs 19 onwards.
-(when (or emacs>=19-p
-          xemacs>=19-p)
+(when (or (emacs>=19-p)
+          (xemacs>=19-p))
   (require 'cl))
 
 ;;;}}}
-;;; ------------------------------------------------------------------
+;;;------------------------------------------------------------------
 
-;;; ------------------------------------------------------------------
+;;;------------------------------------------------------------------
 ;;;{{{ Configure `custom-file':
 
+(defvar +custom-directory+
+  (expand-file-name ".emacs.d/custom/" (home-path-for-system))
+  "Path containg Emacs customisation files.")
+
+;;; Set the custom file.
 (setq custom-file
-      (expand-file-name
-       (cond
-         (emacs=18-p     ".emacs.d/custom/custom-18.el")
-         (emacs=19-p     ".emacs.d/custom/custom-19.el")
-         (emacs=20-p     ".emacs.d/custom/custom-20.el")
-         (emacs=21-p     ".emacs.d/custom/custom-21.el")
-         (emacs=22-p     ".emacs.d/custom/custom-22.el")
-         (emacs=23-p     ".emacs.d/custom/custom-23.el")
-         (emacs=24-p     ".emacs.d/custom/custom-24.el")
-         (xemacs=19-p    ".emacs.d/custom/custom-x19.el")
-         (xemacs=20-p    ".emacs.d/custom/custom-x20.el")
-         (xemacs=21-p    ".emacs.d/custom/custom-x21.el"))
-       (home-path-for-system)))
-
-;;;}}}
-;;; ------------------------------------------------------------------
-
-;;; ------------------------------------------------------------------
-;;;{{{ Missing functionality in GNU Emacs:
-
-;;;
-;;; If we are on GNU Emacs 20.x then we need to deal with the fact
-;;; that `font-lock-unfontify-buffer' might be missing.  This symbol
-;;; seems present in GNU Emacs 20.6 however, so assume that any
-;;; version lesser than 20.6 will require the fix.
-(when (and emacs-p
-           (= emacs-major-version 20)
-           (< emacs-minor-version 6)
-           (not (fboundp 'font-lock-unfontify-buffer)))
-  (defalias 'font-lock-unfontify-buffer 'ignore)
-  (require 'font-lock))
-
-;;;}}}
-;;; ------------------------------------------------------------------
-
-;;;}}}
-;;; ==================================================================
-
-;;; ==================================================================
-;;;{{{ Bytecode compiler hacks:
-
-;;;
-;;; The bytecode cache directory is version-specific.
-(defvar +bc-cache-directory+
   (expand-file-name
-   (concat ".emacs.d/cache/"
-           (if xemacs-p
+   (concat +custom-directory+
+           "custom-"
+           (if (xemacs-p)
                "x")
            (number-to-string emacs-major-version)
-           "/")
-   (home-path-for-system))
-  "The path of the directory containing cached bytecode for this Emacs
-version.")
+           ".el")
+   (home-path-for-system)))
 
-;;;
-;;; If the cache directory does not exist, then create it.
-(when (not (file-exists-p +bc-cache-directory+))
-  (make-directory +bc-cache-directory+))
-
-;;;
-;;; Load in our bytecode compiler hacks.
-(load "bytecode")
+;;; If the custom directory does not exist, then create it.
+(when (not (file-exists-p +custom-directory+))
+  (make-directory +custom-directory+ t))
 
 ;;;}}}
-;;; ==================================================================
+;;;------------------------------------------------------------------
 
-;;; ==================================================================
+;;;}}}
+;;;==================================================================
+
+;;;==================================================================
 ;;;{{{ Startup:
 
-;;;
 ;;; We're done with setting up Emacs Lisp, now's the time to actually
 ;;; load stuff.
-;;;
+(load "boot")
 
 ;;; Load in our custom file
 (load custom-file)
 
-;;; We have several utility functions in the file `utils.el', so load
-;;; those in.
-(compile-load "utils")
-
-;;;
-;;; Load in the master init file.
-(when (and (boundp 'emacs-p)
-           (boundp 'xemacs-p))
-  (load "master-init"))
-
-;;;
 ;;; Load our custom key bindings.
-(compile-load "keys")
+(compile-load "bindings")
 
-;;;
 ;;; Load in our custom variables.
-(compile-load "variables")
+(compile-load "settings")
 
-;;;
 ;;; Load our theme last, so we can clobber anything that might be in
 ;;; the custom file.
 (when (emacs-version>= 19 0)
-  (load "theme"))
+  (compile-load "theme"))
 
-;;;
 ;;; One or two packages require this to be non-void.
 (setf stack-trace-on-error nil)
 
-;;;
 ;;; Tell the user that we're done
 (message "Emacs is ready, happy hacking!")
 
 ;;;}}}
-;;; ==================================================================
+;;;==================================================================
 
 ;;; init.el ends here.
