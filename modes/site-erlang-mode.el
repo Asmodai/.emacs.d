@@ -2,8 +2,8 @@
 ;;;
 ;;; site-erlang-mode.el --- Erlang mode.
 ;;;
-;;; Time-stamp: <Sunday Jan 29, 2012 00:41:08 asmodai>
-;;; Revision:   6
+;;; Time-stamp: <Tuesday Feb 17, 2015 08:45:09 asmodai>
+;;; Revision:   11
 ;;;
 ;;; Copyright (c) 2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -36,18 +36,30 @@
 ;;;
 ;;;}}}
 
-(when (emacs>=23-p)
+(when (emacs>=23-p) 
   ;;
   ;; Start by setting up Erlang variables
-  (setq erlang-root-dir (if (windows-p)
-                            "c:/Progra~1/erl5.9"
-                            "/usr/local/otp"))
+  (setq erlang-root-dir 
+        (cond ((windows-p)
+               "c:/Progra~1/erl5.9")
+              ((running-on-paradox-p)   ; Special case for work laptop.
+               "/opt/erlang/16b03")
+              ((running-on-hubble-p)    ; Special case for monitoring host.
+               "/home/promon/")
+              (t
+               "/usr/local")))
   
   ;;
   ;; Tell emacs where to find the Erlang binary
-  (setq exec-path (if (windows-p)
-                      (cons "c:/Progra~1/erl5.9/bin" exec-path)
-                      (cons "/usr/local/otp/bin" exec-path)))
+  (setq exec-path
+        (cond ((windows-p)
+               (cons "c:/Progra~1/erl5.9/bin" exec-path))
+              ((running-on-paradox-p)   ; Special case for work laptop.
+               (cons "/opt/erlang/16b03/bin" exec-path))
+              ((running-on-hubble-p)    ; Special case for monitoring host.
+               (cons "/home/promon/bin" exec-path))
+              (t
+               (cons "/usr/local/bin" exec-path))))
   
   ;;
   ;; Deal with Erlang hanging
