@@ -2,8 +2,8 @@
 ;;;
 ;;; site-erlang-mode.el --- Erlang mode.
 ;;;
-;;; Time-stamp: <Tuesday Feb 17, 2015 08:45:09 asmodai>
-;;; Revision:   11
+;;; Time-stamp: <Tuesday Feb 24, 2015 10:32:35 asmodai>
+;;; Revision:   12
 ;;;
 ;;; Copyright (c) 2012 Paul Ward <asmodai@gmail.com>
 ;;;
@@ -37,36 +37,40 @@
 ;;;}}}
 
 (when (emacs>=23-p) 
-  ;;
+  ;; Load erlang-mode
+  (require 'erlang)
+  (require 'erlang-start)
+  
   ;; Start by setting up Erlang variables
   (setq erlang-root-dir 
-        (cond ((windows-p)
+        (cond ((windows-p)              ; Windows machines.
                "c:/Progra~1/erl5.9")
               ((running-on-paradox-p)   ; Special case for work laptop.
                "/opt/erlang/16b03")
               ((running-on-hubble-p)    ; Special case for monitoring host.
                "/home/promon/")
-              (t
+              (t                        ; Everything else.
                "/usr/local")))
   
-  ;;
   ;; Tell emacs where to find the Erlang binary
   (setq exec-path
-        (cond ((windows-p)
+        (cond ((windows-p)              ; Windows machines,
                (cons "c:/Progra~1/erl5.9/bin" exec-path))
               ((running-on-paradox-p)   ; Special case for work laptop.
                (cons "/opt/erlang/16b03/bin" exec-path))
               ((running-on-hubble-p)    ; Special case for monitoring host.
                (cons "/home/promon/bin" exec-path))
-              (t
+              (t                        ; Everything else.
                (cons "/usr/local/bin" exec-path))))
   
-  ;;
   ;; Deal with Erlang hanging
   (setf inferior-erlang-prompt-timeout t)
   
-  ;;
-  ;; Load erlang-mode
-  (require 'erlang-start))
+  ;; Configure Erlang inferior mode.
+  (setq inferior-erlang-machine-options
+        '("-boot"      "start_sasl"     ; Load SASL.
+          "-name"      "emacs"          ; Remote name.
+          "-sname"     "emacs-local"    ; Local name.
+          "-setcookie" "erlang")))      ; Remote cookie.
 
 ;;; site-erlang-mode.el ends here
