@@ -1,7 +1,0 @@
-Emacs Configuration Files
--------------------------
-
-This is my current .emacs.d/
-
-Please be aware that you will need to rebuild the CEDET sources in
-third-party/ should you use this on a fresh Emacs.

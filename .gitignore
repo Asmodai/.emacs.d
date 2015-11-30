@@ -6,3 +6,5 @@
 /**/*.bak
 /auto-save-list
 /cache/**/*
+.cache
+/elpa
