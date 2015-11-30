@@ -24,8 +24,8 @@ PLIST has the form (\"fontname\" :prop1 val1 ... :propN valN)"
     ;; Fallback
     (pcase system-type
       (`gnu/linux
-       (setf fallback-font-name  "UbuntuMono"
-             fallback-font-name2 "UbuntuMono"))
+       (setf fallback-font-name  "Ubuntu Mono"
+             fallback-font-name2 "Ubuntu Mono"))
       (`darwin
        (setf fallback-font-name  "Menlo"
              fallback-font-name2 "Menlo"))
