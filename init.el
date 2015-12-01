@@ -1,24 +1,37 @@
 
+;;; Some preliminary variables.
+(setq-default debug-on-error t)         ; Debug on errors please.
+(setq initial-buffer-choice nil         ; No thanks.
+      inhibit-splash-screen t           ; I don't care about it.
+      inhibit-startup-screen t          ; New version of above.
+      inhibit-startup-message t)        ; Another alias for above.
+
+;;; Copy this at your peril.
+(setq inhibit-startup-echo-area-message "asmodai")
+
 ;; Set GC threshold.
 (setq gc-cons-threshold 100000000)
 
-;; Set Bootstrap version
-(defconst bootstrap-version "0.1")
+;; Set this to T if you want verbose messages.
+(defvar *bootstrap-verbose* t)
 
-(defconst bootstrap-emacs-min-version "24.3"
+(defconst +bootstrap-emacs-min-version+ "24.3"
   "Minimum required version of Emacs.")
 
-(defun bootstrap/emacs-version-ok ()
-  (version<= bootstrap-emacs-min-version emacs-version))
+(defun bootstrap:emacs-version-ok ()
+  (version<= +bootstrap-emacs-min-version+ emacs-version))
 
-(when (bootstrap/emacs-version-ok)
-  (load-file (concat user-emacs-directory "core/core-load-paths.el"))
-  (require 'core-bootstrap)
-  (require 'core-configuration-layer)
-  (bootstrap/init)
-  (bootstrap/maybe-install-dotfile)
-  ;(configuration-layer/sync)
-  (bootstrap/setup-startup-hook)
+;; Load it all.
+(when (bootstrap:emacs-version-ok)
+  ;; Load in paths.
+  (load-file (concat user-emacs-directory "core/bootstrap-paths.el"))
+
+  ;; Require core packages.
+  (require 'bootstrap-core)
+
+  ;; Start the ball rolling.
+  (bootstrap-init)
+
   (require 'server)
   (unless (server-running-p)
     (server-start)))

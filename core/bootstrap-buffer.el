@@ -6,9 +6,6 @@
 (defconst +bootstrap-banner-length+ 50
   "Width of a banner.")
 
-(defconst +bootstrap-banner-directory+
-  (expand-file-name (concat +bootstrap-core-directory+ "banners/")))
-
 (defconst +bootstrap-buffer-cache-file+
   (expand-file-name (concat +bootstrap-cache-directory+ "bootstrap-buffer.el"))
   "Cache file for various persistent data for the startup buffer.")
@@ -166,9 +163,9 @@ If MSGBUF is non-NIL then the message is also written to the message buffer."
 (defun bootstrap-buffer::insert-file-list (list-display-name list)
   (when (car list)
     (insert list-display-name)
-    (message "OK!")
     (mapc (lambda (el)
             (insert "\n    ")
+            (bootstrap-buffer:message el)
             (widget-create
              'push-button
              :action `(lambda (&rest junk)
@@ -214,21 +211,24 @@ If MSGBUF is non-NIL then the message is also written to the message buffer."
               (cond ((eq el 'recents)
                      (recentf-mode)
                      (when (bootstrap-buffer::insert-file-list
-                            "Recent Files:"
+                            (propertize "Recent Files:"
+                                        'face 'font-lock-comment-face)
                             (recentf-elements 5))
                        (bootstrap-buffer::insert-shortcut "r" "Recent Files:")
                        (insert list-separator)))
                     ((eq el 'bookmarks)
                      (helm-mode)
                      (when (bootstrap-buffer::insert-bookmark-list
-                            "Bookmarks:"
+                            (propertize "Bookmarks:"
+                                        'face 'font-lock-comment-face)
                             (bookmark-all-names))
                        (bootstrap-buffer::insert-shortcut "m" "Bookmarks:")
                        (insert list-separator)))
                     ((eq el 'projects)
                      (projectile-mode)
                      (when (bootstrap-buffer::insert-file-list
-                            "Projects:"
+                            (propertize "Projects:"
+                                        'face 'font-lock-commentg-face)
                             (projectile-relevant-known-projects))
                        (bootstrap-buffer::insert-shortcut "p" "Projects:")
                        (insert list-separator)))))
@@ -290,6 +290,7 @@ If MSGBUF is non-NIL then the message is also written to the message buffer."
 (defun bootstrap-buffer::generate-info-text ()
   (format (concat "%s: %s (%s)\n"
                   "%s: %s\n"
+                  "%s: %s\n"
                   "%s: %s\n")
           (propertize "User"
                       'face 'font-lock-comment-face)
@@ -311,6 +312,10 @@ If MSGBUF is non-NIL then the message is also written to the message buffer."
                              "Terminal")
                             (t
                              "Graphical"))
+                      'face 'font-lock-function-name-face)
+          (propertize "Hash"
+                      'face 'font-lock-comment-face)
+          (propertize (bootstrap:git-head-short-hash)
                       'face 'font-lock-function-name-face)))
 
 (defun bootstrap-buffer::generate-info ()
@@ -351,8 +356,7 @@ If MSGBUF is non-NIL then the message is also written to the message buffer."
       (bootstrap-buffer:message (format "Banner: %s" banner))
       (insert-file-contents banner)
       (bootstrap-buffer::insert-version))
-    (bootstrap-buffer::insert-buttons)
-    (goto-char (point-min))))
+    (bootstrap-buffer::insert-buttons)))
 
 (defun bootstrap-buffer:startup-screen ()
   "Creates the startup screen and inserts the banner."
@@ -363,7 +367,8 @@ If MSGBUF is non-NIL then the message is also written to the message buffer."
   ;; Display useful lists of items
   (when *bootstrap-startup-lists*
     (bootstrap-buffer:insert-startupify-lists))
-  (bootstrap:redisplay))
+  (bootstrap:redisplay)
+  (goto-char (point-min)))
 
 (provide 'bootstrap-buffer)
 

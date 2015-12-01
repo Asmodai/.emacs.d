@@ -15,3 +15,5 @@
                (buffer-substring (line-beginning-position)
                                  (line-end-position))))
           (kill-buffer proc-buffer))))))
+
+(provide 'bootstrap-git)

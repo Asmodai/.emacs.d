@@ -152,5 +152,5 @@ which we create a predicate named RUNNING-ON-<host>-P."
 ;;;}}}
 ;;;==================================================================
 
-(provide 'core-predicates)
+(provide 'bootstrap-predicates)
 
