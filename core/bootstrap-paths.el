@@ -25,6 +25,9 @@
 (defconst +bootstrap-bytecode-cache-directory+
   (expand-file-name (concat +bootstrap-cache-directory+ "bytecode/")))
 
+(defconst +bootstrap-custom-file+
+  (expand-file-name (concat +bootstrap-directory+ "custom.el")))
+
 (defconst user-home-directory
   (expand-file-name "~/")
   "User home directory (~/).")

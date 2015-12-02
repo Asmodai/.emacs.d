@@ -35,5 +35,93 @@
                                           "-directory+")))))
     (switch-to-buffer buffer)))
 
+(defun bootstrap:load-or-install-protected-package
+    (pkg &optional log file-to-load)
+  (push pkg *bootstrap-layer-protected-packages*)
+  (bootstrap:load-or-install-package pkg log file-to-load))
+
+(defun bootstrap:load-or-install-package
+    (pkg &optional log file-to-read)
+  (let ((warning-minimum-level :error))
+    (condition-case nil
+        (require pkg)
+      (error
+       (require 'cl)
+       (let ((pkg-elpa-dir (bootstrap::get-package-directory pkg)))
+         (if pkg-elpa-dir
+             (add-to-list 'load-path pkg-elpa-dir)
+           (when log
+             (bootstrap-buffer:append
+              (format "(Bootstrap) Installing %s...\n" pkg))
+             (bootstrap:redisplay))
+           (package-refresh-contents)
+           (package-install pkg)
+           (setq pkg-elpa-dir (bootstrap::get-package-directory pkg)))
+         (require pkg nil 'noerror)
+         (when file-to-load
+           (load-file (concat pkg-elpa-dir file-to-load)))
+         pkg-elpa-dir)))))
+
+(defun bootstrap::get-package-directory (pkg)
+  (let ((elpa-dir (concat user-emacs-directory "elpa/")))
+    (when (file-exists-p elpa-dir)
+      (let ((dir (reduce (lambda (x y)
+                           (if x
+                               x
+                             y))
+                         (mapcar (lambda (x)
+                                   (when (string-match (concat "/"
+                                                               (symbol-name pkg)
+                                                               "-[0-9]+")
+                                                       x)
+                                     x))
+                                 (directory-files elpa-dir 'full))
+                         :initial-value nil)))
+        (when dir
+          (file-name-as-directory dir))))))
+
+(defun bootstrap:mplist-get (plist prop)
+    "Get the values associated to PROP in PLIST, a modified plist.
+
+A modified plist is one where keys are keywords and values are
+all non-keywords elements that follow it.
+
+If there are multiple properties with the same keyword, only the first property
+and its values is returned.
+
+Currently this function infloops when the list is circular."
+  (let ((tail plist)
+        result)
+    (while (and (consp tail)
+                (not (eq prop (car tail))))
+      (pop tail))
+    ;; pop the found keyword
+    (pop tail)
+    (while (and (consp tail)
+                (not (keywordp (car tail))))
+      (push (pop tail) result))
+    (nreverse result)))
+
+(defun spacemacs/mplist-remove (plist prop)
+  "Return a copy of a modified PLIST without PROP and its values.
+
+If there are multiple properties with the same keyword, only the first property
+and its values are removed."
+  (let ((tail plist)
+        result)
+    (while (and (consp tail)
+                (not (eq prop (car tail))))
+      (push (pop tail) result))
+    (when (eq prop (car tail))
+      (pop tail)
+      (while (and (consp tail)
+                  (not (keywordp (car tail))))
+        (pop tail)))
+    (while (consp tail)
+      (push (pop tail) result))
+    (nreverse result)))
+
+
+
 (provide 'bootstrap-funs)
 

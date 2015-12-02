@@ -328,7 +328,7 @@ If MSGBUF is non-NIL then the message is also written to the message buffer."
                                      'face 'font-lock-function-name-face))))
     (bootstrap-buffer::render-framed-text
      string
-     (- 80 +bootstrap-banner-length+)
+     (- 78 +bootstrap-banner-length+)
      caption
      1)))
 
