@@ -176,6 +176,8 @@
                           "Emacs might not be operating properly.")
                   *bootstrap-layer-error-count*))
        (bootstrap-buffer:set-mode-line *bootstrap-default-mode-line*))
+     (when (bootstrap-layer:package-used-p 'powerline)
+       (bootstrap::restore-powerline (current-buffer)))
      (force-mode-line-update))))
 
 (bootstrap:setup-startup-hook)

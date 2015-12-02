@@ -74,7 +74,8 @@
         use-package
         which-key
         whitespace
-        winner))
+        winner
+        folding))
 
 (defvar *bootstrap-diminished-minor-modes* '())
 
@@ -132,7 +133,9 @@
 
 (defun emacs-base:init-aggressive-indent ()
   (use-package aggressive-indent
-    :defer t))
+    :defer t
+    :config
+    (bootstrap:diminish aggressive-indent-mode " Ⓘ" " I")))
 
 (defun emacs-base:init-auto-dictionary ()
   (use-package auto-dictionary
@@ -152,7 +155,7 @@
             ahs-idle-timer 0
             ahs-idle-interval 0.25
             ahs-inhibit-face-list nil)
-
+      
       (bootstrap:add-to-hooks 'auto-highlight-symbol-mode
                               '(prog-mode-hook markdown-mode-hook)))
     :config
@@ -225,7 +228,9 @@ will be backward."
       (defun bootstrap:symbol-highlight-reset-range ()
         "Resets the range for `auto-highlight-symbol'."
         (interactive)
-        (ahs-change-range ahs-default-range)))))
+        (ahs-change-range ahs-default-range))
+
+      (bootstrap:hide-lighter auto-highlight-symbol-mode))))
 
 (defun emacs-base:init-avy ()
   (use-package avy
@@ -249,7 +254,8 @@ will be backward."
             ccm-ignored-commands '(mouse-drag-region
                                    mouse-set-point
                                    widget-button-click
-                                   scroll-bar-toolkit-scroll)))))
+                                   scroll-bar-toolkit-scroll))
+      (bootstrap:diminish centered-cursor-mode " ⊝" " -"))))
 
 (defun emacs-base:init-clean-aindent-mode ()
   (use-package clean-aindent-mode
@@ -289,7 +295,7 @@ will be backward."
         (doc-view0search 'newquery t))
 
       (defadvice doc-view-toggle-display
-          (around bootstrap:doc-view-togle-display active)
+          (around bootstrap:doc-view-togle-display activate)
         (if (eq major-mode 'doc-view-mode)
             (progn
               ad-do-it
@@ -456,7 +462,9 @@ will be backward."
                    'bootstrap:no-golden-ratio-guide-key)
       (add-to-list 'golden-ratio-exclude-buffer-names " *NeoTree*")
       (add-to-list 'golden-ratio-exclude-buffer-names "*LV*")
-      (add-to-list 'golden-ratio-exclude-buffer-names " *which-key*"))))
+      (add-to-list 'golden-ratio-exclude-buffer-names " *which-key*")
+
+      (bootstrap:diminish golden-ratio-mode " ⓖ" " g"))))
 
 (defun emacs-base:init-google-translate ()
   (use-package google-translate
@@ -766,7 +774,12 @@ Search for a search tool in the order provided by `dotspacemacs-search-tools'."
 
 (defun emacs-base:init-highlight-indentation ()
   (use-package highlight-indentation
-    :defer t))
+    :defer t
+    :init
+    (progn
+      (bootstrap:diminish highlight-indentation-mode " ⓗⁱ" " hi")
+      (bootstrap:diminish highlight-indentation-current-column-mode
+                          " ⓗᶜ" " hc"))))
 
 (defun emacs-base:init-highlight-numbers ()
   (use-package highlight-numbers
@@ -797,7 +810,9 @@ Search for a search tool in the order provided by `dotspacemacs-search-tools'."
                    '("magenta" "cyan" "green"
                      "red" "blue" "white")))))
     :config
-    (set-face-attribute 'hl-paren-face nil :weight 'ultra-bold)))
+    (progn
+      (bootstrap:diminish highlight-parentheses-mode " ⓗᵖ" " hp")
+      (set-face-attribute 'hl-paren-face nil :weight 'ultra-bold))))
     
 (defun emacs-base:init-hl-anything ()
   (use-package hl-anything
@@ -850,7 +865,8 @@ It will toggle the overlay under point or create an overlay of one character."
     :defer t
     :init
     (progn
-      (setq indent-guide-delay 0.3))))
+      (setq indent-guide-delay 0.3)
+      (bootstrap:diminish indent-guide-mode " ⓘ" " i"))))
 
 (defun emacs-base:init-open-junk-file ()
   (use-package open-junk-file
@@ -1003,6 +1019,8 @@ It will toggle the overlay under point or create an overlay of one character."
       (require 'smartparens-config)
       (show-smartparens-global-mode +1)
 
+      (bootstrap:diminish smartparens-mode " ⓟ" " p")
+
       (defun bootstrap:smartparens-pair-newline (id action context)
         (save-excursion
           (newline)
@@ -1094,7 +1112,8 @@ It will toggle the overlay under point or create an overlay of one character."
   (use-package volatile-highlights
     :config
     (progn
-      (volatile-highlights-mode t))))
+      (volatile-highlights-mode t)
+      (bootstrap:hide-lighter volatile-highlights-mode))))
 
 (defun emacs-base:init-zoom-frm ()
   (use-package zoom-frm
@@ -1639,9 +1658,9 @@ one of `l' or `r'."
     (progn
       (when (display-graphic-p)
         (eval-after-load "eproject"
-          '(diminish 'eprojectmode " eⓅ"))
+          '(diminish 'eprojectmode " ᵋⓅ" @ " eP"))
         (eval-after-load "flymake"
-          '(diminish 'flymake-mode " Ⓕ2")))
+          '(diminish 'flymake-mode " Ⓕ²" " F2")))
       (eval-after-load 'elisp-slime-nav
         '(diminish 'elisp-slime-nav-mode))
       (eval-after-load "hi-lock"
@@ -1684,11 +1703,17 @@ one of `l' or `r'."
     :init
     (progn
       (setq fci-rule-width 1)
-      (setq fci-rule-color "#D0BF8F")
+      (setq fci-rule-color "#32457D")
       (push '(fci-mode) minor-mode-alist)
       (defun bootstrap::fci-hook ()
         (fci-mode))
-      (add-hook 'prog-mode-hook 'bootstrap::fci-hook))))
+      (add-hook 'prog-mode-hook 'bootstrap::fci-hook)
+      (fci-mode)
+      (fci-mode -1))
+    :config
+    (progn
+      (bootstrap:diminish fci-mode "" "")
+      (bootstrap:hide-lighter fci-mode))))
 
 (defvar *bootstrap-helm-resize* nil)
 (defvar *bootstrap-helm-position* 'bottom)
@@ -1979,6 +2004,8 @@ Removes the automatic guessing of the initial value based on thing at
       ;; For terminal.
       (define-key helm-map (kbd "TAB") 'helm-execute-persistent-action)
       (define-key helm-map (kbd "C-z") 'helm-select-action)
+
+      (bootstrap:hide-lighter helm-mode)
       )))
 
 (defun emacs-base:init-helm-descbinds ()
@@ -2256,14 +2283,19 @@ Removes the automatic guessing of the initial value based on thing at
           (define-category ?U "Uppercase")
           (define-category ?u "Lowercase"))
         (modify-category-entry (cons ?A ?Z) ?U)
-        (modify-category-entry (cons ?a ?z) ?u)))))
+        (modify-category-entry (cons ?a ?z) ?u))
+      :config
+      (bootstrap:diminish subword-mode " Ⓒ" " c"))))
 
 (defun emacs-base:init-undo-tree ()
   (use-package undo-tree
     :init
     (global-undo-tree-mode)
     (setq undo-tree-visualizer-timestamps t)
-    (setq undo-tree-visualizer-diff t)))
+    (setq undo-tree-visualizer-diff t)
+    :config
+    (progn
+      (bootstrap:hide-lighter undo-tree-mode))))
 
 (defun emacs-base:init-uniquify ()
   (require 'uniquify)
@@ -2311,7 +2343,8 @@ Removes the automatic guessing of the initial value based on thing at
             which-key-echo-keystrokes 0.02
             which-key-max-description-length 32
             which-key-idle-delay *bootstrap-which-key-delay*)
-      (which-key-mode))))
+      (which-key-mode)
+      (bootstrap:diminish which-key-mode " Ⓚ" " K"))))
 
 (defvar *bootstrap-show-trailing-whitespace* t)
 (defun emacs-base:init-whitespace ()
@@ -2350,7 +2383,9 @@ Removes the automatic guessing of the initial value based on thing at
     (set-face-attribute 'whitespace-tab nil
                         :background nil)
     (set-face-attribute 'whitespace-indentation nil
-                        :background nil)))
+                        :background nil)
+    (bootstrap:diminish whitespace-mode " ⓦ" " w")
+    (bootstrap:diminish global-whitespace-mode " Ⓦ" " W")))
 
 (defvar *bootstrap-winner-boring-buffers* nil)
 (defun emacs-base:init-winner ()
@@ -2392,4 +2427,7 @@ Removes the automatic guessing of the initial value based on thing at
     (setq recentf-auto-cleanup 'never)
     (setq recentf-auto-save-timer
           (run-with-idle-timer 600 t 'recentf-save-list))))
+
+
+(defun bootstrap:init-folding ())
 
