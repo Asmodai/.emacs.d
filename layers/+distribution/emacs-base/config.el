@@ -15,13 +15,13 @@
       auto-revert-verbose nil)
 
 ;; Regexp for useful and useless buffers for smarter buffer switching
-(defvar spacemacs-useless-buffers-regexp '("*\.\+")
+(defvar bootstrap-useless-buffers-regexp '("*\.\+")
   "Regexp used to determine if a buffer is not useful.")
 
-(defvar spacemacs-useful-buffers-regexp
+(defvar bootstrap-useful-buffers-regexp
   '("\\*\\(scratch\\|terminal\.\+\\|ansi-term\\|eshell\\)\\*")
   "Regexp used to define buffers that are useful despite matching
-`spacemacs-useless-buffers-regexp'.")
+`bootstrap-useless-buffers-regexp'.")
 
 ;; Be quiet, Emacs!
 (setq ring-bell-function 'ignore
@@ -58,7 +58,7 @@ It runs `tabulated-list-revert-hook', then calls `tabulated-list-print'."
 
 ;; auto fill breaks line beyond current-fill-column
 (setq-default default-fill-column 80)
-;;(spacemacs|diminish auto-fill-function " Ⓕ" " F")
+;;(bootstrap|diminish auto-fill-function " Ⓕ" " F")
 
 ;; persistent abbreviation file
 (setq abbrev-file-name (concat +bootstrap-cache-directory+ "abbrev_defs"))

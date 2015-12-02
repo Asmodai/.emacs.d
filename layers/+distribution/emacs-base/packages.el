@@ -924,7 +924,7 @@ It will toggle the overlay under point or create an overlay of one character."
           (when node
             (if (file-directory-p node)
                 (if (neo-buffer--expanded-node-p node)
-                    (spacemacs/neotree-collapse)
+                    (bootstrap:neotree-collapse)
                   (neotree-select-up-node))
               (neotree-select-up-node)))))
 
@@ -1016,9 +1016,9 @@ It will toggle the overlay under point or create an overlay of one character."
       (sp-local-pair 'minibuffer-inactive-mode "'" nil :actions nil)
 
       (sp-pair "{" nil :post-handlers
-               '(:add (spacemacs/smartparens-pair-newline-and-indent "RET")))
+               '(:add (bootstrap:smartparens-pair-newline-and-indent "RET")))
       (sp-pair "[" nil :post-handlers
-               '(:add (spacemacs/smartparens-pair-newline-and-indent "RET"))))))
+               '(:add (bootstrap:smartparens-pair-newline-and-indent "RET"))))))
 
 (defun emacs-base:init-smooth-scrolling ()
   (if *bootstrap-smooth-scrolling*
@@ -2387,7 +2387,7 @@ Removes the automatic guessing of the initial value based on thing at
     (add-to-list 'recentf-exclude (expand-file-name +bootstrap-cache-directory+))
     (add-to-list 'recentf-exclude (expand-file-name package-user-dir))
     (add-to-list 'recentf-exclude "COMMIT_EDITMSG\\'")
-    (setq recentf-save-file (concat spacemacs-cache-directory "recentf"))
+    (setq recentf-save-file (concat +bootstrap-cache-directory+ "recentf"))
     (setq recentf-max-saved-items 100)
     (setq recentf-auto-cleanup 'never)
     (setq recentf-auto-save-timer
