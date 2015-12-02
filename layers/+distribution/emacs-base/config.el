@@ -1,4 +1,12 @@
 
+;; User settings.
+(setq user-url-address          "http://lisphacker.uk/"
+      user-full-name            "Paul Ward"
+      user-mail-address         (if (running-on-mbr15_pward-p)
+                                    "pward@alertlogic.com"
+                                  "asmodai@gmail.com")
+      url-personal-mail-address "asmodai@gmail.com")
+
 ;; Auto-refresh
 (global-auto-revert-mode 1)
 
@@ -71,8 +79,33 @@ It runs `tabulated-list-revert-hook', then calls `tabulated-list-print'."
 ;; Show column number in mode line
 (setq column-number-mode t)
 
-;; line number
-(setq linum-format "%4d")
+;; Default linum format string.
+(defvar *bootstrap-linum-format-string* "%4d")
+
+(defun bootstrap::linum-get-format-string ()
+  "Dynmically compute the linum format string for `linum-format'."
+  (let* ((width (length (number-to-string
+                         (count-lines (point-min) (point-max)))))
+         (format (concat "%" (number-to-string width) "d")))
+    (setq *bootstrap-linum-format-string* format)))
+
+;; Add a hook for the dynamic linum format.
+(add-hook 'linum-before-numbering-hook 'bootstrap::linum-get-format-string)
+
+(defun bootstrap::linum-format (line-number)
+  "Generate the linum format string."
+  (propertize (format *bootstrap-linum-format-string* line-number)
+              'face 'linum))
+
+;; Set linum format generator.
+(setq linum-format 'bootstrap::linum-format)
+
+(defun bootstrap::linum-hook ()
+  "`linum-mode' hook for modes that want to load linum."
+  (linum-mode))
+
+;; Enable linum-mode for programming modes.
+(add-hook 'prog-mode-hook 'bootstrap::linum-hook)
 
 ;; highlight current line
 (global-hl-line-mode t)
@@ -137,7 +170,6 @@ These should have their own segments in the modeline.")
       eshell-directory-name (concat +bootstrap-cache-directory+ "eshell" )
       tramp-persistency-file-name (concat +bootstrap-cache-directory+ "tramp"))
 
-
 ;; seems pointless to warn. There's always undo.
 (put 'narrow-to-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
@@ -150,3 +182,42 @@ These should have their own segments in the modeline.")
 (defun server-remove-kill-buffer-hook ()
   (remove-hook 'kill-buffer-query-functions 'server-kill-buffer-query-function))
 (add-hook 'server-visit-hook 'server-remove-kill-buffer-hook)
+
+;; Put mouse selection in the kill buffer
+(when (or (windows-p)
+          (x-windows-p)
+          (nextstep-p)
+          (presentation-manager-p))
+  (defun mouse-track-drag-copy-to-kill (event count)
+    "Copy the dragged region to the kill ring."
+    (let ((region (default-mouse-track-return-dragged-selection
+                    event)))
+      (when region
+        (copy-region-as-kill (car region) (cdr region)))
+      nil))
+  (add-hook 'mouse-track-drag-up-hook 'mouse-track-drag-copy-to-kill))
+
+;; Avoid deactivation of a region when the buffer end or beginning is
+;; reached.
+(defadvice line-move (around catch-buffer-border-error activate)
+  "Catch errors `beginning-of-buffer' and `end-of-buffer' to avoid
+deactivation of the region."
+  (condition-case ()
+      ad-do-it
+    ((beginning-of-buffer end-of-buffer))))
+
+;; Window system hacks
+(when (not (terminal-p))
+  (require 'msb))
+
+;; Various hacks
+(setq zmacs-regions t
+      complex-buffers-menu-p t
+      case-fold-search t
+      case-replace t
+      mouse-yank-at-point t
+      require-final-newline t)
+
+;; Buffer boundaries and empty lines
+(setq-default indicate-buffer-boundaries 'left
+              indicate-empty-lines t)

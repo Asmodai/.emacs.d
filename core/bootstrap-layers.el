@@ -4,7 +4,8 @@
 (require 'package)
 (require 'warnings)
 (require 'ht)
-
+(require 'bootstrap-funs)
+(require 'bootstrap-buffer)
 
 ;; Configure and initialise `pakage', unless it has been initialised already.
 (unless package--initialized
@@ -264,9 +265,15 @@ Properties that can be copied are `:location', `:step', and `:excluded'."
             (let* ((pkg-name (if (listp pkg)
                                  (car pkg)
                                pkg))
-                   (init-func (intern (format "%S:init-%S" name pkg)))
-                   (pre-init-func (intern (format "%S:pre-init-%S" name pkg)))
-                   (post-init-func (intern (format "%S:post-init-%S" name pkg)))
+                   (init-func (intern (format "%S:init-%S"
+                                              name
+                                              pkg-name)))
+                   (pre-init-func (intern (format "%S:pre-init-%S"
+                                                  name
+                                                  pkg-name)))
+                   (post-init-func (intern (format "%S:post-init-%S"
+                                                   name
+                                                   pkg-name)))
                    (obj (object-assoc pkg-name :name result)))
               (if obj
                   (setq obj (bootstrap-layer:make-package pkg obj))
@@ -531,6 +538,10 @@ Returns NIL if the directory is not a category."
                                              :name *bootstrap-layer-layers*))
                         (dir (when owner
                                (oref owner :dir))))
+                   (bootstrap-buffer:message
+                    (format "  -> Loading from %slocal/%S/"
+                            dir
+                            pkg-name))
                    (push (format "%slocal/%S/" dir pkg-name) load-path))))
              (cond ((eq 'dotfile (oref pkg :owner))
                     (bootstrap-layer::activate-package pkg-name)
@@ -761,7 +772,7 @@ Returns NIL if the directory is not a category."
           (setq reqs (append reqs2 reqs)))))
     reqs))
 
-(defun configuration-layer//get-package-version-string (pkg-name)
+(defun bootstrap-layer::get-package-version-string (pkg-name)
   "Return the version string for package with name PKG-NAME."
   (let ((pkg-desc (assq pkg-name package-alist)))
     (when pkg-desc
@@ -770,13 +781,13 @@ Returns NIL if the directory is not a category."
             (t
              (package-version-join (package-desc-version (cadr pkg-desc))))))))
 
-(defun configuration-layer//get-package-version (pkg-name)
+(defun bootstrap-layer::get-package-version (pkg-name)
   "Return the version list for package with name PKG-NAME."
   (let ((version-string (bootstrap-layer::get-package-version-string pkg-name)))
     (unless (string-empty-p version-string)
       (version-to-list version-string))))
 
-(defun configuration-layer//get-latest-package-version-string (pkg-name)
+(defun bootstrap-layer::get-latest-package-version-string (pkg-name)
   "Return the version string for package with name PKG-NAME."
   (let ((pkg-arch (assq pkg-name package-archive-contents)))
     (when pkg-arch
@@ -785,7 +796,7 @@ Returns NIL if the directory is not a category."
             (t
              (package-version-join (package-desc-version (cadr pkg-arch))))))))
 
-(defun configuration-layer//get-latest-package-version (pkg-name)
+(defun bootstrap-layer::get-latest-package-version (pkg-name)
   "Return the versio list for package with name PKG-NAME."
   (let ((version-string
          (bootstrap-layer::get-latest-package-version-string pkg-name)))
@@ -861,5 +872,15 @@ Returns NIL if the directory is not a category."
       (incf *bootstrap-layer-error-count*)
     (face-remap-add-relative 'mode-line '((:background "red") mode-line))
     (setq *bootstrap-layer-error-count* 1)))
+
+(defun bootstrap-layer::package-delete (pkg-name)
+  (cond ((version< emacs-version "24.3.50")
+         (let ((v (bootstrap-layer::get-package-version-string pkg-name)))
+           (when v
+             (package-delete (symbol-name pkg-name) v)))
+         ((version<= "25.0.50" emacs-version)
+          (let ((p (cadr (assq pkg-name package-alist))))
+            (when p
+              (package-delete p)))))))
 
 (provide 'bootstrap-layers)

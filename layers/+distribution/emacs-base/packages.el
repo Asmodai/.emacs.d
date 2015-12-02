@@ -33,7 +33,6 @@
         iedit
         indent-guide
         open-junk-file
-        linum-relative
         move-text
         neotree
         pcre2el
@@ -66,7 +65,6 @@
         (process-menu :location built-in)
         projectile
         quelpa
-        recentf
         savehist
         saveplace
         subword
@@ -144,8 +142,1005 @@
     (progn
       (add-hook 'flyspell-mode-hook '(lambda () (auto-dictionary-mode 1))))))
 
+(defun emacs-base:init-auto-highlight-symbol ()
+  (use-package auto-highlight-symbol
+    :defer t
+    :init
+    (progn
+      (setq ahs-case-fold-search nil
+            ahs-default-range 'ahs-range-whole-buffer
+            ahs-idle-timer 0
+            ahs-idle-interval 0.25
+            ahs-inhibit-face-list nil)
+
+      (bootstrap:add-to-hooks 'auto-highlight-symbol-mode
+                              '(prog-mode-hook markdown-mode-hook)))
+    :config
+    (progn
+      (defvar-local bootstrap-last-ahs-highlight-p nil)
+      (defvar-local bootstrap-ahs-searching-forward t)
+
+      (defun bootstrap:goto-last-searched-ahs-symbol ()
+        (interactive)
+        (if bootstrap-last-ahs-highlight-p
+            (progn
+              (goto-char (nth 1 bootstrap-last-ahs-highlight-p))
+              (bootstrap:ahs-highlight-now-wrapper))
+          (message "No symbol has been searched for now.")))
+
+      (defun bootstrap:ensure-ahs-enabled-locally ()
+        "Ensures that AHS has been enabled for the local buffer."
+        (unless
+            (bound-and-true-p ahs-mode-line)
+          (auto-highlight-symbol-mode)))
+
+      (defun bootstrap:ahs-highlight-now-wrapper()
+        "Safe wrapper for `ahs-highlight-now'."
+        (eval '(progn
+                 (bootstrap:ensure-ahs-enabled-locally)
+                 (ahs-highlight-now))
+              nil))
+
+      (defun bootstrap:enter-ahs-forward ()
+        "Go to the next occurrence of a symbol under the point with
+`auto-highlight-symbol'."
+        (interactive)
+        (setq bootstrap-ahs-searching-forward t)
+        (bootstrap:quick-ahs-forward))
+
+      (defun bootstrap:enter-ahs-backward ()
+        "Go to the previous occurrence of the symbol under the point with
+`auto-highlight-symbol'."
+        (interactive)
+        (setq bootstrap-ahs-searching-forward nil)
+        (bootstrap:quick-ahs-forward))
+
+      (defun bootstrap:quick-ahs-forward ()
+        "Go to the next occurrence of the symbol under the point with
+`auto-highlight-symbol'."
+        (interactive)
+        (bootstrap::quick-ahs-move t))
+
+      (defun bootstrap:quick-ahs-backward ()
+        (interactive)
+        (bootstrap::quick-ahs-move t))
+
+      (defun bootstrap::quick-ahs-move (forward)
+        "Move to an occurrence of the symbol under the point using
+`auto-highlight-symbol'.
+
+If FORWARD is non-NIL, then the motion will be forward; otherwise the motion
+will be backward."
+        (bootstrap:ahs-highlight-now-wrapper)
+        (if (eq forward bootstrap-ahs-searching-forward)
+            (ahs-forward)
+          (ahs-backward)))
+
+      (defun bootstrap:symbol-highlight ()
+        "Highlight the symbol under the point with `auto-highlight-symbol'."
+        (interactive)
+        (bootstrao:ahs-highlight-now-wrapper)
+        (setq bootstrap-last-ahs-highlight-p (ahs-highlight-p)))
+
+      (defun bootstrap:symbol-highlight-reset-range ()
+        "Resets the range for `auto-highlight-symbol'."
+        (interactive)
+        (ahs-change-range ahs-default-range)))))
+
+(defun emacs-base:init-avy ()
+  (use-package avy
+    :defer t
+    :init
+    (setf avy-keys (number-sequence ?a ?z)
+          avy-all-windows 'all-frames
+          avy-background t)))
+
+(defun emacs-base:init-buffer-move ()
+  (use-package buffer-move
+    :defer t))
+
+(defun emacs-base:init-centered-cursor ()
+  (use-package centered-cursor-mode
+    :commands (centered-cursor-mode
+               global-centered-cursor-mode)
+    :config
+    (progn
+      (setq ccm-recenter-at-end-of-file t
+            ccm-ignored-commands '(mouse-drag-region
+                                   mouse-set-point
+                                   widget-button-click
+                                   scroll-bar-toolkit-scroll)))))
+
+(defun emacs-base:init-clean-aindent-mode ()
+  (use-package clean-aindent-mode
+    :defer t
+    :init
+    (add-hook 'prog-mode-hook 'clean-aindent-mode)))
+
+(defun emacs-base:init-desktop ()
+  (use-package desktop
+    :defer t
+    :config
+    (progn
+      (setq desktop-dirname +bootstrap-cache-directory+)
+      (push +bootstrap-cache-directory+ desktop-path))))
+
+(defun emacs-base:init-define-word ()
+  (use-package define-word
+    :defer t))
+
+(defun emacs-base:init-dired+ ()
+  (use-package dired+
+    :defer t))
+
+(defun emacs-base:init-doc-view ()
+  (use-package doc-view
+    :defer t
+    :config
+    (progn
+      (defun bootstrap:doc-view-search-now-query ()
+        "Initiate a new doc view query."
+        (interactive)
+        (doc-view-search 'newquery))
+
+      (defun bootstrap:doc-view-search-new-query-backward ()
+        "Initiate a new doc view query that searches backwards."
+        (interactive)
+        (doc-view0search 'newquery t))
+
+      (defadvice doc-view-toggle-display
+          (around bootstrap:doc-view-togle-display active)
+        (if (eq major-mode 'doc-view-mode)
+            (progn
+              ad-do-it
+              (text-mode)
+              (doc-view-minor-mode))
+          ad-do-it)))))
+
+(defun emacs-base:init-eval-sexp-fu ()
+  ;; ignore obsolete function warning generated on startup
+  (let ((byte-compile-not-obsolete-funcs
+         (append byte-compile-not-obsolete-funcs '(preceding-sexp))))
+    (require 'eval-sexp-fu)))
+
+(defun emacs-base:init-expand-region ()
+  (use-package expand-region
+    :defer t
+    :config
+    (progn
+      (when (bootstrap:package-used-p 'helm-ag)
+        (defadvice er/prepare-for-more-expansions-internal
+            (around helm-ag/prepare-for-more-expansions-internal activate)
+          ad-do-it
+          (let ((new-msg (concat (car ad-return-value)
+                                 ", / to search in project, "
+                                 "f to search in files, "
+                                 "b to search in opened buffers"))
+                (new-bindings (cdr ad-return-value)))
+            (cl-pushnew
+             '("/"
+               (lambda ()
+                 (call-interactively
+                  'bootstrap/helm-project-smart-do-search-region-or-symbol)))
+             new-bindings)
+            (cl-pushnew
+             '("b"
+               (lambda ()
+                 (call-interactively
+                  'bootstrap/helm-buffers-smart-do-search-region-or-symbol)))
+             new-bindings)
+            (setq ad-return-value (cons new-msg new-bindings)))))
+      (setq expand-region-contract-fast-key "V"
+            expand-region-reset-fast-key "r"))))
+
+(defun emacs-base:init-fancy-battery ()
+  (use-package fancy-battery
+    :defer t
+    :init
+    (progn
+      (push 'fancy-battery-mode-line *bootstrap-global-mode-line-excludes*)
+
+      (defun bootstrap:mode-line-battery-percentage ()
+        "Return the lod percentage or an empty string."
+        (let ((p (cdr (assq ?p fancy-battery-last-status))))
+          (if (and fancy-battery-show-percentage
+                   p
+                   (not (string= "N/A" p)))
+              (concat " " p "%%") "")))
+
+      (defun bootstrap:mode-line-battery-time ()
+        "Return the remaining time left on battery."
+        (let ((time (cdr (assq ?t fancy-battery-last-status))))
+          (cond ((string= "0:00" time)
+                 "")
+                ((string= "N/A" time)
+                 "")
+                ((string-empty-p time)
+                 "")
+                (t
+                 (concat " (" time ")")))))
+
+      (setq-default fancy-battery-show-percentage t))
+    :config
+    (progn
+
+      (defun fancy-battery-default-mode-line ()
+        "Assemble a mode line string for Fancy Battery Mode."
+        (when fancy-battery-last-status
+          (let* ((type (cdr (assq ?L fancy-battery-last-status)))
+                 (percentage (bootstrap:mode-line-battery-percentage))
+                 (time (bootstrap:mode-line-battery-time)))
+            (cond
+             ((string= "on-line" type) " No Battery")
+             ((string-empty-p type) " No Battery")
+             (t (concat (if (string= "AC" type) " AC" "") percentage time))))))
+
+      (defun fancy-battery-powerline-face ()
+        "Return a face appropriate for powerline"
+        (let ((type (cdr (assq ?L fancy-battery-last-status))))
+          (if (and type (string= "AC" type))
+              'fancy-battery-charging
+            (pcase (cdr (assq ?b fancy-battery-last-status))
+              ("!"  'fancy-battery-critical)
+              ("+"  'fancy-battery-charging)
+              ("-"  'fancy-battery-discharging)
+              (_ 'fancy-battery-discharging))))))))
+
+(defun emacs-base:init-flx-ido ()
+  (use-package flx-ido))
+
+(defun emacs-base:init-golden-ratio ()
+  (use-package golden-ratio
+    :defer t
+    :config
+    (progn
+      (setq golden-ratio-exclude-modes '("bs-mode"
+                                         "calc-mode"
+                                         "ediff-mode"
+                                         "dired-mode"
+                                         "gud-mode"
+                                         "gdb-locals-mode"
+                                         "gdb-registers-mode"
+                                         "gdb-breakpoints-mode"
+                                         "gdb-threads-mode"
+                                         "gdb-frames-mode"
+                                         "gdb-inferior-io-mode"
+                                         "gud-mode"
+                                         "gdb-inferior-io-mode"
+                                         "gdb-disassembly-mode"
+                                         "gdb-memory-mode"
+                                         "restclient-mode"
+                                         "speedbar-mode"))
+
+      (add-to-list 'golden-ratio-exclude-buffer-regexp "^\\*[hH]elm.*")
+
+      (setq golden-ratio-extra-commands
+            (append golden-ratio-extra-commands
+                    '(ace-window
+                      ace-delete-window
+                      ace-select-window
+                      ace-swap-window
+                      ace-maximize-window
+                      avy-pop-mark
+                      windmove-left
+                      windmove-right
+                      windmove-up
+                      windmove-down
+                      select-window-0
+                      select-window-1
+                      select-window-2
+                      select-window-3
+                      select-window-4
+                      select-window-5
+                      select-window-6
+                      select-window-7
+                      select-window-8
+                      select-window-9
+                      buf-move-left
+                      buf-move-right
+                      buf-move-up
+                      buf-move-down
+                      ess-eval-buffer-and-go
+                      ess-eval-function-and-go
+                      ess-eval-line-and-go)))
+
+      (defun bootstrap:no-golden-ratio-for-buffers (bufname)
+        (and (get-buffer bufname)
+             (get-buffer-window bufname 'visible)))
+
+      (defun bootstrap:no-golden-ratio-guide-key ()
+        (or (bootstrap:no-golden-ratio-for-buffers " *guide-key*")
+            (bootstrap:no-golden-ratio-for-buffers " *popwin-dummy*")))
+
+      (add-to-list 'golden-ratio-inhibit-functions
+                   'bootstrap:no-golden-ratio-guide-key)
+      (add-to-list 'golden-ratio-exclude-buffer-names " *NeoTree*")
+      (add-to-list 'golden-ratio-exclude-buffer-names "*LV*")
+      (add-to-list 'golden-ratio-exclude-buffer-names " *which-key*"))))
+
+(defun emacs-base:init-google-translate ()
+  (use-package google-translate
+    :commands (google-translate-query-translate
+               google-translate-at-point
+               google-translate-query-translate-reverse
+               google-translate-at-point-reverse)
+    :init
+    (progn
+      (defun bootstrap:set-google-translate-languages (source target)
+        "Set source language for google translate.
+For instance pass En as source for english."
+        (interactive
+         "sEnter source language (ie. En): \nsEnter target language (ie. En): "
+         source target)
+        (message
+         (format "Set google translate source language to %s and target to %s"
+                 source target))
+        (setq google-translate-default-source-language source)
+        (setq google-translate-default-target-language target)))
+    :config
+    (progn
+      (require 'google-translate-default-ui)
+      (setq google-translate-enable-ido-completion t)
+      (setq google-translate-show-phonetic t)
+      (setq google-translate-default-source-language "En")
+      (setq google-translate-default-target-language "Es"))))
+
+(defun emacs-base:init-helm-ag ()
+  (use-package helm-ag
+    :defer t
+    :init
+    (progn
+      (defun bootstrap::helm-do-ag-region-or-symbol (func &optional dir)
+        "Search with `ag' with a default input."
+        (require 'helm-ag)
+        (cl-letf* (((symbol-value 'helm-ag-insert-at-point) 'symbol)
+                   ;; make thing-at-point choosing the active region first
+                   ((symbol-function 'this-fn)
+                    (symbol-function 'thing-at-point))
+                   ((symbol-function 'thing-at-point)
+                    (lambda (thing)
+                      (let ((res (if (region-active-p)
+                                     (buffer-substring-no-properties
+                                      (region-beginning) (region-end))
+                                   (this-fn thing))))
+                        (when res (rxt-quote-pcre res))))))
+          (funcall func dir)))
+
+      (defun bootstrap::helm-do-search-find-tool (base tools default-inputp)
+        "Create a cond form given a TOOLS string list and evaluate it."
+        (eval
+         `(cond
+           ,@(mapcar
+              (lambda (x)
+                `((executable-find ,x)
+                  ',(let ((func
+                           (intern
+                            (format (if default-inputp
+                                        "bootstrap:%s-%s-region-or-symbol"
+                                      "bootstrap:%s-%s")
+                                    base x))))
+                      (if (fboundp func)
+                          func
+                        (intern (format "%s-%s"  base x))))))
+                     tools)
+           (t 'helm-do-grep))))
+
+      ;; Search in current file ----------------------------------------------
+
+      (defun bootstrap:helm-file-do-ag (&optional _)
+        "Wrapper to execute `helm-ag-this-file.'"
+        (interactive)
+        (helm-ag-this-file))
+
+      (defun bootstrap:helm-file-do-ag-region-or-symbol ()
+        "Search in current file with `ag' using a default input."
+        (interactive)
+        (bootstrap:/helm-do-ag-region-or-symbol 'bootstrap:helm-file-do-ag))
+
+      (defun bootstrap:helm-file-smart-do-search (&optional default-inputp)
+        "Search in current file using `dotspacemacs-search-tools'.
+Search for a search tool in the order provided by `dotspacemacs-search-tools'
+If DEFAULT-INPUTP is non nil then the current region or symbol at point
+are used as default input."
+        (interactive)
+        (call-interactively
+         (bootstrap::helm-do-search-find-tool "helm-file-do"
+                                              *bootstrap-search-tools*
+                                              default-inputp)))
+
+      (defun bootstrap:helm-file-smart-do-search-region-or-symbol ()
+        "Search in current file using `dotspacemacs-search-tools' with
+ default input.
+Search for a search tool in the order provided by `dotspacemacs-search-tools'."
+        (interactive)
+        (bootstrap:helm-file-smart-do-search t))
+
+      ;; Search in files -----------------------------------------------------
+
+      (defun bootstrap:helm-files-do-ag (&optional dir)
+        "Search in files with `ag' using a default input."
+        (interactive)
+        (helm-do-ag dir))
+
+      (defun bootstrap:helm-files-do-ag-region-or-symbol ()
+        "Search in files with `ag' using a default input."
+        (interactive)
+        (bootstrap::helm-do-ag-region-or-symbol 'bootstrap:helm-files-do-ag))
+
+      (defun bootstrap:helm-files-do-ack (&optional dir)
+        "Search in files with `ack'."
+        (interactive)
+        (let ((helm-ag-base-command "ack --nocolor --nogroup"))
+          (helm-do-ag dir)))
+
+      (defun bootstrap:helm-files-do-ack-region-or-symbol ()
+        "Search in files with `ack' using a default input."
+        (interactive)
+        (bootstrap::helm-do-ag-region-or-symbol 'bootstrap:helm-files-do-ack))
+
+      (defun bootstrap:helm-files-do-pt (&optional dir)
+        "Search in files with `pt'."
+        (interactive)
+        (let ((helm-ag-base-command "pt -e --nocolor --nogroup"))
+          (helm-do-ag dir)))
+
+      (defun bootstrap:helm-files-do-pt-region-or-symbol ()
+        "Search in files with `pt' using a default input."
+        (interactive)
+        (bootstrap::helm-do-ag-region-or-symbol 'bootstrap:helm-files-do-pt))
+
+      (defun bootstrap:helm-files-smart-do-search (&optional default-inputp)
+        "Search in opened buffers using `dotspacemacs-search-tools'.
+Search for a search tool in the order provided by `dotspacemacs-search-tools'
+If DEFAULT-INPUTP is non nil then the current region or symbol at point
+are used as default input."
+        (interactive)
+        (call-interactively
+         (bootstrap::helm-do-search-find-tool "helm-files-do"
+                                              *bootstrap-search-tools*
+                                              default-inputp)))
+
+      (defun bootstrap:helm-files-smart-do-search-region-or-symbol ()
+        "Search in opened buffers using `dotspacemacs-search-tools'.
+with default input.
+Search for a search tool in the order provided by `dotspacemacs-search-tools'."
+        (interactive)
+        (bootstrap:helm-files-smart-do-search t))
+
+      ;; Search in buffers ---------------------------------------------------
+
+      (defun bootstrap:helm-buffers-do-ag (&optional _)
+        "Wrapper to execute `helm-ag-buffers.'"
+        (interactive)
+        (helm-do-ag-buffers))
+
+      (defun bootstrap:helm-buffers-do-ag-region-or-symbol ()
+        "Search in opened buffers with `ag' with a default input."
+        (interactive)
+        (bootstrap::helm-do-ag-region-or-symbol 'bootstrap:helm-buffers-do-ag))
+
+      (defun bootstrap:helm-buffers-do-ack (&optional _)
+        "Search in opened buffers with `ack'."
+        (interactive)
+        (let ((helm-ag-base-command "ack --nocolor --nogroup"))
+          (helm-do-ag-buffers)))
+
+      (defun bootstrap:helm-buffers-do-ack-region-or-symbol ()
+        "Search in opened buffers with `ack' with a default input."
+        (interactive)
+        (bootstrap::helm-do-ag-region-or-symbol 'bootstrap:helm-buffers-do-ack))
+
+      (defun bootstrap:helm-buffers-do-pt (&optional _)
+        "Search in opened buffers with `pt'."
+        (interactive)
+        (let ((helm-ag-base-command "pt -e --nocolor --nogroup"))
+          (helm-do-ag-buffers)))
+
+      (defun bootstrap:helm-buffers-do-pt-region-or-symbol ()
+        "Search in opened buffers with `pt' using a default input."
+        (interactive)
+        (bootstrap::helm-do-ag-region-or-symbol 'bootstrap:helm-buffers-do-pt))
+
+      (defun bootstrap:helm-buffers-smart-do-search (&optional default-inputp)
+        "Search in opened buffers using `dotspacemacs-search-tools'.
+Search for a search tool in the order provided by `dotspacemacs-search-tools'
+If DEFAULT-INPUTP is non nil then the current region or symbol at point
+are used as default input."
+        (interactive)
+        (call-interactively
+         (bootstrap::helm-do-search-find-tool "helm-buffers-do"
+                                              *bootstrap-search-tools*
+                                              default-inputp)))
+
+      (defun bootstrap:helm-buffers-smart-do-search-region-or-symbol ()
+        "Search in opened buffers using `dotspacemacs-search-tools' with
+default input.
+Search for a search tool in the order provided by `dotspacemacs-search-tools'."
+        (interactive)
+        (bootstrap:helm-buffers-smart-do-search t))
+
+      ;; Search in project ---------------------------------------------------
+
+      (defun bootstrap:helm-project-do-ag ()
+        "Search in current project with `ag'."
+        (interactive)
+        (let ((dir (projectile-project-root)))
+          (if dir
+              (helm-do-ag dir)
+            (message "error: Not in a project."))))
+
+      (defun bootstrap:helm-project-do-ag-region-or-symbol ()
+        "Search in current project with `ag' using a default input."
+        (interactive)
+        (let ((dir (projectile-project-root)))
+          (if dir
+              (bootstrap::helm-do-ag-region-or-symbol 'helm-do-ag dir)
+            (message "error: Not in a project."))))
+
+      (defun bootstrap:helm-project-do-ack ()
+        "Search in current project with `ack'."
+        (interactive)
+        (let ((dir (projectile-project-root)))
+          (if dir
+              (bootstrap:helm-files-do-ack dir)
+            (message "error: Not in a project."))))
+
+      (defun bootstrap:helm-project-do-ack-region-or-symbol ()
+        "Search in current project with `ack' using a default input."
+        (interactive)
+        (let ((dir (projectile-project-root)))
+          (if dir
+              (bootstrap::helm-do-ag-region-or-symbol 'bootstrap:helm-files-do-ack dir)
+            (message "error: Not in a project."))))
+
+      (defun bootstrap:helm-project-do-pt ()
+        "Search in current project with `pt'."
+        (interactive)
+        (let ((dir (projectile-project-root)))
+          (if dir
+              (bootstrap:helm-files-do-pt dir)
+            (message "error: Not in a project."))))
+
+      (defun bootstrap:helm-project-do-pt-region-or-symbol ()
+        "Search in current project with `pt' using a default input."
+        (interactive)
+        (let ((dir (projectile-project-root)))
+          (if dir
+              (bootstrap::helm-do-ag-region-or-symbol 'bootstrap:helm-files-do-pt dir)
+            (message "error: Not in a project."))))
+
+      (defun bootstrap:helm-project-smart-do-search (&optional default-inputp)
+        "Search in current project using `dotspacemacs-search-tools'.
+Search for a search tool in the order provided by `dotspacemacs-search-tools'
+If DEFAULT-INPUTP is non nil then the current region or symbol at point
+are used as default input."
+        (interactive)
+        (let ((projectile-require-project-root nil))
+         (call-interactively
+          (bootstrap::helm-do-search-find-tool "helm-project-do"
+                                               *bootstrap-search-tools*
+                                               default-inputp))))
+
+      (defun bootstrap:helm-project-smart-do-search-region-or-symbol ()
+        "Search in current project using `dotspacemacs-search-tools' with
+ default input.
+Search for a search tool in the order provided by `dotspacemacs-search-tools'."
+        (interactive)
+        (bootstrap:helm-project-smart-do-search t)))))
 
 
+(defun emacs-base:init-helm-make ()
+  (use-package helm-make
+    :defer t))
+
+(defun emacs-base:init-helm-mode-manager ()
+  (use-package helm-mode-manager
+    :defer t))
+
+(defun emacs-base:init-helm-swoop ()
+  (use-package helm-swoop
+    :defer t
+    :init
+    (progn
+      (setq helm-swoop-split-with-multiple-windows t
+            helm-swoop-split-direction 'split-window-vertically
+            helm-swoop-speed-or-color t
+            helm-swoop-split-window-function 'helm-default-display-buffer
+            helm-swoop-pre-input-function (lambda () ""))
+
+      (defun bootstrap:helm-swoop-region-or-symbol ()
+        "Call `helm-swoop' with default input."
+        (interactive)
+        (let ((helm-swoop-pre-input-function
+               (lambda ()
+                 (if (region-active-p)
+                     (buffer-substring-no-properties (region-beginning)
+                                                     (region-end))
+                   (let ((thing (thing-at-point 'symbol t)))
+                     (if thing thing ""))))))
+          (call-interactively 'helm-swoop))))))
+
+(defun emacs-base:init-helm-themes ()
+  (use-package helm-themes
+    :defer t))
+
+(defun emacs-base:init-highlight-indentation ()
+  (use-package highlight-indentation
+    :defer t))
+
+(defun emacs-base:init-highlight-numbers ()
+  (use-package highlight-numbers
+    :defer t
+    :init
+    (progn
+      (add-hook 'prog-mode-hook 'highlight-numbers-mode)
+      (add-hook 'asm-mode-hook (lambda ()
+                                 (highlight-numbers-mode -1))))))
+
+(defun emacs-base:init-highlight-parentheses ()
+  (use-package highlight-parentheses
+    :defer t
+    :init
+    (progn
+      (when (member *bootstrap-highlight-delimiters* '(all current))
+        (add-hook 'prog-mode-hook 'highlight-parentheses-mode))
+      (setq hl-paren-delay 0.2)
+      (setq hl-paren-colors
+            (cond ((display-graphic-p)
+                   '("firebrick1" "DarkRed" "IndianRed"
+                     "LightCoral" "Salmon" "DarkSalmon"))
+                  ((and (terminal-p)
+                        (256-colour-p))
+                   '("color-124" "color-129" "color-163"
+                     "color-127" "color-135" "color-161"))
+                  (t
+                   '("magenta" "cyan" "green"
+                     "red" "blue" "white")))))
+    :config
+    (set-face-attribute 'hl-paren-face nil :weight 'ultra-bold)))
+    
+(defun emacs-base:init-hl-anything ()
+  (use-package hl-anything
+    :init
+    (progn
+      (hl-highlight-mode)
+      (setq-default hl-highlight-save-file
+                    (concat +bootstrap-cache-directory+ ".hl-save")))))
+
+(defun emacs-base:init-hungry-delete ()
+  (use-package hungry-delete
+    :defer t
+    :config
+    (progn
+      (setq-default hungry-delete-chars-to-skip " \t\f\v")
+      (define-key hungry-delete-mode-map (kbd "S-DEL") 'hungry-delete-backward)
+      (define-key hungry-delete-mode-map (kbd "DEL") 'delete-backward-char))))
+
+(defun emacs-base:init-iedit ()
+  (use-package iedit
+    :defer t
+    :init
+    (progn
+      (setq iedit-current-symbol-default t
+            iedit-only-at-symbol-boundaries t
+            iedit-toggle-key-default nil))
+    :config
+    (progn
+      (defun iedit-toggle-selection ()
+        "Override default iedit function to be able to add arbitrary overlays.
+
+It will toggle the overlay under point or create an overlay of one character."
+        (interactive)
+        (iedit-barf-if-buffering)
+        (let ((ov (iedit-find-current-occurrence-overlay)))
+          (if ov
+              (iedit-restrict-region (overlay-start ov) (overlay-end ov) t)
+            (save-excursion
+              (push (iedit-make-occurrence-overlay (point) (1+ (point)))
+                    iedit-occurrences-overlays))
+            (setq iedit-mode
+                  (propertize
+                   (concat " Iedit:" (number-to-string
+                                      (length iedit-occurrences-overlays)))
+                   'face 'font-lock-warning-face))
+            (force-mode-line-update)))))))
+
+(defun emacs-base:init-indent-guide ()
+  (use-package indent-guide
+    :defer t
+    :init
+    (progn
+      (setq indent-guide-delay 0.3))))
+
+(defun emacs-base:init-open-junk-file ()
+  (use-package open-junk-file
+    :defer t
+    :commands open-junk-file
+    :init
+    (setq open-junk-file-directory
+          (concat +bootstrap-cache-directory+ "junk/"))))
+
+(defun emacs-base:init-info+ ()
+  (use-package info+
+    :defer t
+    :init
+    (progn
+      (eval-after-load 'info
+        '(require 'info+))
+      (setq Info-fontify-angle-bracketed-flag nil))))
+
+(defun emacs-base:init-move-text ()
+  (use-package move-text
+    :defer t))
+
+(defun emacs-base:init-neotree ()
+  (use-package neotree
+    :defer t
+    :commands neo-global--window-exists-p
+    :init
+    (progn
+      (setq neo-window-width 32
+            neo-create-file-auto-open t
+            neo-banner-message nil
+            neo-show-updir-line nil
+            neo-mode-line-type 'neotree
+            neo-smart-open t
+            neo-dont-be-alone t
+            neo-persist-show nil
+            neo-show-hidden-files t
+            neo-auto-indent-point t
+            neo-modern-sidebar t
+            neo-vc-integration '(face))
+
+      (defun bootstrap:neotree-expand-or-open ()
+        "Collapse a neotree node."
+        (interactive)
+        (let ((node (neo-buffer--get-filename-current-line)))
+          (when node
+            (if (file-directory-p node)
+                (progn
+                  (neo-buffer--set-expand node t)
+                  (neo-buffer--refresh t)
+                  (when neo-auto-indent-point
+                    (next-line)
+                    (neo-point-auto-indent)))
+              (call-interactively 'neotree-enter)))))
+
+      (defun bootstrap:neotree-collapse ()
+        "Collapse a neotree node."
+        (interactive)
+        (let ((node (neo-buffer--get-filename-current-line)))
+          (when node
+            (when (file-directory-p node)
+              (neo-buffer--set-expand node nil)
+              (neo-buffer--refresh t))
+            (when neo-auto-indent-point
+              (neo-point-auto-indent)))))
+
+      (defun bootstrap:neotree-collapse-or-up ()
+        "Collapse an expanded directory node or go to the parent node."
+        (interactive)
+        (let ((node (neo-buffer--get-filename-current-line)))
+          (when node
+            (if (file-directory-p node)
+                (if (neo-buffer--expanded-node-p node)
+                    (spacemacs/neotree-collapse)
+                  (neotree-select-up-node))
+              (neotree-select-up-node)))))
+
+      (defun neotree-find-project-root ()
+        (interactive)
+        (if (neo-global--window-exists-p)
+            (neotree-hide)
+          (let ((origin-buffer-file-name (buffer-file-name)))
+            (neotree-find (projectile-project-root))
+            (neotree-find origin-buffer-file-name)))))))
+
+(defun emacs-base:init-pcre2el ()
+  (use-package pcre2el
+    :defer t
+    :commands rxt-fontify-regexp-at-point))
+
+(defun emacs-base:init-paradox ()
+  (use-package paradox
+    :commands paradox-list-packages
+    :init
+    (progn
+      (setq paradox-execute-asynchronously nil)
+      
+      (defun bootstrap:paradox-list-packages ()
+        "Load depdendencies for auth and open the package list."
+        (interactive)
+        (require 'epa-file)
+        (require 'auth-source)
+        (when (and (not (boundp 'paradox-github-token))
+                   (file-exists-p "~/.authinfo.gpg"))
+          (let ((authinfo-result (car (auth-source-search
+                                       :max 1
+                                       :host "github.com"
+                                       :port "paradox"
+                                       :user "paradox"
+                                       :require '(:secret)))))
+            (let ((paradox-token (plist-get authinfo-result :secret)))
+              (setq paradox-github-token (if (functionp paradox-token)
+                                             (funcall paradox-token)
+                                           paradox-token)))))
+        (paradox-list-packages nil)))))
+
+(defun emacs-base:init-rainbow-delimiters ()
+  (use-package rainbow-delimiters
+    :defer t
+    :init
+    (progn
+      (when (member *bootstrap-highlight-delimiters* '(any all))
+        (bootstrap:add-to-hooks 'rainbow-delimiters-mode
+                                '(prog-mode-hook))))))
+
+(defun emacs-base:init-smartparens ()
+  (use-package smartparens
+    :defer t
+    :init
+    (progn
+      (bootstrap:add-to-hooks (if *bootstrap-smartparens-strict-mode*
+                                  'smartparens-strict-mode
+                                'smartparens-mode)
+                              '(prog-mode-hook))
+
+      ;; enable smartparens-mode in `eval-expression'
+      (defun conditionally-enable-smartparens-mode ()
+        "Enable `smartparens-mode' in the minibuffer, during `eval-expression'."
+        (if (eq this-command 'eval-expression)
+            (smartparens-mode)))
+
+      (add-hook 'minibuffer-setup-hook 'conditionally-enable-smartparens-mode)
+      
+      (setq sp-show-pair-delay 0.2
+            ;; fix paren highlighting in normal mode
+            sp-show-pair-from-inside t
+            sp-cancel-autoskip-on-backward-movement nil))
+    :config
+    (progn
+      (require 'smartparens-config)
+      (show-smartparens-global-mode +1)
+
+      (defun bootstrap:smartparens-pair-newline (id action context)
+        (save-excursion
+          (newline)
+          (indent-according-to-mode)))
+
+      (defun bootstrap:smartparens-pair-newline-and-indent (id action context)
+        (bootstrap:smartparens-pair-newline id action contetx)
+        (indent-according-to-mode))
+
+      ;; don't create a pair with single quote in minibuffer
+      (sp-local-pair 'minibuffer-inactive-mode "'" nil :actions nil)
+
+      (sp-pair "{" nil :post-handlers
+               '(:add (spacemacs/smartparens-pair-newline-and-indent "RET")))
+      (sp-pair "[" nil :post-handlers
+               '(:add (spacemacs/smartparens-pair-newline-and-indent "RET"))))))
+
+(defun emacs-base:init-smooth-scrolling ()
+  (if *bootstrap-smooth-scrolling*
+      (use-package smooth-scrolling
+        :init
+        (setq smooth-scroll-margin 5
+              scroll-conservatively 101
+              scroll-preserve-screen-position t
+              auto-window-vscroll nil)
+        :config
+        (setq scroll-margin 5))
+
+    ;; deactivate the defadvice's
+    (ad-disable-advice 'previous-line 'after 'smooth-scroll-down)
+    (ad-activate 'previous-line)
+    (ad-disable-advice 'next-line 'after 'smooth-scroll-up)
+    (ad-activate 'next-line)
+    (ad-disable-advice 'isearch-repeat 'after 'isearch-smooth-scroll)
+    (ad-activate 'isearch-repeat)))
+
+(defun emacs-base:init-spray ()
+  (use-package spray
+    :commands spray-mode
+    :init
+    :config
+    (progn
+      (define-key spray-mode-map (kbd "h") 'spray-backward-word)
+      (define-key spray-mode-map (kbd "l") 'spray-forward-word)
+      (define-key spray-mode-map (kbd "q") 'spray-quit))))
+
+(defun emacs-base:init-window-numbering ()
+  (use-package window-numbering
+    :config
+    (progn
+      (when (bootstrap-layer:package-used-p 'powerline)
+        (defun window-numbering-install-mode-line (&optional position)
+          "Do nothing, the display is handled by the powerline."))
+      (setq window-numbering-auto-assign-0-to-minibuffer nil)
+      (window-numbering-mode 1))
+
+    (defun bootstrap:window-number ()
+      "Return the number of the window."
+      (let* ((num (window-numbering-get-number))
+             (str (if num (int-to-string num))))
+        (cond
+         ((not (bootstrap:symbol-value
+                *bootstrap-mode-line-unicode-symbols*)) str)
+         ((equal str "1")  "➊")
+         ((equal str "2")  "➋")
+         ((equal str "3")  "➌")
+         ((equal str "4")  "➍")
+         ((equal str "5")  "➎")
+         ((equal str "6")  "❻")
+         ((equal str "7")  "➐")
+         ((equal str "8")  "➑")
+         ((equal str "9")  "➒")
+         ((equal str "0")  "➓"))))
+
+    (defun bootstrap::window-numbering-assign (windows)
+      "Custom number assignment for special buffers."
+      (mapc (lambda (w)
+              (when (and (boundp 'neo-global--window)
+                         (eq w neo-global--window))
+                (window-numbering-assign w 0)))
+            windows))
+    
+    (add-hook 'window-numbering-before-hook
+              'bootstrap::window-numbering-assign)
+    (add-hook 'neo-after-create-hook '(lambda (w)
+                                        (window-numbering-update)))))
+
+(defun emacs-base:init-volatile-highlights ()
+  (use-package volatile-highlights
+    :config
+    (progn
+      (volatile-highlights-mode t))))
+
+(defun emacs-base:init-zoom-frm ()
+  (use-package zoom-frm
+    :commands (zoom-frm-unzoom
+               zoom-frm-out
+               zoom-frm-in)
+    :init
+    (progn
+      (defun bootstrap::zoom-frm-powerline-reset ()
+        (when (fboundp 'powerline-reset)
+          (setq-default powerline-height (bootstrap:compute-powerline-height))
+          (powerline-reset)))
+
+      (defun bootstrap::zoom-frm-do (arg)
+        "Perform a zoom action depending on ARG value."
+        (let ((zoom-action (cond ((eq arg 0) 'zoom-frm-unzoom)
+                                 ((< arg 0) 'zoom-frm-out)
+                                 ((> arg 0) 'zoom-frm-in)))
+              (fm (cdr (assoc 'fullscreen (frame-parameters))))
+              (fwp (* (frame-char-width) (frame-width)))
+              (fhp (* (frame-char-height) (frame-height))))
+          (when (equal fm 'maximized)
+            (toggle-frame-maximized))
+          (funcall zoom-action)
+          (set-frame-size nil fwp fhp t)
+          (when (equal fm 'maximized)
+            (toggle-frame-maximized))))
+
+      (defun bootstrap:zoom-frm-in ()
+        "zoom in frame, but keep the same pixel size"
+        (interactive)
+        (bootstrap::zoom-frm-do 1))
+
+      (defun bootstrap:zoom-frm-out ()
+        "zoom out frame, but keep the same pixel size"
+        (interactive)
+        (bootstrap::zoom-frm-do -1))
+
+      (defun bootstrap:zoom-frm-unzoom ()
+        "Unzoom current frame, keeping the same pixel size"
+        (interactive)
+        (bootstrap::zoom-frm-do 0))
+
+      ;; Font size, either with ctrl + mouse wheel
+      (global-set-key (kbd "<C-wheel-up>") 'bootstrap:zoom-frm-in)
+      (global-set-key (kbd "<C-wheel-down>") 'bootstrap:zoom-frm-out))))
 
 (defvar *bootstrap-mode-line-unicode-symbols* t)
 (defvar *bootstrap-mode-line-minor-modes-p* t)
@@ -158,7 +1153,7 @@
   '(((workspace-number window-number)
      :fallback state-tag
      :separator "|"
-     :face state-face)
+     :face font-lock-keyword-face)
     anzu
     (buffer-modified buffer-size buffer-id remote-host)
     major-mode
@@ -168,10 +1163,10 @@
      :when active)
     (erc-track :when active)
     (version-control :when active)
-    (org-promodoro :when active)
+    (org-pomodoro :when active)
     (org-clock :when active)
     nyan-cat))
-(defvar *bootrap-mode-line-right*
+(defvar *bootstrap-mode-line-right*
   '((battery :when active)
     selection-info
     ((buffer-encoding-abbrev
@@ -237,13 +1232,13 @@
 computed by the form `VALUE'. The optional keyword argument `WHEN'
 defines a condition required for the segment to be shown.
 
-This macro defines a function `spacemacs//mode-line-NAME' which
+This macro defines a function `bootstrap::mode-line-NAME' which
 returns a list of modeline objects (strings or images). If the
 form `VALUE' does not result in a list, the return value will be
 wrapped as a singleton list.
 
 All properties are stored in a plist attached to the symbol, to be
-inspected at evaluation time by `spacemacs//eval-mode-line-segment'."
+inspected at evaluation time by `bootstrap::eval-mode-line-segment'."
         (declare (indent 1))
         (let* ((wrapper-func (intern (format "bootstrap::mode-line-%S" name)))
                (wrapper-func-available (intern (format "%S-available"
@@ -284,10 +1279,9 @@ It is a string holding:
                (chars (- (1+ (region-end)) (region-beginning)))
                (cols (1+ (abs (- (column-number-at-pos (region-end))
                                  (column-number-at-pos (region-beginning)))))))
-          (if (eq evil-visual-selection 'block)
-              (format "%d×%d block" lines cols)
-            (if (> lines 1) (format "%d lines" lines)
-              (format "%d chars" chars)))))
+            (if (> lines 1)
+                (format "%d lines" lines)
+              (format "%d chars" chars))))
 
       (bootstrap:define-mode-line-segment workspace-number
         (bootstrap:workspace-number)
@@ -337,7 +1331,7 @@ It is a string holding:
 
       (bootstrap:define-mode-line-segment selection-info
         (selection-info)
-        :when (evil-visual-state-p))
+        :when mark-active)
 
       (bootstrap:define-mode-line-segment buffer-encoding
         (format "%s" buffer-file-coding-system))
@@ -351,7 +1345,7 @@ It is a string holding:
       (bootstrap:define-mode-line-segment buffer-position "%p")
 
       (bootstrap:define-mode-line-segment hud
-        (powerline-hud state-face default-face)
+        (powerline-hud font-lock-keyword-face default-face)
         :tight t
         :when (string-match "\%" (format-mode-line "%p")))
 
@@ -383,7 +1377,7 @@ It is a string holding:
 
       (bootstrap:define-mode-line-segment org-clock
         (substring-no-properties (funcall bootstrap-mode-line-org-clock-format-function))
-        :when (and bootstrap-mode-line-org-clock-current-taskp
+        :when (and *bootstrap-mode-line-org-clock-current-task-p*
                    (fboundp 'org-clocking-p)
                    (org-clocking-p)))
       (push 'org-mode-line-string *bootstrap-global-mode-line-excludes*)
@@ -530,10 +1524,6 @@ one of `l' or `r'."
                (other-face (if active
                                'mode-line
                              'mode-line-inactive))
-               (state-face (if active
-                               (bootstrap:current-state-face)
-                             line-face))
-
                ;; Loop through the segments and collect the results
                (segments (loop with result
                                for s in spec
@@ -593,7 +1583,8 @@ one of `l' or `r'."
       (defun bootstrap::mode-line-prepare ()
         ;; diminish the lighters
         (when *bootstrap-mode-line-minor-modes-p*
-          (let ((unicodep *bootstrap-mode-line-unicode-symbols*))
+          (let ((unicodep (bootstrap:symbol-value
+                           *bootstrap-mode-line-unicode-symbols*)))
             (dolist (mm *bootstrap-diminished-minor-modes*)
               (let ((mode (car mm)))
                 (when (and (boundp mode) (symbol-value mode))
@@ -1021,17 +2012,19 @@ Removes the automatic guessing of the initial value based on thing at
         'helm-projectile-grep))))
 
 (defun emacs-base:init-ido ()
-  (ido-mode t)
-  (setq ido-save-directoryu-list-file
-        (concat +bootstrap-cache-directory+ "ido.last")
-        ido-enable-flex-matching t))
+  (when *bootstrap-use-ido*
+    (ido-mode t)
+    (setq ido-save-directory-list-file
+          (concat +bootstrap-cache-directory+ "ido.last")
+          ido-enable-flex-matching t)))
 
 (defvar *bootstrap-use-ido* nil)
 (defun emacs-base:init-ido-vertical-mode ()
   (use-package ido-vertical-mode
     :init
-    ;;(progn
-    ;;  (ido-vertical-mode t))
+    (progn
+      (when *bootstrap-use-ido*
+        (ido-vertical-mode t)))
 
     (defun bootstrap::ido-setup ()
       (define-key ido-completion-map (kbd "C-<return>") 'ido-select-text)
@@ -1263,8 +2256,7 @@ Removes the automatic guessing of the initial value based on thing at
           (define-category ?U "Uppercase")
           (define-category ?u "Lowercase"))
         (modify-category-entry (cons ?A ?Z) ?U)
-        (modify-category-entry (cons ?a ?z) ?u)
-        (make-variable-buffer-local 'evil-cjk-word-separating-categories)))))
+        (modify-category-entry (cons ?a ?z) ?u)))))
 
 (defun emacs-base:init-undo-tree ()
   (use-package undo-tree
@@ -1380,3 +2372,24 @@ Removes the automatic guessing of the initial value based on thing at
       (setq winner-boring-buffers
             (append winner-boring-buffers *bootstrap-winner-boring-buffers*))
       (winner-mode t))))
+
+(defun emacs-base:init-quelpa ())
+
+(defun emacs-base:init-recentf ()
+  (use-package recentf
+    :defer t
+    :init
+    (add-hook 'find-file-hook (lambda ()
+                                (unless recentf-mode
+                                  (recentf-mode)
+                                  (recentf-track-opened-file))))
+    :config
+    (add-to-list 'recentf-exclude (expand-file-name +bootstrap-cache-directory+))
+    (add-to-list 'recentf-exclude (expand-file-name package-user-dir))
+    (add-to-list 'recentf-exclude "COMMIT_EDITMSG\\'")
+    (setq recentf-save-file (concat spacemacs-cache-directory "recentf"))
+    (setq recentf-max-saved-items 100)
+    (setq recentf-auto-cleanup 'never)
+    (setq recentf-auto-save-timer
+          (run-with-idle-timer 600 t 'recentf-save-list))))
+

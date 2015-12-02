@@ -41,7 +41,7 @@
   (bootstrap:load-or-install-package pkg log file-to-load))
 
 (defun bootstrap:load-or-install-package
-    (pkg &optional log file-to-read)
+    (pkg &optional log file-to-load)
   (let ((warning-minimum-level :error))
     (condition-case nil
         (require pkg)
@@ -102,7 +102,7 @@ Currently this function infloops when the list is circular."
       (push (pop tail) result))
     (nreverse result)))
 
-(defun spacemacs/mplist-remove (plist prop)
+(defun bootstrap:mplist-remove (plist prop)
   "Return a copy of a modified PLIST without PROP and its values.
 
 If there are multiple properties with the same keyword, only the first property
@@ -121,7 +121,37 @@ and its values are removed."
       (push (pop tail) result))
     (nreverse result)))
 
+(defmacro bootstrap:symbol-value (symbol)
+  "Return the value of SYMBOL corresponding to a dotspacemacs variable.
+If SYMBOL value is `display-graphic-p' then return the result of
+ `(display-graphic-p)', otherwise return the value of the symbol."
+  `(if (eq 'display-graphic-p ,symbol)
+       (display-graphic-p)
+       ,symbol))
 
+(defun bootstrap::image-p (object)
+  "Tests whether the given object is an image (a list whose
+first element is the symbol `image')."
+  (and (listp object)
+       object
+       (eq 'image (car object))))
+
+(defun bootstrap::intersperse (seq separator)
+  "Returns a list with `SEPARATOR' added between each element
+of the list `SEQ'."
+  (cond
+   ((not seq) nil)
+   ((not (cdr seq)) seq)
+   (t (append (list (car seq) separator)
+              (bootstrap::intersperse (cdr seq) separator)))))
+
+(defun bootstrap::mode-line-nonempty (seg)
+  "Checks whether a modeline segment (classical Emacs style)
+is nonempty."
+  (let ((val (format-mode-line seg)))
+    (cond ((listp val) val)
+          ((stringp val) (< 0 (length val)))
+          (t))))
 
 (provide 'bootstrap-funs)
 

@@ -27,7 +27,8 @@
   :group 'bootstrap
   :syntax-table nil
   :abbrev-table nil
-  (setq truncate-lines t))
+  (setq truncate-lines t)
+  (linum-mode -1))
 
 (defun bootstrap-buffer:set-mode-line (format)
   "Sets the modeline of the buffer named in `+bootstrap-buffer-name+' to the
@@ -288,15 +289,13 @@ If MSGBUF is non-NIL then the message is also written to the message buffer."
   (insert "\n"))
 
 (defun bootstrap-buffer::generate-info-text ()
-  (format (concat "%s: %s (%s)\n"
+  (format (concat "%s: %s\n"
                   "%s: %s\n"
                   "%s: %s\n"
                   "%s: %s\n")
           (propertize "User"
                       'face 'font-lock-comment-face)
           (propertize user-login-name
-                      'face 'font-lock-function-name-face)
-          (propertize user-full-name
                       'face 'font-lock-function-name-face)
           (propertize "Host"
                       'face 'font-lock-comment-face)
