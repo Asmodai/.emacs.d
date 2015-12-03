@@ -95,7 +95,7 @@
     :initarg :step
     :initform nil
     :type (satisfies (lambda (x)
-                       (member x '(nil pre))))
+                       (member x '(nil pre post))))
     :documentation "Initialisation step.")
    (excluded
     :initarg :excluded
@@ -149,45 +149,6 @@ directory with a name starting with `+'.")
 (defun bootstrap-layer:layer-used-p (name)
   (not (null (object-assoc name
                            :name *bootstrap-layer-packages*))))
-
-(defun bootstrap-layer/create-layer ()
-  "Ask the user for a configuration layer name and the layer directory to
-use.  Create a layer with this name in the selected layer directory."
-  (interactive)
-  (let* ((current-layer-paths (mapcar (lambda (dir)
-                                        (expand-file-name dir))
-                                      (cl-pushnew
-                                       bootstrap-layer-private-directory
-                                       bootstrap-layer-path)))
-         (other-choice "Another directory...")
-         (helm-lp-source
-          `((name       . "Layer paths")
-            (candidates . ,(append current-layer-paths
-                                   (list other-choice)))
-            (action     . (lambda (x)
-                            x))))
-         (layer-path-sel (helm :sources helm-lp-source
-                               :prompt "Layer path: "))
-         (layer-path (cond ((string-equal layer-path-sel other-choice)
-                            (read-directory-name (concat "Other configuration "
-                                                         "layer path: ")
-                                                 "~/"))
-                           ((member layer-path-sel current-layer-paths)
-                            layer-path-sel)
-                           (t
-                            (error "Please select an option from the list."))))
-         (name (read-from-minibuffer "Configuration layer name: "))
-         (layer-dir (concat layer-path "/" name)))
-    (cond ((string-equal "" name)
-           (message "Cannot create a layer without a name."))
-          ((file-exists-p layer-dir)
-           (message (concat "Cannot create layer \"%s\", "
-                            "this layer already exists.") name))
-          (t
-           (make-directory layer-dir t)
-           (bootstrap-layer//copy-template name "extensions" layer-dir)
-           (bootstrap-layer//copy-template name "packages" layer-dir)
-           (message "Layer \"%s\" successfully created." name)))))
 
 (defun bootstrap-layer:make-layer (layer)
   "Return a `cfgl-layer' object based on LAYER."
@@ -327,30 +288,6 @@ Properties that can be copied are `:location', `:step', and `:excluded'."
           (not (memq (oref x :location) '(built-in local)))
           (not (oref x :excluded))))))
 
-(defun bootstrap-layer//get-private-layer-dir (name)
-  "Return an absolute path to the private configuration layer string NAME."
-  (file-name-as-directory
-   (concat bootstrap-layer-private-directory name)))
-
-(defun bootstrap-layer//copy-template (name template &optional layer-dir)
-  "Copy and replace special values of TEMPLATE to layer string NAME.
-
-If LAYER-DIR is NIL, then the private directory is used."
-  (let ((src (concat bootstrap-layer-template-directory
-                     (format "%s.template" template)))
-        (dst (if layer-dir
-                 (concat layer-dir "/" (format "%s.el" template))
-               (concat bootstrap-layer-private-directory
-                       (format "%s.el" template)))))
-    (copy-file src dst)
-    (find-file dst)
-    (save-excursion
-      (goto-char (point-min))
-      (let ((case-fold-search nil))
-        (while (re-search-forward "%LAYERNAME%" nil t)
-          (replace-match name t))))
-    (save-buffer)))
-
 (defun bootstrap-layer::directory-type (path)
   "Return the type of directory pointed to by PATH.
 
@@ -378,9 +315,10 @@ The directory must start with a `+'.
 
 Returns NIL if the directory is not a category."
   (when (file-directory-p dirpath)
-    (let ((dirname (file-name-directory
+    (let ((dirname (file-name-nondirectory
                     (directory-file-name
-                     (concat +bootstrap-layer-directory+ dirpath)))))
+                     (file-name-directory
+                      (concat dirpath "/empty"))))))
       (when (string-match "^+" dirname)
         (intern (substring dirname 1))))))
 
@@ -514,7 +452,12 @@ Returns NIL if the directory is not a category."
    (bootstrap-layer:filter-objects
     packages
     (lambda (x)
-      (null (oref x :step))))))
+      (null (oref x :step)))))
+  (bootstrap-layer::configure-packages-2
+   (bootstrap-layer:filter-objects
+    packages
+    (lambda (x)
+      (eq 'post (oref x :step))))))
 
 (defun bootstrap-layer::configure-packages-2 (packages)
   (dolist (pkg packages)

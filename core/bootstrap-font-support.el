@@ -3,10 +3,10 @@
 (require 'bootstrap-buffer)
 
 (defvar *bootstrap-default-font* '("Source Code Pro"
-                                   :size 11
+                                   :size 10
                                    :weight normal
                                    :width normal
-                                   :powerline-scale 1.1))
+                                   :powerline-scale 1.0))
 
 (defvar *bootstrap-diminished-minor-modes* nil
   "List of diminished minor modes.")

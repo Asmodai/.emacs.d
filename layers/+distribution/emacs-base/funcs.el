@@ -102,7 +102,7 @@
 (defun bootstrap:eval-current-form ()
   (interactive)
   (save-excursion
-    (search-backward-regexp "(def\\|(set\\|(let")
+    (search-backward-regexp "(def\\|(set")
     (forward-list)
     (call-interactively 'eval-last-sexp)))
 

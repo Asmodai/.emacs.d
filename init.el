@@ -13,7 +13,7 @@
 (setq gc-cons-threshold 100000000)
 
 ;; Set this to T if you want verbose messages.
-(defvar *bootstrap-verbose* nil)
+(defvar *bootstrap-verbose* t)
 
 (defconst +bootstrap-emacs-min-version+ "24.3"
   "Minimum required version of Emacs.")
