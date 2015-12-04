@@ -26,26 +26,6 @@
   (call-process (bootstrap:emacsbin-path) nil 0 nil "-Q")
   (message "Started `emacs -Q' - it will be ready soon..."))
 
-(defun bootstrap:add-to-hooks (fun hooks)
-  "Add a function to the given hooks."
-  (dolist (hook hooks)
-    (add-hook hook fun)))
-
-(defun bootstrap:add-to-hook (hook &rest funs)
-  "Add all given functions to a hook."
-  (dolist (fun funs)
-    (add-hook hook fun)))
-
-(defun bootstrap:add-all-to-hook (hook funs)
-  "Add a list of functions to a hook"
-  (bootstrap:add-to-hook hook funs))
-
-(defun bootstrap:echo (msg &rest args)
-  "Display MSG in echo area without logging it."
-  (interactive)
-  (let ((message-log-max nil))
-    (apply 'message msg args)))
-
 (defun bootstrap:jump-in-buffer ()
   (interactive)
   (cond ((eq major-mode 'org-mode)
