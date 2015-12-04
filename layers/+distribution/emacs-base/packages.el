@@ -75,7 +75,10 @@
         which-key
         whitespace
         winner
-        folding))
+        company
+        folding
+        htmlize))
+        
 
 (defvar *bootstrap-diminished-minor-modes* '())
 
@@ -698,7 +701,8 @@ Search for a search tool in the order provided by `dotspacemacs-search-tools'."
         (interactive)
         (let ((dir (projectile-project-root)))
           (if dir
-              (bootstrap::helm-do-ag-region-or-symbol 'bootstrap:helm-files-do-ack dir)
+              (bootstrap::helm-do-ag-region-or-symbol
+               'bootstrap:helm-files-do-ack dir)
             (message "error: Not in a project."))))
 
       (defun bootstrap:helm-project-do-pt ()
@@ -1162,6 +1166,7 @@ It will toggle the overlay under point or create an overlay of one character."
       (global-set-key (kbd "<C-wheel-down>") 'bootstrap:zoom-frm-out))))
 
 (defvar *bootstrap-mode-line-unicode-symbols* t)
+(defvar *bootstrap-mode-line-unicode-separators* t)
 (defvar *bootstrap-mode-line-minor-modes-p* t)
 (defvar *bootstrap-mode-line-major-mode-p* t)
 (defvar *bootstrap-mode-line-version-control-p* t)
@@ -1201,12 +1206,22 @@ It will toggle the overlay under point or create an overlay of one character."
   (use-package powerline
     :init
     (progn
+      (if *bootstrap-mode-line-unicode-separators*
+          (setq powerline-default-separator 'utf-8)
+        (if (display-graphic-p)
+            (setq-default powerline-default-separator 'wave)
+          (setq-default powerline-default-separator 'utf-8)))
+      
       (defpowerline bootstrap-powerline-minor-modes
         (mapconcat (lambda (mm)
                      (propertize
                       mm
                       'mouse-face 'mode-line-highlight
-                      'help-echo "Minor mode\n mouse-1: Display minor mode menu\n mouse-2: Show help for minor mode\n mouse-3: Toggle minor modes"
+                      'help-echo
+                      (concat "Minor mode\n"
+                              " mouse-1: Display minor mode menu\n "
+                              "mouse-2: Show help for minor mode\n "
+                              "mouse-3: Toggle minor modes")
                       'local-map (let ((map (make-sparse-keymap)))
                                    (define-key map
                                      [mode-line down-mouse-1]
@@ -1235,10 +1250,6 @@ It will toggle the overlay under point or create an overlay of one character."
           (if (string-match "\\(dos\\|unix\\|mac\\)" buf-coding)
               (match-string 1 buf-coding)
             buf-coding)))
-      
-      (if (display-graphic-p)
-          (setq-default powerline-default-separator 'wave)
-        (setq-default powerline-default-separator 'utf-8))
       
       (defun bootstrap:customize-powerline-faces ()
         "Alter powerline face to make them work with more themes."
@@ -1661,7 +1672,8 @@ one of `l' or `r'."
           '(diminish 'eprojectmode " ᵋⓅ" @ " eP"))
         (eval-after-load "flymake"
           '(diminish 'flymake-mode " Ⓕ²" " F2")))
-      (eval-after-load 'elisp-slime-nav
+      (eval-after-load
+          'elisp-slime-nav
         '(diminish 'elisp-slime-nav-mode))
       (eval-after-load "hi-lock"
         '(diminish 'hi-lock-mode))
@@ -2428,6 +2440,10 @@ Removes the automatic guessing of the initial value based on thing at
     (setq recentf-auto-save-timer
           (run-with-idle-timer 600 t 'recentf-save-list))))
 
+(defun emacs-base:init-folding ())
 
-(defun bootstrap:init-folding ())
+(defun emacs-base:init-htmlize ()
+  (use-package htmlize
+    :defer t))
 
+(defun emacs-base:init-company ())
