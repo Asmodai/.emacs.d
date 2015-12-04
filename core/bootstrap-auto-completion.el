@@ -1,5 +1,13 @@
 
+(require 'bootstrap-buffer)
+
+(defvar *bootstrap-auto-completion-enable-snippets-in-popup*
+  (if (featurep 'yasnippet)
+      t
+    nil))
+
 (defmacro bootstrap:defvar-company-backends (mode)
+   (bootstrap-buffer:message (format "Creading company backend for %s." mode))
   `(defvar ,(intern (format "*company-backends-%S*" mode))
      '((company-dabbrev-code company-gtags company-etags company-keywords)
        company-files company-dabbrev)
@@ -9,10 +17,10 @@
   (let ((mode-hook (intern (format "%S-hook" mode)))
         (func (intern (format "bootsrap:init-company-%S" mode)))
         (backend-list (intern (format "*company-backends-%S*" mode))))
-    `(when (bootstrap:package-used-p 'company)
+    `(when (bootstrap-layer:package-used-p 'company)
        (defun ,func ()
          ,(format "Initialise company for %S." mode)
-         (when auto-completion-enable-snippets-in-popup
+         (when *bootstrap-auto-completion-enable-snippets-in-popup*
            (setq ,backend-list (mapcar 'boostrap::show-snippets-in-company
                                        ,backend-list)))
          (set (make-variable-buffer-local 'auto-completion-front-end)
@@ -42,7 +50,7 @@
 (defmacro bootstrap:enable-auto-complete (mode)
   (let ((mode-hook (intern (format "%S-hook" mode)))
         (func (intern (format "bootstrap::init-auto-complete-%S" mode))))
-    `(when (bootstrap:package-used-p 'auto-complete)
+    `(when (bootstrap-layer:package-used-p 'auto-complete)
        (defun ,func ()
          ,(format "Initialise auto-complete for %S." mode)
          (set (make-variable-buffer-local 'auto-completion-front-end)
