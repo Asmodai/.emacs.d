@@ -32,7 +32,7 @@ override lazy-loaded settings."
                          (intern name)
                        name))
         (expanded-forms '()))
-    (dolist (keyword *bootstrap-use-package-add-hook-keywords*)
+    (dolist (keyword +bootstrap-use-package-add-hook-keywords+)
       (let ((body (bootstrap:mplist-get plist keyword)))
         (when body
           (let ((hook (intern (format "use-package--%S--%s-hook"

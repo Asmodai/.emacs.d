@@ -1,11 +1,6 @@
 
 (require 'bootstrap-buffer)
 
-(defvar *bootstrap-auto-completion-enable-snippets-in-popup*
-  (if (featurep 'yasnippet)
-      t
-    nil))
-
 (defmacro bootstrap:defvar-company-backends (mode)
    (bootstrap-buffer:message (format "Creading company backend for %s." mode))
   `(defvar ,(intern (format "*company-backends-%S*" mode))
@@ -20,7 +15,7 @@
     `(when (bootstrap-layer:package-used-p 'company)
        (defun ,func ()
          ,(format "Initialise company for %S." mode)
-         (when *bootstrap-auto-completion-enable-snippets-in-popup*
+         (when *auto-completion-enable-snippets-in-popup*
            (setq ,backend-list (mapcar 'boostrap::show-snippets-in-company
                                        ,backend-list)))
          (set (make-variable-buffer-local 'auto-completion-front-end)
@@ -38,7 +33,7 @@
        (remove-hook ',mode-hook 'company-mode))))
 
 (defun bootstrap::show-snippets-in-company (backend)
-  (if (or (not auto-completion-enable-snippets-in-popup)
+  (if (or (not *auto-completion-enable-snippets-in-popup*)
           (and (listp backend)
                (member 'company-yasnippet backend)))
       backend

@@ -242,7 +242,7 @@ Properties that can be copied are `:location', `:step', and `:excluded'."
                 (push obj result))
               (when (fboundp init-func)
                 (when (oref obj :owner)
-                  (bootstrap-buffer/warning
+                  (bootstrap-buffer:warning
                    (format (concat "More than one init function found for "
                                    "package %S.  Previous owner was %S, "
                                    "replacing it with layer %S.")
@@ -355,7 +355,7 @@ Returns NIL if the directory is not a category."
     (mapc (lambda (l)
             (if (ht-contains? result (car l))
                 (unless (string-equal (ht-get result (car l)) (cdr l))
-                  (bootstrap-buffer/warning
+                  (bootstrap-buffer:warning
                    (concat "Duplicated layer %s detected in directory \"%s\", "
                            "keeping only the layer in directory \"%s\".")
                    (car l)
@@ -587,7 +587,7 @@ Returns NIL if the directory is not a category."
                             (eq 'recipe (car location)))
                        (bootstrap-layer::install-from-recipe pkg))
                       (t
-                       (bootstrap-buffer/warning "Cannot install package %S."
+                       (bootstrap-buffer:warning "Cannot install package %S."
                                                  pkg-name)))
               ('error
                (bootstrap-layer::set-error)

@@ -16,6 +16,12 @@
 (defconst +bootstrap-cache-directory+
   (expand-file-name (concat +bootstrap-directory+ "cache/")))
 
+(defconst +bootstrap-private-directory+
+  (expand-file-name (concat +bootstrap-directory+ "private/")))
+
+(defconst +bootstrap-auto-completion-directory+
+  (expand-file-name (concat +bootstrap-cache-directory+ "auto-complete/")))
+
 (defconst +bootstrap-banner-directory+
   (expand-file-name (concat +bootstrap-core-directory+ "banners/")))
 

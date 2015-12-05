@@ -14,6 +14,8 @@
 (require 'bootstrap-use-package-ext)
 (require 'bootstrap-theme-support)
 (require 'bootstrap-font-support)
+(require 'memory-usage)
+(require 'user-config)
 
 (defgroup bootstrap nil
   "Bootstrap customisations."
