@@ -142,7 +142,7 @@
 
 (defun symbolics::install-select-map ()
   (symbolics-define-select-key "l"    'ielm)
-  (symbolics-define-select-key "e"    'eshell)
+  (symbolics-define-select-key "s"    'eshell)
   (symbolics-define-select-key "="    'symbolics-display-select-bindings)
   (symbolics-define-select-key [help] 'symbolics-describe-select-keymap))
 
@@ -188,14 +188,13 @@
   (symbolics::install-fkey-mapping)
   (let ((map (copy-keymap *symbolics-map*)))
     (set-keymap-parent map (keymap-parent key-translation-map))
-    (set-keymap-parent key-translation-map map)))
+    (set-keymap-parent key-translation-map map))
   (symbolics::install-prefix-maps)
   (symbolics::install-keys)
   (symbolics::install-meta-maps)
   (symbolics::install-function-map)
   (symbolics::install-select-map)
-  (symbolics::install-symbol-map)
-
+  (symbolics::install-symbol-map))
 
 (provide 'symbolics)
 
