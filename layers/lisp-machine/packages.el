@@ -18,5 +18,3 @@
     :init (require 'symbolics)
     :config (symbolics:install-keymap)))
 
-
-
