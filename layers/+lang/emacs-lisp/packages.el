@@ -42,7 +42,7 @@
   (setq flycheck-emacs-lisp-load-path 'inherit))
 
 (defun emacs-lisp:post-init-semantic ()
-  (semantic/enable-semantic-mode 'emacs-lisp-mode)
+  (bootstrap:enable-semantic-mode 'emacs-lisp-mode)
   (eval-after-load 'semantic
     '(semantic-default-elisp-setup)))
 
@@ -76,15 +76,15 @@
 
 (defun bootstrap:emacs-lisp-hook ()
   (font-lock-mode 1)
+  (fci-mode 1)
   (smartparens-mode 1)
-  (company-mode 1)
   (eldoc-mode 1)
   (auto-fill-mode 1))
 
 (defun bootstrap:ielm-hook ()
   (font-lock-mode 1)
+  (fci-mode -1)
   (smartparens-mode -1)
-  (company-mode 1)
   (eldoc-mode 1)
   (auto-fill-mode 1))
 
@@ -94,3 +94,5 @@
   (add-hook 'emacs-lisp-mode-hook 'bootstrap:emacs-lisp-hook)
   (add-hook 'lisp-interaction-mode-hook 'bootstrap:emacs-lisp-hook)
   (add-hook 'ielm-mode-hook 'bootstrap:ielm-hook))
+
+;; EOF

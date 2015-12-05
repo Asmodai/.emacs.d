@@ -77,7 +77,8 @@
         winner
         company
         folding
-        htmlize))
+        htmlize
+        (template :location local)))
         
 
 (defvar *bootstrap-diminished-minor-modes* '())
@@ -1106,7 +1107,16 @@ It will toggle the overlay under point or create an overlay of one character."
                          (eq w neo-global--window))
                 (window-numbering-assign w 0)))
             windows))
-    
+
+    ;; Change window numbering keys from meta to super.
+    (cl-loop for i from 0 to 9
+             do (progn
+                  (unbind-key (concat "M-" (number-to-string i))
+                              window-numbering-keymap)
+                  (global-set-key (kbd (concat "s-" (number-to-string i)))
+                                  (intern (concat "select-window-"
+                                                  (number-to-string i))))))
+
     (add-hook 'window-numbering-before-hook
               'bootstrap::window-numbering-assign)
     (add-hook 'neo-after-create-hook '(lambda (w)
@@ -1175,7 +1185,6 @@ It will toggle the overlay under point or create an overlay of one character."
 (defvar *bootstrap-mode-line-org-clock-format-fn 'org-clock-get-clock-string)
 (defvar *bootstrap-mode-line-left*
   '(((workspace-number window-number)
-     :fallback state-tag
      :separator "|"
      :face font-lock-keyword-face)
     anzu
@@ -1688,6 +1697,8 @@ one of `l' or `r'."
     :defer t
     :config
     (progn
+      (require 'eldoc)
+      (bootstrap:diminish eldoc-mode " E" " e")
       (add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode)
       (add-hook 'ielm-mode-hook #'eldoc-mode))))
 
@@ -2440,10 +2451,24 @@ Removes the automatic guessing of the initial value based on thing at
     (setq recentf-auto-save-timer
           (run-with-idle-timer 600 t 'recentf-save-list))))
 
-(defun emacs-base:init-folding ())
+;;(defun emacs-base:init-folding ()
+;;  (use-package folding
+;;    :defer t
+;;    :config
+;;    (progn
+;;      (folding-add-to-marks-list 'lisp-mode             ";;;{{{" ";;;}}}")
+;;      (folding-add-to-marks-list 'emacs-lisp-mode       ";;;{{{" ";;;}}}")
+;;      (folding-add-to-marks-list 'lisp-interaction-mode ";;;{{{" ";;;}}}")
+;;      (folding-add-to-marks-list 'scheme-mode           ";;;{{{" ";;;}}}"))))
 
 (defun emacs-base:init-htmlize ()
   (use-package htmlize
     :defer t))
 
-(defun emacs-base:init-company ())
+(defun emacs-base:init-template ()
+  (use-package template
+    :defer t
+    :init
+    (progn
+      (require 'template)
+      (template-initialize))))

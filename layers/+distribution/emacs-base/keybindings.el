@@ -81,13 +81,3 @@
         w32-lwindow-modifier 'super
         w32-rwindow-modifier 'hyper))
 
-;; MacOS X keys
-(when (mac-os-x-p)
-  (global-unset-key (kbd "M-3"))      ; Unbind M-3 first.
-  (global-set-key (kbd "M-3")         ; Bind so the UK keyboard can
-                  (lambda ()          ; generate the hash symbol.
-                    (interactive)
-                    (insert "#"))))
-
-(message "Base keybindings loaded.")
-
