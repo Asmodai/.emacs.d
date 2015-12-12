@@ -1,0 +1,2 @@
+;;; -*- Mode: emacs-lisp -*-
+

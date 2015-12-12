@@ -1678,9 +1678,9 @@ one of `l' or `r'."
     (progn
       (when (display-graphic-p)
         (eval-after-load "eproject"
-          '(diminish 'eprojectmode " ᵋⓅ" @ " eP"))
+          '(diminish 'eprojectmode " ᵋⓅ"))
         (eval-after-load "flymake"
-          '(diminish 'flymake-mode " Ⓕ²" " F2")))
+          '(diminish 'flymake-mode " Ⓕ²")))
       (eval-after-load
           'elisp-slime-nav
         '(diminish 'elisp-slime-nav-mode))
