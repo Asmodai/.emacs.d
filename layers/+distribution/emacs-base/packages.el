@@ -2335,27 +2335,27 @@ Removes the automatic guessing of the initial value based on thing at
   (use-package which-key
     :init
     (progn
-      (let ((new-descriptions
-             '(("bootstrap/\\(.+\\)" . "\\1")
-               ("bootstrap/toggle-\\(.+\\)" . "\\1")
-               ("select-window-\\([0-9]\\)" . "window \\1")
-               ("bootstrap:alternate-buffer" . "last buffer")
-                ("bootstrap:toggle-mode-line-\\(.+\\)" . "\\1")
-                ("avy-goto-word-or-subword-1" . "avy word")
-                ("shell-command" . "shell cmd")
-                ("bootstrap:default-pop-shell" . "open shell")
-                ("bootstrap:helm-project-smart-do-search-region-or-symbol" .
-                 "smart search")
-                ("helm-descbinds" . "show keybindings")
-                ("sp-split-sexp" . "split sexp")
-                ("avy-goto-line" . "avy line")
-                ("universal-argument" . "universal arg")
-                ("er/expand-region" . "expand region")
-                ("helm-apropos" . "apropos"))))
-        (dolist (nd new-descriptions)
-          ;; ensure the target matches the whole string
-          (push (cons (concat "\\`" (car nd) "\\'") (cdr nd))
-                which-key-description-replacement-alist)))
+      (when (not (windows-p))
+        (let ((new-descriptions
+               '(("bootstrap:\\(.+\\)" . "\\1")
+                 ("select-window-\\([0-9]\\)" . "window \\1")
+                 ("bootstrap:alternate-buffer" . "last buffer")
+                 ("bootstrap:toggle-mode-line-\\(.+\\)" . "\\1")
+                 ("avy-goto-word-or-subword-1" . "avy word")
+                 ("shell-command" . "shell cmd")
+                 ("bootstrap:default-pop-shell" . "open shell")
+                 ("bootstrap:helm-project-smart-do-search-region-or-symbol" .
+                  "smart search")
+                 ("helm-descbinds" . "show keybindings")
+                 ("sp-split-sexp" . "split sexp")
+                 ("avy-goto-line" . "avy line")
+                 ("universal-argument" . "universal arg")
+                 ("er/expand-region" . "expand region")
+                 ("helm-apropos" . "apropos"))))
+          (dolist (nd new-descriptions)
+            ;; ensure the target matches the whole string
+            (push (cons (concat "\\`" (car nd) "\\'") (cdr nd))
+                  which-key-description-replacement-alist))))
       ;; disable special key handling for spacemacs, since it can be
       ;; disorienting if you don't understand it
       (pcase *bootstrap-which-key-position*

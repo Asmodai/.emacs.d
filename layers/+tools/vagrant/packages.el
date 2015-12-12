@@ -36,23 +36,26 @@
 ;;;
 ;;;}}}
 
-(setq vagrant-packages '(vagrant
-                         vagrant-tramp))
+(setq vagrant-packages (if (not (windows-p))
+                           '(vagrant
+                             vagrant-tramp)))
 
 (defun vagrant:init-vagrant ()
-  (use-package vagrant
-    :defer t))
+  (when (not (windows-p))
+    (use-package vagrant
+      :defer t)))
 
 (defun vagrant:init-vagrant-tramp ()
-  (use-package vagrant-tramp
-    :defer t
-    :init
-    (progn
-      (defvar *bootstrap-vagrant-tramp-loaded* nil)
-
-      (defadvice vagrant-tramp-term (before bootstrap::load-vagrant activate)
-        (unless *bootstrap-vagrant-tramp-loaded*
-          (vagrant-tramp-add-method)
-          (setq *bootstrap-vagrant-tramp-loaded* t))))))
+  (when (not (windows-p))
+    (use-package vagrant-tramp
+      :defer t
+      :init
+      (progn
+        (defvar *bootstrap-vagrant-tramp-loaded* nil)
+        
+        (defadvice vagrant-tramp-term (before bootstrap::load-vagrant activate)
+          (unless *bootstrap-vagrant-tramp-loaded*
+            (vagrant-tramp-add-method)
+            (setq *bootstrap-vagrant-tramp-loaded* t)))))))
 
 ;;; packages.el ends here

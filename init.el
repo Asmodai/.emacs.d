@@ -1,4 +1,3 @@
-
 ;;; Some preliminary variables.
 (setq-default debug-on-error t)         ; Debug on errors please.
 (setq initial-buffer-choice nil         ; No thanks.

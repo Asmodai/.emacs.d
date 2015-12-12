@@ -55,6 +55,8 @@
 (mapc 'add-to-load-path
       `(,+bootstrap-core-directory+
         ,+bootstrap-library-directory+
+        ,(concat +bootstrap-library-directory+
+                 "use-package/")
         ,(concat user-dropbox-directory "emacs/")))
 
 ;; EOF
