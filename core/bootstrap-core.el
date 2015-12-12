@@ -17,11 +17,6 @@
 (require 'memory-usage)
 (require 'user-config)
 
-;; Load this very early.
-(when (windows-p)
-  (package-install 'use-package)
-  (require 'use-package))
-
 (defgroup bootstrap nil
   "Bootstrap customisations."
   :group 'starter-kit
