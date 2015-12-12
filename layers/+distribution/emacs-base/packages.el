@@ -2325,7 +2325,9 @@ Removes the automatic guessing of the initial value based on thing at
   (setq uniquify-buffer-name-style 'post-forward-angle-brackets
         uniquify-ignore-buffers-re "^\\*"))
 
-(defun emacs-base:init-use-package ())
+(defun emacs-base:init-use-package ()
+  (package-install 'use-package)
+  (require 'use-package))
 
 (defvar *bootstrap-which-key-delay* 0.4)
 (defvar *bootstrap-which-key-position* 'bottom)
