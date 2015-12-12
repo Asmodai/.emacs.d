@@ -19,8 +19,8 @@
 
 ;; Load this very early.
 (when (windows-p)
-  (package-install 'new-package)
-  (require 'new-package))
+  (package-install 'use-package)
+  (require 'use-package))
 
 (defgroup bootstrap nil
   "Bootstrap customisations."
