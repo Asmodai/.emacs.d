@@ -17,6 +17,7 @@
 (require 'memory-usage)
 (require 'user-config)
 
+;; Load this very early.
 (when (windows-p)
   (package-install 'new-package)
   (require 'new-package))
