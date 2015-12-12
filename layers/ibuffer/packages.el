@@ -36,8 +36,9 @@
 ;;;
 ;;;}}}
 
-(defvar '(ibuffer
-          ibuffer-projectile))
+(defvar ibuffer-packages
+  '((ibuffer :location built-in)
+    ibuffer-projectile))
 
 (defun ibuffer:init-ibuffer ()
   (use-package ibuffer
@@ -49,7 +50,7 @@
 
       (defun bootstrap::ibuffer-group-by-modes ()
         (when (eq ibuffer-group-buffers-by 'modes)
-          (bootstrap::ibuffer-create-buffs-grup)))
+          (bootstrap::ibuffer-create-buffs-group)))
       (add-hook 'ibuffer-hook 'bootstrap::ibuffer-group-by-modes))))
 
 (defun ibuffer:init-ibuffer-projectile ()
