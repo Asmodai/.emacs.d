@@ -2,9 +2,6 @@
 ;;;
 ;;; (>>>FILE<<<) --- (>>>TITLE<<<)
 ;;;
-;;; Time-stamp: <>
-;;; Revision:   0
-;;;
 ;;; Copyright (c) (>>>YEAR<<<) (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
 ;;;
 ;;; Author:     (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)

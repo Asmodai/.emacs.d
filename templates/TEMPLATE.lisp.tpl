@@ -2,9 +2,6 @@
 ;;;
 ;;; (>>>FILE<<<) --- (>>>TITLE<<<)
 ;;;
-;;; Time-stamp: <Friday Nov 25, 2011 12:16:26 asmodai>
-;;; Revision:   1
-;;;
 ;;; Copyright (c) (>>>YEAR<<<) (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
 ;;;
 ;;; Author:     (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
