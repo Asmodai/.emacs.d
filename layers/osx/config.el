@@ -2,13 +2,10 @@
 ;;;
 ;;; config.el --- Mac OS X configuration.
 ;;;
-;;; Time-stamp: <>
-;;; Revision:   0
+;;; Copyright (c) 2015-2016 Paul Ward <asmodai@gmail.com>
 ;;;
-;;; Copyright (c) 2015 Paul Ward <pward@alertlogic.com>
-;;;
-;;; Author:     Paul Ward <pward@alertlogic.com>
-;;; Maintainer: Paul Ward <pward@alertlogic.com>
+;;; Author:     Paul Ward <asmodai@gmail.com>
+;;; Maintainer: Paul Ward <asmodai@gmail.com>
 ;;; Created:    04 Dec 2015 18:22:09
 ;;; Keywords:   
 ;;; URL:        not distributed yet

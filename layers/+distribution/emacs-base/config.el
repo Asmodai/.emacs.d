@@ -1,12 +1,4 @@
 
-;; User settings.
-(setq user-url-address          "http://lisphacker.uk/"
-      user-full-name            "Paul Ward"
-      user-mail-address         (if (running-on-mbr15_pward-p)
-                                    "pward@alertlogic.com"
-                                  "asmodai@gmail.com")
-      url-personal-mail-address "asmodai@gmail.com")
-
 ;; Auto-refresh
 (global-auto-revert-mode 1)
 

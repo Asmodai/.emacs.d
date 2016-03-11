@@ -1,12 +1,12 @@
 ;;; -*- Mode: Emacs-Lisp -*-
 ;;;
-;;; config.el --- Elixir configuration.
+;;; packages.el --- Typography packages.
 ;;;
 ;;; Copyright (c) 2016 Paul Ward <asmodai@gmail.com>
 ;;;
 ;;; Author:     Paul Ward <asmodai@gmail.com>
 ;;; Maintainer: Paul Ward <asmodai@gmail.com>
-;;; Created:    11 Mar 2016 18:18:29
+;;; Created:    11 Mar 2016 21:30:05
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
@@ -33,7 +33,39 @@
 ;;;
 ;;;}}}
 
-(bootstrap:defvar-company-backends elixir-mode)
-(bootstrap:defvar-company-backends alchemist-iex-mode)
+(setq typography-packages
+      '(typo))
 
-;;; config.el ends here
+(when (version<= "25" emacs-version)
+  (push 'tildify typography-packages))
+
+(setq typography-excluded-packages '())
+
+(defun typography:init-type ()
+  (use-package typo
+    :defer t
+    :init
+    (progn
+      (when *typography-enable-editing*
+        (add-hook 'text-mode-hook 'typo-mode))
+
+      (bootstrap:diminish typo-mode " ☺" " T"))
+    :config (setq-default typo-language "English")))
+
+(defun typography:init-tildify ()
+  (use-package tildify
+    :defer t
+    :init
+    (progn
+      (when *typography-enable-editing*
+        (add-hook 'text-hook-mode 'tildify-mode))
+
+      (defun typography:tildify-latex-space ()
+        "Set tildify for LaTeX."
+        (setq-local tildify-space-string "~"))
+
+      (add-hook 'LaTeX-mode-hook 'typography:tildify-latex-space)
+
+      (bootstrap:diminish tildify-mode " ~" " ~"))))
+
+;;; packages.el ends here

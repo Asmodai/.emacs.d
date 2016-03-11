@@ -1,12 +1,12 @@
 ;;; -*- Mode: Emacs-Lisp -*-
 ;;;
-;;; config.el --- Elixir configuration.
+;;; config.el --- LaTeX configuration.
 ;;;
 ;;; Copyright (c) 2016 Paul Ward <asmodai@gmail.com>
 ;;;
 ;;; Author:     Paul Ward <asmodai@gmail.com>
 ;;; Maintainer: Paul Ward <asmodai@gmail.com>
-;;; Created:    11 Mar 2016 18:18:29
+;;; Created:    11 Mar 2016 21:01:49
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
@@ -33,7 +33,26 @@
 ;;;
 ;;;}}}
 
-(bootstrap:defvar-company-backends elixir-mode)
-(bootstrap:defvar-company-backends alchemist-iex-mode)
+(bootstrap:defvar-company-backends LaTeX-mode)
+
+(defvar *latex-build-command*
+  (if (executable-find "latexmk")
+      "LatexMk"
+    "LaTeX")
+  "The default command to use with `SPC m b'.")
+
+(defvar *latex-enable-auto-fill* t
+  "Whether to use `auto-fill-mode' with TeX files.")
+
+(defvar *latex-enable-folding* nil
+  "Whether to use `TeX-fold-mode' with TeX buffers.")
+
+(defvar *latex-nofill-env* '("equation"
+                             "equation*"
+                             "align"
+                             "align*"
+                             "tabular"
+                             "tikzpicture")
+  "List of environment names in which `auto-fill-mode' will be inhibited.")
 
 ;;; config.el ends here

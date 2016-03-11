@@ -2,13 +2,10 @@
 ;;;
 ;;; config.el --- HTML configuration.
 ;;;
-;;; Time-stamp: <>
-;;; Revision:   0
+;;; Copyright (c) 2016 Paul Ward <asmodai@gmail.com>
 ;;;
-;;; Copyright (c) 2016 Paul Ward <pward@alertlogic.com>
-;;;
-;;; Author:     Paul Ward <pward@alertlogic.com>
-;;; Maintainer: Paul Ward <pward@alertlogic.com>
+;;; Author:     Paul Ward <asmodai@gmail.com>
+;;; Maintainer: Paul Ward <asmodai@gmail.com>
 ;;; Created:    11 Mar 2016 18:36:57
 ;;; Keywords:   
 ;;; URL:        not distributed yet

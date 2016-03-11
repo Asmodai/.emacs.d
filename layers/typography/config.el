@@ -1,12 +1,12 @@
 ;;; -*- Mode: Emacs-Lisp -*-
 ;;;
-;;; config.el --- Elixir configuration.
+;;; config.el --- Typographic configuration.
 ;;;
 ;;; Copyright (c) 2016 Paul Ward <asmodai@gmail.com>
 ;;;
 ;;; Author:     Paul Ward <asmodai@gmail.com>
 ;;; Maintainer: Paul Ward <asmodai@gmail.com>
-;;; Created:    11 Mar 2016 18:18:29
+;;; Created:    11 Mar 2016 21:29:03
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
@@ -33,7 +33,7 @@
 ;;;
 ;;;}}}
 
-(bootstrap:defvar-company-backends elixir-mode)
-(bootstrap:defvar-company-backends alchemist-iex-mode)
+(defvar *typography-enable-editing* nil
+  "If non-NIL, automatically enable typographic editing.")
 
 ;;; config.el ends here

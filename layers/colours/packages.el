@@ -1,12 +1,12 @@
 ;;; -*- Mode: Emacs-Lisp -*-
 ;;;
-;;; config.el --- Elixir configuration.
+;;; packages.el --- Various colour-related hacks.
 ;;;
 ;;; Copyright (c) 2016 Paul Ward <asmodai@gmail.com>
 ;;;
 ;;; Author:     Paul Ward <asmodai@gmail.com>
 ;;; Maintainer: Paul Ward <asmodai@gmail.com>
-;;; Created:    11 Mar 2016 18:18:29
+;;; Created:    11 Mar 2016 21:42:08
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
@@ -33,7 +33,12 @@
 ;;;
 ;;;}}}
 
-(bootstrap:defvar-company-backends elixir-mode)
-(bootstrap:defvar-company-backends alchemist-iex-mode)
+(setq colours-packages
+      '(rainbow-mode))
 
-;;; config.el ends here
+(defun colours:init-rainbow-mode ()
+  (use-package rainbow-mode
+    :commands rainbow-mode
+    :config (bootstrap:hide-lighter rainbow-mode)))
+
+;;; packages.el ends here
