@@ -1,15 +1,15 @@
 ;;; -*- Mode: Emacs-Lisp -*-
 ;;;
-;;; config.el --- Syntax checking configuration.
+;;; packages.el --- YAML.
 ;;;
 ;;; Time-stamp: <>
 ;;; Revision:   0
 ;;;
-;;; Copyright (c) 2015 Paul Ward <pward@alertlogic.com>
+;;; Copyright (c) 2016 Paul Ward <pward@alertlogic.com>
 ;;;
 ;;; Author:     Paul Ward <pward@alertlogic.com>
 ;;; Maintainer: Paul Ward <pward@alertlogic.com>
-;;; Created:    04 Dec 2015 20:57:30
+;;; Created:    11 Mar 2016 17:22:09
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
@@ -36,13 +36,21 @@
 ;;;
 ;;;}}}
 
-(defvar *syntax-checking-enable-tooltips* t
-  "If non-NIL, some feedback will be displayed in tooltips.")
+(setq yaml-packages '(company
+                      yaml-mode))
 
-(when (terminal-p)
-  (setq *syntax-checking-enable-tooltips* nil))
+(defun yaml:post-init-company ()
+  (add-hook 'yaml-mode-hook 'company-mode))
 
-(defvar *syntax-checking-enable-by-default* t
-  "Enable syntax checking by default.")
+(defun yaml:init-yaml-mode ()
+  (use-package yaml-mode
+    :mode (("\\.\\(yml\\|yaml\\)\\'" . yaml-mode)
+           ("Procfile\\'" . yaml-mode))
+    :config (add-hook 'yaml-mode-hook
+                      (lambda ()
+                        (define-key
+                          yaml-mode-map
+                          "\C-m"
+                          'newline-and-indent)))))
 
-;;; config.el ends here
+;;; packages.el ends here

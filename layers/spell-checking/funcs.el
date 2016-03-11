@@ -1,15 +1,15 @@
 ;;; -*- Mode: Emacs-Lisp -*-
 ;;;
-;;; config.el --- Syntax checking configuration.
+;;; funcs.el --- Spell checking functions.
 ;;;
 ;;; Time-stamp: <>
 ;;; Revision:   0
 ;;;
-;;; Copyright (c) 2015 Paul Ward <pward@alertlogic.com>
+;;; Copyright (c) 2016 Paul Ward <pward@alertlogic.com>
 ;;;
 ;;; Author:     Paul Ward <pward@alertlogic.com>
 ;;; Maintainer: Paul Ward <pward@alertlogic.com>
-;;; Created:    04 Dec 2015 20:57:30
+;;; Created:    11 Mar 2016 16:18:23
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
@@ -36,13 +36,19 @@
 ;;;
 ;;;}}}
 
-(defvar *syntax-checking-enable-tooltips* t
-  "If non-NIL, some feedback will be displayed in tooltips.")
+(defun spell-checking:add-flyspell-hook (hook)
+  "Add `flyspell-mode' to the given HOOK if `*spell-checking-enable-by-default*'
+is non-NIL."
+  (when *spell-checking-enable-by-default*
+    (add-hook hook 'flyspell-mode)))
 
-(when (terminal-p)
-  (setq *syntax-checking-enable-tooltips* nil))
+(defun spell-checking:change-dictionary ()
+  "Change the dictionary.
 
-(defvar *syntax-checking-enable-by-default* t
-  "Enable syntax checking by default.")
+Use the ispell version if `auto-dictionary' is not be used."
+  (interactive)
+  (if (fboundp 'adict-change-dictionary)
+      (adict-change-dictionary)
+      (call-interactively 'ispell-change-dictionary)))
 
-;;; config.el ends here
+;;; funcs.el ends here

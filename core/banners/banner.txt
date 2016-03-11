@@ -1,9 +1,9 @@
 
 
     ┌───┬───┐
-    │ ● │ ●─┼─▸    GNU LISP MACHINE
+    │ * │ *─┼─>    GNU LISP MACHINE
     └─┼─┴───┘
-      ▾
+      v
 
    “Not as clumsy or as random as other
     languages.  An elegant language, for

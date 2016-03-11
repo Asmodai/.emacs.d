@@ -1,15 +1,15 @@
 ;;; -*- Mode: Emacs-Lisp -*-
 ;;;
-;;; config.el --- Syntax checking configuration.
+;;; config.el --- Ruby configuration.
 ;;;
 ;;; Time-stamp: <>
 ;;; Revision:   0
 ;;;
-;;; Copyright (c) 2015 Paul Ward <pward@alertlogic.com>
+;;; Copyright (c) 2016 Paul Ward <pward@alertlogic.com>
 ;;;
 ;;; Author:     Paul Ward <pward@alertlogic.com>
 ;;; Maintainer: Paul Ward <pward@alertlogic.com>
-;;; Created:    04 Dec 2015 20:57:30
+;;; Created:    11 Mar 2016 00:28:29
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
@@ -36,13 +36,20 @@
 ;;;
 ;;;}}}
 
-(defvar *syntax-checking-enable-tooltips* t
-  "If non-NIL, some feedback will be displayed in tooltips.")
+(bootstrap:defvar-company-backends enh-ruby-mode)
+(bootstrap:defvar-company-backends ruby-mode)
 
-(when (terminal-p)
-  (setq *syntax-checking-enable-tooltips* nil))
+(defvar *ruby-enable-enh-ruby-mode* t
+  "If non-NIL, use `enh-ruby-mode' rather than the built-in Ruby mode.")
 
-(defvar *syntax-checking-enable-by-default* t
-  "Enable syntax checking by default.")
+(defvar *ruby-version-manager* nil
+  "If non-NIL, defines the Ruby version manager.
+
+Possible values are `rbenv', `rvm', or `chruby'.")
+
+(defvar *ruby-test-runner* 'rspec'
+  "Test runner to use.
+
+Possible values are `rspec', or `ruby-test'.")
 
 ;;; config.el ends here

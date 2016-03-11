@@ -40,20 +40,41 @@
       '(company
         helm
         multi-term
+        (comint :location built-in)
+        xterm-color
         shell
         shell-pop
         term
         eshell
         eshell-prompt-extras
-        (ansi-color :location built-in)
         esh-help
         magit))
 
-(defun shell:init-ansi-color ()
-  (use-package ansi-color
+(defun shell:init-comint ()
+  (setq comint-prompt-read-only t))
+
+(defun shell:init-xterm-color ()
+  (use-package xterm-color
     :defer t
-    :config
-    (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)))
+    :init
+    (progn
+      (require 'xterm-color)
+      (add-hook 'comint-preoutput-filter-functions
+                'xterm-color-filter)
+      (setq comint-output-filter-functions
+            (remove 'ansi-color-process-output
+                    comint-output-filter-functions))
+      (setq font-lock-unfontify-region-function
+            'xterm-color-unfontify-region)
+      (with-eval-after-load 'esh-mode
+        (add-hook 'eshell-mode-hook
+                  (lambda ()
+                    (setq xterm-color-preserve-properties t)))
+        (add-hook 'eshell-preoutput-filter-functions
+                  'xterm-color-filter)
+        (setq eshell-output-filter-functions
+              (remove 'eshell-handle-ansi-color
+                      eshell-output-filter-functions))))))
 
 (defun shell:pre-init-company ()
   (bootstrap:use-package-add-hook eshell

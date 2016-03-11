@@ -1,15 +1,15 @@
 ;;; -*- Mode: Emacs-Lisp -*-
 ;;;
-;;; packages.el --- Dash packages.
+;;; packages.el --- Shell scripts of various kinds.
 ;;;
 ;;; Time-stamp: <>
 ;;; Revision:   0
 ;;;
-;;; Copyright (c) 2015 Paul Ward <pward@alertlogic.com>
+;;; Copyright (c) 2016 Paul Ward <pward@alertlogic.com>
 ;;;
 ;;; Author:     Paul Ward <pward@alertlogic.com>
 ;;; Maintainer: Paul Ward <pward@alertlogic.com>
-;;; Created:    05 Dec 2015 15:24:40
+;;; Created:    11 Mar 2016 18:08:32
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
@@ -36,35 +36,33 @@
 ;;;
 ;;;}}}
 
-(setq dash-packages '(helm-dash))
+(setq shell-scripts-packages
+      '(fish-mode
+        (sh-script :location built-in)))
 
-(cond ((mac-os-x-p)
-       (push 'dash-at-point dash-packages))
-      ((and (linux-p)
-            (not (terminal-p)))
-       (push 'zeal-at-point dash-packages)))
-
-(defun dash:init-helm-dash ()
-  (use-package helm-dash
-    :defer t
-    :config
-    (defun dash::activate-package-docsets (path)
-      (setq helm-dash-docsets-path path
-            helm-dash-common-docsets (helm-dash-installed-docsets))
-      (message (format "Activated %d docsets from: %s"
-                       (length helm-dash-common-docsets)
-                       path)))
-
-    (dash::activate-package-docsets *dash-helm-dash-docset-path*)))
-
-(defun dash:init-dash-at-point ()
-  (use-package dash-at-point
+(defun shell-scripts:init-fish-mode ()
+  (use-package fish-mode
     :defer t))
 
-(defun dash:init-zeal-at-point ()
-  (use-package zeal-at-point
+(defun shell-scripts:init-sh-script ()
+  (use-package sh-script
     :defer t
-    :config
-    (push '(web-mode . "html,css,javascript") zeal-at-point-mode-alist)))
+    :init
+    (progn
+      (dolist (pattern '("\\.zsh\\'"
+                         "zlogin\\'"
+                         "zlogout\\'"
+                         "zpreztorc\\'"
+                         "zprofile\\'"
+                         "zshenv\\'"
+                         "zshrc\\'"))
+        (add-to-list 'auto-mode-alist (cons pattern 'sh-mode)))
+
+      (defun bootstrap::setup-shell ()
+        (when (and buffer-file-name
+                   (string-match-p "\\.zsh\\'" buffer-file-name))
+          (sh-set-shell "zsh")))
+
+      (add-hook 'sh-mode-hook 'bootstrap::setup-shell))))
 
 ;;; packages.el ends here

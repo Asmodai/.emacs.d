@@ -1,19 +1,15 @@
-# -*- Mode: Ruby -*-
+# -*- mode: enh-ruby; coding: utf-8; -*-
 #
 # (>>>FILE<<<) --- (>>>TITLE<<<)
 #
 # Copyright (c) (>>>YEAR<<<) (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
 #
-# Time-stamp: <>
-# Revision:   0
-#
 # Author:     (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
 # Maintainer: (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
 # Created:    (>>>DATE<<<) (>>>TIME<<<)
-# Keywords:   (>>>1<<<)
 # URL:        not distributed yet
 #
-#{{{ License:
+# {{{ License:
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -28,12 +24,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-#}}}
-#{{{ Commentary:
+# }}}
+# {{{ Commentary:
 #
 #
 #
-#}}}
+# }}}
 
 (>>>POINT<<<)
 

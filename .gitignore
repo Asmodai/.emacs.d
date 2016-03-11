@@ -8,3 +8,9 @@
 /cache/**/*
 .cache
 /elpa
+/eshell
+/games
+srecode-map.el
+ido.last
+scratch.el
+.DS_Store

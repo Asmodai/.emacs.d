@@ -1,6 +1,6 @@
 ;;; -*- Mode: Emacs-Lisp -*-
 ;;;
-;;; packages.el --- Dash packages.
+;;; config.el --- PHP configuration
 ;;;
 ;;; Time-stamp: <>
 ;;; Revision:   0
@@ -9,7 +9,7 @@
 ;;;
 ;;; Author:     Paul Ward <pward@alertlogic.com>
 ;;; Maintainer: Paul Ward <pward@alertlogic.com>
-;;; Created:    05 Dec 2015 15:24:40
+;;; Created:    05 Dec 2015 16:30:55
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
@@ -36,35 +36,6 @@
 ;;;
 ;;;}}}
 
-(setq dash-packages '(helm-dash))
+(bootstrap:defvar-company-backends php-mode)
 
-(cond ((mac-os-x-p)
-       (push 'dash-at-point dash-packages))
-      ((and (linux-p)
-            (not (terminal-p)))
-       (push 'zeal-at-point dash-packages)))
-
-(defun dash:init-helm-dash ()
-  (use-package helm-dash
-    :defer t
-    :config
-    (defun dash::activate-package-docsets (path)
-      (setq helm-dash-docsets-path path
-            helm-dash-common-docsets (helm-dash-installed-docsets))
-      (message (format "Activated %d docsets from: %s"
-                       (length helm-dash-common-docsets)
-                       path)))
-
-    (dash::activate-package-docsets *dash-helm-dash-docset-path*)))
-
-(defun dash:init-dash-at-point ()
-  (use-package dash-at-point
-    :defer t))
-
-(defun dash:init-zeal-at-point ()
-  (use-package zeal-at-point
-    :defer t
-    :config
-    (push '(web-mode . "html,css,javascript") zeal-at-point-mode-alist)))
-
-;;; packages.el ends here
+;;; config.el ends here

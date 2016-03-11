@@ -288,6 +288,9 @@ If MSGBUF is non-NIL then the message is also written to the message buffer."
    (propertize "IELM" 'face 'font-lock-keyword-face))
   (insert "\n"))
 
+(defun bootstrap-buffer::get-host-from-fqdn ()
+  (first (split-string (system-name) "\\.")))
+
 (defun bootstrap-buffer::generate-info-text ()
   (format (concat "%s: %s\n"
                   "%s: %s\n"
@@ -299,7 +302,7 @@ If MSGBUF is non-NIL then the message is also written to the message buffer."
                       'face 'font-lock-function-name-face)
           (propertize "Host"
                       'face 'font-lock-comment-face)
-          (propertize (system-name)
+          (propertize (bootstrap-buffer::get-host-from-fqdn)
                       'face 'font-lock-function-name-face)
           (propertize "Mode"
                       'face 'font-lock-comment-face)

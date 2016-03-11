@@ -1,15 +1,15 @@
 ;;; -*- Mode: Emacs-Lisp -*-
 ;;;
-;;; config.el --- Syntax checking configuration.
+;;; packages.el --- Emoji!
 ;;;
 ;;; Time-stamp: <>
 ;;; Revision:   0
 ;;;
-;;; Copyright (c) 2015 Paul Ward <pward@alertlogic.com>
+;;; Copyright (c) 2016 Paul Ward <pward@alertlogic.com>
 ;;;
 ;;; Author:     Paul Ward <pward@alertlogic.com>
 ;;; Maintainer: Paul Ward <pward@alertlogic.com>
-;;; Created:    04 Dec 2015 20:57:30
+;;; Created:    11 Mar 2016 17:04:17
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
@@ -36,13 +36,26 @@
 ;;;
 ;;;}}}
 
-(defvar *syntax-checking-enable-tooltips* t
-  "If non-NIL, some feedback will be displayed in tooltips.")
+(setq emoji-packages
+      '(emoji-cheat-sheet-plus
+        company-emoji))
 
-(when (terminal-p)
-  (setq *syntax-checking-enable-tooltips* nil))
+(defun emoji:init-emoji-cheat-sheet-plus ()
+  (use-package emoji-cheat-sheet-plus
+    :commands (emoji-cheat-sheet-plus-insert
+               emoji-cheat-sheet-plus-buffer
+               emoji-cheat-sheet-plus-display-mode)
+    :init
+    (progn
+      (defun bootstrap:delay-emoji-cheat-sheet-hook ()
+        "Workaround for org buffers."
+        (run-at-time 0.1 nil 'emoji-cheat-sheet-plus-display-mode)))))
 
-(defvar *syntax-checking-enable-by-default* t
-  "Enable syntax checking by default.")
+(when (bootstrap-layer:layer-used-p 'auto-completion)
+  (defun emoji:init-company-emoji ()
+    (use-package company-emoji
+      :if (bootstrap-layer:layer-used-p 'company)
+      :defer t
+      :init (setq company-emoji-insert-unicode nil))))
 
-;;; config.el ends here
+;;; packages.el ends here

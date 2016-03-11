@@ -39,6 +39,7 @@
 (setq syntax-checking-packages
       '(flycheck
         flycheck-pos-tip
+        (redspace-mode :location local)
         popwin))
 
 (defun syntax-checking:init-flycheck ()
@@ -129,6 +130,9 @@ If the error list is visible, hide it.  Otherwise, show it."
     :defer t
     :init
     (setq flycheck-display-errors-function 'flycheck-pos-tip-error-messages)))
+
+(defun syntax-checking:init-redspace-mode ()
+  (require 'redspace-mode))
 
 (defun syntax-checking:post-init-popwin ()
   (push '("^\*Flycheck.+\*$"

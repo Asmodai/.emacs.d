@@ -1,15 +1,15 @@
 ;;; -*- Mode: Emacs-Lisp -*-
 ;;;
-;;; config.el --- Syntax checking configuration.
+;;; funcs.el --- Syntax checking functions.
 ;;;
 ;;; Time-stamp: <>
 ;;; Revision:   0
 ;;;
-;;; Copyright (c) 2015 Paul Ward <pward@alertlogic.com>
+;;; Copyright (c) 2016 Paul Ward <pward@alertlogic.com>
 ;;;
 ;;; Author:     Paul Ward <pward@alertlogic.com>
 ;;; Maintainer: Paul Ward <pward@alertlogic.com>
-;;; Created:    04 Dec 2015 20:57:30
+;;; Created:    11 Mar 2016 00:43:07
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
@@ -36,13 +36,10 @@
 ;;;
 ;;;}}}
 
-(defvar *syntax-checking-enable-tooltips* t
-  "If non-NIL, some feedback will be displayed in tooltips.")
+(defun bootstrap:add-flycheck-hook (hook)
+  "Add flycheck to the given HOOK if `*syntax-checking-enable-by-default*' is
+non-NIL."
+  (when *syntax-checking-enable-by-default*
+    (add-hook hook 'flycheck-mode)))
 
-(when (terminal-p)
-  (setq *syntax-checking-enable-tooltips* nil))
-
-(defvar *syntax-checking-enable-by-default* t
-  "Enable syntax checking by default.")
-
-;;; config.el ends here
+;;; funcs.el ends here

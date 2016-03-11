@@ -38,6 +38,8 @@
 
 (setq cc-packages
       '(cc-mode
+        (ppindent :location local)
+        (c-comment-edit :location local)
         disaster
         clang-format
         cmake-mode
@@ -51,7 +53,8 @@
         semantic
         stickyfunc-enhance
         ycmd
-        xcscope))
+        xcscope
+        (code-style :location local)))
 
 (unless (version< emacs-version "24.4")
   (add-to-list 'cc-packages 'srefactor))
@@ -64,7 +67,17 @@
     :config
     (progn
       (require 'compile)
+      (require 'align)
       (c-toggle-auto-newline))))
+
+(defun cc:init-c-comment-edit ()
+  (use-package c-comment-edit
+    :defer t
+    :init (setq c-comment-leader "  ")))
+
+(defun cc:init-ppindent ()
+  (use-package ppindent
+    :defer t))
 
 (defun cc:init-disaster ()
   (use-package disaster
@@ -164,5 +177,16 @@
 
 (defun cc:post-init-company-ycmd ()
   (push 'company-ycmd *company-backends-c-mode-common*))
+
+(defun cc:init-code-style ()
+  (use-package code-style
+    :defer t
+    :init
+    (progn
+      (require 'code-style)
+      (bootstrap:add-to-hooks 'google-set-c-style
+                              '(c-mode-hook c++-mode-hook))
+      (bootstrap:add-to-hooks 'google-make-newline-indent
+                              '(c-mode-hook c++-mode-hook)))))
 
 ;;; packages.el ends here

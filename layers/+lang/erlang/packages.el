@@ -1,15 +1,15 @@
 ;;; -*- Mode: Emacs-Lisp -*-
 ;;;
-;;; packages.el --- Dash packages.
+;;; packages.el --- Erlang packages.
 ;;;
 ;;; Time-stamp: <>
 ;;; Revision:   0
 ;;;
-;;; Copyright (c) 2015 Paul Ward <pward@alertlogic.com>
+;;; Copyright (c) 2016 Paul Ward <pward@alertlogic.com>
 ;;;
 ;;; Author:     Paul Ward <pward@alertlogic.com>
 ;;; Maintainer: Paul Ward <pward@alertlogic.com>
-;;; Created:    05 Dec 2015 15:24:40
+;;; Created:    11 Mar 2016 18:34:30
 ;;; Keywords:   
 ;;; URL:        not distributed yet
 ;;;
@@ -36,35 +36,27 @@
 ;;;
 ;;;}}}
 
-(setq dash-packages '(helm-dash))
+(setq erlang-packages
+      '(company
+        erlang
+        flycheck))
 
-(cond ((mac-os-x-p)
-       (push 'dash-at-point dash-packages))
-      ((and (linux-p)
-            (not (terminal-p)))
-       (push 'zeal-at-point dash-packages)))
+(defun erlang:post-init-company ()
+  (add-hook 'erlang-mode-hook 'company-mode))
 
-(defun dash:init-helm-dash ()
-  (use-package helm-dash
+(defun erlang:init-erlang ()
+  (use-package erlang
     :defer t
+    :init
+    (progn
+      (add-hook 'erlang-mode-hook
+                (lambda ()
+                  (run-hooks 'prog-mode-hook)))
+      (setq erlang-compile-extra-opts '(debug_info)))
     :config
-    (defun dash::activate-package-docsets (path)
-      (setq helm-dash-docsets-path path
-            helm-dash-common-docsets (helm-dash-installed-docsets))
-      (message (format "Activated %d docsets from: %s"
-                       (length helm-dash-common-docsets)
-                       path)))
+    (require 'erlang-start)))
 
-    (dash::activate-package-docsets *dash-helm-dash-docset-path*)))
-
-(defun dash:init-dash-at-point ()
-  (use-package dash-at-point
-    :defer t))
-
-(defun dash:init-zeal-at-point ()
-  (use-package zeal-at-point
-    :defer t
-    :config
-    (push '(web-mode . "html,css,javascript") zeal-at-point-mode-alist)))
+(defun erlang:post-init-flycheck ()
+  (bootstrap:add-flycheck-hook 'erlang-mode-hook))
 
 ;;; packages.el ends here
