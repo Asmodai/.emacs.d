@@ -2257,8 +2257,10 @@ Removes the automatic guessing of the initial value based on thing at
       ;; note for Windows: GNU find or Cygwin find must be in path
       ;; default parameters are not supported on Windows, we default
       ;; to simplest call to find.
-      (when (windows-p)
-        (setq projectile-generic-command "find . -type f"))
+      (when (and (windows-p)
+                 (executable-find "find"))
+        (setq projectile-indexing-method 'alien
+              projectile-generic-command "find . -type f"))
       (setq projectile-enable-caching t
             projectile-indexing-method 'alien
             projectile-sort-order 'recentf
@@ -2269,7 +2271,8 @@ Removes the automatic guessing of the initial value based on thing at
                       "projectile-bookmarks.eld")))
     :config
     (progn
-      (projectile-global-mode))))
+      (projectile-global-mode)
+      (bootstrap:hide-lighter projectile-mode))))
 
 (defun emacs-base:init-savehist ()
   (use-package savehist
