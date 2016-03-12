@@ -2473,4 +2473,8 @@ Removes the automatic guessing of the initial value based on thing at
     :init
     (progn
       (require 'template)
-      (template-initialize))))
+      (template-initialize)
+      (setq template-default-directories
+            (append (list (concat user-home-directory
+                                  ".emacs.d/templates/"))
+                    template-default-directories)))))

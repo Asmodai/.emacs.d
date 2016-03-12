@@ -34,11 +34,24 @@
 ;;;}}}
 
 (setq all-langs-packages
-      '((comment-block :location local)))
+      '((comment-block :location local)
+        (doc-mode      :location local)))
 
 (defun all-langs:init-comment-block ()
   (use-package comment-block
     :defer t
     :init (require 'comment-block)))
+
+(defun all-langs:init-doc-mode ()
+  (use-package doc-mode
+    :defer t
+    :init
+    (progn
+      (require 'doc-mode)
+
+      (bootstrap:add-to-hooks 'doc-mode '(c-mode-hook
+                                          c++-mode-hook
+                                          php-mode-hook))
+      (bootstrap:hide-lighter doc-mode))))
 
 ;;; packages.el ends here
