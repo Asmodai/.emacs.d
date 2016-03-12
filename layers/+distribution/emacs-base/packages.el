@@ -369,7 +369,11 @@ will be backward."
                 (t
                  (concat " (" time ")")))))
 
-      (setq-default fancy-battery-show-percentage t))
+      (setq-default fancy-battery-show-percentage t)
+
+      (when (or (running-on-voyager-p)
+                (running-on-mbr15_pward-p))
+        (fancy-battery-mode)))
     :config
     (progn
 
