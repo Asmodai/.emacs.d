@@ -210,6 +210,8 @@
     :commands (yas-global-mode yas-minor-mode)
     :init
     (progn
+      (require 'yasnippet)
+
      ;; We don't want undefined variable errors
       (defvar yas-global-mode nil)
 
@@ -227,21 +229,20 @@
       ;; add key into candidate list
       (setq helm-yas-display-key-on-candidate t)
 
+      (let ((private-yas-dir
+             (if *auto-completion-private-snippets-directory*
+                 *auto-completion-private-snippets-directory*
+               (concat +bootstrap-private-directory+
+                       "snippets/"))))
+        (setq yas-snippet-dirs
+              (append (list private-yas-dir)
+                      yas-snippet-dirs))
+        (yas-load-directory private-yas-dir t)
+        (setq yas-wrap-around-region t))
+
       (defun bootstrap:load-yasnippet ()
         (unless yas-global-mode
-          (progn
-            (yas-global-mode 1)
-            (let ((private-yas-dir
-                   (if *auto-completion-private-snippets-directory*
-                       *auto-completion-private-snippets-directory*
-                     (concat +bootstrap-private-directory+
-                             "snippets/"))))
-              (setq yas-snippet-dirs
-                    (append (list private-yas-dir)
-                            (when (boundp 'yas-snippet-dirs)
-                              yas-snippet-dirs)))
-              (yas-load-directory private-yas-dir t)
-              (setq yas-wrap-around-region t))))
+          (yas-global-mode 1))
         (yas-minor-mode 1))
 
       (bootstrap:add-to-hooks 'bootstrap:load-yasnippet '(prog-mode-hook
