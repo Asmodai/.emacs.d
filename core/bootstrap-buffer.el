@@ -199,42 +199,6 @@ If MSGBUF is non-NIL then the message is also written to the message buffer."
                       (bookmark-get-filename el)))))
           list)))
 
-(defun bootstrap-buffer:insert-startupify-lists ()
-  (interactive)
-  (with-current-buffer (get-buffer-create +bootstrap-buffer-name+)
-    (let ((buffer-read-only nil)
-          (list-separator "\n\n"))
-      (goto-char (point-max))
-      (when (featurep 'page-break-lines)
-        (page-break-lines-mode))
-      (bootstrap-buffer:insert-page-break)
-      (mapc (lambda (el)
-              (cond ((eq el 'recents)
-                     (recentf-mode)
-                     (when (bootstrap-buffer::insert-file-list
-                            (propertize "Recent Files:"
-                                        'face 'font-lock-comment-face)
-                            (recentf-elements 5))
-                       (bootstrap-buffer::insert-shortcut "r" "Recent Files:")
-                       (insert list-separator)))
-                    ((eq el 'bookmarks)
-                     (helm-mode)
-                     (when (bootstrap-buffer::insert-bookmark-list
-                            (propertize "Bookmarks:"
-                                        'face 'font-lock-comment-face)
-                            (bookmark-all-names))
-                       (bootstrap-buffer::insert-shortcut "m" "Bookmarks:")
-                       (insert list-separator)))
-                    ((eq el 'projects)
-                     (projectile-mode)
-                     (when (bootstrap-buffer::insert-file-list
-                            (propertize "Projects:"
-                                        'face 'font-lock-commentg-face)
-                            (projectile-relevant-known-projects))
-                       (bootstrap-buffer::insert-shortcut "p" "Projects:")
-                       (insert list-separator)))))
-            *bootstrap-startup-lists*))))
-
 (defun bootstrap-buffer::insert-buttons ()
   "Insert quick link buttons into the bootstrap-mode buffer."
   (goto-char (point-max))
@@ -366,9 +330,6 @@ If MSGBUF is non-NIL then the message is also written to the message buffer."
   (bootstrap-buffer:set-mode-line "")
   (bootstrap-buffer::insert-banner)
   (bootstrap-mode)
-  ;; Display useful lists of items
-  (when *bootstrap-startup-lists*
-    (bootstrap-buffer:insert-startupify-lists))
   (bootstrap:redisplay)
   (goto-char (point-min)))
 

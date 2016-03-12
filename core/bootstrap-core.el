@@ -39,7 +39,7 @@
 (defvar *bootstrap-delete-orphan-packages* t)
 (defvar *bootstrap-search-tools* '("ack" "grep"))
 (defvar *bootstrap-default-package-repository* 'melpa-stable)
-(defvar *bootstrap-startup-lists '(recents projects bookmarks))
+(defvar *bootstrap-startup-lists* '(recents projects bookmarks))
 (defvar *bootstrap-smooth-scrolling* t)
 
 
@@ -171,8 +171,6 @@
         (format "\n[%s packages loaded in %.3fs]\n"
                 (bootstrap-layer::configured-packages-count)
                 elapsed)))
-     (when *bootstrap-startup-lists*
-       (bootstrap-buffer:insert-startupify-lists))
      (if *bootstrap-layer-error-count*
          (bootstrap-buffer:set-mode-line
           (format (concat "%s error(s) at startup! "

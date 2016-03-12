@@ -45,7 +45,6 @@
         volatile-highlights
         window-numbering
         (zoom-frm :location local)
-        
         bind-key
         bookmark
         diminish
@@ -331,13 +330,13 @@ will be backward."
              '("/"
                (lambda ()
                  (call-interactively
-                  'bootstrap/helm-project-smart-do-search-region-or-symbol)))
+                  'bootstrap:helm-project-smart-do-search-region-or-symbol)))
              new-bindings)
             (cl-pushnew
              '("b"
                (lambda ()
                  (call-interactively
-                  'bootstrap/helm-buffers-smart-do-search-region-or-symbol)))
+                  'bootstrap:helm-buffers-smart-do-search-region-or-symbol)))
              new-bindings)
             (setq ad-return-value (cons new-msg new-bindings)))))
       (setq expand-region-contract-fast-key "V"
@@ -547,7 +546,7 @@ For instance pass En as source for english."
       (defun bootstrap:helm-file-do-ag-region-or-symbol ()
         "Search in current file with `ag' using a default input."
         (interactive)
-        (bootstrap:/helm-do-ag-region-or-symbol 'bootstrap:helm-file-do-ag))
+        (bootstrap:helm-do-ag-region-or-symbol 'bootstrap:helm-file-do-ag))
 
       (defun bootstrap:helm-file-smart-do-search (&optional default-inputp)
         "Search in current file using `dotspacemacs-search-tools'.
@@ -1745,7 +1744,7 @@ one of `l' or `r'."
 (defun emacs-base:init-helm ()
   (use-package helm
     :defer 1
-    :commands (bootstrap/helm-find-files)
+    :commands (bootstrap:helm-find-files)
     :config
     (progn
       (when (and *bootstrap-helm-resize*
@@ -1787,7 +1786,7 @@ one of `l' or `r'."
              :height 0.1))))
       (add-hook 'helm-before-initialize-hook 'helm-toggle-header-line)
 
-      (defun bootstrap/helm-find-files (arg)
+      (defun bootstrap:helm-find-files (arg)
         "Custom spacemacs implementation for calling helm-find-files-1.
 
 Removes the automatic guessing of the initial value based on thing at
@@ -1927,6 +1926,10 @@ Removes the automatic guessing of the initial value based on thing at
       ;; use helm by default for M-x
       (unless (bootstrap-layer:package-used-p 'smex)
         (global-set-key (kbd "M-x") 'helm-M-x))
+
+      ;; Use helm by default for C-x C-f too.
+      (unless (bootstrap-layer:package-used-p 'smex)
+        (global-set-key (kbd "C-x C-f") 'helm-find-files))
 
       (defvar *bootstrap-helm-display-help-buffer-regexp*
         '("*.*Helm.*Help.**"))
@@ -2142,9 +2145,7 @@ Removes the automatic guessing of the initial value based on thing at
 
 (defun emacs-base:init-page-break-lines ()
   (use-package page-break-lines
-;;    :init
-    ;;    (global-page-break-lines-mode t)))
-    ))
+    :defer t))
 
 (defun emacs-base:init-popup ()
   (use-package popup
@@ -2247,6 +2248,8 @@ Removes the automatic guessing of the initial value based on thing at
                projectile-vc)
     :init
     (progn
+      (require 'projectile)
+      
       ;; note for Windows: GNU find or Cygwin find must be in path
       ;; default parameters are not supported on Windows, we default
       ;; to simplest call to find.
@@ -2335,6 +2338,8 @@ Removes the automatic guessing of the initial value based on thing at
   (use-package which-key
     :init
     (progn
+      (require 'which-key)
+      
       (when (not (windows-p))
         (let ((new-descriptions
                '(("bootstrap:\\(.+\\)" . "\\1")
