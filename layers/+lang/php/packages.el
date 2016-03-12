@@ -34,7 +34,6 @@
 ;;;}}}
 
 (setq php-packages '(company
-                     drupal-mode
                      eldoc
                      flycheck
                      php-auto-yasnippets
@@ -48,10 +47,6 @@
 (when (bootstrap-layer:layer-used-p 'auto-completion)
   (defun php:post-init-company ()
     (bootstrap:add-company-hook php-mode)))
-
-(defun php:init-drupal-mode ()
-  (use-package drupal-mode
-    :defer t))
 
 (defun php:post-init-flycheck ()
   (add-hook 'php-mode-hook 'flycheck-mode))
@@ -68,8 +63,29 @@
   (use-package php-mode
     :defer t
     :mode ("\\.php\\'" . php-mode)
-    :init (bootstrap:add-to-hooks 'redspace-mode
-                                  '(php-mode))))
+    :init
+    (progn
+      (defun unindent-php-closure ()
+        "Fix `php-mode' indentation for closures."
+        (let ((syntax (mapcar 'car c-syntactic-context)))
+          (if (and (member 'arglist-cont-nonempty syntax)
+                   (or (member 'statement-block-intro syntax)
+                       (member 'brace-list-intro syntax)
+                       (member 'block-close syntax)))
+              (save-excursion
+                (beginning-of-line)
+                (delete-char (* (count 'arglist-cont-nonempty syntax)
+                                c-basic-offset))))))
+
+      (bootstrap:add-to-hook 'php-mode-hook
+                             (lambda ()
+                               (bootstrap:add-to-hook 'c-special-indent-hook
+                                                      'unindent-php-closure)))
+
+      (bootstrap:add-to-hook 'php-mode-hook 'php-enable-psr2-coding-style)
+
+      (bootstrap:add-to-hooks 'redspace-mode
+                                  '(php-mode)))))
 
 (defun php:init-phpcbf ()
   (use-package phpcbf

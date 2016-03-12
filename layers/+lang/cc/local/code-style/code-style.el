@@ -60,7 +60,7 @@ Suitable for inclusion in `c-offsets-alist'."
 
 (defconst google-c-style
   `((c-recognize-knr-p . nil)
-    (c-enable-xemacs-performance-kludge-p . t)
+    (c-enable-xemacs-performance-kludge-p . nil)
     (c-basic-offset . 2)
     (indent-tabs-mode . nil)
     (c-comment-only-line-offset . 0)

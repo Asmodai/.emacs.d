@@ -35,7 +35,8 @@
 
 (setq lisp-packages
       '(slime
-        (cl-indent-patches :location local)))
+        (cl-indent-patches :location local)
+        (shift-lock        :location local)))
 
 (defun lisp:init-slime ()
   (use-package slime
@@ -60,5 +61,14 @@
   (use-package cl-indent-patches
     :init (progn
             (require 'cl-indent-patches))))
+
+(defun lisp:init-shift-lock ()
+  (use-package shift-lock
+    :defer t
+    :init
+    (progn
+      (require 'shift-lock)
+      (bootstrap:add-to-hook 'lisp-mode-hook 'electric-shift-lock-mode))))
+
 
 ;;; packages.el ends here

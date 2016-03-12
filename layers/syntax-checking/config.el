@@ -37,7 +37,7 @@
   "If non-NIL, some feedback will be displayed in tooltips.")
 
 (when (terminal-p)
-  (setq *syntax-checking-enable-tooltips* nil))
+  (setq *syntax-checking-enable-tooltips* (not (terminal-p))))
 
 (defvar *syntax-checking-enable-by-default* t
   "Enable syntax checking by default.")
