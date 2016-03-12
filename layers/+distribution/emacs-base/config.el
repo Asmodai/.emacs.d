@@ -99,6 +99,9 @@ It runs `tabulated-list-revert-hook', then calls `tabulated-list-print'."
 ;; Enable linum-mode for programming modes.
 (add-hook 'prog-mode-hook 'bootstrap::linum-hook)
 
+;; Enable linum-mode for all text-based modes.
+(add-hook 'text-mode-hook 'bootstrap::linum-hook)
+
 ;; highlight current line
 (global-hl-line-mode t)
 
