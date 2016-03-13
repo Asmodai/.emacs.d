@@ -2,11 +2,14 @@
 (require 'bootstrap-funs)
 (require 'bootstrap-buffer)
 
-(defvar *bootstrap-default-font* '("Source Code Pro"
-                                   :size 10
-                                   :weight normal
-                                   :width normal
-                                   :powerline-scale 1.0))
+(defvar *bootstrap-default-font*
+  (list "Source Code Pro"
+        :size (if (linux-p)
+                  12
+                10)
+        :weight 'normal
+        :width 'normal
+        :powerline-scale 1.0))
 
 (defvar *bootstrap-diminished-minor-modes* nil
   "List of diminished minor modes.")
@@ -67,7 +70,8 @@ PLIST has the form (\"fontname\" :prop1 val1 :prop2 val2 ...)"
                           '(#x2295 . #x22a1) fallback-spec nil 'prepend)
         ;; new version lighter
         (set-fontset-font "fontset-default"
-                          '(#x2190 . #x2200) fallback-spec2 nil 'prepend)))))
+                          '(#x2190 . #x2200) fallback-spec2 nil 'prepend)))
+    fontspec))
 
 (defun bootstrap:compute-powerline-height ()
   "Return an adjusted powerline height."
