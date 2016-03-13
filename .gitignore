@@ -1,11 +1,12 @@
 *~
+\#*#
 /**/*~
 *.elc
 /**/*.elc
 *.bak
 /**/*.bak
 /auto-save-list
-/cache/**/*
+/cache
 .cache
 /elpa
 /eshell
