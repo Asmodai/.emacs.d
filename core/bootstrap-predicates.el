@@ -85,6 +85,26 @@
   "T if we are running in a text-based terminal of some sort."
   (eq window-system nil))
 
+(defsubst unicode-p ()
+  "T if we are using something (terminal or not) that can render unicode.
+
+NOTE: If the terminal type is `linux', then we assume that unicode blows chunks
+and explicitly return nil."
+  (let ((tty (tty-type)))
+    (if (and (null tty)
+             (not (null window-system)))
+        t
+      (cond ((string-match "\\`\\(linux\\)\\'" tty)
+             nil)
+            ((string-match "\\`\\(screen\\)" tty)
+             t)
+            ((string-match "\\`\\(xterm\\)" tty)
+             t)
+            ((string-match "\\`\\(putty\\)" tty)
+             t)
+            (else
+             nil)))))
+        
 (defsubst 256-colour-p ()
   "T if we're running on a terminal or display system capable of
 displaying 256 colours or more."

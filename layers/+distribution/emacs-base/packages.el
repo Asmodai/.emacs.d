@@ -1178,8 +1178,8 @@ It will toggle the overlay under point or create an overlay of one character."
       (global-set-key (kbd "<C-wheel-up>") 'bootstrap:zoom-frm-in)
       (global-set-key (kbd "<C-wheel-down>") 'bootstrap:zoom-frm-out))))
 
-(defvar *bootstrap-mode-line-unicode-symbols* t)
-(defvar *bootstrap-mode-line-unicode-separators* t)
+(defvar *bootstrap-mode-line-unicode-symbols* (unicode-p))
+(defvar *bootstrap-mode-line-unicode-separators* (unicode-p))
 (defvar *bootstrap-mode-line-minor-modes-p* t)
 (defvar *bootstrap-mode-line-major-mode-p* t)
 (defvar *bootstrap-mode-line-version-control-p* t)
@@ -1634,7 +1634,9 @@ one of `l' or `r'."
                          (ascii (caddr mm))
                          (dim (if unicodep
                                   unicode
-                                (if ascii ascii unicode))))
+                                (if ascii
+                                    ascii
+                                  unicode))))
                     (diminish mode dim)))))))
         (let* ((active (powerline-selected-window-active))
                (lhs (bootstrap::mode-line-prepare-left))
