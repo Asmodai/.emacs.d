@@ -39,6 +39,7 @@
 
 (defun emoji:init-emoji-cheat-sheet-plus ()
   (use-package emoji-cheat-sheet-plus
+    :if (not (terminal-p))
     :commands (emoji-cheat-sheet-plus-insert
                emoji-cheat-sheet-plus-buffer
                emoji-cheat-sheet-plus-display-mode)

@@ -53,10 +53,12 @@
     (push 'company-capf company-backends-org-mode))
 
   (defun org:post-init-company-emoji ()
-    (push 'company-emoji company-backends-org-mode)))
+    (when (not (terminal-p))
+      (push 'company-emoji company-backends-org-mode))))
 
 (defun org:post-init-emoji-cheat-sheet-plus ()
-  (add-hook 'org-mode-hook 'bootstrap:display-emoji-cheat-sheet-hook))
+  (when (not (terminal-p))
+    (add-hook 'org-mode-hook 'bootstrap:delay-emoji-cheat-sheet-hook)))
 
 (defun org:init-org-bullets ()
   (use-package org-bullets

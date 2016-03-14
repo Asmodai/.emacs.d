@@ -33,7 +33,7 @@
 ;;;
 ;;;}}}
 
-(setq deft-packges '(deft))
+(setq deft-packages '(deft))
 
 (defun deft:init-deft ()
   (use-package deft
