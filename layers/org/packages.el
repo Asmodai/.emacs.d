@@ -65,6 +65,15 @@
     :defer t
     :init (add-hook 'org-mode-hook 'org-bullets-mode)))
 
+(defun org:init-org ()
+  (use-package org
+    :defer t
+    :init
+    (progn
+      (require 'org)
+
+      (bootstrap:add-to-hook 'org-mode-hook 'auto-fill-mode))))
+
 (defun org:init-org-mime ()
   (use-package org-mime
     :defer t
