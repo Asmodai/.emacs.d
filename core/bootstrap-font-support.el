@@ -3,7 +3,7 @@
 (require 'bootstrap-buffer)
 
 (defvar *bootstrap-default-font*
-  (list "Source Code Pro"
+  (list "Source Code Pro for Powerline"
         :size (if (linux-p)
                   12
                 10)
