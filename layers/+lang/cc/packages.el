@@ -182,8 +182,8 @@
     (progn
       (require 'code-style)
       (bootstrap:add-to-hooks 'google-set-c-style
-                              '(c-mode-hook c++-mode-hook))
+                              '(c-mode-hook c++-mode-hook objc-mode-hook))
       (bootstrap:add-to-hooks 'google-make-newline-indent
-                              '(c-mode-hook c++-mode-hook)))))
+                              '(c-mode-hook c++-mode-hook objc-mode-hook)))))
 
 ;;; packages.el ends here
