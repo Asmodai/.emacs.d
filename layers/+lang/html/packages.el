@@ -181,6 +181,7 @@
                                                      jade-mode-hook
                                                      less-css-mode-hook
                                                      scss-mode-hook
+                                                     css-mode-hook
                                                      slim-mode-hook)))
 
 (defun html:init-web-mode ()
@@ -206,5 +207,13 @@
   (bootstrap:add-to-hooks 'bootstrap:load-yasnippet '(css-mode-hook
                                                       jade-mode
                                                       slim-mode)))
+
+(defun html:post-init-rainbow-mode ()
+  (bootstrap:add-to-hooks 'rainbow-mode '(html-mode-hook
+                                          jade-mode-hook
+                                          less-css-mode-hook
+                                          scss-mode-hook
+                                          slim-mode-hook
+                                          css-mode-hook)))
 
 ;;; packages.el ends here
