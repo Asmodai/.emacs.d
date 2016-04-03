@@ -43,6 +43,7 @@
         auto-highlight-symbol
         avy
         buffer-move
+        dired+
         (centered-cursor :location local)
         clean-aindent-mode
         define-word
@@ -113,6 +114,7 @@
         folding
         htmlize
         full-ack
+        mouse+
         (template :location local)))
         
 
@@ -316,7 +318,10 @@ will be backward."
 
 (defun emacs-base:init-dired+ ()
   (use-package dired+
-    :defer t))
+    :defer t
+    :init
+    (progn
+      (require 'dired+))))
 
 (defun emacs-base:init-doc-view ()
   (use-package doc-view
@@ -2517,6 +2522,18 @@ Removes the automatic guessing of the initial value based on thing at
 (defun emacs-base:init-htmlize ()
   (use-package htmlize
     :defer t))
+
+(defun emacs-base:init-mouse+ ()
+  (use-package mouse+
+    :defer t
+    :init
+    (progn
+      (define-key minibuffer-inactive-mode-map [down-mouse-1] nil)
+      (define-key minibuffer-inactive-mode-map [mouse-1] nil)
+
+      (global-set-key [down-mouse-2] 'mouse-flash-position-or-M-x)
+      (global-set-key [S-down-mouse-2] 'mouse-scan-lines-or-M-:)
+      (global-set-key [mode-line C-mouse-1] 'mouse-tear-off-window))))
 
 (defun emacs-base:init-template ()
   (use-package template
