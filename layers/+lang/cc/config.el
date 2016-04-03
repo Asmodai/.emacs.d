@@ -33,7 +33,9 @@
 ;;;
 ;;;}}}
 
-(defvar *cc-enable-clang-support* t)
+(defvar *cc-enable-clang-support* (if (mac-os-x-p)
+                                      t
+                                    nil))
 
 (bootstrap:defvar-company-backends c-mode-common)
 (bootstrap:defvar-company-backends cmake-mode)
