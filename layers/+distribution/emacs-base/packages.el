@@ -316,11 +316,19 @@ will be backward."
   (use-package define-word
     :defer t))
 
+(defun emacs-base:pre-init-dired+ ()  
+  (setq diredp-hide-details-initially-flag nil))
+
 (defun emacs-base:init-dired+ ()
   (use-package dired+
     :defer t
     :init
     (progn
+      (setq dired-listing-switches "-alh")
+
+      (when (mac-os-x-p)
+        (setq dired-use-ls-dired nil))
+
       (require 'dired+))))
 
 (defun emacs-base:init-doc-view ()
