@@ -52,6 +52,8 @@
         smartparens
         tagedit
         web-mode
+        httprepl
+        httpcode
         yasnippet))
 
 (when (bootstrap-layer:layer-used-p 'auto-completion)
@@ -204,6 +206,14 @@
            ("\\.eco\\'"        . web-mode)
            ("\\.ejs\\'"        . web-mode)
            ("\\.djhtml\\'"     . web-mode))))
+
+(defun html:init-httprepl ()
+  (use-package httprepl
+    :defer t))
+
+(defun html:init-httpcode ()
+  (use-package httpcode
+    :defer t))
 
 (defun html:post-init-yasnippet ()
   (bootstrap:add-to-hooks 'bootstrap:load-yasnippet '(css-mode-hook
