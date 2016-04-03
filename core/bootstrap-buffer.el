@@ -239,30 +239,10 @@ If MSGBUF is non-NIL then the message is also written to the message buffer."
   (insert "     ")
   (widget-create
    'push-button
-   :help-echo "Update all ELPA packages to the latest versions."
-   :action (lambda (&rest junk)
-             )
-   :mouse-face 'highlight
-   :follow-link "\C-m"
-   (propertize "Update" 'face 'font-lock-keyword-face))
-
-  (insert " ")
-  (widget-create
-   'push-button
-   :help-echo "Roll back ELP package upgrades."
-   :action (lambda (&rest junk)
-             )
-   :mouse-face 'highlight
-   :follow-link "\C-m"
-   (propertize "Rollback" 'face 'font-lock-keyword-face))
-
-  ;; TODO: wrap this around a condition.
-  (insert "\n\n     ")
-  (widget-create
-   'push-button
    :help-echo "Connect to Lisp via SLIME."
    :action (lambda (&rest junk)
-             )
+             (when (bootstrap-layer:layer-used-p 'slime)
+               (slime-connect)))
    :mouse-face 'highlight
    :follow-link "\C-m"
    (propertize "Common Lisp" 'face 'font-lock-keyword-face))
@@ -284,6 +264,15 @@ If MSGBUF is non-NIL then the message is also written to the message buffer."
    :mouse-face 'highlight
    :follow-link "\C-m"
    (propertize "IELM" 'face 'font-lock-keyword-face))
+  (insert " ")
+  (widget-create
+   'push-button
+   :help-echo "Read your mail!"
+   :action (lambda (&rest junk)
+             (gnus))
+   :mouse-face 'highlight
+   :follow-link "\C-m"
+   (propertize "Gnus" 'face 'font-lock-keyword-face))
   (insert "\n"))
 
 (defun bootstrap-buffer::get-host-from-fqdn ()
