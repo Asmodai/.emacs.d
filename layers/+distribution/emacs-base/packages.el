@@ -77,6 +77,7 @@
         company
         folding
         htmlize
+        full-ack
         (template :location local)))
         
 
@@ -2492,3 +2493,12 @@ Removes the automatic guessing of the initial value based on thing at
             (append (list (concat user-home-directory
                                   ".emacs.d/templates/"))
                     template-default-directories)))))
+
+(defun emacs-base:init-full-ack ()
+  (use-package full-ack
+    :defer t
+    :init
+    (progn
+      (let ((binary (executable-find "ack-grep")))
+        (when binary
+          (setq ack-executable binary))))))
