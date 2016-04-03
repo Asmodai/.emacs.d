@@ -40,6 +40,7 @@
                             js-doc
                             js2-mode
                             js2-refactor
+                            js-comint
                             json-mode
                             json-snatcher
                             tern
@@ -125,5 +126,17 @@
 (defun javascript:init-web-beautify ()
   (use-package web-beautify
     :defer t))
+
+(defun javascript:init-js-comint ()
+  (use-package js-comint
+    :defer t
+    :init
+    (let ((node (if (mac-os-x-p)
+                    "/opt/local/bin/node"
+                  "node")))
+      (setq inferior-js-program-command node))))
+
+(defun javascript:post-init-raibow-mode ()
+  (bootstrap:add-to-hooks 'rainbow-mode '(js2-mode-hook)))
 
 ;;; packages.el ends here
