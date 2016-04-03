@@ -2,10 +2,10 @@
 ;;;
 ;;; config.el --- Go layer configuration.
 ;;;
-;;; Copyright (c) 2016 Paul Ward <pward@alertlogic.com>
+;;; Copyright (c) 2016 Paul Ward <asmodai@gmail.com>
 ;;;
-;;; Author:     Paul Ward <pward@alertlogic.com>
-;;; Maintainer: Paul Ward <pward@alertlogic.com>
+;;; Author:     Paul Ward <asmodai@gmail.com>
+;;; Maintainer: Paul Ward <asmodai@gmail.com>
 ;;; Created:    03 Apr 2016 02:15:11
 ;;; Keywords:   
 ;;; URL:        not distributed yet
