@@ -874,7 +874,8 @@ It will toggle the overlay under point or create an overlay of one character."
     :defer t
     :init
     (progn
-      (setq indent-guide-delay 0.3)
+      (setq indent-guide-delay 0.3
+            indent-guide-recursive t)
       (bootstrap:diminish indent-guide-mode " ⓘ" " i"))))
 
 (defun emacs-base:init-open-junk-file ()
@@ -2256,7 +2257,7 @@ Removes the automatic guessing of the initial value based on thing at
     :init
     (progn
       (require 'projectile)
-      
+
       ;; note for Windows: GNU find or Cygwin find must be in path
       ;; default parameters are not supported on Windows, we default
       ;; to simplest call to find.
@@ -2349,7 +2350,7 @@ Removes the automatic guessing of the initial value based on thing at
     :init
     (progn
       (require 'which-key)
-      
+
       (when (not (windows-p))
         (let ((new-descriptions
                '(("bootstrap:\\(.+\\)" . "\\1")

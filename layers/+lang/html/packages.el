@@ -44,6 +44,7 @@
         jade-mode
         less-css-mode
         rainbow-delimiters
+        rainbow-mode
         sass-mode
         scss-mode
         slim-mode

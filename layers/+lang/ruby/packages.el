@@ -38,6 +38,8 @@
         chruby
         company
         flycheck
+        redspace-mode
+        indent-guide
         rbenv
         robe
         rspec-mode
@@ -193,5 +195,11 @@
        :post-handlers '(sb-ruby-post-handler
                         (bootstrap:smartparens-pair-newline-and-indent "RET"))
        :suffix ""))))
+
+(defun ruby:post-init-indent-guide ()
+  (bootstrap:add-to-hooks 'indent-guide-mode '(ruby-mode-hook)))
+
+(defun ruby:post-init-redspace-mode ()
+  (bootstrap:add-to-hooks 'redspace-mode '(ruby-mode-hook)))
 
 ;;; packages.el ends here

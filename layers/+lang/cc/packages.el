@@ -50,6 +50,8 @@
         semantic
         stickyfunc-enhance
         ycmd
+        redspace
+        indent-guide
         xcscope
         (code-style :location local)))
 
@@ -185,5 +187,15 @@
                               '(c-mode-hook c++-mode-hook objc-mode-hook))
       (bootstrap:add-to-hooks 'google-make-newline-indent
                               '(c-mode-hook c++-mode-hook objc-mode-hook)))))
+
+(defun cc:post-init-indent-guide ()
+  (bootstrap:add-to-hooks 'indent-guide-mode
+                          '(c-mode-hook c++-mode-hook objc-mode-hook
+                                        java-mode-hook)))
+
+(defun cc:post-init-redspace-mode ()
+  (bootstrap:add-to-hooks 'redspace-mode 
+                          '(c-mode-hook c++-mode-hook objc-mode-hook
+                                        java-mode-hook)))
 
 ;;; packages.el ends here

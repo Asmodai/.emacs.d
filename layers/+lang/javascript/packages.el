@@ -37,6 +37,9 @@
                             company
                             company-tern
                             flycheck
+                            redspace-mode
+                            rainbow-mode
+                            indent-guide
                             js-doc
                             js2-mode
                             js2-refactor
@@ -136,7 +139,15 @@
                   "node")))
       (setq inferior-js-program-command node))))
 
-(defun javascript:post-init-raibow-mode ()
+(defun javascript:post-init-rainbow-mode ()
   (bootstrap:add-to-hooks 'rainbow-mode '(js2-mode-hook)))
+
+(defun javascript:post-init-indent-guide ()
+  (bootstrap:add-to-hooks 'indent-guide-mode '(js2-mode-hook
+                                               javascript-mode-hook)))
+
+(defun javascript:post-init-redspace-mode ()
+  (bootstrap:add-to-hooks 'redspace-mode '(js2-mode-hook
+                                           javascript-mode-hook)))
 
 ;;; packages.el ends here

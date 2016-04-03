@@ -36,6 +36,8 @@
 (setq php-packages '(company
                      eldoc
                      flycheck
+                     redspace-mode
+                     indent-guide
                      php-auto-yasnippets
                      (php-extras :location (recipe
                                             :fetcher github
@@ -83,9 +85,7 @@
                                                       'unindent-php-closure)))
 
       (bootstrap:add-to-hook 'php-mode-hook 'php-enable-psr2-coding-style)
-
-      (bootstrap:add-to-hooks 'redspace-mode
-                                  '(php-mode)))))
+      (bootstrap:add-to-hooks 'redspace-mode '(php-mode-hook)))))
 
 (defun php:init-phpcbf ()
   (use-package phpcbf
@@ -94,5 +94,8 @@
 (defun php:init-phpunit ()
   (use-package phpunit
     :defer t))
+
+(defun perl:post-init-indent-guide ()
+  (bootstrap:add-to-hooks 'indent-guide-mode '(php-mode-hook)))
 
 ;;; packages.el ends here

@@ -36,8 +36,12 @@
 (setq go-packages '(company
                     company-go
                     flycheck
+                    redspace-mode
+                    indent-guide
                     go-mode
                     go-eldoc
+                    gorepl-mode
+                    go-playground
                     (go-oracle :location built-in)
                     (go-rename :location local)))
 
@@ -141,5 +145,21 @@
 (defun go:init-go-rename ()
   (use-package go-rename
     :defer t))
+
+(defun go:init-gorepl-mode ()
+  (use-package gorepl-mode
+    :defer t
+    :init
+    (bootstrap:add-to-hook 'go-mode-hook 'gorepl-mode)))
+
+(defun go:init-go-playground ()
+  (use-package go-playground
+    :defer t))
+
+(defun go:post-init-indent-guide ()
+  (bootstrap:add-to-hooks 'indent-guide-mode '(go-mode-hook)))
+
+(defun go:post-init-redspace-mode ()
+  (bootstrap:add-to-hooks 'redspace-mode '(go-mode-hook)))
 
 ;;; packages.el ends here

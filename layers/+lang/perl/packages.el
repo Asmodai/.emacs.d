@@ -33,7 +33,9 @@
 ;;;
 ;;;}}}
 
-(setq perl-packages '((cperl-mode   :location built-in)
+(setq perl-packages '(redspace
+                      indent-guide
+                      (cperl-mode   :location built-in)
                       (inf-perl     :location local)
                       (jpl-reformat :location local)))
 
@@ -227,7 +229,10 @@
             cperl-lazy-help-time                        2
             cperl-auto-newline                          nil))))
 
+(defun perl:post-init-indent-guide ()
+  (bootstrap:add-to-hooks 'indent-guide-mode '(cperl-mode-hook)))
 
-
+(defun perl:post-init-redspace-mode ()
+  (bootstrap:add-to-hooks 'redspace-mode ('cperl-mode-hook)))
 
 ;;; packages.el ends here
