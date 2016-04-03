@@ -2,10 +2,7 @@
 ;;;
 ;;; user-config.el --- User configuration.
 ;;;
-;;; Time-stamp: <>
-;;; Revision:   0
-;;;
-;;; Copyright (c) 2015 Paul Ward <asmodai@gmail.com>
+;;; Copyright (c) 2015-2016 Paul Ward <asmodai@gmail.com>
 ;;;
 ;;; Author:     Paul Ward <asmodai@gmail.com>
 ;;; Maintainer: Paul Ward <asmodai@gmail.com>
@@ -17,7 +14,7 @@
 ;;;
 ;;; This program is free software: you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public
-;;; Licenseas published by the Free Software Foundation,
+;;; License as published by the Free Software Foundation,
 ;;; either version 3 of the License, or (at your option) any
 ;;; later version.
 ;;;
@@ -48,4 +45,4 @@
 
 (provide 'user-config)
 
-;;; user-config.el ends here
+;;; user-config.el ends here.

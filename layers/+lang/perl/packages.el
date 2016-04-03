@@ -3,6 +3,7 @@
 ;;; packages.el --- Perl packages.
 ;;;
 ;;; Copyright (c) 2016 Paul Ward <asmodai@gmail.com>
+;;; Copyright (c) 2012-2016 Sylvain Benner & Contributors
 ;;;
 ;;; Author:     Paul Ward <asmodai@gmail.com>
 ;;; Maintainer: Paul Ward <asmodai@gmail.com>
@@ -14,7 +15,7 @@
 ;;;
 ;;; This program is free software: you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public
-;;; Licenseas published by the Free Software Foundation,
+;;; License as published by the Free Software Foundation,
 ;;; either version 3 of the License, or (at your option) any
 ;;; later version.
 ;;;
@@ -122,82 +123,90 @@
 
       (defun cperl-write-tags (&optional file erase recurse dir inbuffer noxs
                                          topdir)
-            ;; If INBUFFER, do not select buffer, and do not save
-    ;; If ERASE is `ignore', do not erase, and do not try to delete old info.
-    (require 'etags)
-    (if file nil
-        (setq file (if dir default-directory (buffer-file-name)))
-        (if (and (not dir) (buffer-modified-p)) (error "Save buffer first!")))
-    (or topdir
-        (setq topdir default-directory))
-    (let ((tags-file-name cperl-tags-file-name)
-          (case-fold-search (and (featurep 'xemacs) (eq system-type 'emx)))
-          xs rel tm)
-      (save-excursion
-        (cond (inbuffer nil)            ; Already there
-              ((file-exists-p tags-file-name)
-               (if (featurep 'xemacs)
-                   (visit-tags-table-buffer)
-                   (visit-tags-table-buffer tags-file-name)))
-              (t (set-buffer (find-file-noselect tags-file-name))))
-        (cond
-          (dir
-           (cond ((eq erase 'ignore))
-                 (erase
-                  (erase-buffer)
-                  (setq erase 'ignore)))
-           (let ((files
-                  (condition-case err
-                       (directory-files file t
-                                        (if recurse nil cperl-scan-files-regexp)
-                                        t)
-                     (error
-                      (if cperl-unreadable-ok nil
+        ;; If INBUFFER, do not select buffer, and do not save
+        ;; If ERASE is `ignore', do not erase, and do not try to delete old info.
+        (require 'etags)
+        (if file nil
+          (setq file (if dir default-directory (buffer-file-name)))
+          (if (and (not dir) (buffer-modified-p)) (error "Save buffer first!")))
+        (or topdir
+            (setq topdir default-directory))
+        (let ((tags-file-name cperl-tags-file-name)
+              (case-fold-search (and (featurep 'xemacs) (eq system-type 'emx)))
+              xs rel tm)
+          (save-excursion
+            (cond (inbuffer nil)            ; Already there
+                  ((file-exists-p tags-file-name)
+                   (if (featurep 'xemacs)
+                       (visit-tags-table-buffer)
+                     (visit-tags-table-buffer tags-file-name)))
+                  (t (set-buffer (find-file-noselect tags-file-name))))
+            (cond
+             (dir
+              (cond ((eq erase 'ignore))
+                    (erase
+                     (erase-buffer)
+                     (setq erase 'ignore)))
+              (let ((files
+                     (condition-case err
+                         (directory-files file t
+                                          (if recurse
+                                              nil
+                                            cperl-scan-files-regexp)
+                                          t)
+                       (error
+                        (if cperl-unreadable-ok
+                            nil
                           (if (y-or-n-p
-                               (format "Directory %s unreadable.  Continue? " file))
+                               (format "Directory %s unreadable.  Continue? "
+                                       file))
                               (setq cperl-unreadable-ok t
                                     tm nil)     ; Return empty list
-                              (error "Aborting: unreadable directory %s" file)))))))
-             (mapc (function
-                    (lambda (file)
-                     (cond
-                       ((string-match cperl-noscan-files-regexp file)
-                        nil)
-                       ((not (file-directory-p file))
-                        (if (string-match cperl-scan-files-regexp file)
-                            (cperl-write-tags file erase recurse nil t noxs topdir)))
-                       ((not recurse) nil)
-                       (t (cperl-write-tags file erase recurse t t noxs topdir)))))
-                   files)))
-          (t
-           (setq xs (string-match "\\.xs$" file))
-           (if (not (and xs noxs))
-               (progn
-                 (cond ((eq erase 'ignore) (goto-char (point-max)))
-                       (erase (erase-buffer))
-                       (t
-                        (goto-char 1)
-                        (setq rel file)
-                        ;; On case-preserving filesystems (EMX on OS/2) case might be encoded in properties
-                        (set-text-properties 0 (length rel) nil rel)
-                        (and (equal topdir (substring rel 0 (length topdir)))
-                             (setq rel (substring file (length topdir))))
-                        (if (search-forward (concat "\f\n" rel ",") nil t)
-                            (progn
-                              (search-backward "\f\n")
-                              (delete-region (point)
-                                             (save-excursion
-                                               (forward-char 1)
-                                               (if (search-forward "\f\n"
-                                                                   nil 'toend)
-                                                   (- (point) 2)
-                                                   (point-max)))))
-                            (goto-char (point-max)))))
-                 (insert (cperl-find-tags file xs topdir))))))
-        (if inbuffer nil                        ; Delegate to the caller
-            (save-buffer 0)                     ; No backup
-            (if (fboundp 'initialize-new-tags-table) ; Do we need something special in XEmacs?
-                (initialize-new-tags-table))))))
+                            (error "Aborting: unreadable directory %s"
+                                   file)))))))
+                (mapc (function
+                       (lambda (file)
+                         (cond
+                          ((string-match cperl-noscan-files-regexp file)
+                           nil)
+                          ((not (file-directory-p file))
+                           (if (string-match cperl-scan-files-regexp file)
+                               (cperl-write-tags file erase recurse
+                                                 nil t noxs topdir)))
+                          ((not recurse) nil)
+                          (t (cperl-write-tags file erase recurse
+                                               t t noxs topdir)))))
+                      files)))
+             (t
+              (setq xs (string-match "\\.xs$" file))
+              (if (not (and xs noxs))
+                  (progn
+                    (cond ((eq erase 'ignore) (goto-char (point-max)))
+                          (erase (erase-buffer))
+                          (t
+                           (goto-char 1)
+                           (setq rel file)
+                           ;; On case-preserving filesystems (EMX on OS/2) case
+                           ;; might be encoded in properties
+                           (set-text-properties 0 (length rel) nil rel)
+                           (and (equal topdir (substring rel 0 (length topdir)))
+                                (setq rel (substring file (length topdir))))
+                           (if (search-forward (concat "\f\n" rel ",") nil t)
+                               (progn
+                                 (search-backward "\f\n")
+                                 (delete-region (point)
+                                                (save-excursion
+                                                  (forward-char 1)
+                                                  (if (search-forward
+                                                       "\f\n" nil 'toend)
+                                                      (- (point) 2)
+                                                    (point-max)))))
+                             (goto-char (point-max)))))
+                    (insert (cperl-find-tags file xs topdir))))))
+            (if inbuffer nil                        ; Delegate to the caller
+              (save-buffer 0)                       ; No backup
+              (if (fboundp 'initialize-new-tags-table)
+                  (initialize-new-tags-table))))))
 
       (defun perltidy-region ()
         "Run `perltidy' on the current region."
@@ -235,4 +244,4 @@
 (defun perl:post-init-redspace-mode ()
   (bootstrap:add-to-hooks 'redspace-mode ('cperl-mode-hook)))
 
-;;; packages.el ends here
+;;; packages.el ends here.

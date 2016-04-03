@@ -20,7 +20,7 @@
 ;;;
 ;;; This program is free software: you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public
-;;; Licenseas published by the Free Software Foundation,
+;;; License as published by the Free Software Foundation,
 ;;; either version 3 of the License, or (at your option) any
 ;;; later version.
 ;;;
@@ -1089,4 +1089,4 @@ If called interactively, use the tag given by `doc-mode-current-tag'."
 
 (provide 'doc-mode)
 
-;;; doc-mode.el ends here
+;;; doc-mode.el ends here.

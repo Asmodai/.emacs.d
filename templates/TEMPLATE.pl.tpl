@@ -34,7 +34,7 @@
 
 (>>>POINT<<<)
 
-# (>>>FILE<<<) ends here
+# (>>>FILE<<<) ends here.
 #
 # Local Variables: ***
 # mode:cperl ***

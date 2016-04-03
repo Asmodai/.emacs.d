@@ -14,7 +14,7 @@
 ;;;
 ;;; This program is free software: you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public
-;;; Licenseas published by the Free Software Foundation,
+;;; License as published by the Free Software Foundation,
 ;;; either version 3 of the License, or (at your option) any
 ;;; later version.
 ;;;
@@ -52,4 +52,4 @@
     :init (require 'symbolics)
     :config (symbolics:install-keymap)))
 
-;;; packages.el ends here
+;;; packages.el ends here.

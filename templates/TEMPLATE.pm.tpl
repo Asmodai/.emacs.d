@@ -60,6 +60,6 @@ Written by (>>>USER_NAME<<<) E<lt>(>>>AUTHOR<<<)E<gt>
 #}}}
 # ===================================================================
 
-# (>>>FILE<<<) ends here
+# (>>>FILE<<<) ends here.
 >>>TEMPLATE-DEFINITION-SECTION<<<
 ("TITLE" "Enter a description for this file: " "" "" "")

@@ -3,6 +3,7 @@
 ;;; config.el --- Syntax checking configuration.
 ;;;
 ;;; Copyright (c) 2015-2016 Paul Ward <asmodai@gmail.com>
+;;; Copyright (c) 2012-2016 Sylvain Benner & Contributors
 ;;;
 ;;; Author:     Paul Ward <asmodai@gmail.com>
 ;;; Maintainer: Paul Ward <asmodai@gmail.com>
@@ -14,7 +15,7 @@
 ;;;
 ;;; This program is free software: you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public
-;;; Licenseas published by the Free Software Foundation,
+;;; License as published by the Free Software Foundation,
 ;;; either version 3 of the License, or (at your option) any
 ;;; later version.
 ;;;
@@ -42,4 +43,4 @@
 (defvar *syntax-checking-enable-by-default* t
   "Enable syntax checking by default.")
 
-;;; config.el ends here
+;;; config.el ends here.

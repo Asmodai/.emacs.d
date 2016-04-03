@@ -37,6 +37,6 @@
  
 (>>>POINT<<<)
 
-// (>>>FILE<<<) ends here
+// (>>>FILE<<<) ends here.
 >>>TEMPLATE-DEFINITION-SECTION<<<
 ("TITLE" "Enter a description for this file: " "" "" "")
