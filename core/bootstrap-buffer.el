@@ -233,6 +233,7 @@ If MSGBUF is non-NIL then the message is also written to the message buffer."
                       (bookmark-get-filename el)))))
           list)))
 
+;;; TODO: make this nicer.
 (defun bootstrap-buffer::insert-buttons ()
   "Insert quick link buttons into the bootstrap-mode buffer."
   (goto-char (point-max))
@@ -273,6 +274,15 @@ If MSGBUF is non-NIL then the message is also written to the message buffer."
    :mouse-face 'highlight
    :follow-link "\C-m"
    (propertize "Gnus" 'face 'font-lock-keyword-face))
+  (insert "\n     ")
+  (widget-create
+   'push-button
+   :hekp-echo "Start the Sunrise Commander."
+   :action (lambda (&rest junk)
+             (sunrise))
+   :mouse-face 'highlight
+   :follow-link "\C-m"
+   (propertize "Sunrise" 'face 'font-lock-keyword-face))
   (insert "\n"))
 
 (defun bootstrap-buffer::get-host-from-fqdn ()
