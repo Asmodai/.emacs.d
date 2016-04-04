@@ -39,7 +39,6 @@
         chruby
         company
         flycheck
-        redspace-mode
         indent-guide
         rbenv
         robe

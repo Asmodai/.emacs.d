@@ -37,7 +37,6 @@
 (setq elixir-packages
       '(alchemist
         company
-        redspace-mode
         indent-guide
         elixir-mode
         popwin

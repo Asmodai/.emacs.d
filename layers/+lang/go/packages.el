@@ -37,7 +37,6 @@
 (setq go-packages '(company
                     company-go
                     flycheck
-                    redspace-mode
                     indent-guide
                     go-mode
                     go-eldoc

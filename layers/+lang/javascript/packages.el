@@ -38,7 +38,6 @@
                             company
                             company-tern
                             flycheck
-                            redspace-mode
                             rainbow-mode
                             indent-guide
                             js-doc

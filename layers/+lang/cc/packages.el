@@ -51,7 +51,6 @@
         semantic
         stickyfunc-enhance
         ycmd
-        redspace
         indent-guide
         xcscope
         (code-style :location local)))

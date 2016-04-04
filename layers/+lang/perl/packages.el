@@ -34,8 +34,7 @@
 ;;;
 ;;;}}}
 
-(setq perl-packages '(redspace
-                      indent-guide
+(setq perl-packages '(indent-guide
                       (cperl-mode   :location built-in)
                       (inf-perl     :location local)
                       (jpl-reformat :location local)))

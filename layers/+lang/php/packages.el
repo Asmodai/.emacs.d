@@ -37,7 +37,6 @@
 (setq php-packages '(company
                      eldoc
                      flycheck
-                     redspace-mode
                      indent-guide
                      php-auto-yasnippets
                      (php-extras :location (recipe
