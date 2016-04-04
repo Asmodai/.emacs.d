@@ -193,9 +193,4 @@
                           '(c-mode-hook c++-mode-hook objc-mode-hook
                                         java-mode-hook)))
 
-(defun cc:post-init-redspace-mode ()
-  (bootstrap:add-to-hooks 'redspace-mode 
-                          '(c-mode-hook c++-mode-hook objc-mode-hook
-                                        java-mode-hook)))
-
 ;;; packages.el ends here.

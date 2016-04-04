@@ -146,8 +146,4 @@
   (bootstrap:add-to-hooks 'indent-guide-mode '(js2-mode-hook
                                                javascript-mode-hook)))
 
-(defun javascript:post-init-redspace-mode ()
-  (bootstrap:add-to-hooks 'redspace-mode '(js2-mode-hook
-                                           javascript-mode-hook)))
-
 ;;; packages.el ends here.

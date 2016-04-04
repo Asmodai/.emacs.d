@@ -149,9 +149,7 @@
 
 (defun ruby:init-ruby-mode ()
   (use-package ruby-mode
-    :defer t
-    :init (bootstrap:add-to-hooks 'redspace-mode
-                                  '(ruby-mode-hook enh-ruby-mode-hook))))
+    :defer t))
 
 (defun ruby:init-ruby-tools ()
   (use-package ruby-tools
@@ -198,8 +196,5 @@
 
 (defun ruby:post-init-indent-guide ()
   (bootstrap:add-to-hooks 'indent-guide-mode '(ruby-mode-hook)))
-
-(defun ruby:post-init-redspace-mode ()
-  (bootstrap:add-to-hooks 'redspace-mode '(ruby-mode-hook)))
 
 ;;; packages.el ends here.

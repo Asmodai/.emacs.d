@@ -88,7 +88,4 @@
 (defun elixir:post-init-indent-guide ()
   (bootstrap:add-to-hooks 'indent-guide-mode '(ruby-mode-hook)))
 
-(defun elixir:post-init-redspace-mode ()
-  (bootstrap:add-to-hooks 'redspace-mode '(ruby-mode-hook)))
-
 ;;; packages.el ends here.

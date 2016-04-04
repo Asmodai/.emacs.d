@@ -84,8 +84,7 @@
                                (bootstrap:add-to-hook 'c-special-indent-hook
                                                       'unindent-php-closure)))
 
-      (bootstrap:add-to-hook 'php-mode-hook 'php-enable-psr2-coding-style)
-      (bootstrap:add-to-hooks 'redspace-mode '(php-mode-hook)))))
+      (bootstrap:add-to-hook 'php-mode-hook 'php-enable-psr2-coding-style))))
 
 (defun php:init-phpcbf ()
   (use-package phpcbf

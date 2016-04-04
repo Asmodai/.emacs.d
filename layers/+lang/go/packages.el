@@ -159,7 +159,4 @@
 (defun go:post-init-indent-guide ()
   (bootstrap:add-to-hooks 'indent-guide-mode '(go-mode-hook)))
 
-(defun go:post-init-redspace-mode ()
-  (bootstrap:add-to-hooks 'redspace-mode '(go-mode-hook)))
-
 ;;; packages.el ends here.

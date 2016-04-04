@@ -240,7 +240,4 @@
 (defun perl:post-init-indent-guide ()
   (bootstrap:add-to-hooks 'indent-guide-mode '(cperl-mode-hook)))
 
-(defun perl:post-init-redspace-mode ()
-  (bootstrap:add-to-hooks 'redspace-mode ('cperl-mode-hook)))
-
 ;;; packages.el ends here.
