@@ -37,6 +37,7 @@
 (setq emacs-base-packages
       '(ace-link
         ace-window
+        help-fns+
         adaptive-wrap
         aggressive-indent
         auto-dictionary
@@ -125,6 +126,13 @@
 (if  (version< emacs-version "24.4")
     (push '(paradox :location local) emacs-base-packages)
   (push 'paradox emacs-base-packages))
+
+(defun emacs-base:init-help-fns+ ()
+  (use-package help-fns+
+    :defer t
+    :init
+    (progn
+      (require 'help-fns+))))
 
 (defun emacs-base:init-ace-link ()
   (use-package ace-link
@@ -321,14 +329,15 @@ will be backward."
 
 (defun emacs-base:init-dired+ ()
   (use-package dired+
-    :defer t
-    :init
+    :after help-fns+
+    :config
     (progn
       (setq dired-listing-switches "-alh")
 
       (when (mac-os-x-p)
         (setq dired-use-ls-dired nil))
 
+      (require 'help-fns+)
       (require 'dired+))))
 
 (defun emacs-base:init-doc-view ()
