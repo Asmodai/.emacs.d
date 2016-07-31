@@ -1793,9 +1793,7 @@ one of `l' or `r'."
       (push '(fci-mode) minor-mode-alist)
       (defun bootstrap::fci-hook ()
         (fci-mode))
-      (add-hook 'prog-mode-hook 'bootstrap::fci-hook)
-      (fci-mode)
-      (fci-mode -1))
+      (add-hook 'prog-mode-hook 'bootstrap::fci-hook))
     :config
     (progn
       (bootstrap:diminish fci-mode "" "")
