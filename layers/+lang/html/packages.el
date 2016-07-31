@@ -205,7 +205,11 @@
            ("\\.hbs\\'"        . web-mode)
            ("\\.eco\\'"        . web-mode)
            ("\\.ejs\\'"        . web-mode)
-           ("\\.djhtml\\'"     . web-mode))))
+           ("\\.djhtml\\'"     . web-mode))
+    :config (bootstrap:add-to-hook 'web-mode-hook
+                                   (lambda ()
+                                     (when (fboundp 'fci-mode)
+                                       (fci-mode -1))))))
 
 (defun html:init-httprepl ()
   (use-package httprepl
