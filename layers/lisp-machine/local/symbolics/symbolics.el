@@ -229,7 +229,7 @@
   (define-key function-key-map [super] 'event-apply-super-modifier)
   (define-key function-key-map [hyper] 'event-apply-hyper-modifier)
   (global-set-key [copy]        'kill-ring-save)
-  (global-set-key [cut]         'kill-ring)
+  (global-set-key [cut]         'kill-region)
   (global-set-key [paste]       'yank)
   (global-set-key [abort]       'keyboard-quit)
   (global-set-key [clear-input] 'backward-kill-sentence))
@@ -250,15 +250,18 @@
   (symbolics-define-function-key [help] 'symbolics-describe-function-keymap))
 
 (defun symbolics::install-select-map ()
+  (symbolics-define-select-key "d"    'dired)
   (symbolics-define-select-key "l"    'ielm)
   (symbolics-define-select-key "s"    'eshell)
+  (symbolics-define-select-key "g"    'gnus)
+  (symbolics-define-select-key "f"    'sunrise)
   (symbolics-define-select-key "="    'symbolics-display-select-bindings)
   (symbolics-define-select-key [help] 'symbolics-describe-select-keymap))
-
 
 (defun symbolics::install-symbol-map ()
   (global-set-key [symbol-help] 'symbolics-display-symbol-bindings)
   (define-key *symbolics-symbol-map* [help] 'symbolics-describe-symbol-keymap)
+  (define-key *symbolics-symbol-map* [symbol] 'insert-char)
   (define-symbol-key "'" #x22C5 "dot operator")
   (define-symbol-key "A" #x03B1 "Greek small letter alpha")
   (define-symbol-key "q" #x2227 "logical AND")
