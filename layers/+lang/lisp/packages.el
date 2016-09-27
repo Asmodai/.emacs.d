@@ -54,6 +54,17 @@
       (setq slime-complete-symbol*-fancy t)
       (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
 
+      (defvar *interactive-lisp-mode* 'slime)
+
+      (defsubst slime-p ()
+        (eq *interactive-lisp-mode* 'slime))
+
+      (when (slime-p)
+        (setq inferior-lisp-program
+              (cond ((unix-p)       "ccl")
+                    ((windows-nt-p) "c:/ccl/xw86cl.exe")
+                    ((t             "lisp")))))
+
       (bootstrap:add-to-hooks 'slime-mode '(lisp-mode-hook
                                             slime-repl-mode-hook
                                             scheme-mode-hook)))))
@@ -70,6 +81,5 @@
     (progn
       (require 'shift-lock)
       (bootstrap:add-to-hook 'lisp-mode-hook 'electric-shift-lock-mode))))
-
 
 ;;; packages.el ends here.
