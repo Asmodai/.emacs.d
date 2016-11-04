@@ -7,8 +7,6 @@
 %% Author:     (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
 %% Maintainer: (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
 %% Created:    (>>>DATE<<<) (>>>TIME<<<)
-%% Keywords:   (>>>1<<<)
-%% URL:        not distributed yet
 %%
 %%{{{ License:
 %%
