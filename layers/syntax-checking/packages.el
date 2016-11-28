@@ -36,7 +36,8 @@
 
 (setq syntax-checking-packages
       '(flycheck
-        flycheck-pos-tip
+        flycheck-tip
+        ;;flycheck-pos-tip
         (redspace-mode :location local)
         popwin))
 
@@ -113,6 +114,22 @@
                                    :fringe-bitmap 'my-flycheck-fringe-indicator
                                    :fringe-face 'flycheck-fringe-info)
 
+      ;; Erlang needs this.
+      (flycheck-define-checker erlang
+        "An Erlang syntax checker using the Erlang interpreter."
+        :command ("erlc"
+                  "-I" (eval (format "%s/include" (projectile-project-root)))
+                  "-I" (eval (format "%s/deps" (projectile-project-root)))
+                  "-o" temporary-directory
+                  (option-list "-I" flycheck-erlang-include-path)
+                  (option-list "-pa" flycheck-erlang-library-path)
+                  "-Wall"
+                  source)
+        :error-patterns
+        ((warning line-start (file-name) ":" line ": Warning:" (message) line-end)
+         (error line-start (file-name) ":" line ": " (message) line-end))
+        :modes erlang-mode)
+
       ;; toggle flycheck window
       (defun bootstrap:toggle-flycheck-error-list ()
         "Toggle flycheck's error list window.
@@ -121,6 +138,10 @@ If the error list is visible, hide it.  Otherwise, show it."
         (-if-let (window (flycheck-get-error-list-window))
             (quit-window nil window)
           (flycheck-list-errors))))))
+
+(defun syntax-checking:init-flycheck-tip ()
+  :if *syntax-checking-enable-tooltips*
+  :defer t)
 
 (defun syntax-checking:init-flycheck-pos-tip ()
   (use-package flycheck-pos-tip
