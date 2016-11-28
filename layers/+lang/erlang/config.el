@@ -36,7 +36,7 @@
 (setq *use-edts-for-erlang*
       (cond ((running-on-mbr15_pward-p)
              t)
-            (else
+            (t
              nil)))
 
 (bootstrap:defvar-company-backends erlang-mode)
