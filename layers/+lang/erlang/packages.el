@@ -35,24 +35,34 @@
 ;;;}}}
 
 (setq erlang-packages
-      '(company
-        erlang
-        flycheck))
+      '(erlang
+        flycheck
+        company))
 
 (defun erlang:post-init-company ()
-  (add-hook 'erlang-mode-hook 'company-mode))
+  (add-hook 'erlang-mode-hook 'company-mode)
+  (bootstrap:add-company-hook erlang-mode))
 
 (defun erlang:init-erlang ()
   (use-package erlang
     :defer t
-    :init
+    :config
     (progn
+      (require 'erlang-start)
+
       (add-hook 'erlang-mode-hook
                 (lambda ()
                   (run-hooks 'prog-mode-hook)))
-      (setq erlang-compile-extra-opts '(debug_info)))
-    :config
-    (require 'erlang-start)))
+
+      (setq erlang-compile-extra-opts '(debug_info))
+      (setq inferior-erlang-machine-options '("-sname" "emacs")))
+      (setq inferior-erlang-prompt-timeout t)
+
+      (setq erl-nodename-cache
+            (make-symbol
+               (concat
+                 "emacs@"
+                 (car (split-string (shell-command-to-string "hostname"))))))))
 
 (defun erlang:post-init-flycheck ()
   (bootstrap:add-flycheck-hook 'erlang-mode-hook))
