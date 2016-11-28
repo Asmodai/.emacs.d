@@ -55,24 +55,25 @@
   (use-package xterm-color
     :defer t
     :init
-    (progn
-      (require 'xterm-color)
-      (add-hook 'comint-preoutput-filter-functions
-                'xterm-color-filter)
-      (setq comint-output-filter-functions
-            (remove 'ansi-color-process-output
-                    comint-output-filter-functions))
-      (setq font-lock-unfontify-region-function
-            'xterm-color-unfontify-region)
-      (with-eval-after-load 'esh-mode
-        (add-hook 'eshell-mode-hook
-                  (lambda ()
-                    (setq xterm-color-preserve-properties t)))
-        (add-hook 'eshell-preoutput-filter-functions
+    (when (not (windows-p))
+      (progn
+        (require 'xterm-color)
+        (add-hook 'comint-preoutput-filter-functions
                   'xterm-color-filter)
-        (setq eshell-output-filter-functions
-              (remove 'eshell-handle-ansi-color
-                      eshell-output-filter-functions))))))
+        (setq comint-output-filter-functions
+              (remove 'ansi-color-process-output
+                      comint-output-filter-functions))
+        (setq font-lock-unfontify-region-function
+              'xterm-color-unfontify-region)
+        (with-eval-after-load 'esh-mode
+          (add-hook 'eshell-mode-hook
+                    (lambda ()
+                      (setq xterm-color-preserve-properties t)))
+          (add-hook 'eshell-preoutput-filter-functions
+                    'xterm-color-filter)
+          (setq eshell-output-filter-functions
+                (remove 'eshell-handle-ansi-color
+                        eshell-output-filter-functions)))))))
 
 (defun shell:pre-init-company ()
   (bootstrap:use-package-add-hook eshell
@@ -182,7 +183,6 @@
     :defer t
     :init
     (progn
-
       (defun multiterm (_)
         "Wrapper to be able to call multi-term from shell-pop"
         (interactive)
