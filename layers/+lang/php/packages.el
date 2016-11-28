@@ -57,8 +57,8 @@
   (use-package php-auto-yasnippets
     :defer t))
 
-(defun php:init-php-extras ()
-  (when (not (windows-p))
+(when (not (windows-p))
+  (defun php:init-php-extras ()
     (use-package php-extras
       :defer t)))
 
