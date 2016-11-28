@@ -35,7 +35,8 @@
 ;;;}}}
 
 (setq emacs-base-packages
-      '(ace-link
+      '(let-alist        ; Ensure this is loaded.
+        ace-link
         ace-window
         help-fns+
         adaptive-wrap
@@ -126,6 +127,13 @@
 (if  (version< emacs-version "24.4")
     (push '(paradox :location local) emacs-base-packages)
   (push 'paradox emacs-base-packages))
+
+(defun emacs-base:init-let-alist ()
+  (use-package let-alist
+    :defer t
+    :init
+    (progn
+      (require 'let-alist))))
 
 (defun emacs-base:init-help-fns+ ()
   (use-package help-fns+
