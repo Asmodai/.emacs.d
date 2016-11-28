@@ -147,7 +147,8 @@
       :init (push 'company-c-headers *company-backends-c-mode-common*))))
 
 (defun cc:post-init-flycheck ()
-  (bootstrap:add-to-hooks 'flycheck-mode '(c-mode-hook c++-mode-hook)))
+  (when (not (windows-p))
+    (bootstrap:add-to-hooks 'flycheck-mode '(c-mode-hook c++-mode-hook))))
 
 (defun cc:init-gdb-mi ()
   (use-package gdb-mi
