@@ -1740,8 +1740,8 @@ one of `l' or `r'."
     :init
     (progn
       (when (display-graphic-p)
-        (eval-after-load "eproject"
-          '(diminish 'eprojectmode " ᵋⓅ"))
+;;        (eval-after-load "eproject"
+;;          '(diminish 'eprojectmode " ᵋⓅ"))
         (eval-after-load "flymake"
           '(diminish 'flymake-mode " Ⓕ²")))
       (eval-after-load
