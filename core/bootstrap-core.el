@@ -181,6 +181,9 @@
   (setq use-package-inject-hooks t)
   (bootstrap:load-or-install-protected-package 'which-key t)
 
+  ;; Load custom file.
+  (load +bootstrap-custom-file+)
+
   ;; Done.
   (bootstrap-mode))
 

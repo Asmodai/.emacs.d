@@ -84,9 +84,6 @@
   ;; Start the ball rolling.
   (bootstrap-init)
 
-  ;; Load in custom file.
-  (load +bootstrap-custom-file+)
-
   (require 'server)
   (unless (server-running-p)
     (server-start)))
