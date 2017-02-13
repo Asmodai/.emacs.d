@@ -34,8 +34,12 @@
 ;;;}}}
 
 (setq all-langs-packages
-      '((comment-block :location local)
+      '(ido
+        (comment-block :location local)
         (doc-mode      :location local)))
+
+(defun all-langs:post-init-ido ()
+  (bootstrap:add-to-hooks 'ido-mode '(program-mode-hook)))
 
 (defun all-langs:init-comment-block ()
   (use-package comment-block

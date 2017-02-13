@@ -37,7 +37,8 @@
 (setq erlang-packages
       '(erlang
         flycheck
-        company))
+        company
+        imenu))
 
 (defun erlang:post-init-company ()
   (add-hook 'erlang-mode-hook 'company-mode)
@@ -66,5 +67,8 @@
 
 (defun erlang:post-init-flycheck ()
   (bootstrap:add-flycheck-hook 'erlang-mode-hook))
+
+(defun erlang:post-init-imenu ()
+  (add-hook 'erlang-mode-hook 'imenu-add-menubar-index))
 
 ;;; packages.el ends here.
