@@ -116,9 +116,7 @@
         folding
         htmlize
         full-ack
-        mouse+
-        (template :location local)))
-        
+        mouse+))
 
 (defvar *bootstrap-diminished-minor-modes* '())
 
@@ -2556,18 +2554,6 @@ Removes the automatic guessing of the initial value based on thing at
       (global-set-key [down-mouse-2] 'mouse-flash-position-or-M-x)
       (global-set-key [S-down-mouse-2] 'mouse-scan-lines-or-M-:)
       (global-set-key [mode-line C-mouse-1] 'mouse-tear-off-window))))
-
-(defun emacs-base:init-template ()
-  (use-package template
-    :defer t
-    :init
-    (progn
-      (require 'template)
-      (template-initialize)
-      (setq template-default-directories
-            (append (list (concat user-home-directory
-                                  ".emacs.d/templates/"))
-                    template-default-directories)))))
 
 (defun emacs-base:init-full-ack ()
   (use-package full-ack

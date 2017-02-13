@@ -49,6 +49,7 @@
 (require 'bootstrap-use-package-ext)
 (require 'bootstrap-theme-support)
 (require 'bootstrap-font-support)
+(require 'bootstrap-template)
 (require 'memory-usage)
 (require 'user-config)
 
