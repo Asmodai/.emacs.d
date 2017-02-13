@@ -37,7 +37,9 @@
 (setq lisp-packages
       '(slime
         (cl-indent-patches :location local)
-        (shift-lock        :location local)))
+        ;; TODO: Fix this shit, man.
+        ;;(shift-lock        :location local)
+        ))
 
 (defun lisp:init-slime ()
   (use-package slime
