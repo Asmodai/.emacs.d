@@ -63,6 +63,8 @@
         (setq comint-output-filter-functions
               (remove 'ansi-color-process-output
                       comint-output-filter-functions))
+        (when (not (fboundp 'xterm-color-unfontify-region))
+          (fset 'xterm-color-unfontify-region 'font-lock-default-unfontify-region))
         (setq font-lock-unfontify-region-function
               'xterm-color-unfontify-region)
         (with-eval-after-load 'esh-mode
