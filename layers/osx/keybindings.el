@@ -46,7 +46,7 @@
   
   (global-unset-key (kbd "M-3"))       ; Unbind M-3 first.
   (global-set-key (kbd "M-3")          ; Bind so the UK keyboard can
-                  (lambda ()            ; generate the hash symbol.
+                  (lambda ()           ; generate the hash symbol.
                     (interactive)
                     (insert "#"))))
 

@@ -49,13 +49,13 @@
     (setq insert-directory-program "gls"
           dired-listing-switches "-aBhl --group-directories-first")))
 
-(defun osx:no-init-pbcopy ()
+(defun osx:init-pbcopy ()
   (use-package pbcopy
     :if (and (mac-os-x-p)
              (not (display-graphic-p)))
     :init (turn-on-pbcopy)))
 
-(defun osx:no-init-reveal-in-finder ()
+(defun osx:init-reveal-in-osx-finder ()
   (use-package reveal-in-osx-finder
     :if (mac-os-x-p)
     :commands reveal-in-osx-finder))
