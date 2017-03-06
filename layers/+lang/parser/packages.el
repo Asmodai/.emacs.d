@@ -35,7 +35,8 @@
 
 (setq parser-packages
       '(bison-mode
-        flex-mode))
+;        flex-mode
+        ))
 
 (defun parser:init-bison-mode ()
   (use-package bison-mode
