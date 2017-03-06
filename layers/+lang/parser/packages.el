@@ -35,8 +35,7 @@
 
 (setq parser-packages
       '(bison-mode
-;        flex-mode
-        ))
+        (flex-mode :location local)))
 
 (defun parser:init-bison-mode ()
   (use-package bison-mode
@@ -44,6 +43,8 @@
 
 (defun parser:init-flex-mode ()
   (use-package flex-mode
-    :defer t))
+    :defer t
+    :init (progn
+            (require 'flex-mode))))
 
 ;;; packages.el ends here.
