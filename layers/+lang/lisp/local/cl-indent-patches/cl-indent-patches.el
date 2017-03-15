@@ -216,9 +216,9 @@ on lines."
     ((&whole 4 &rest (&whole 1 (&whole 4 &rest 1) &body))
      &body))
 (def-lisp-indentation with-accessors 2)
-(def-lisp-indentation restart-case 2)
 (def-lisp-indentation define-condition (10 5 2 2))
-(def-lisp-indentation handler-case 1)
+(def-lisp-indentation handler-case (4 &rest (&whole 2 &lambda &body)))
+(def-lisp-indentation restart-case (4 &rest (&whole 2 &lambda &body)))
 (def-lisp-indentation defpackage 1)
   
 ;; CLOS
