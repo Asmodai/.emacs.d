@@ -28,6 +28,12 @@
 %%
 %%}}}
 
+-module((>>>FILE_SANS<<<)).
+
+-ifdef(TEST).
+-compile(export_all).
+-endif.
+
 (>>>POINT<<<)
 
 %% (>>>FILE<<<) ends here.

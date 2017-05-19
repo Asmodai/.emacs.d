@@ -2,7 +2,7 @@
 %%
 %% (>>>FILE<<<) --- (>>>TITLE<<<)
 %%
-%% Copyright (c) (>>>YEAR<<<) (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
+%% Copyright (c) (>>>YEAR<<<) Alert Logic, Inc.
 %%
 %% Author:     (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
 %% Maintainer: (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
