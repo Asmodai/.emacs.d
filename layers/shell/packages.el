@@ -114,6 +114,13 @@
             ;; treat 'echo' like shell echo
             eshell-plain-echo-behavior t)
 
+      ;; Function to clear eshell's buffer
+      (defun eshell/clear ()
+        "Clear the eshell buffer."
+        (let ((inhibit-read-only t))
+          (erase-buffer)
+          (eshell-send-input)))
+
       (defun bootstrap::eshell-auto-end ()
         (when (and (eq major-mode 'eshell-mode)
                    (not (eq (line-end-position) (point-max))))

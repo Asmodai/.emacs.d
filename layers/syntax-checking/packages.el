@@ -120,6 +120,8 @@
         :command ("erlc"
                   "-I" (eval (format "%s/include" (projectile-project-root)))
                   "-I" (eval (format "%s/deps" (projectile-project-root)))
+                  "-I" (eval (format "%s/_build/default/lib" (projectile-project-root)))
+                  "-I" (eval (format "%s/_checkouts" (projectile-project-root)))
                   "-o" temporary-directory
                   (option-list "-I" flycheck-erlang-include-path)
                   (option-list "-pa" flycheck-erlang-library-path)
