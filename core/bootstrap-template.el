@@ -41,6 +41,11 @@
                             ".emacs.d/templates/"))
               template-default-directories))
 
+;; custom.el isn't overriding this.
+(setf template-subdirectories
+      (list (expand-file-name (concat +bootstrap-directory+ "templates/"))
+            (expand-file-name (concat user-home-directory "templates/"))))
+
 (provide 'bootstrap-template)
 
 ;;; bootstrap-template.el ends here.
