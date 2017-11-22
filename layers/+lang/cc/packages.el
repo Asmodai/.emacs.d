@@ -76,7 +76,10 @@
 
 (defun cc:init-ppindent ()
   (use-package ppindent
-    :defer t))
+    :defer t
+    :init
+    (progn
+      (require 'ppindent))))
 
 (defun cc:init-disaster ()
   (use-package disaster
