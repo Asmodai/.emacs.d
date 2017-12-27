@@ -52,6 +52,10 @@
 ;;;}}}
 
 ;;; Some preliminary variables.
+
+;; This exists so that package.el doesn't break bootstrap.
+;(package-initialize)
+
 (setq-default debug-on-error t)         ; Debug on errors please.
 (setq initial-buffer-choice nil         ; No thanks.
       inhibit-splash-screen t           ; I don't care about it.
