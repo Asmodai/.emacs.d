@@ -42,7 +42,7 @@
         flycheck
         ielm
         macrostep
-        semantic
+        ;;semantic
         smartparens
         srefactor))
 
