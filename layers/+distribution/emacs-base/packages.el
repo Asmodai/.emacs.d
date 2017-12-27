@@ -1817,6 +1817,7 @@ one of `l' or `r'."
     :commands (bootstrap:helm-find-files)
     :config
     (progn
+      (require 'helm-bookmark)
       (when (and *bootstrap-helm-resize*
                   (or (eq *bootstrap-helm-position* 'bottom)
                       (eq *bootstrap-helm-position* 'top)))

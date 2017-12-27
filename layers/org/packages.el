@@ -39,7 +39,7 @@
         company-emoji
         emoji-cheat-sheet-plus
         gnuplot
-        (org :location built-in)
+        org
         (org-plus-contrib :step pre)
         org-bullets
         (org-mime :location built-in)
