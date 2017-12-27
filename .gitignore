@@ -21,3 +21,4 @@ custom.el
 server
 session.*
 ac-comphist.dat
+.org-*
