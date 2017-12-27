@@ -220,6 +220,7 @@ on lines."
 (def-lisp-indentation handler-case (4 &rest (&whole 2 &lambda &body)))
 (def-lisp-indentation restart-case (4 &rest (&whole 2 &lambda &body)))
 (def-lisp-indentation defpackage 1)
+(def-lisp-indentation defsystem 1)
   
 ;; CLOS
 (def-lisp-indentation defclass (6 4 (&whole 2 &rest 1) (&whole 2 &rest 1)))
