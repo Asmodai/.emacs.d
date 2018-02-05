@@ -45,9 +45,9 @@
 ;; Configure and initialise `pakage', unless it has been initialised already.
 (unless package--initialized
   (setq package-archives '(("melpa" . "http://melpa.org/packages/")
-                           ("org"   . "http://orgmode.org/elpa/")
-                           ("gnu"   . "http://elpa.gnu.org/packages/")
-                           ("SC"    . "http://joseito.republika.pl/sunrise-commander/")))
+                           ("org"   . "https://orgmode.org/elpa/")
+                           ("gnu"   . "https://elpa.gnu.org/packages/")
+                           ("SC"    . "https://joseito.republika.pl/sunrise-commander/")))
   (setq package-enable-at-startup nil)
   (package-initialize 'noactivate)
   (unless (or (package-installed-p 'python)
