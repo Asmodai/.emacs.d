@@ -47,6 +47,7 @@
                             json-mode
                             json-snatcher
                             tern
+                            typescript-mode
                             web-beautify))
 
 (defun javascript:init-coffee-mode ()
@@ -116,6 +117,14 @@
 (defun javascript:init-json-snatcher ()
   (use-package json-snatcher
     :defer t))
+
+;; Should be moved to its own language type really.
+(defun javascript:init-typescript-mode ()
+  (use-package typescript-mode
+    :defer t
+    :config
+    (progn
+      (setq-default typescript-indent-level 2))))
 
 (defun javascript:init-tern ()
   (use-package tern
