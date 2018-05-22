@@ -73,8 +73,7 @@
   (use-package flycheck-erlang
     :defer t
     :init (progn
-            (require 'flycheck-erlang)
-            (flycheck-add-next-checker 'erlang 'erlang-dialyzer))))
+            (require 'flycheck-erlang))))
 
 (defun erlang:post-init-imenu ()
   (add-hook 'erlang-mode-hook 'imenu-add-menubar-index))

@@ -100,54 +100,49 @@
 (defun have-plts (&optional path)
   (%have-logic (find-plts path) "--plts" " "))
 
-  (flycheck-define-checker erlang
-    "An Erlang syntax checker using the Erlang interpreter."
-    :command ("erlc"
-              (eval (have-include-directory (projectile-project-root)))
-              (eval (find-include-directory (projectile-project-root)))
+(flycheck-define-checker erlang
+  "An Erlang syntax checker using the Erlang interpreter."
+  :command ("erlc"
+            (eval (have-include-directory (projectile-project-root)))
+            (eval (find-include-directory (projectile-project-root)))
+            
+            (eval (have-rebar1-deps (projectile-project-root)))
+            (eval (find-rebar1-deps (projectile-project-root)))
 
-              (eval (have-rebar1-deps (projectile-project-root)))
-              (eval (find-rebar1-deps (projectile-project-root)))
+            (eval (have-lib-directory (projectile-project-root)))
+            (eval (find-lib-directory (projectile-project-root)))
 
-              (eval (have-lib-directory (projectile-project-root)))
-              (eval (find-lib-directory (projectile-project-root)))
+            (eval (have-checkouts-directory (projectile-project-root)))
+            (eval (find-checkouts-directory (projectile-project-root)))
+            "-o" temporary-directory
+            (option-list "-I" flycheck-erlang-include-path)
+            (option-list "-pa" flycheck-erlang-library-path)
+            "-Wall"
+            source)
+  :error-patterns
+  ((warning line-start (file-name) ":" line ": Warning:" (message) line-end)
+   (error line-start (file-name) ":" line ": " (message) line-end))
+  :modes erlang-mode
+  :next-chekers (erlang-dialyzer))
+(add-to-list 'flycheck-checkers 'erlang)
 
-              (eval (have-checkouts-directory (projectile-project-root)))
-              (eval (find-checkouts-directory (projectile-project-root)))
-              "-o" temporary-directory
-              (option-list "-I" flycheck-erlang-include-path)
-              (option-list "-pa" flycheck-erlang-library-path)
-              "-Wall"
-              source)
-    :error-patterns
-    ((warning line-start (file-name) ":" line ": Warning:" (message) line-end)
-     (error line-start (file-name) ":" line ": " (message) line-end))
-    :modes erlang-mode)
-  (add-to-list 'flycheck-checkers 'erlang)
-
-  (flycheck-define-checker erlang-dialyzer
-    "Erlang synta checker that uses `dialyzer'."
-    :command ("dialyzer"
-              (eval (have-plts (projectile-project-root)))
-              (eval (find-plts (projectile-project-root)))
-              "--"
-              (eval (have-include-directory (projectile-project-root)))
-              (eval (find-include-directory (projectile-project-root)))
-              (eval (have-lib-directory (projectile-project-root)))
-              (eval (find-lib-directory (projectile-project-root)))
-              (option-list "-I" flycheck-erlang-include-path)
-              (option-list "-pa" flycheck-erlang-library-path)
-              source-original)
-    :error-patterns
-    ((error line-start
-            (file-name)
-            ":"
-            line
-            ":"
-            (message)
-            line-end))
-    :modes erlang-mode)
-  (add-to-list 'flycheck-checkers 'erlang-dialyzer)
+(flycheck-define-checker erlang-dialyzer
+  "Erlang synta checker that uses `dialyzer'."
+  :command ("dialyzer"
+            (eval (have-plts (projectile-project-root)))
+            (eval (find-plts (projectile-project-root)))
+            "--"
+            (eval (have-include-directory (projectile-project-root)))
+            (eval (find-include-directory (projectile-project-root)))
+            (eval (have-lib-directory (projectile-project-root)))
+            (eval (find-lib-directory (projectile-project-root)))
+            (option-list "-I" flycheck-erlang-include-path)
+            (option-list "-pa" flycheck-erlang-library-path)
+            source-original)
+  :error-patterns
+  ((error line-start (file-name) ":" line ":" (message) line-end))
+  :modes erlang-mode)
+(add-to-list 'flycheck-checkers 'erlang-dialyzer)
 
 (provide 'flycheck-erlang)
 
