@@ -37,6 +37,7 @@
 (setq erlang-packages
       '(erlang
         flycheck
+        (flycheck-erlang :location local)
         company
         imenu))
 
@@ -65,8 +66,15 @@
                  "emacs@"
                  (car (split-string (shell-command-to-string "hostname"))))))))
 
-(defun erlang:post-init-flycheck ()
+(defun erlang:post-init-flycheck-erlang ()
   (bootstrap:add-flycheck-hook 'erlang-mode-hook))
+
+(defun erlang:init-flycheck-erlang ()
+  (use-package flycheck-erlang
+    :defer t
+    :init (progn
+            (require 'flycheck-erlang)
+            (flycheck-add-next-checker 'erlang 'erlang-dialyzer))))
 
 (defun erlang:post-init-imenu ()
   (add-hook 'erlang-mode-hook 'imenu-add-menubar-index))

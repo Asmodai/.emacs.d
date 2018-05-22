@@ -99,39 +99,22 @@
                   #b00000000
                   #b01111111)))
 
+      ;; Add some errors
       (flycheck-define-error-level 'error
-                                   :overlay-category 'flycheck-error-overlay
-                                   :fringe-bitmap 'my-flycheck-fringe-indicator
-                                   :fringe-face 'flycheck-fringe-error)
+        :overlay-category 'flycheck-error-overlay
+        :fringe-bitmap 'my-flycheck-fringe-indicator
+        :fringe-face 'flycheck-fringe-error)
 
       (flycheck-define-error-level 'warning
-                                   :overlay-category 'flycheck-warning-overlay
-                                   :fringe-bitmap 'my-flycheck-fringe-indicator
-                                   :fringe-face 'flycheck-fringe-warning)
-
+        :overlay-category 'flycheck-warning-overlay
+        :fringe-bitmap 'my-flycheck-fringe-indicator
+        :fringe-face 'flycheck-fringe-warning)
+      
       (flycheck-define-error-level 'info
-                                   :overlay-category 'flycheck-info-overlay
-                                   :fringe-bitmap 'my-flycheck-fringe-indicator
-                                   :fringe-face 'flycheck-fringe-info)
-
-      ;; Erlang needs this.
-      (flycheck-define-checker erlang
-        "An Erlang syntax checker using the Erlang interpreter."
-        :command ("erlc"
-                  "-I" (eval (format "%s/include" (projectile-project-root)))
-                  "-I" (eval (format "%s/deps" (projectile-project-root)))
-                  "-I" (eval (format "%s/_build/default/lib" (projectile-project-root)))
-                  "-I" (eval (format "%s/_checkouts" (projectile-project-root)))
-                  "-o" temporary-directory
-                  (option-list "-I" flycheck-erlang-include-path)
-                  (option-list "-pa" flycheck-erlang-library-path)
-                  "-Wall"
-                  source)
-        :error-patterns
-        ((warning line-start (file-name) ":" line ": Warning:" (message) line-end)
-         (error line-start (file-name) ":" line ": " (message) line-end))
-        :modes erlang-mode)
-
+        :overlay-category 'flycheck-info-overlay
+        :fringe-bitmap 'my-flycheck-fringe-indicator
+        :fringe-face 'flycheck-fringe-info)
+      
       ;; toggle flycheck window
       (defun bootstrap:toggle-flycheck-error-list ()
         "Toggle flycheck's error list window.
