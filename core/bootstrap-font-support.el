@@ -38,10 +38,10 @@
 (require 'bootstrap-buffer)
 
 (defvar *bootstrap-default-font*
-  (list "Source Code Pro for Powerline"
+  (list "Source Code Pro"
         :size (if (linux-p)
                   12
-                10)
+                11)
         :weight 'normal
         :width 'normal
         :powerline-scale 1.0))

@@ -74,11 +74,12 @@
   (let ((path (make-find-predicate "%s/_build/default"
                                    directory
                                    it)))
-    (first
-     (remove-if (lambda (x) (null x))
-                (cl-loop for fspec in (directory-files path)
-                         collect (when (not (null (string-match "_plt" fspec)))
-                                   (format "%s/%s" path fspec)))))))
+    (ignore-errors
+      (first
+       (remove-if (lambda (x) (null x))
+                  (cl-loop for fspec in (directory-files path)
+                           collect (when (not (null (string-match "_plt" fspec)))
+                                     (format "%s/%s" path fspec))))))))
 
 (defun %have-logic (result then else)
     (if (not (eql "" result))
@@ -99,6 +100,11 @@
 
 (defun have-plts (&optional path)
   (%have-logic (find-plts path) "--plts" " "))
+
+(defun flycheck-erlang-enable-dialyzer ()
+  (%have-logic (find-plts (projectile-project-root))
+               (add-to-list 'flycheck-checkers 'erlang-dialyzer)
+               nil))
 
 (flycheck-define-checker erlang
   "An Erlang syntax checker using the Erlang interpreter."
@@ -142,7 +148,6 @@
   :error-patterns
   ((error line-start (file-name) ":" line ":" (message) line-end))
   :modes erlang-mode)
-(add-to-list 'flycheck-checkers 'erlang-dialyzer)
 
 (provide 'flycheck-erlang)
 

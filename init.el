@@ -63,7 +63,7 @@
       inhibit-startup-message t)        ; Another alias for above.
 
 ;;; Copy this at your peril.
-(setq inhibit-startup-echo-area-message "asmodai")
+(setq inhibit-startup-echo-area-message "pward")
 
 ;; Set GC threshold.
 ;;(setq gc-cons-threshold 100000000)
