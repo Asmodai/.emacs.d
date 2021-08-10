@@ -46,8 +46,7 @@
 (unless package--initialized
   (setq package-archives '(("melpa" . "http://melpa.org/packages/")
                            ("org"   . "https://orgmode.org/elpa/")
-                           ("gnu"   . "https://elpa.gnu.org/packages/")
-                           ("SC"    . "http://joseito.republika.pl/sunrise-commander/")))
+                           ("gnu"   . "https://elpa.gnu.org/packages/")))
   (setq package-enable-at-startup nil)
   (package-initialize 'noactivate)
   (unless (or (package-installed-p 'python)
