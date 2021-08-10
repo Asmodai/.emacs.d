@@ -82,6 +82,7 @@
 
       (bootstrap:add-to-hook 'php-mode-hook
                              (lambda ()
+                               (setq c-basic-offset 4)
                                (bootstrap:add-to-hook 'c-special-indent-hook
                                                       'unindent-php-closure)))
 

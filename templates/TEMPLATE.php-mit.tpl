@@ -12,7 +12,7 @@
  * @license https://opensource.org/licenses/MIT The MIT License
  * @link https://www.github.com/...
  */
- *
+/*
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without
@@ -33,6 +33,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+declare(strict_types=1);
 
 namespace FILL_THIS_IN;
 
