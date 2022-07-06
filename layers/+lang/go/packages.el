@@ -46,7 +46,8 @@
                     (go-rename :location local)))
 
 (defun go:post-init-flycheck ()
-  (bootstrap:add-flycheck-hook 'go-mode-hook))
+  (bootstrap:add-flycheck-hook 'go-mode-hook)
+  (bootstrap:add-flycheck-hook 'flycheck-golangci-lint-setup))
 
 (defun go:init-go-mode ()
   (when (unix-p)
