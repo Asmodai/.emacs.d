@@ -37,6 +37,7 @@
 (setq go-packages '(company
                     company-go
                     flycheck
+                    flycheck-golangci-lint
                     indent-guide
                     go-mode
                     go-eldoc
@@ -158,5 +159,12 @@
 
 (defun go:post-init-indent-guide ()
   (bootstrap:add-to-hooks 'indent-guide-mode '(go-mode-hook)))
+
+(defun go:init-flycheck-golangci-lint ()
+  (use-package flycheck-golangci-lint
+    :ensure t
+    :init
+    (eval-after-load 'flycheck
+      '(add-hook 'flycheck-mode-hook #'flycheck-golangci-lint-setup))))
 
 ;;; packages.el ends here.
