@@ -39,9 +39,6 @@
                      flycheck
                      indent-guide
                      php-auto-yasnippets
-                     (php-extras :location (recipe
-                                            :fetcher github
-                                            :repo  "arnested/php-extras"))
                      php-mode
                      phpcbf
                      phpunit))
@@ -56,11 +53,6 @@
 (defun php:init-php-auto-yasnippets ()
   (use-package php-auto-yasnippets
     :defer t))
-
-(when (not (windows-p))
-  (defun php:init-php-extras ()
-    (use-package php-extras
-      :defer t)))
 
 (defun php:init-php-mode ()
   (use-package php-mode
