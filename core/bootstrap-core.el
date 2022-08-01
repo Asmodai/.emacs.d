@@ -117,7 +117,8 @@
 
   ;; Use only spaces and no tabs
   (setq-default indent-tabs-mode nil
-                default-tab-width 2)
+                default-tab-width 2
+                tab-width 2)
 
   ;; Create the startup buffer.
   (switch-to-buffer (get-buffer-create +bootstrap-buffer-name+))

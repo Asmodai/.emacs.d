@@ -48,11 +48,12 @@
         gdb-mi
         helm-cscope
         helm-gtags
-        semantic
+        ;;semantic
         stickyfunc-enhance
         ycmd
         indent-guide
         xcscope
+        (disaster :location local)
         (code-style :location local)))
 
 (unless (version< emacs-version "24.4")
@@ -180,6 +181,16 @@
 
 (defun cc:post-init-company-ycmd ()
   (push 'company-ycmd *company-backends-c-mode-common*))
+
+(defun cc:init-disaster ()
+  (use-package disaster
+    :defer t
+    :init
+    (progn
+      (require 'disaster)
+      (defun make-disaster-keymap ()
+        (define-key c-mode-base-map (kbd "C-c d") 'disaster))
+      (add-hook 'c-initialization-hook 'make-disaster-keymap))))
 
 (defun cc:init-code-style ()
   (use-package code-style

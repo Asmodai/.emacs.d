@@ -62,8 +62,11 @@
       inhibit-startup-screen t          ; New version of above.
       inhibit-startup-message t)        ; Another alias for above.
 
+;;; Temporary fixes
+(setq browse-url-mosaic-program nil)
+
 ;;; Copy this at your peril.
-(setq inhibit-startup-echo-area-message "asmodai")
+(setq inhibit-startup-echo-area-message "pward")
 
 ;; Set GC threshold.
 ;;(setq gc-cons-threshold 100000000)
