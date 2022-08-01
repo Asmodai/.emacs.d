@@ -1821,7 +1821,8 @@ one of `l' or `r'."
       (when (and *bootstrap-helm-resize*
                   (or (eq *bootstrap-helm-position* 'bottom)
                       (eq *bootstrap-helm-position* 'top)))
-        (setq helm-autoresize-min-height 10)
+        (setq helm-autoresize-min-height 10
+              helm-exit-idle-delay       0)
         (helm-autoresize-mode 1))
 
       ;; https://www.reddit.com/r/emacs/comments/2z7nbv/lean_helm_window/
@@ -1882,7 +1883,8 @@ Removes the automatic guessing of the initial value based on thing at
             helm-split-window-in-side-p t
             helm-always-two-windows t
             helm-echo-input-in-header-line t
-            helm-imenu-execute-action-at-once-if-one nil)
+            helm-imenu-execute-action-at-once-if-one nil
+            helm-exit-idle-delay 0)
 
       ;; hide minibuffer in Helm session, since we use the header line already
       (defun helm-hide-minibuffer-maybe ()
