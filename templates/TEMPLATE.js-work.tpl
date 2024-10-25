@@ -4,8 +4,8 @@
  *
  * Copyright (c) (>>>YEAR<<<) Alert Logic, Inc.
  *
- * Author:     (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
- * Maintainer: (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
+ * Author:     (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>WORK_AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
+ * Maintainer: (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>WORK_AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
  * Created:    (>>>DATE<<<) (>>>TIME<<<)
  */
 /* {{{ License: */

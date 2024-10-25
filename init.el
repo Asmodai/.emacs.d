@@ -1,98 +1,228 @@
-;;; -*- Mode: Emacs-Lisp; Mode: auto-fill -*-
-;;;
-;;; init.el --- Emacs initialisation file.
-;;;
-;;; Copyright (c) 2005-2016 Paul Ward <asmodai@gmail.com>
-;;;
-;;; Author:     Paul Ward <asmodai@gmail.com>
-;;; Maintainer: Paul Ward <asmodai@gmail.com>
-;;; Created:    Sun Jun 05 21:44:38 2005
-;;; Keywords:   
-;;; URL:        not distributed yet
-;;;
-;;;{{{ License:
-;;;
-;;; This program is free software: you can redistribute it
-;;; and/or modify it under the terms of the GNU General Public
-;;; License as published by the Free Software Foundation,
-;;; either version 3 of the License, or (at your option) any
-;;; later version.
-;;;
-;;; This program isdistributed in the hope that it will be
-;;; useful, but WITHOUT ANY  WARRANTY; without even the implied
-;;; warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-;;; PURPOSE.  See the GNU General Public License for more
-;;; details.
-;;;
-;;; You should have received a copy of the GNU General Public
-;;; License along with this program.  If not, see
-;;; <http://www.gnu.org/licenses/>.
-;;;
+;;; init.el --- Main initialisation  -*- mode: emacs-lisp; lexical-binding: t; -*-
+;;
+;; Copyright (c) 2024 Paul Ward <paul@lisphacker.uk>
+;;
+;; Author:     Paul Ward <paul@lisphacker.uk>
+;; Maintainer: Paul Ward <paul@lisphacker.uk>
+;; Created:    24 Oct 2024 04:23:07
+;; URL:        not distributed yet
+;;
+;; This file is not part of GNU Emacs.
+;;
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY  WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+;;
+;;
+
+;;; Code:
+
+(eval-when-compile
+  (require 'cl-lib)
+  (require 'zlisp-platform)
+  (require 'zlisp-features))
+
+;;;===================================================================
+;;;{{{ Early-loaded packages:
+
+(use-package use-package
+  :custom
+  (use-package-always-defer          nil)
+  (use-package-verbose               t)
+  (use-package-minimum-reported-time 0)
+  (use-package-expand-minimally      nil)
+  (use-package-always-ensure         *zmacs-should-ensure-packages*)
+  (use-package-enable-imenu-support  t)
+  (use-package-compute-statistics    t))
+
+(unless (package-installed-p 'vc-use-package)
+  (package-vc-install "https://github.com/slotThe/vc-use-package"))
+(require 'vc-use-package)
+
+(use-package el-patch
+  :ensure t
+  :defer nil
+  :hook (emacs-startup . el-patch-use-package-mode)
+  :custom
+  (el-patch-enable-use-package-integration t))
+
+(use-package gnutls
+  :ensure nil
+  :defer 1
+  :custom
+  (gnutls-verify-error t)
+  (gnutls-min-prime-bits 3072))
+
+(use-package auto-compile
+  :ensure t
+  :defer 1
+  :custom
+  (progn
+    (auto-compile-display-buffer nil)
+    (auto-compile-mode-line-counter nil)
+    (auto-compile-use-mode-line nil)
+    (auto-compile-update-autoloads t))
+  :config
+  (progn
+    (require 'auto-compile)
+    (auto-compile-on-load-mode)
+    (auto-compile-on-save-mode)))
+
 ;;;}}}
-;;;{{{ Commentary:
-;;;
-;;; NOTICE:  This file is never bytecompiled.
-;;;
-;;; Emacsen this has been tested on:
-;;;   GNU Emacs 22.1.1       Mac OS X 10.5.8
-;;;   GNU Emacs 23.1.1       GNU/Linux
-;;;   GNU Emacs 23.2.3       Windows 7
-;;;   GNU Emacs 23.3.1       Windows 7
-;;;   GNU Emacs 23.3.1       GNU/Linux
-;;;   GNU Emacs 23.4.1       Mac OS X 10.5.8
-;;;   GNU Emacs 24.1.1       Mac OS X 10.5.8
-;;;   GNU Emacs 24.2.1       GNU/Linux
-;;;   GNU Emacs 24.3.1       GNU/Linux
-;;;   GNU Emacs 24.5.1       GNU/Linux
-;;;   GNU Emacs 24.5.1       Mac OS X 10.10 and 10.11
-;;;
-;;; PLEASE BE AWARE THAT SUPPORT FOR EMACSEN OLDER THAN 24 HAS BEEN DROPPED.
-;;; Use the `legacy' branch of the configuration repo for older Emacsen.
-;;;
+;;;===================================================================
+
+;;;===================================================================
+;;;{{{ Customisation:
+
+(defgroup zmacs-emacs '()
+  "Customize group for ZMACS."
+  :tag "ZMACS"
+  :group 'emacs)
+
+(defcustom zmacs-use-persistent-scratch t
+  "Should ZMACS use a persistent scratch buffer?"
+  :type 'boolean
+  :group 'zmacs-emacs)
+
+(defcustom zmacs-preferred-shell "zsh"
+  "Which shell should Emacs prefer?"
+  :type 'string
+  :group 'zmacs-emacs)
+
+(defcustom zmacs-storage-directory
+  (expand-file-name (concat user-home-directory "/Dropbox/Emacs/"))
+  "Which directory contains our Org, Citar, and Denote files?"
+  :type 'string
+  :group 'zmacs-emacs)
+
+(defcustom zmacs-projects-directory
+  (expand-file-name (concat user-home-directory "/Projects/"))
+  "Which directory contains our projects?"
+  :type 'string
+  :group 'zmacs-emacs)
+
+(setopt user-full-name     "Paul Ward"
+        user-mail-address  "paul@lisphacker.uk"
+        user-url-address   "http://lisphacker.uk/"
+        initial-major-mode 'fundamental-mode)
+
+;;; Project repo directory.
+(setq magic-repository-directories
+      (list (cons zmacs-projects-directory 1)))
+
 ;;;}}}
+;;;===================================================================
 
-;;; Some preliminary variables.
+;;;===================================================================
+;;;{{{ Start the ball rolling:
 
-;; This exists so that package.el doesn't break bootstrap.
-;(package-initialize)
+;;; Stuff to load in early:
+(require 'zlisp-base)
+(require 'zlisp-timing)
+(require 'zmacs-early)
 
-(setq-default debug-on-error t)         ; Debug on errors please.
-(setq initial-buffer-choice nil         ; No thanks.
-      inhibit-splash-screen t           ; I don't care about it.
-      inhibit-startup-screen t          ; New version of above.
-      inhibit-startup-message t)        ; Another alias for above.
+;;; Main modules:
+(require 'zmacs-base)
+(require 'zmacs-frames)
+(require 'zmacs-windows)
+(require 'zmacs-buffers)
+(require 'zmacs-fonts)
+(require 'zmacs-faces)
+(require 'zmacs-colours)
+(require 'zmacs-completion)
+(require 'zmacs-help)
+(require 'zmacs-theme)
+(require 'zmacs-dashboard)
+(require 'zmacs-modeline)
+(require 'zmacs-navigation)
+(require 'zmacs-dired)
+(require 'zmacs-search)
+(require 'zmacs-templates)
 
-;;; Temporary fixes
-(setq browse-url-mosaic-program nil)
+;;; Projects and version control:
+(require 'zmacs-vc)
+(require 'zmacs-projects)
 
-;;; Copy this at your peril.
-(setq inhibit-startup-echo-area-message "pward")
+;;; Shells:
+(require 'zmacs-shell)
+(require 'zmacs-eshell)
 
-;; Set GC threshold.
-;;(setq gc-cons-threshold 100000000)
+;;; Org:
+(require 'zmacs-org-base)
+(require 'zmacs-org-extensions)
 
-;; Set this to T if you want verbose messages.
-(defvar *bootstrap-verbose* nil)
+;;; Writing:
+(require 'zmacs-writing)
+(require 'zmacs-citation)
+(require 'zmacs-notes)
 
-(defconst +bootstrap-emacs-min-version+ "24.3"
-  "Minimum required version of Emacs.")
+;;; Programming:
+(require 'zmacs-prog-debug)
+(require 'zmacs-prog-lisp)
+(require 'zmacs-prog-common-lisp)
+(require 'zmacs-prog-c)
 
-(defun bootstrap:emacs-version-ok ()
-  (version<= +bootstrap-emacs-min-version+ emacs-version))
+;;; Functions:
+(require 'zlisp-files) ;; consult, dired
+(require 'zlisp-frame)
+(require 'zlisp-buffer)
+(require 'zlisp-text) ;; org
+(require 'zlisp-clipboard)
+(require 'zlisp-ui) ;; org, markdown
 
-;; Load it all.
-(when (bootstrap:emacs-version-ok)
-  ;; Load in paths.
-  (load-file (concat user-emacs-directory "core/bootstrap-paths.el"))
+;;;===================================================================
+;;;{{{ Hooks:
 
-  ;; Require core packages.
-  (require 'bootstrap-core)
+;;; Set up the `after init' hook.
+(add-hook 'after-init-hook
+          #'(lambda ()
+              (interactive)
+              (require 'server)
+              (or (server-running-p)
+                  (server-start))))
 
-  ;; Start the ball rolling.
-  (bootstrap-init)
+;;; Set up after-startup hook
+(add-hook 'emacs-startup-hook
+          #'(lambda ()
+              (message
+               (format "Emacs ready in %0.2f seconds with %d collections."
+                       (float-time
+                        (time-subtract after-init-time before-init-time))
+                       gcs-done))))
 
-  (require 'server)
-  (unless (server-running-p)
-    (server-start)))
+;; When idle for 15sec run the GC no matter what.
+(defvar zmacs-gc-timer
+  (run-with-idle-timer 15 t
+                       (lambda ()
+                         (let ((inhibit-message t))
+                           (message "Garbage Collector has run for %.06fsec"
+                                    (zlisp-simple-measure-time
+                                     (garbage-collect)))))))
+;;;}}}
+;;;===================================================================
 
 ;;; init.el ends here.
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-vc-selected-packages
+   '((vc-use-package :vc-backend Git :url "https://github.com/slotThe/vc-use-package"))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

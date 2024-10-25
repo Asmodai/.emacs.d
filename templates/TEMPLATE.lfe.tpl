@@ -1,4 +1,4 @@
-;;; -*- Mode: LISP; Syntax: ANSI-COMMON-LISP; Package: CL-USER; Base: 10; Lowercase: Yes -*-
+;;; -*- Mode: LISP; Syntax: LFE -*-
 ;;;
 ;;; (>>>FILE<<<) --- (>>>TITLE<<<)
 ;;;
@@ -33,34 +33,8 @@
 ;;;
 ;;;}}}
 
-#+genera
-(error "Please do not load this file into a Symbolics system.
-This is only for Common Lisp systems that support ASDF.")
-
-(in-package #:common-lisp-user)
-
-(defpackage (>>>PACKAGE<<<)-system
-  (:use #:asdf
-        #:common-lisp))
-
-(in-package #:(>>>PACKAGE<<<)-system)
-
-(defsystem (>>>PACKAGE<<<)
-  :version          "1.0"
-  :author           "(>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)"
-  :maintainer       "(>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)"
-  :license          "Lisp Lesser General Public License (LLGPL)"
-  :description      "<fill this in>"
-  :long-description "<fill this in>"
-
-  :depends-on ()
-
-  :components
-  ((:module :src
-    :components (()))))
+(>>>POINT<<<)
 
 ;;; (>>>FILE<<<) ends here.
-
 >>>TEMPLATE-DEFINITION-SECTION<<<
 ("TITLE" "Enter a description for this file: " "" "" "")
-("PACKAGE" "Package to define (in UPPER CASE): " "" "" "")

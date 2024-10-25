@@ -35,7 +35,6 @@
  * @brief (>>>TITLE<<<)
  */
 
-#pragma once
 #ifndef _(>>>FILE_SANS<<<)_h_
 #define _(>>>FILE_SANS<<<)_h_
 

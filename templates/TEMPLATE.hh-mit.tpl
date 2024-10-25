@@ -1,4 +1,3 @@
-// -*- Mode: Go; auto-fill: t; fill-column: 78; -*-
 //
 // (>>>FILE<<<) --- (>>>TITLE<<<)
 //
@@ -6,6 +5,9 @@
 //
 // Author:     (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
 // Maintainer: (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
+// Created:    (>>>DATE<<<) (>>>TIME<<<)
+//
+// {{{ License:
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation files
@@ -13,7 +15,7 @@
 // including without limitation the rights to use, copy, modify, merge,
 // publish, distribute, sublicense, and/or sell copies of the Software,
 // and to permit persons to whom the Software is furnished to do so,
-// subject to the following conditions: 
+// subject to the following conditions:
 //
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
@@ -26,8 +28,25 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+//
+// }}}
+// {{{ Commentary:
+
+// }}}
+
+/**
+ * @file (>>>FILE<<<)
+ * @author (>>>USER_NAME<<<)
+ * @brief (>>>TITLE<<<)
+ */
+
+#pragma once
+#ifndef _(>>>FILE_SANS<<<)_h_
+#define _(>>>FILE_SANS<<<)_h_
 
 (>>>POINT<<<)
+
+#endif // !_(>>>FILE_SANS<<<)_h_
 
 // (>>>FILE<<<) ends here.
 >>>TEMPLATE-DEFINITION-SECTION<<<
