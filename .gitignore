@@ -16,3 +16,5 @@ custom.el
 async-bytecomp.log
 var/
 eln-cache/
+undo-fu-session/
+url/

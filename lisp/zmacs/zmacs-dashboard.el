@@ -27,11 +27,9 @@
 ;;
 
 ;;; Code:
+;;;; Dependencies:
+;;;;; Dashboard package.
 
-;;;===================================================================
-;;;{{{ Dependencies:
-
-;;; Dashboard package.
 (use-package dashboard
   :ensure t
   :demand t
@@ -39,72 +37,63 @@
   :config
   (dashboard-setup-startup-hook))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Handle graphical displays:
+;;;;; Icons (in graphics mode):
 
 (when (display-graphic-p)
   (require 'all-the-icons)
   (require 'nerd-icons))
 
-;;;}}}
-;;;===================================================================
+;;;; Random quotes:
 
-;;;===================================================================
-;;;{{{ Random quotes.
-
-;;; Some intensely Zen-like quotes wot make you all fuzzy.
 (defvar *zmacs--random-quotes*
-  '(("Programs must be written for people to read, and only incidentally"
-     "for machines to execute."
-     "   - Abelson & Sussman")
-    ("Lisp is the greatest single programming language ever designed."
-     "   - Alan Kay")
-    ("Lisp is a programmable programming language."
-     "   - John Foderaro")
-    ("Lisp isn't a language, it's a building material."
-     "   - Alan Kay")
-    ("Lisp is a programmer amplifier."
-     "   - Martin Rodgers")
-    ("I object to doing things that computers can do."
-     "   - Olin Shivers")
-    ("Common Lisp is politics, not art."
-     "   - Scott Fahlman")
-    ("Lisp doesn't look any deader than usual to me."
-     "   - David Thornley")
-    ("The only way to learn a new programming language is by writing"
-     "programs in it."
-     "   - Kernighan & Ritchie")
-    ("I suppose I should learn Lisp, but it seems so foreign."
-     "   - Paul Graham")
-    ("Syntactic sugar causes cancer of the semicolon."
-     "   - Alan Perlis")
-    ("If you want to know why Lisp doesn't win around you, find a mirror."
-     "   - Erik Naggum")
-    ("Lisp is still #1 for key algorithmic techniques such as recursion"
-     "and condescension."
-     "   - Verity Stob")
-    ("If you give someone Fortran, he has Fortran."
-     "If you give someone Lisp, he has any language he pleases."
-     "   - Guy Steele")
-    ("A Lisp programmer knows the value of everything, but the cost of nothing."
-     "   - Alan Perlis")
-    ("Perl is an abomination as a language.  But let's not go there."
-     "   - L. Peter Deutsch")
-    ("By policy, Lisp has never really catered to mere mortals..."
-     "And, of course, mere mortals have never really forgiven Lisp for not"
-     "catering to them."
-     "   - Larry Wall")
-    ("Those who do not know Lisp are doomed to reinvent it."
-     "   - Erik Naggum")
-    ("Some may say Ruby is a bad rip-off of Lisp or Smalltalk,"
-     "and I admit that. But it is nicer to ordinary people."
-     "   - Matz")
-    ("Press <Hyper>-<Super>-<Shift>-<Control>-<Meta>-<Symbol>-<Abort> to"
-     "engage Super Turbo Go Go Lisp Party Mode!"
-     "   - Me, that's who!"))
+  '((:lines ("Programs must be written for people to read, and only incidentally"
+             "for machines to execute.")
+     :author "Abelson & Sussman")
+    (:lines ("Lisp is the greatest single programming language ever designed.")
+     :author "Alan Kay")
+    (:lines ("Lisp is a programmable programming language.")
+     :author "John Foderaro")
+    (:lines ("Lisp isn't a language, it's a building material.")
+     :author "Alan Kay")
+    (:lines ("Lisp is a programmer amplifier.")
+     :author "Martin Rodgers")
+    (:lines ("I object to doing things that computers can do.")
+     :author "Olin Shivers")
+    (:lines ("Common Lisp is politics, not art.")
+     :author "Scott Fahlman")
+    (:lines ("Lisp doesn't look any deader than usual to me.")
+     :author "David Thornley")
+    (:lines ("The only way to learn a new programming language is by writing"
+             "programs in it.")
+     :author "Kernighan & Ritchie")
+    (:lines ("I suppose I should learn Lisp, but it seems so foreign.")
+     :author "Paul Graham")
+    (:lines ("Syntactic sugar causes cancer of the semicolon.")
+     :author "Alan Perlis")
+    (:lines ("If you want to know why Lisp doesn't win around you, find a mirror.")
+     :author "Erik Naggum")
+    (:lines ("Lisp is still #1 for key algorithmic techniques such as recursion"
+             "and condescension.")
+     :author "Verity Stob")
+    (:lines ("If you give someone Fortran, he has Fortran."
+             "If you give someone Lisp, he has any language he pleases.")
+     :author "Guy Steele")
+    (:lines ("A Lisp programmer knows the value of everything, but the cost of nothing.")
+     :author "Alan Perlis")
+    (:lines ("Perl is an abomination as a language.  But let's not go there.")
+     :author "L. Peter Deutsch")
+    (:lines ("By policy, Lisp has never really catered to mere mortals..."
+             "And, of course, mere mortals have never really forgiven Lisp for not"
+             "catering to them.")
+     :author "Larry Wall")
+    (:lines ("Those who do not know Lisp are doomed to reinvent it.")
+     :author "Erik Naggum")
+    (:lines ("Some may say Ruby is a bad rip-off of Lisp or Smalltalk,"
+             "and I admit that. But it is nicer to ordinary people.")
+     :author "Matz")
+    (:lines ("Press <Hyper>-<Super>-<Shift>-<Control>-<Meta>-<Symbol>-<Abort> to"
+             "engage Super Turbo Go Go Lisp Party Mode!")
+     :author "Me, that's who!"))
   "Some random quotes to display on the dashboard.")
 
 (defun zmacs--random-quote ()
@@ -117,11 +106,8 @@
   "Produce a string describing this Emacs."
   (format "GNU Emacs %s" emacs-version))
 
-;;;}}}
-;;;===================================================================
 
-;;;===================================================================
-;;;{{{ Variables:
+;;;; Variables:
 
 (defvar *zmacs--dashboard-buffer-name* "*dashboard*"
   "The name of our dashboard buffer.")
@@ -133,11 +119,7 @@
 (defvar *zmacs--ascii-banner-files* nil
   "A list of available banner files.")
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Banner files:
+;;;; Banner files:
 
 (defun zmacs--get-banners ()
   "Get banners from the banner directory, if set."
@@ -151,11 +133,7 @@
                                   (cl-remove-if #'string-empty-p names))
                           #'<))))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Modeline hacks:
+;;;; Modeline hacks:
 
 (defun zmacs--dashboard-hide-modeline ()
   "Hides the modeline in the dashboard buffer."
@@ -165,14 +143,10 @@
       (setq-local mode-line-format nil)      ; Zap the modeline format.
       (setq-local header-line-format nil)))) ; Zap the header line.
 
-;;; Add the modeline hack to the dashboard mode hook.
+;; Add the modeline hack to the dashboard mode hook.
 (add-hook 'dashboard-mode-hook #'zmacs--dashboard-hide-modeline)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Icon hacks:
+;;;; Icon hacks:
 
 (defmacro zmacs--with-icon (icon text info-text &rest fn)
   "When running on a graphical display, present a navigator button entry that
@@ -184,11 +158,7 @@ includes an icon.  Otherwise, just the navigator button entry is returned."
          ,info-text
          ,@fn))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Buffer switching:
+;;;; Buffer switching:
 
 (defun zmacs-dashboard ()
   "Load dashboard and switch to the buffer."
@@ -204,20 +174,16 @@ includes an icon.  Otherwise, just the navigator button entry is returned."
   (interactive)
   (switch-to-buffer *zmacs--dashboard-buffer-name*))
 
-;;;}}}
-;;;===================================================================
+;;;; Monkey patches.
 
-;;;===================================================================
-;;;{{{ Monkey patches.
-
-;;; Create a custom face for the init info section.
+;; Create a custom face for the init info section.
 (defface dashboard-init-info-face
   '((t (:inherit shadow)))
   "Face used for init info."
   :group 'dashboard)
 
-;;; Monkey Patch(tm) `dashboard-insert-init-info' to use its own face for the
-;;; inserted object.
+;; Monkey Patch(tm) `dashboard-insert-init-info' to use its own face for the
+;; inserted object.
 (defun dashboard-insert-init-info ()
   "Insert init info."
   (let ((init-info (if (functionp dashboard-init-info)
@@ -227,6 +193,30 @@ includes an icon.  Otherwise, just the navigator button entry is returned."
      (propertize init-info
                  'face 'dashboard-init-info-face))))
 
+;; Remove the silly leading ">" in terminal mode.
+(setf dashboard-footer-icon
+      (if (dashboard-display-icons-p)
+          (pcase dashboard-icon-type
+            ('all-the-icons
+             (all-the-icons-fileicon "emacs"
+                                     :height 1.1
+                                     :v-adjust -0.05
+                                     :face 'dashboard-footer-icon-face))
+            ('nerd-icons
+             (nerd-icons-sucicon "nf-custom-emacs"
+                                 :height 1.1
+                                 :v-adjust -0.05
+                                 :face 'dashboard-footer-icon-face)))
+        (propertize "" 'face 'dashboard-footer-icon-face)))
+
+(defun zmacs--dashboard-format-quote-block (quote)
+  (when (not (listp quote))
+    (cl-return-from zmacs--dashboard-format-quote quote))
+  (let ((the-quote  (cadr (member :lines  quote)))
+        (the-author (cadr (member :author quote))))
+    (concat "“" (mapconcat #'identity the-quote "\n") "”"
+            "\n    -- " the-author)))
+
 (defun dashboard-insert-footer ()
   "Insert footer of dashboard."
   (when-let ((footer (dashboard-random-footer))
@@ -234,21 +224,17 @@ includes an icon.  Otherwise, just the navigator button entry is returned."
     (dashboard-insert-center
      (if (string-empty-p footer-icon)
          footer-icon
-       (concat footer-icon " "))
-     (propertize
-      (if (listp footer)
-          (mapconcat 'identity footer "\n")
-        footer)
-      'face 'dashboard-footer-face)
+       (concat footer-icon ""))
+     (propertize (if (listp footer)
+                     ;;(mapconcat 'identity footer "\n")
+                     (zmacs--dashboard-format-quote-block footer)
+                   footer)
+                 'face 'dashboard-footer-face)
      "\n")))
 
-;;;}}}
-;;;===================================================================
+;;;; Settings:
+;;;;; General settings:
 
-;;;===================================================================
-;;;{{{ Settings:
-
-;;; General settings.
 (setq dashboard-startup-banner    (zmacs--get-banners)
       dashboard-center-content    t
       dashboard-show-shortcuts    t
@@ -259,13 +245,15 @@ includes an icon.  Otherwise, just the navigator button entry is returned."
       dashboard-show-shortcuts    nil
       dashboard-navigation-cycle  nil)
 
-;;; Settings that require a graphical system.
+;;;;; Settings that require a graphical system:
+
 (when (display-graphic-p)
   (setq dashboard-set-heading-icons nil
         dashboard-set-file-icons    nil
         dashboard-icon-type         'all-the-icons))
 
-;;; What to show on the dashboard
+;;;;; What to show on the dashboard:
+
 (setq dashboard-startupify-list '(dashboard-insert-banner
                                   dashboard-insert-newline
                                   dashboard-insert-banner-title
@@ -277,32 +265,15 @@ includes an icon.  Otherwise, just the navigator button entry is returned."
                                   dashboard-insert-newline
                                   dashboard-insert-footer))
 
-;;; Stuff we're not bothering with.
+;;;;; Stuff we're not bothering with:
+
 (setq dashbraod-item-shortcuts '()
       dashboard-items          '())
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Navigation buttons:
+;;;; Navigation buttons:
 
 (setq dashboard-navigator-buttons
       (list
-       (list (zmacs--with-icon (all-the-icons-faicon "calendar"
-                                                     :height 1.0
-                                                     :v-adjust 0.0)
-                               "Agenda"
-                               "View agenda."
-                               (lambda (&rest _)
-                                 (org-agenda-list)))
-             (zmacs--with-icon (all-the-icons-faicon "book"
-                                                     :height 1.0
-                                                     :v-adjust 0.0)
-                               "Notes"
-                               "Open notes in Dired."
-                               (lambda (&rest _)
-                                 (zmacs-notebook))))
        (list (zmacs--with-icon (all-the-icons-fileicon "elisp"
                                                        :height 1.0
                                                        :v-adjust 0.0)
@@ -322,13 +293,13 @@ includes an icon.  Otherwise, just the navigator button entry is returned."
                                         (sly-connect "localhost" 4006))
                                        (t
                                         (message "SLIME is not installed!")))))
-             (zmacs--with-icon (all-the-icons-material "help_outline"
-                                                       :height 1.1
-                                                       :v-adjust 0.1)
-                               "Help"
-                               "Show Eamcs help."
+                          (zmacs--with-icon (all-the-icons-faicon "book"
+                                                     :height 1.0
+                                                     :v-adjust 0.0)
+                               "Notes"
+                               "Open notes in Dired."
                                (lambda (&rest _)
-                                 (help))))
+                                 (zmacs-notebook))))
        (list (zmacs--with-icon (all-the-icons-faicon "terminal"
                                                      :height 1.0
                                                      :v-adjust 0.0)
@@ -342,9 +313,16 @@ includes an icon.  Otherwise, just the navigator button entry is returned."
                                "Dired"
                                "Start Dired"
                                (lambda (&rest _)
-                                 (dired user-home-directory))))))
-;;;}}}
-;;;===================================================================
+                                 (dired user-home-directory)))
+             (zmacs--with-icon (all-the-icons-material "help_outline"
+                                                       :height 1.1
+                                                       :v-adjust 0.1)
+                               "Journal"
+                               "Open journal in org-mode."
+                               (lambda (&rest _)
+                                 (zmacs-goto-journal))))))
+
+;;;; Load it up right now:
 
 (zmacs-dashboard)
 

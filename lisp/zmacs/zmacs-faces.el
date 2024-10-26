@@ -24,7 +24,25 @@
 
 ;;; Commentary:
 ;;
+;; Common Lisp has its own rules regarding comments:
+;;    ;;;;   File description comment block -- entirely optional.
+;;    ;;;    Top-level comment block -- aligned to column 0.
+;;    ;;     Commemt block -- aligned to current code block indentation.
+;;    ;      Inline comment block -- aligned to column 50 usually
 ;;
+;; e.g.:
+;;
+;;          ;;; -*- Mode: Common-Lisp: Syntax: ANSI-Common-Lisp; -*-
+;;          ;;;
+;;
+;;          ;;; Print some foo
+;;          (defun print-me-some-foo ()
+;;            (let ((foo (random)))               ; Randomness!
+;;              ;; Print it out now
+;;              (princ foo)))
+;;
+;; So, all this is a long-winded way to say:  Outline won't be used in Lisp mode
+;; on a whole, only Emacs Lisp mode.
 
 ;;; Code:
 
@@ -37,9 +55,7 @@
 (use-package outline
   :ensure nil
   :commands (outline-minor-mode)
-  :hook ((emacs-lisp-mode       . outline-minor-mode)
-         (lisp-interaction-mode . outline-minor-mode)
-         (lisp-mode             . outline-minor-mode)))
+  :hook ((emacs-lisp-mode       . outline-minor-mode)))
 
 ;;;; Outline minor faces package:
 

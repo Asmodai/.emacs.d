@@ -1030,14 +1030,14 @@ doesn't stand out."
                  :background ,zmacs-l1))))
 ;;;}}}
 ;;;{{{ Dashboard:
-     `(dashboard-text-banner-face
+     `(dashboard-text-banner
        ((,class (:inherit    fixed-pitch
                  :foreground ,zmacs-violet
                  :bold       t))))
-     `(dashboard-banner-logo-title-face
+     `(dashboard-banner-logo-title
        ((,class (:inherit    fixed-pitch
                  :foreground ,zmacs-foreground))))
-     `(dashboard-heading-face
+     `(dashboard-heading
        ((,class (:inherit    fixed-pitch
                  :foreground ,zmacs-blue))))
      `(dashboard-no-items-face
@@ -1046,7 +1046,10 @@ doesn't stand out."
                  :bold       t))))
      `(dashboard-footer-face
        ((,class (:inherit    fixed-pitch
-                 :foreground ,zmacs-cyan))))
+                 :foreground ,zmacs-mild))))
+     `(dashboard-init-info-face
+       ((,class (:inherit    fixed-pitch
+                 :foreground ,zmacs-strong))))
 ;;;}}}
 ;;;{{{ Highlight Indentation:
      `(highlight-indentation-current-column-face

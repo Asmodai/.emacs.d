@@ -30,18 +30,16 @@
 
 (require 'cl-lib)
 
-;;;===================================================================
-;;;{{{ Early stuff that's done before anything else:
+;;;; Early stuff that's done before anything else:
 
-;;; Let's add some Zetalisp all up in this here house!
+;; Let's add some Zetalisp all up in this here house!
 (defalias 'yes-or-no-p 'y-or-n-p)
 
-;;; Set frame and icon titles.
+;; Set frame and icon titles.
 (setq-default frame-title-format '("ZMACS")
               icon-title-format  '("ZMACS"))
 
-;;;}}}
-;;;===================================================================
+;;;; Files package:
 
 (use-package files
   :ensure nil
@@ -51,6 +49,8 @@
   (large-file-warning-threshold 100000000)
   (confirm-kill-processes nil)
   (find-file-visit-truename t))
+
+;;;; Emacs package:
 
 (use-package emacs
   :ensure nil
@@ -76,9 +76,13 @@
       (setq use-short-answers t)
     (advice-add 'yes-or-no-p :override #'y-or-n-p)))
 
+;;;; Subword package:
+
 (use-package subword
   :ensure nil
   :hook (after-init . global-subword-mode))
+
+;;;; Simple package:
 
 (use-package simple
   :ensure nil
@@ -86,6 +90,8 @@
   (line-move-visual t)
   (global-mark-ring-max 8)
   (mark-ring-max 8))
+
+;;;; Display line numbers:
 
 (use-package display-line-numbers
   :ensure nil
@@ -97,6 +103,8 @@
   (setq-default display-line-numbers-type t
                 display-line-numbers-width-start t))
 
+;;;; Mule:
+
 (use-package mule-cmds
   :ensure nil
   :defer t
@@ -106,23 +114,28 @@
   (set-terminal-coding-system 'utf-8)
   (set-keyboard-coding-system 'utf-8))
 
+;;;; Advice:
+
 (use-package advice
   :ensure nil
   :defer 1
   :custom
   (ad-redefinition-action 'accept))
 
+;;;; Page break lines:
+
 (use-package page-break-lines
   :defer t
   :commands (global-page-break-lines-mode)
-  :config
+  :init
   (global-page-break-lines-mode))
 
-;;; Allow deletion of selections.
+;;;; Selections:
+
+;; Allow deletion.
 (delete-selection-mode)
 
-;;;===================================================================
-;;;{{{ Diminish:
+;;;; Diminish:
 
 (use-package diminish
   :ensure t
@@ -178,14 +191,10 @@ This fixes an overlapping issue, that occurs when ZMACS is started in a
          (setcdr cell '(,unicode ,ascii))
        (push '(,mode ,unicode ,ascii) *zmacs-diminished-minor-modes*))))
 
-;;; Set up diminish stuff.
+;; Set up diminish stuff.
 (add-hook 'after-load-functions #'zmacs-diminish-hook)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Whitespace Butler:
+;;;; Whitespace Butler:
 
 (use-package ws-butler
   :ensure t
@@ -198,11 +207,7 @@ This fixes an overlapping issue, that occurs when ZMACS is started in a
 
 (global-set-key (kbd "S-s-SPC") #'cycle-spacing)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Save history:
+;;;; Save history:
 
 (use-package savehist
   :ensure nil
@@ -222,11 +227,7 @@ This fixes an overlapping issue, that occurs when ZMACS is started in a
 
   (savehist-mode 1))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Desktop:
+;;;; Desktop:
 
 (use-package desktop
   :ensure nil
@@ -264,11 +265,7 @@ This fixes an overlapping issue, that occurs when ZMACS is started in a
   (desktop-save-in-desktop-dir)
   (save-buffers-kill-emacs))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Timestamps:
+;;;; Timestamps:
 
 (use-package time-stamp
   :ensure nil
@@ -283,39 +280,23 @@ This fixes an overlapping issue, that occurs when ZMACS is started in a
   :ensure nil
   :demand t)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Long lines:
+;;;; Long lines:
 
 (use-package so-long
   :commands (global-so-long-mode
              so-long-mode)
   :hook (after-init . global-so-long-mode))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Read Only:
+;;;; Read Only:
 
 (setq view-read-only t)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Expand Region:
+;;;; Expand Region:
 
 (use-package expand-region
   :defer 1)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Safe Variables:
+;;;; Safe Variables:
 
 (use-package files
   :ensure nil
@@ -329,21 +310,13 @@ This fixes an overlapping issue, that occurs when ZMACS is started in a
           (org-download-heading-lvl)
           (magit-todos-branch-list nil))))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Restart Emacs
+;;;; Restart Emacs
 
 (use-package restart-emacs
   :when (version< emacs-version "29")
   :commands restart-emacs)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Undo:
+;;;; Undo:
 
 (use-package emacs
   :ensure nil
@@ -364,43 +337,61 @@ This fixes an overlapping issue, that occurs when ZMACS is started in a
   ;; Note that the default is x100), but this seems too high.
   (setq undo-outer-limit 1006632960))
 
-;;;}}}
-;;;===================================================================
+;;;; Undo Tree:
 
-;;;===================================================================
-;;;{{{ Undo Tree:
+;; (use-package undo-tree
+;;   :defer t
+;;   :commands (undo-tree-visualizer-timestamps
+;;              undo-tree-visualizer-diff
+;;              undo-tree-enable-undo-in-region
+;;              undo-tree-history-directory-alist)
+;;   :custom
+;;   (undo-tree-visualizer-timestamps t)
+;;   (undo-tree-visualizer-diff       t)
+;;   (undo-tree-enable-undo-in-region t)
+;;   :config
+;;   (require 'undo-tree)
+;;   (setq undo-tree-history-directory-alist
+;;         `(("." . ,(let ((dir (expand-file-name "undo-tree-history"
+;;                                                *zmacs-cache-directory*)))
+;;                     (if (file-exists-p dir)
+;;                         (unless (file-accessible-directory-p dir)
+;;                           (warn "Cannot access directory `%s'.
+;; Perhaps you don't have required permissions, or it's not a directory.
+;; See variable `undo-tree-history-directory-alist'." dir))
+;;                       (make-directory dir))
+;;                     dir))))
 
-(use-package undo-tree
-  :defer t
-  :commands (undo-tree-visualizer-timestamps
-             undo-tree-visualizer-diff
-             undo-tree-enable-undo-in-region
-             undo-tree-history-directory-alist)
-  :custom
-  (undo-tree-visualizer-timestamps t)
-  (undo-tree-visualizer-diff       t)
-  (undo-tree-enable-undo-in-region t)
+;;   (zmacs-diminish undo-tree-mode " ⎌" " U")
+;;   (global-undo-tree-mode))
+
+(use-package undo-fu
+  :ensure t
+  :demand t
   :config
-  (require 'undo-tree)
-  (setq undo-tree-history-directory-alist
-        `(("." . ,(let ((dir (expand-file-name "undo-tree-history"
-                                               *zmacs-cache-directory*)))
-                    (if (file-exists-p dir)
-                        (unless (file-accessible-directory-p dir)
-                          (warn "Cannot access directory `%s'.
-Perhaps you don't have required permissions, or it's not a directory.
-See variable `undo-tree-history-directory-alist'." dir))
-                      (make-directory dir))
-                    dir))))
+  (global-unset-key (kbd "C-z"))
+  (global-set-key   (kbd "C-z") #'undo-fu-only-undo)
+  (global-set-key   (kbd "C-r") #'undo-fu-only-redo))
 
-  (zmacs-diminish undo-tree-mode " ⎌" " U")
-  (global-undo-tree-mode))
+(use-package undo-fu-session
+  :commands (undo-fu-session-global-mode)
+  :config
+  (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'")))
+(undo-fu-session-global-mode)
 
-;;;}}}
-;;;===================================================================
+(use-package vundo
+  :ensure t
+  :demand t
+  :config
+  (global-unset-key (kbd "C-x u"))
+  (global-set-key   (kbd "C-x u") #'vundo))
 
-;;;===================================================================
-;;;{{{ Multisession:
+(use-package vundo-diff
+  :ensure nil
+  :after vundo
+  :demand t)
+
+;;;; Multisession:
 
 (use-package multisession
   :defer t
@@ -408,20 +399,12 @@ See variable `undo-tree-history-directory-alist'." dir))
   (setq multisession-directory (concat *zmacs-cache-directory*
                                        "multisession/")))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Editing binary files:
+;;;; Editing binary files:
 
 (use-package hexl
   :defer t)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Discover links:
+;;;; Discover links:
 
 (use-package link-hint
   :ensure t
@@ -434,32 +417,20 @@ See variable `undo-tree-history-directory-alist'." dir))
   ("C-c l c" . link-hint-copy-link)
   ("C-c l f" . link-hint-open-link-at-point))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Password generator:
+;;;; Password generator:
 
 (use-package password-generator
   :defer t)
 
-;;;}}}
-;;;===================================================================
+;;;; PCRE to Emacs Lisp regexp.:
 
-;;;===================================================================
-;;;{{{ PCRE to Emacs Lisp regexp.
-
-;;; Leader is `C-c /'
+;; Leader is `C-c /'
 (use-package pcre2el
   :defer t
   :config
   (require 'pcre2el))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ String inflection:
+;;;; String inflection:
 
 (use-package string-inflection
   :defer t
@@ -468,24 +439,15 @@ See variable `undo-tree-history-directory-alist'." dir))
   (require 'string-inflection)
   (global-set-key (kbd "C-c s i") #'string-inflection-all-cycle))
 
-;;;}}}
-;;;===================================================================
+;;;; Editing strings at current point:
 
-;;;===================================================================
-;;;{{{ Editing strings at current point:
-
-;;; Edit strings at the current point, with escaping.
 (use-package string-edit-at-point
   :defer t
   :commands (string-edit-at-point)
   :config
   (global-set-key (kbd "C-c s e") #'string-edit-at-point))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Multiline:
+;;;; Multiline:
 
 (use-package multi-line
   :defer t
@@ -494,11 +456,7 @@ See variable `undo-tree-history-directory-alist'." dir))
   (require 'multi-line)
   (global-set-key (kbd "C-c d") #'multi-line))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ UUID generator:
+;;;; UUID generator:
 
 (use-package uuidgen
   :ensure t
@@ -506,11 +464,7 @@ See variable `undo-tree-history-directory-alist'." dir))
   :autoload (uuidgen-1 uuidgen-4)
   :config (require 'uuidgen))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Highlight "TODO":
+;;;; Highlight "TODO":
 
 (use-package hl-todo
   :defer t
@@ -518,46 +472,28 @@ See variable `undo-tree-history-directory-alist'." dir))
              hl-todo-mode)
   :config (global-hl-todo-mode 1))
 
-;;;}}}
-;;;===================================================================
+;;;; Fill column indicator:
 
-;;;===================================================================
-;;;{{{ Fill column indicator:
-
-(defun zmacs-display-fill-column-indicator-mode ()
-  (unless (or (derived-mode-p 'shell-mode)
-              (not (org-in-src-block-p t)))
-    (display-fill-column-indicator-mode 1)))
-
-;;; Display an indicator on the current fill column.
+;; Display an indicator on the current fill column.
 (use-package display-fill-column-indicator
   :defer t
   :commands (global-display-fill-column-indicator-mode
              display-fill-column-indicator-mode)
+  :hook ((prog-mode . display-fill-column-indicator-mode)
+         (text-mode . display-fill-column-indicator-mode))
   :config
   (zmacs-diminish global-display-fill-column-indicator-mode " ⮠" "dF")
   (zmacs-diminish display-fill-column-indicator-mode        " ⮠" "dF")
-
-  (add-hook 'prog-mode-hook #'zmacs-display-fill-column-indicator-mode)
-  (add-hook 'text-mode-hook #'zmacs-display-fill-column-indicator-mode)
   (add-to-list 'minor-mode-alist '(display-fill-column-indicator-mode)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Popup:
+;;;; Popup:
 
 (use-package popup
   :defer t)
 
-;;;}}}
-;;;===================================================================
+;;;; Popwin:
 
-;;;===================================================================
-;;;{{{ Popwin:
-
-;;; TODO: I'm sure something more intelligent can be done here!
+;; TODO: I'm sure something more intelligent can be done here!
 (use-package popwin
   :defer t
   :config
@@ -667,49 +603,33 @@ See variable `undo-tree-history-directory-alist'." dir))
           :height 0.4)
         popwin:special-display-config))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Posframe:
+;;;; Posframe:
 
 (use-package posframe
   :defer t
   :config
   (require 'posframe))
 
-;;;}}}
-;;;===================================================================
+;;;; Fill column enforcement:
 
-;;;===================================================================
-;;;{{{ Fill column enforcement:
+;; XXX
+(use-package column-enforce-mode
+ :defer t
+ :commands (column-enforce-mode)
+ :hook (prog-mode . column-enforce-mode))
 
-;;; XXX
-;;(use-package column-enforce-mode
-;;  :defer t
-;;  :commands (column-enforce-mode)
-;;  :hook (prog-mode . column-enforce-mode))
+;;;; Indentation guide:
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Indentation guide:
-
-;;; This is traditional word-processing stuff, not source code indentation!
+;; This is traditional word-processing stuff, not source code indentation!
 (use-package indent-guide
   :defer t
   :commands (indent-guide-mode
              indent-guide-delay)
   :custom (indent-guide-delay 0.3))
 
-;;;}}}
-;;;===================================================================
+;;;; Default settings:
 
-;;;===================================================================
-;;;{{{ Default settings:
-
-;;; Defaults
+;; Defaults
 (setq-default frame-resize-pixelwise t
               indent-tabs-mode       nil ; Tabs are evil!
               tab-width              8   ; Default tab width.
@@ -747,60 +667,35 @@ See variable `undo-tree-history-directory-alist'." dir))
 (setq backup-directory-alist `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
 
-;;;}}}
-;;;===================================================================
+;;;; Hooks:
 
-;;;===================================================================
-;;;{{{ Hooks:
-
-;;; Set up whitespace cleanup.
+;; Set up whitespace cleanup.
 (add-hook 'before-save-hook #'whitespace-cleanup)
 
-;;;}}}
-;;;===================================================================
+;;;; Dired hacks:
 
-;;;===================================================================
-;;;{{{ Dired hacks:
-
-;;; XXX
+;; XXX
 (add-hook 'dired-load-hook (lambda ()
                              (load "dired-x")))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Mouse:
+;;;; Mouse:
 
 (or (display-graphic-p)
     (progn
       (xterm-mouse-mode 1)))
 
-;;;}}}
-;;;===================================================================
+;;;; Scrolling:
 
-;;;===================================================================
-;;;{{{ Scrolling:
-
-;;; Scrolling.
 (setq scroll-conservatively most-positive-fixnum)
 (when (>= emacs-major-version 29)
   (pixel-scroll-precision-mode 1))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Nuke some crappy annoyances:
+;;;; Nuke some crappy annoyances:
 
 (global-unset-key (kbd "C-z"))          ; `suspend-frame'.
 (global-unset-key (kbd "C-x C-z"))      ; Also `suspend-frame'.
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Global modes:
+;;;; Global modes:
 
 (global-eldoc-mode 1)
 (electric-pair-mode 1)
@@ -817,28 +712,20 @@ See variable `undo-tree-history-directory-alist'." dir))
 (add-hook 'prog-mode-hook (lambda ()
                             (hl-line-mode 1)))
 
-;;;}}}
-;;;===================================================================
+;;;; Enable/disable Emacs Lisp functions:
 
-;;;===================================================================
-;;;{{{ Enable/disable Emacs Lisp functions:
-
-;;; Enable some neat functions.
+;; Enable some neat functions.
 (put 'erase-buffer              'disabled nil)
 (put 'downcase-region           'disabled nil)
 (put 'upcase-region             'disabled nil)
 (put 'narrow-to-region          'disabled nil)
 (put 'dired-find-alternate-file 'disabled 'nil)
 
-;;; Never going to use these.
+;; Never going to use these.
 (put 'ns-print-buffer 'disabled t)
 (put 'suspend-frame   'disabled t)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Crux:
+;;;; Crux:
 
 (use-package crux
   :defer t
@@ -870,17 +757,36 @@ See variable `undo-tree-history-directory-alist'." dir))
 
   (global-set-key (kbd "C-c ;") #'crux-duplicate-and-comment-current-line-or-region))
 
-;;;}}}
-;;;===================================================================
+;;;; IAlign:
 
-;;;===================================================================
-;;;{{{ Diminishes:
+(use-package ialign
+  :ensure t
+  :commands (ialign)
+  :config
+  (global-set-key (kbd "C-x l") #'ialign))
+
+;;;; Siege mode:
+
+(use-package siege-mode
+  :ensure t
+  :vc (:fetcher github
+       :repo tslilc/siege-mode))
+
+;;;; NeoTree
+
+(use-package neotree
+  :ensure t
+  :custom
+  (neo-theme (if (display-graphic-p)
+                 'icons
+               'arrow)))
+
+;;;; Diminishes:
 
 (zmacs-diminish eldoc-mode        " ⓔ" " e")
 (zmacs-diminish global-eldoc-mode " ⓔ" " e")
 
-;;;}}}
-;;;===================================================================
+;;;; Provide package:
 
 (provide 'zmacs-base)
 

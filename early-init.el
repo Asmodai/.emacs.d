@@ -31,25 +31,23 @@
 (eval-when-compile
   (require 'cl-lib))
 
-;;;===================================================================
-;;;{{{ Speed hacks:
+;;; Sped hacks
 
-;;; Load in our features support package:
+;; Load in our features support package:
 (load (concat user-emacs-directory "lisp/zlisp/zlisp-features"))
 (require 'zlisp-features)
 
-;;; Set preposterous GC settings so GC won't invoke mid-way though initila
-;;; startup.
+;; Initial startup GC settings:
 (setq gc-cons-threshold  most-positive-fixnum
-      gc-cons-percentage 0.5)
+      gc-cons-percentage 0.2)
 
-;;; Set this now so we don't have to worry about it later on.
+;; Sane GC settings:
 (add-hook 'emacs-startup-hook
           (lambda ()
-            (setq gc-cons-threshold       (* 1000 1000 8)
-                  gc-cons-percentage      0.1)))
+            (setq gc-cons-threshold       8192   ; 80MiB
+                  gc-cons-percentage      0.2))) ; 0.2%
 
-;;; Do we have native compilation support?
+;; Do we have native compilation support?
 (defvar *zmacs-has-native-compilation* (and (fboundp 'native-comp-available-p)
                                             (native-comp-available-p))
   "Is native compilation available in this Emacs?")
@@ -59,31 +57,31 @@
        (equal (json-serialize (json-parse-string "[123]")) "[123]"))
   "Does Emacs implement `json-serialize' in C?")
 
-;;; Place `:fast-json' in features if it's available.
+;; Place `:fast-json' in features if it's available.
 (if *zmacs-has-fast-json*
     (zlisp-add-feature :fast-json)
   (warn "This Emacs is using the older elisp JSON functions."))
 
-;;; Place `:native-compilation' in feature if it's available.
+;; Place `:native-compilation' in feature if it's available.
 (if *zmacs-has-native-compilation*
     (zlisp-add-feature :native-compilation)
   (message "Native compilation is *not* available."))
 
-;;; Bug fix.
+;; Bug fixes.
 (if (not (boundp 'comp-enable-subr-trampolines))
     (setq comp-enable-subr-trampolines native-comp-enable-subr-trampolines))
 
-;;; Improve LSP performance.
+;; Improve LSP performance.
 (setq read-process-output-max (* 1024 1024))
 
-;;; Silence `nativecomp' warnings.
+;; Silence `nativecomp' warnings.
 (setopt native-comp-async-report-warnings-errors nil)
 
-;;; Native compiler settings.
+;; Native compiler settings.
 (setopt native-comp-speed 2)
 (setopt native-comp-deferred-compilation t)
 
-;;; Ensure warnings are really suppressed.
+;; Ensure warnings are really suppressed.
 (require 'warnings)
 (setopt warning-suppress-types '((comp)))
 (setopt debug-on-error nil)
@@ -97,8 +95,8 @@
                               ;;obsolete
                               ))
 
-;;; When-let errors
-;;; https://github.com/alphapapa/frame-purpose.el/issues/3
+;; When-let errors
+;; https://github.com/alphapapa/frame-purpose.el/issues/3
 (eval-and-compile
   (when (version< emacs-version "26")
     (zlisp-add-feature :no-native-when-let*)
@@ -109,19 +107,16 @@
       (defalias 'if-let* #'if-let)
       (function-put #'if-let* 'lisp-indent-function 2))))
 
-;;; Variable binding depth.
-;;; This variable controls the number of lisp bindings that can exists at a time.
-;;; We should make it fairly large for modern machines.
-;;; NOTE: Obsolete on Emacs 29+
-;;; https://www.reddit.com/r/emacs/comments/9jp9zt/anyone_know_what_variable_binding_depth_exceeds/
+;; Variable binding depth.
+;; This variable controls the number of lisp bindings that can exists at a time.
+;; We should make it fairly large for modern machines.
+;; NOTE: Obsolete on Emacs 29+
+;; https://www.reddit.com/r/emacs/comments/9jp9zt/anyone_know_what_variable_binding_depth_exceeds/
 (when (version< emacs-version "29")
   (setq max-specpdl-size 13000))
 
-;;;}}}
-;;;===================================================================
 
-;;;===================================================================
-;;;{{{ Variables:
+;;; Variables:
 
 (defcustom zmacs-active-theme nil
   "Current active ZMACS theme."
@@ -142,11 +137,7 @@
 (or (file-directory-p *zmacs-cache-directory*)
     (make-directory *zmacs-cache-directory*))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Settings:
+;;; Settings:
 
 (setopt frame-inhibit-implied-resize t
         frame-title-format           "ZMACS"
@@ -158,7 +149,7 @@
 (setopt tool-bar-mode nil
         scroll-bar-mode nil)
 
-;;; This is probably better than `inhibit-startup-echo-area-message'.
+;; This is probably better than `inhibit-startup-echo-area-message'.
 (defun display-startup-echo-area-message ()
   (message ""))
 
@@ -166,19 +157,15 @@
         (concat *zmacs-cache-directory*
                 "auto-save-list/.saves-"))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Load path:
+;;; Load path:
 
 (setopt load-prefer-newer t)
 
-;;; Set up base layers.
+;; Set up base layers.
 (push *zmacs-lisp-directory* load-path)
 
-;;; XXX this is terribad.
-;;; Add layer subdirectories.
+;; XXX this is terribad.
+;; Add layer subdirectories.
 (let ((subdirs (cl-loop for ent in (directory-files *zmacs-lisp-directory* t)
                         for file = (file-name-nondirectory ent)
                         when (and (not (or (equal file ".")
@@ -197,15 +184,11 @@
                                    (file-directory-p ent))
                          do (add-to-list 'load-path ent)))))
 
-;;; Load these early.
+;; Load these early.
 (require 'zlisp-timing)
 (require 'zlisp-platform)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Configure package system:
+;;; Configure package system:
 
 (require 'package)
 
@@ -230,8 +213,5 @@
 (when (version< emacs-version "29")
   (package-refresh-contents)
   (package-install 'use-package))
-
-;;;}}}
-;;;===================================================================
 
 ;;; early-init.el ends here.

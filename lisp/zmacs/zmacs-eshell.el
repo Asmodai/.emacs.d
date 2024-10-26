@@ -183,13 +183,14 @@ PWD is not in a git repo (or the git command is not found)."
            (git-branch (s-trim git-output))
            (git-icon  "\xe0a0")
            (git-icon2 (propertize "\xf020" 'face `(:family "octicons")))
-           (git-sep (propertize "" 'face 'lambda-meek)))
-      (concat (propertize " (" 'face 'lambda-mild)
-              (propertize git-repo 'face `(:inherit lambda-meek :weight light))
+           (git-sep (propertize "" 'face 'zmacs-meek)))
+      (concat (propertize "→ " 'face 'zmacs-mild)
+              (propertize git-repo 'face `(:inherit zmacs-strong :weight light))
+              " "
               git-sep
               " "
-              (propertize git-branch 'face `(:inherit lambda-meek :weight light))
-              (propertize ") " 'face 'lambda-mild)))))
+              (propertize git-branch 'face `(:inherit zmacs-strong :weight light))
+              (propertize " " 'face 'zmacs-mild)))))
 
 (defun zmacs--pwd-replace-home (pwd)
   "Replace home in PWD with tilde (~) character."
@@ -232,17 +233,18 @@ PWD is not in a git repo (or the git command is not found)."
          (parent (car directory))
          (name   (cadr directory))
          (branch (zmacs-eshell-config--git-prompt pwd)))
-    (concat (propertize "\n╭──┤ " 'face 'zmacs-mild)
+    (concat (propertize "\n╭─┤ " 'face 'zmacs-mild)
             (propertize (format-time-string "%H:%M:%S" (current-time))
                         'face 'zmacs-meek)
-            (propertize " ├──"  'face 'zmacs-mild)
+            (propertize " ├── "  'face 'zmacs-mild)
             (propertize parent 'face 'zmacs-meek)
             (propertize name 'face `(:inherit zmacs-meek :weight bold))
             "\n"
-            (propertize "╰─>>"  'face 'zmacs-mild)
+            (propertize "╰─"  'face 'zmacs-mild)
             (if branch
                 branch
-              " ")
+              "")
+            (propertize  ">> " 'face 'zmacs-mild)
             (propertize (zmacs-eshell-config--prompt-char)
                         'face `(:inherit zmacs-yellow :weight ultra-bold))
             ;; needed for the input text to not have prompt face

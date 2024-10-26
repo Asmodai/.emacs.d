@@ -31,8 +31,7 @@
 (eval-when-compile
   (require 'cl-lib))
 
-;;;===================================================================
-;;;{{{ Show pretty symbols:
+;;;; Show pretty symbols:
 
 (use-package prog-mode
   :ensure nil
@@ -40,19 +39,21 @@
   :custom
   (prettify-symbols-unprettify-at-point t))
 
-;;;}}}
-;;;===================================================================
 
-;;;===================================================================
-;;;{{{ Delimiters and identifiers:
+;;;; Delimiters and identifiers:
+;;;;; Rainbow Delimiters:
 
 (use-package rainbow-delimiters
   :defer t
   :init
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
+;;;;; Raimbow Identifiers:
+
 (use-package rainbow-identifiers
   :commands rainbow-identifiers-mode)
+
+;;;;; Highlight Parentheses:
 
 (use-package highlight-parentheses
   :defer t
@@ -69,6 +70,8 @@
   (add-hook 'minibuffer-setup-hook #'highlight-parentheses-minibuffer-setup)
   :config
   (zmacs-diminish highlight-parentheses-mode " ⫈" " hP"))
+
+;;;;; Smart Parens:
 
 (use-package smartparens
   :defer t
@@ -102,6 +105,8 @@ If GLOBAL is non-NIL then we work on the global modes."
       (smartparens-strict-mode -1))
     (smartparens-mode -1)))
 
+;;;;; Embrace:
+
 (use-package embrace
   :bind (("C-M-s-#" . embrace-commander))
   :config
@@ -120,33 +125,19 @@ If GLOBAL is non-NIL then we work on the global modes."
   (add-hook 'prog-mode-hook 'highlight-numbers-mode)
   (add-hook 'asm-mode-hook (lambda () (highlight-numbers-mode -1))))
 
-;;;}}}
-;;;===================================================================
+;;;; Paredit:
 
-;;;===================================================================
-;;;{{{ Structure editing:
-
-;;; Prerfer paredit for programming!
 (use-package paredit
   :defer t
-  :init
-  ;; Emacs Lisp.
-  (add-hook 'emacs-lisp-mode-hook                  #'enable-paredit-mode)
-  (add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
-
-    ;; Lisp dialects.
-  (add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
-  (add-hook 'lisp-mode-hook             #'enable-paredit-mode)
-  (add-hook 'scheme-mode-hook           #'enable-paredit-mode)
-  (add-hook 'common-lisp-mode-hook      #'enable-paredit-mode)
-
+  :commands (enable-paredit-mode)
+  :hook ((emacs-lisp-mode  . enable-paredit-mode)
+         (lisp-mode-hook   . enable-paredit-mode)
+         (scheme-mode-hook . enable-paredit-mode))
+  :config
   (zmacs-diminish paredit-mode " ⊚" "P"))
 
-;;;}}}
-;;;===================================================================
 
-;;;===================================================================
-;;;{{{ Tree Sitter:
+;;;; Tree Sitter:
 
 (setq treesit-extra-load-path `(,(concat *zmacs-cache-directory*
                                          "tree-sitter/")))
@@ -397,6 +388,9 @@ nil. Start at startdir or . if startdir not given"
 
 (use-package overseer
   :defer t)
+
+;;;; Auto Fill Mode
+(add-hook 'prog-mode #'auto-fill-mode)
 
 ;;;-------------------------------------------------------------------
 ;;;{{{ Useful functions:

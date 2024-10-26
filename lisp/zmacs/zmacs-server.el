@@ -1,10 +1,10 @@
-;;; zmacs-search.el --- Search packages  -*- mode: emacs-lisp; lexical-binding: t; -*-
+;;; zmacs-server.el --- Emacs server  -*- mode: emacs-lisp; lexical-binding: t; -*-
 ;;
 ;; Copyright (c) 2024 Paul Ward <paul@lisphacker.uk>
 ;;
 ;; Author:     Paul Ward <paul@lisphacker.uk>
 ;; Maintainer: Paul Ward <paul@lisphacker.uk>
-;; Created:    25 Oct 2024 16:14:00
+;; Created:    26 Oct 2024 10:21:52
 ;; URL:        not distributed yet
 ;;
 ;; This file is not part of GNU Emacs.
@@ -28,43 +28,32 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'cl-lib))
+(require 'cl-lib)
+(require 'zlisp-platform)
 
-;;;; Deadgrep:
+;;;; Emacs server
 
-;; XXX revisit this
-(use-package deadgrep)
-
-;;;; Ripgrep:
-
-(use-package rg
-  :commands rg)
-
-;;;; XRef:
-
-(use-package xref
+(use-package server
   :ensure nil
-  :defer 1)
-
-;;;; Visual Regexp:
-
-(use-package visual-regexp
-  :commands (vr/query-replace)
+  :if window-system
+  :defer 2
   :config
-  (use-package visual-regexp-steroids
-    :commands (vr/select-query-replace)))
+  (setq server-client-instructions nil)
+  (or (server-running-p)
+      (server-start)))
 
-;;;; Swiper:
+;;;; Functions
 
-(use-package swiper
-  :ensure t
-  :config
-  (global-unset-key (kbd "C-s"))
-  (global-set-key (kbd "C-s") #'swiper-isearch))
+;; BUG: This isn't really portable yet.
+(defun zmacs-kill-all-emacsen ()
+  "Kill all running Emacsen."
+  (interactive)
+  (progn
+    (save-buffers-kill-emacs)
+    (shell-command-to-string (concat "pkill -i "
+                                     (cond ((zlisp-macos-p   "Emacs"))
+                                           ((zlisp-windows-p "Emacs.exe"))
+                                           (t                "emacs"))))))
+(provide 'zmacs-server)
 
-;;;; Provide package:
-
-(provide 'zmacs-search)
-
-;;; zmacs-search.el ends here.
+;;; zmacs-server.el ends here.

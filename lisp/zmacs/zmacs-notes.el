@@ -86,8 +86,9 @@
 (defun zmacs-insert-header-and-time-property ()
   "Insert an Org heading with a timestamp property."
   (interactive)
-  (insert "* ")
-  (org-set-property "CREATED" (format-time-string "[%Y-%m-%d %T]")))
+  (insert "* Heading")
+  (org-set-property "CREATED" (format-time-string "[%Y-%m-%d %T]"))
+  (org-set-property "TOC" ":include all"))
 
 (defun zmacs-denote-workbook-create-entry ()
   "Create an entry tagged 'workbook' with the date as its title."
@@ -122,13 +123,16 @@
 
 (use-package consult-notes
   :custom
-  (consult-notes-file-dir-sources '(("ZMACS Notes" ?- *zmacs-notes-directory*)))
+  (consult-notes-file-dir-sources
+   `(("ZMACS Notes" ?- ,*zmacs-notes-directory*)))
   :commands (consult-notes
              consult-notes-search-in-all-notes))
 
 (defun zmacs-notebook ()
   "Open `consult-notes' in a buffer window."
   (interactive)
+  (require 'consult)
+  (require 'denote)
   (let ((vertico-buffer-display-action
          '(display-buffer-reuse-window)))
     (consult-notes)))

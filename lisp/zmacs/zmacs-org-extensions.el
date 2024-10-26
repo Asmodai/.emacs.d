@@ -31,8 +31,7 @@
 (eval-when-compile
   (require 'cl-lib))
 
-;;;===================================================================
-;;;{{{ Org Appearance:
+;;;; Org Appearance:
 
 (use-package org-appear
   :after org
@@ -43,11 +42,7 @@
   (org-appear-autolinks      nil)
   (org-appear-autosubmarkers t))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Modern:
+;;;; Modern:
 
 (use-package org-modern
   :after org
@@ -60,21 +55,14 @@
   (org-modern-label-border .25)
   (org-modern-star         ["⦶" "⦷" "⦹" "⊕" "⍟" "⊛" "⏣" "❂"]))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Org Autolist:
+;;;; Org Autolist:
 
 (use-package org-autolist
   :after org
   :hook (org-mode . org-autolist-mode))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Org Babel:
+;;;; Org Babel:
+;;;;; Bitfield:
 
 (use-package ob-bitfield
   :ensure t
@@ -83,6 +71,8 @@
   :init
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((bitfield . t))))
+
+;;;;; Shell:
 
 (use-package ob-shell
   :ensure nil
@@ -94,11 +84,15 @@
    org-babel-execute:bash
    org-babel-expand-body:bash))
 
+;;;;; Lisp:
+
 (use-package ob-lisp
   :ensure nil
   :after org
   :defer t
   :commands (org-babel-execute:lisp))
+
+;;;;; LaTeX:
 
 (use-package ob-latex
   :ensure nil
@@ -106,11 +100,7 @@
   :defer t
   :commands (org-babel-execute:latex))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Org Wild Notifier:
+;;;; Org Wild Notifier:
 
 (defvar org-start-notification-daemon-on-startup nil)
 
@@ -121,32 +111,20 @@
   (when org-start-notification-daemon-on-startup
     (org-wild-notifier-mode)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Org Contacts:
+;;;; Org Contacts:
 
 (use-package org-contacts
   :after org
   :ensure nil
   :defer t)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Org VCard:
+;;;; Org VCard:
 
 (use-package org-vcard
   :after org
   :defer t)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Org Expiry:
+;;;; Org Expiry:
 
 (use-package org-expiry
   :ensure nil
@@ -160,11 +138,7 @@
              org-expiry-process-entry
              org-expiry-process-entries))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Org Download:
+;;;; Org Download:
 
 (use-package org-download
   :after org
@@ -178,11 +152,8 @@
   (org-download-image-latex-width 500)
   (org-download-timestamp "%Y-%m-%d"))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Org Export:
+;;;; Org Export:
+;;;;; Pandoc:
 
 (use-package ox-pandoc
   :if (executable-find "pandoc")
@@ -195,24 +166,34 @@
   (org-pandoc-options-for-latex-pdf '((pdf-engine . "xelatex")))
   (org-pandoc-format-extensions '(org+smart)))
 
+;;;;; ePub:
+
 (use-package ox-epub
   :after ox
   :defer t
   :config (require 'ox-epub))
+
+;;;;; TWBS:
 
 (use-package ox-twbs
   :after ox
   :defer t
   :config (require 'ox-twbs))
 
+;;;;; Github-Flavoured Markdown:
+
 (use-package ox-gfm
   :after ox
   :defer t
   :config (require 'ox-gfm))
 
+;;;;; ASCII:
+
 (use-package ox-asciidoc
   :after ox
   :defer t)
+
+;;;;; Hugo:
 
 (use-package ox-hugo
   :after ox
@@ -294,31 +275,19 @@
                            :complete 'org-hugo-link-complete
                            :follow 'org-hugo-follow))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Time tracking:
+;;;; Time tracking:
 
 (use-package org-pomodoro
   :after org
   :commands org-pomodoro)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Org Mime:
+;;;; Org Mime:
 
 (use-package org-mime
   :after org
   :defer t)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Org Present:
+;;;; Org Present:
 
 (defun zmacs--org-present-start ()
   "Initiate `org-present' mode."
@@ -342,63 +311,39 @@
   (add-hook 'org-present-mode-hook      #'zmacs--org-present-start)
   (add-hook 'org-present-mode-quit-hook #'zmacs--org-present-end))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Org Cliplink:
+;;;; Org Cliplink:
 
 (use-package org-cliplink
   :after org
   :defer t)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Re-reveal:
+;;;; Re-reveal:
 
 (use-package org-re-reveal
   :after org
   :defer t
   :config (require 'org-re-reveal))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Persp Mode:
+;;;; Persp Mode:
 
 (use-package persp-mode
   :after org
   :defer t)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Sticky Header:
+;;;; Sticky Header:
 
 (use-package org-sticky-header
   :after org
   :defer t
   :hook (org-mode . org-sticky-header-mode))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Verb:
+;;;; Verb:
 
 (use-package verb
   :after org
   :defer t)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ VAlign:
+;;;; VAlign:
 
 (use-package valign
   :after org
@@ -410,32 +355,20 @@
                                 (unless valign-mode
                                   (valign-remove-advice)))))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Transclusion:
+;;;; Transclusion:
 
 (use-package org-transclusion
   :after org
   :defer t)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Bullets:
+;;;; Bullets:
 
 (use-package org-bullets
   :after org
   :defer t
   :hook (org-mode . org-bullets-mode))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Remark:
+;;;; Remark:
 
 (use-package org-remark
   :after org
@@ -466,8 +399,19 @@
     :after nov
     :config (org-remark-nov-mode +1)))
 
-;;;}}}
-;;;===================================================================
+;;;; TOC:
+
+(use-package org-toc
+  :ensure nil)
+
+;;;; Make TOC:
+
+;; (use-package org-make-toc
+;;   :ensure t
+;;   ;;  :hook (org-mode . org-make-doc-mode)
+;;   )
+
+;;;; Provide module:
 
 (provide 'zmacs-org-extensions)
 

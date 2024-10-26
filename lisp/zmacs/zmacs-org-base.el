@@ -157,12 +157,12 @@
   (org-id-locations-file                        (concat *zmacs-cache-directory*
                                                         ".org-id-locations"))
   :config
-  (add-hook 'org-mode-hook
-            (lambda ()
-              (org-num-mode 1)
-              (org-indent-mode 1)
-              (org-table-header-line-mode 1)
-              (visual-line-mode 1))))
+  (add-hook 'org-mode-hook (lambda ()
+                             (display-fill-column-indicator-mode -1)
+                             (org-num-mode 1)
+                             (org-indent-mode 1)
+                             (org-table-header-line-mode 1)
+                             (visual-line-mode 1))))
 
 ;;;}}}
 ;;;===================================================================
@@ -453,7 +453,9 @@ _vr_ reset      ^^                       ^^                 ^^
 ;;;{{{ Tempo:
 
 (use-package org-tempo
-  :ensure nil)
+  :ensure nil
+  :config
+  (require 'org-tempo))
 
 ;;;}}}
 ;;;===================================================================
@@ -1023,6 +1025,10 @@ and 0 means insert a single space in between the headline and the tags."
   ;; this is needed to align tags upon opening an org file:
   (org-align-tags t))
 
+(defun zmacs-org-mode-hook-fixes ()
+  (electric-pair-local-mode -1))
+
+(add-hook 'org-mode-hook #'zmacs-org-mode-hook-fixes)
 (add-hook 'org-mode-hook #'zmacs-fix-tag-alignment)
 (add-hook 'org-after-todo-statistics-hook #'zmacs-summary-todo)
 

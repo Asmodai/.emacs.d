@@ -111,24 +111,24 @@
 
 (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 
-;;; Minibuffer settings:
-;;;; Grow and shrink minibuffer:
+;;;; Minibuffer settings:
+;;;;; Grow and shrink minibuffer:
 
 (setq resize-mini-windows t)
 
-;;;; Do not allow the cursor in the minibuffer prompt:
+;;;;; Do not allow the cursor in the minibuffer prompt:
 
 (setq minibuffer-prompt-properties
       '(read-only t cursor-intangible t face minibuffer-prompt))
 
 (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
-;;; Enable recursive minibuffers.
+;;;;; Enable recursive minibuffers.
 
 (setf enable-recursive-minibuffers t)
 
-;;; Prescient:
-;;;; Main mode:
+;;;; Prescient:
+;;;;; Main mode:
 
 (use-package prescient
   :after vertico
@@ -137,14 +137,14 @@
   (push 'prescient completion-styles)
   (prescient-persist-mode))
 
-;;;; Vertico Presceient:
+;;;;; Vertico Presceient:
 
 (use-package vertico-prescient
   :after vertico
   :config
   (vertico-prescient-mode))
 
-;;; Orderless:
+;;;; Orderless:
 
 (use-package orderless
   :config
@@ -153,7 +153,7 @@
         completion-category-overrides '((file
                                          (styles . (partial-completion))))))
 
-;;; Marginalia:
+;;;; Marginalia:
 
 (use-package marginalia
   :ensure t
@@ -166,8 +166,8 @@
   :config
   (setq marginalia-align 'center))
 
-;;; Consult:
-;;;; Main package:
+;;;; Consult:
+;;;;; Main package:
 
 (use-package consult
   :commands (consult-line
@@ -255,7 +255,7 @@
   (interactive)
   (consult-line (thing-at-point 'symbol)))
 
-;;;; Consult directory:
+;;;;; Consult directory:
 
 (use-package consult-dir
   :commands (consult-dir
@@ -265,8 +265,8 @@
          ("C-x C-d" . consult-dir)
          ("C-x C-j" . consult-dir-jump-file)))
 
-;;; Embark:
-;;;; Main package:
+;;;; Embark:
+;;;;; Main package:
 
 (use-package embark
   :demand t
@@ -361,14 +361,14 @@ prompter."
   (advice-add #'embark-completing-read-prompter :around
               #'embark-hide-which-key-indicator))
 
-;;; Embark Consult:
+;;;;; Embark Consult:
 
 (use-package embark-consult
   :after (embark consult)
   :demand t
   :hook (embark-collect-mode . consult-preview-at-point-mode))
 
-;;; Corfu:
+;;;; Corfu:
 
 (use-package corfu
   :hook (window-setup . global-corfu-mode)
@@ -428,7 +428,7 @@ prompter."
   (corfu-popupinfo-mode 1)
   (global-corfu-mode))
 
-;;; Emacs completion settings:
+;;;; Emacs completion settings:
 
 (use-package emacs
   :ensure nil
@@ -437,7 +437,7 @@ prompter."
   (text-mode-ispell-word-completion nil)
   (read-extended-command-predicate #'command-completion-default-include-p))
 
-;;; Cape:
+;;;; Cape:
 
 (use-package cape
   :ensure t
@@ -448,13 +448,13 @@ prompter."
   (add-hook 'completion-at-point-functions #'cape-file)
   (add-hook 'completion-at-point-functions #'cape-elisp-block))
 
-;;; DAbbrev:
+;;;; DAbbrev:
 
 (use-package dabbrev
   :bind (("M-/"   . dabbrev-completion)
          ("C-M-/" . dabbrev-expand)))
 
-;;; Kind-Icon:
+;;;; Kind-Icon:
 
 (use-package kind-icon
   :defer 1
@@ -466,7 +466,7 @@ prompter."
   :config
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
-;;; Yasnippet
+;;;; Yasnippet
 
 (defcustom zmacs-all-snippets-dir
   (concat zmacs-storage-directory "all-snippets/")
@@ -502,7 +502,7 @@ prompter."
   :custom
   (yasnippet-snippets-dir (concat zmacs-all-snippets-dir "yasnippets/")))
 
-;;; Eglot:
+;;;; Eglot:
 
 (use-package eglot
   :ensure nil
@@ -536,6 +536,21 @@ prompter."
   (define-key eglot-mode-map (kbd "M-m =") #'eglot-format)
   (define-key eglot-mode-map (kbd "M-m ?") #'xref-find-references)
   (define-key eglot-mode-map (kbd "M-.")   #'xref-find-definitions))
+
+;;;; Avy
+
+(use-package avy
+  :ensure t
+  :config
+  (avy-setup-default)
+  (global-set-key (kbd "C-:")     #'avy-goto-char)
+  (global-set-key (kbd "C-'")     #'avy-goto-char-2)
+  (global-set-key (kbd "M-g f")   #'avy-goto-line)
+  (global-set-key (kbd "M-g e")   #'avy-goto-word-0)
+  (global-set-key (kbd "M-g w")   #'avy-goto-word-1)
+  (global-set-key (kbd "C-c C-j") #'avy-goto-word-1))
+
+;;;; Provide.
 
 (provide 'zmacs-completion)
 

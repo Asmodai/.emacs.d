@@ -144,7 +144,9 @@
 (require 'zmacs-early)
 
 ;;;;; Main modules:
+(require 'zmacs-scratch)
 (require 'zmacs-base)
+(require 'zmacs-server)
 (require 'zmacs-frames)
 (require 'zmacs-windows)
 (require 'zmacs-buffers)
@@ -179,6 +181,7 @@
 (require 'zmacs-notes)
 
 ;;;;; Programming:
+(require 'zmacs-programming)
 (require 'zmacs-prog-debug)
 (require 'zmacs-prog-lisp)
 (require 'zmacs-prog-common-lisp)
@@ -211,9 +214,9 @@
                         (time-subtract after-init-time before-init-time))
                        gcs-done))))
 
-;; When idle for 15sec run the GC no matter what.
+;; When idle for 45sec run the GC no matter what.
 (defvar zmacs-gc-timer
-  (run-with-idle-timer 15 t
+  (run-with-idle-timer 45 t
                        (lambda ()
                          (let ((inhibit-message t))
                            (message "Garbage Collector has run for %.06fsec"
