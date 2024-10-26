@@ -74,10 +74,10 @@
 ;;;===================================================================
 ;;;{{{ Titlebar hacks for macOS:
 
-(use-package ns-auto-titlebar
-  :if (zlisp-macos-p)
-  :commands ns-auto-titlebar-mode
-  :config (ns-auto-titlebar-mode))
+(zlisp-when-macos
+  (use-package ns-auto-titlebar
+    :commands ns-auto-titlebar-mode
+    :config (ns-auto-titlebar-mode)))
 
 ;;;}}}
 ;;;===================================================================

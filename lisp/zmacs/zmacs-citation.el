@@ -62,7 +62,7 @@
 (use-package oc-csl
   :ensure nil
   :after oc
-  :init
+  :config
   (setq org-cite-csl-styles-dir  (concat *zmacs-csl-directory* "styles/")
         org-cite-csl-locales-dir (concat *zmacs-csl-directory* "locales/")))
 
@@ -79,9 +79,8 @@
   :commands (citar-open-brief
              citar-open-notes
              citar-insert-citation)
-  :hook
-  (LaTeX-mode . citar-capf-setup)
-  (org-mode   . citar-capf-setup)
+  :hook ((LaTeX-mode . citar-capf-setup)
+         (org-mode   . citar-capf-setup))
   :bind (:map citar-map
          ("b" . #'citar-open-brief))
   :custom

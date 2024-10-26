@@ -33,15 +33,13 @@
 
 (use-package flycheck-package
   :defer t
-  :hook
-  (emacs-lisp-mode . flycheck-package-setup)
+  :hook (emacs-lisp-mode . flycheck-package-setup)
   :config
   (setq flycheck-emacs-lisp-load-path 'inherit))
 
 (use-package flycheck-elsa
   :defer t
-  :hook
-  (emacs-lisp-mode . flycheck-elsa-setup))
+  :hook (emacs-lisp-mode . flycheck-elsa-setup))
 
 (use-package inspector
   :defer t)
@@ -87,7 +85,7 @@
   (progn
     (require 'smartparens-config)
     (show-smartparens-global-mode +1)
-    (zmacs:diminish smartparens-mode " 🄪" " SP")))
+    (zmacs-diminish smartparens-mode " 🄪" " SP")))
 
 (defun zmacs::deactivate-smartparens (&optional global)
   "Deactivate `smartparens-mode' and `smartparens-strict-mode'.

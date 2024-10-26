@@ -136,7 +136,10 @@
   :custom
   (auto-revert-verbose nil)
   (auto-revert-interval 0.5)
-  (global-auto-revert-non-file-buffers t))
+  (global-auto-revert-non-file-buffers t)
+  :config
+  (add-to-list 'global-auto-revert-ignore-modes 'Buffer-menu-mode)
+  (add-to-list 'global-auto-revert-ignore-modes 'dired-mode))
 
 ;;;}}}
 ;;;===================================================================
@@ -168,7 +171,7 @@
                               "\\*Async Shell Command\\*"
                               help-mode
                               compilation-mode))
-  :init
+  :config
   (defun popper-select-popup-at-top (buffer &optional _alist)
     "Display and switch to popup-buffer BUFFER at the top of the screen."
     (let ((window (popper-display-popup-at-top buffer)))

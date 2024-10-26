@@ -31,25 +31,21 @@
 (require 'cl-lib)
 (require 'zlisp-platform)
 
-;;;===================================================================
-;;;{{{ Eshadow:
+;;;; EShadow:
 
 (use-package rfn-eshadow
   :ensure nil
   :hook (minibuffer-setup . cursor-intangible-mode)
-  :config
-  (setq resize-mini-windows t
-        read-answer-short   t
-        echo-keystrokes     0.25
-        kill-ring-max       60)
-  (setq minibuffer-prompt-properties
-        '(read-only t cursor-intangible t face minibuffer-prompt)))
+  :custom
+  (resize-mini-windows t)
+  (read-answer-short   t)
+  (echo-keystrokes     0.25)
+  (kill-ring-max       60)
+  (minibuffer-prompt-properties
+   '(read-only t cursor-intangible t face minibuffer-prompt)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Vertico:
+;;;; Vertico:
+;;;;; Main package:
 
 (use-package vertico
   :commands (vertico-map
@@ -72,6 +68,7 @@
               #'completion-category-sort-function)
 
   (defun completion-category-sort-function ()
+    "Sort completion by category."
     (alist-get (vertico--metadata-get 'category)
                completion-category-sort-function-overrides))
 
@@ -80,18 +77,27 @@
     "Completion category-specific sorting function overrides.")
 
   (defun directories-before-files (files)
+    "Put directories before files."
     (setq files (vertico-sort-history-length-alpha files))
     (nconc (seq-filter (lambda (x) (string-suffix-p "/" x)) files)
            (seq-remove (lambda (x) (string-suffix-p "/" x)) files))))
 
+;;;; Vertico repeat:
+
 (use-package vertico-repeat
   :ensure nil
   :hook (minibuffer-setup . vertico-repeat-save)
-  :commands (vertico-repeat-last))
+  :commands (vertico-repeat-save))
+
+;;;; Vertico directory:
 
 (use-package vertico-directory
   :ensure nil
   :after vertico
+  :commands (vertico-directory-enter
+             vertico-directory-delete-char
+             vertico-directory-delete-word
+             vertico-directory-tidy)
   :bind (:map vertico-map
               ("RET"   . vertico-directory-enter)
               ("DEL"   . vertico-directory-delete-char)
@@ -99,22 +105,30 @@
   :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 
 (defun crm-indicator (args)
+  "Append a CRM indicator to ARGS."
   (cons (concat "[CRM] " (car args))
         (cdr args)))
 
 (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 
-;;; Grow and shrink minibuffer.
+;;; Minibuffer settings:
+;;;; Grow and shrink minibuffer:
+
 (setq resize-mini-windows t)
 
-;;; Do not allow the cursor in the minibuffer prompt.
+;;;; Do not allow the cursor in the minibuffer prompt:
+
 (setq minibuffer-prompt-properties
       '(read-only t cursor-intangible t face minibuffer-prompt))
 
 (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
-;; Enable recursive minibuffers.
+;;; Enable recursive minibuffers.
+
 (setf enable-recursive-minibuffers t)
+
+;;; Prescient:
+;;;; Main mode:
 
 (use-package prescient
   :after vertico
@@ -123,32 +137,146 @@
   (push 'prescient completion-styles)
   (prescient-persist-mode))
 
+;;;; Vertico Presceient:
+
 (use-package vertico-prescient
   :after vertico
   :config
   (vertico-prescient-mode))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Orderless:
+;;; Orderless:
 
 (use-package orderless
-  :init
+  :config
   (setq completion-styles '(orderless)
         completion-category-defaults nil
         completion-category-overrides '((file
                                          (styles . (partial-completion))))))
 
-;;;}}}
-;;;===================================================================
+;;; Marginalia:
 
-;;;===================================================================
-;;;{{{ Embark:
+(use-package marginalia
+  :ensure t
+  :commands (marginalia-cycle
+             marginalia-mode)
+  :bind (:map minibuffer-local-map
+         ("C-M-a" . marginalia-cycle))
+  :init
+  (marginalia-mode)
+  :config
+  (setq marginalia-align 'center))
+
+;;; Consult:
+;;;; Main package:
+
+(use-package consult
+  :commands (consult-line
+             consult-line-multi
+             consult-buffer
+             consult-project-buffer
+             consult-find
+             consult-apropos
+             consult-yank-pop
+             consult-goto-line
+             consult-org-agenda
+             consult-org-heading
+             consult-flymake)
+  :bind (:map project-prefix-map
+              ("b" . consult-project-buffer)
+              ("m" . consult-bookmark))
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+  :init
+  (fset 'multi-occur #'consult-multi-occur)
+  :config
+  (consult-customize consult-ripgrep
+                     consult-git-grep
+                     consult-grep
+                     consult-bookmark
+                     consult-recent-file
+                     consult-xref
+                     consult--source-bookmark
+                     consult--source-recent-file
+                     consult--source-project-recent-file
+                     consult-theme
+                     :preview-key '(:debounce 0.2 any))
+
+  (setq register-preview-delay 0.5
+        register-preview-function #'consult-register-format)
+
+  (advice-add #'register-preview :override #'consult-register-window)
+
+  (setq xref-show-xrefs-function       #'consult-xref
+        xref-show-definitions-function #'consult-xref)
+
+  (setq consult-ripgrep-args (mapconcat #'identity
+                                        (list "rg"
+                                              "--null"
+                                              "--line-buffered"
+                                              "--color=never"
+                                              "--max-columns=1000"
+                                              "--path-separator /"
+                                              "--smart-case"
+                                              "--no-heading"
+                                              "--with-filename"
+                                              "--line-number"
+                                              "--search-zip")
+                                        " ")
+        consult-async-min-input 2)
+
+  (when (zlisp-macos-p)
+    (setq consult-locate-args "mdfind -name"))
+
+  (defun consult-info-emacs ()
+    "Search through Emacs info pages."
+    (interactive)
+    (consult-info "emacs" "efaq" "elisp" "cl" "compat"))
+
+  (defun consult-info-org ()
+    "Search through the Org info page."
+    (interactive)
+    (consult-info "org"))
+
+  (defun consult-info-completion ()
+    "Search through completion info pages."
+    (interactive)
+    (consult-info "vertico"
+                  "consult"
+                  "marginalia"
+                  "orderless"
+                  "embark"
+                  "corfu"
+                  "cape"
+                  "tempel"))
+
+  (bind-key "C-h i" #'consult-info))
+
+(defun consult-line-symbol-at-point ()
+  "Evaluate `consult-line' on the symbol at current point."
+  (interactive)
+  (consult-line (thing-at-point 'symbol)))
+
+;;;; Consult directory:
+
+(use-package consult-dir
+  :commands (consult-dir
+             consult-dir-jump-file)
+  :bind (("C-x C-d" . consult-dir)
+         :map vertico-map
+         ("C-x C-d" . consult-dir)
+         ("C-x C-j" . consult-dir-jump-file)))
+
+;;; Embark:
+;;;; Main package:
 
 (use-package embark
-  :commands (embark-act embark-keymap-help)
+  :demand t
+  :commands (embark-act
+             embark-dwim
+             embark-bindings
+             embark-act-noexit
+             embark-switch-to-live-occur
+             embark-occur-toggle-view
+             embark-keymap-help)
   :custom
   (embark-indicators '(embark-which-key-indicator
                        embark-minimal-indicator
@@ -233,132 +361,14 @@ prompter."
   (advice-add #'embark-completing-read-prompter :around
               #'embark-hide-which-key-indicator))
 
+;;; Embark Consult:
+
 (use-package embark-consult
   :after (embark consult)
   :demand t
-  :hook
-  (embark-collect-mode . consult-preview-at-point-mode))
+  :hook (embark-collect-mode . consult-preview-at-point-mode))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Marginalia:
-
-(use-package marginalia
-  :ensure t
-  :commands (marginalia-cycle
-             marginalia-mode)
-  :bind (:map minibuffer-local-map
-         ("C-M-a" . marginalia-cycle))
-  :config
-  (marginalia-mode)
-  (setq marginalia-align 'center))
-
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Consult:
-
-(use-package consult
-  :commands (consult-line
-             consult-line-multi
-             consult-buffer
-             consult-project-buffer
-             consult-find
-             consult-apropos
-             consult-yank-pop
-             consult-goto-line
-             consult-org-agenda
-             consult-org-heading
-             consult-flymake)
-  :bind (:map project-prefix-map
-              ("b" . consult-project-buffer)
-              ("m" . consult-bookmark))
-  :hook (completion-list-mode . consult-preview-at-point-mode)
-  :init
-  (fset 'multi-occur #'consult-multi-occur)
-  :config
-  (consult-customize consult-ripgrep
-                     consult-git-grep
-                     consult-grep
-                     consult-bookmark
-                     consult-recent-file
-                     consult-xref
-                     consult--source-bookmark
-                     consult--source-recent-file
-                     consult--source-project-recent-file
-                     consult-theme
-                     :preview-key '(:debounce 0.2 any))
-
-  (setq register-preview-delay 0.5
-        register-preview-function #'consult-register-format)
-
-  (advice-add #'register-preview :override #'consult-register-window)
-
-  (setq xref-show-xrefs-function       #'consult-xref
-        xref-show-definitions-function #'consult-xref)
-
-  (setq consult-ripgrep-args (mapconcat #'identity
-                                        (list "rg"
-                                              "--null"
-                                              "--line-buffered"
-                                              "--color=never"
-                                              "--max-columns=1000"
-                                              "--path-separator /"
-                                              "--smart-case"
-                                              "--no-heading"
-                                              "--with-filename"
-                                              "--line-number"
-                                              "--search-zip")
-                                        " ")
-        consult-async-min-input 2)
-
-  (when (zlisp-macos-p)
-    (setq consult-locate-args "mdfind -name"))
-
-  (defun consult-info-emacs ()
-    "Search through Emacs info pages."
-    (interactive)
-    (consult-info "emacs" "efaq" "elisp" "cl" "compat"))
-
-  (defun consult-info-org ()
-    "Search through the Org info page."
-    (interactive)
-    (consult-info "org"))
-
-  (defun consult-info-completion ()
-    "Search through completion info pages."
-    (interactive)
-    (consult-info "vertico"
-                  "consult"
-                  "marginalia"
-                  "orderless"
-                  "embark"
-                  "corfu"
-                  "cape"
-                  "tempel"))
-
-  (bind-key "C-h i" #'consult-info))
-
-(defun consult-line-symbol-at-point ()
-  (interactive)
-  (consult-line (thing-at-point 'symbol)))
-
-(use-package consult-dir
-  :commands (consult-dir
-             consult-dir-jump-file)
-  :bind (("C-x C-d" . consult-dir)
-         :map vertico-map
-         ("C-x C-d" . consult-dir)
-         ("C-x C-j" . consult-dir-jump-file)))
-
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Corfu:
+;;; Corfu:
 
 (use-package corfu
   :hook (window-setup . global-corfu-mode)
@@ -418,6 +428,8 @@ prompter."
   (corfu-popupinfo-mode 1)
   (global-corfu-mode))
 
+;;; Emacs completion settings:
+
 (use-package emacs
   :ensure nil
   :custom
@@ -425,36 +437,24 @@ prompter."
   (text-mode-ispell-word-completion nil)
   (read-extended-command-predicate #'command-completion-default-include-p))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Cape:
+;;; Cape:
 
 (use-package cape
   :ensure t
   :after corfu
   :bind ("C-c p" . cape-prefix-map)
-  :init
+  :config
   (add-hook 'completion-at-point-functions #'cape-dabbrev)
   (add-hook 'completion-at-point-functions #'cape-file)
   (add-hook 'completion-at-point-functions #'cape-elisp-block))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ dabbrev:
+;;; DAbbrev:
 
 (use-package dabbrev
   :bind (("M-/"   . dabbrev-completion)
          ("C-M-/" . dabbrev-expand)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Kind Icon:
+;;; Kind-Icon:
 
 (use-package kind-icon
   :defer 1
@@ -464,14 +464,9 @@ prompter."
   (kind-icon-blend-background nil)
   (svg-lib-icons-dir (concat *zmacs-cache-directory* "svg-lib/cache/"))
   :config
-  ;;(add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
-  )
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Yasnippet:
+;;; Yasnippet
 
 (defcustom zmacs-all-snippets-dir
   (concat zmacs-storage-directory "all-snippets/")
@@ -507,11 +502,7 @@ prompter."
   :custom
   (yasnippet-snippets-dir (concat zmacs-all-snippets-dir "yasnippets/")))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Eglot:
+;;; Eglot:
 
 (use-package eglot
   :ensure nil
@@ -545,9 +536,6 @@ prompter."
   (define-key eglot-mode-map (kbd "M-m =") #'eglot-format)
   (define-key eglot-mode-map (kbd "M-m ?") #'xref-find-references)
   (define-key eglot-mode-map (kbd "M-.")   #'xref-find-definitions))
-
-;;;}}}
-;;;===================================================================
 
 (provide 'zmacs-completion)
 

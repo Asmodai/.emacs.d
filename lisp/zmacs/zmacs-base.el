@@ -28,8 +28,7 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'cl-lib))
+(require 'cl-lib)
 
 ;;;===================================================================
 ;;;{{{ Early stuff that's done before anything else:
@@ -43,17 +42,6 @@
 
 ;;;}}}
 ;;;===================================================================
-
-(use-package cus-edit
-  :ensure nil
-  :defer 1
-  :custom
-  (custom-file (expand-file-name "custom.el" user-emacs-directory))
-  :config
-  (when (not (file-exists-p custom-file))
-    (write-file custom-file))
-  (when (file-exists-p custom-file)
-    (load custom-file)))
 
 (use-package files
   :ensure nil
@@ -94,7 +82,6 @@
 
 (use-package simple
   :ensure nil
-  ;;:hook (after-init . global-visual-line-mode)
   :custom
   (line-move-visual t)
   (global-mark-ring-max 8)
@@ -104,8 +91,8 @@
   :ensure nil
   :defer nil
   :commands display-line-numbers-mode
-  :hook ((text-mode      display-line-numbers-mode)
-         (prog-mode-hook display-line-numbers-mode))
+  :hook ((text-mode . display-line-numbers-mode)
+         (prog-mode . display-line-numbers-mode))
   :config
   (setq-default display-line-numbers-type t
                 display-line-numbers-width-start t))
@@ -393,7 +380,7 @@ This fixes an overlapping issue, that occurs when ZMACS is started in a
   (undo-tree-visualizer-timestamps t)
   (undo-tree-visualizer-diff       t)
   (undo-tree-enable-undo-in-region t)
-  :custom
+  :config
   (require 'undo-tree)
   (setq undo-tree-history-directory-alist
         `(("." . ,(let ((dir (expand-file-name "undo-tree-history"
@@ -697,10 +684,11 @@ See variable `undo-tree-history-directory-alist'." dir))
 ;;;===================================================================
 ;;;{{{ Fill column enforcement:
 
-(use-package column-enforce-mode
-  :defer t
-  :commands (column-enforce-mode)
-  :hook (prog-mode . column-enforce-mode))
+;;; XXX
+;;(use-package column-enforce-mode
+;;  :defer t
+;;  :commands (column-enforce-mode)
+;;  :hook (prog-mode . column-enforce-mode))
 
 ;;;}}}
 ;;;===================================================================
@@ -766,7 +754,7 @@ See variable `undo-tree-history-directory-alist'." dir))
 ;;;{{{ Hooks:
 
 ;;; Set up whitespace cleanup.
-(add-hook 'before-save-hook 'whitespace-cleanup)
+(add-hook 'before-save-hook #'whitespace-cleanup)
 
 ;;;}}}
 ;;;===================================================================
@@ -775,8 +763,8 @@ See variable `undo-tree-history-directory-alist'." dir))
 ;;;{{{ Dired hacks:
 
 ;;; XXX
-(add-hook 'dired-load-hook (function (lambda ()
-                                       (load "dired-x"))))
+(add-hook 'dired-load-hook (lambda ()
+                             (load "dired-x")))
 
 ;;;}}}
 ;;;===================================================================
@@ -826,8 +814,8 @@ See variable `undo-tree-history-directory-alist'." dir))
 (tool-bar-mode -1)                      ; No toolbar.
 (electric-indent-mode)                  ; Electric indent mode.
 
-(add-hook 'prog-mode-hook #'(lambda ()
-                              (hl-line-mode 1)))
+(add-hook 'prog-mode-hook (lambda ()
+                            (hl-line-mode 1)))
 
 ;;;}}}
 ;;;===================================================================
@@ -865,23 +853,22 @@ See variable `undo-tree-history-directory-alist'." dir))
              crux-visit-term-buffer
              crux-duplicate-and-comment-current-line-or-region)
   :config
-  (progn
-    (global-set-key (kbd "C-a")   #'crux-move-beginning-of-line)
-    (global-set-key (kbd "C-x ;") #'comment-line)
-    (global-set-key (kbd "C-o")   #'crux-smart-open-line)
-    (global-set-key (kbd "C-k")   #'crux-smart-kill-line)
+  (global-set-key (kbd "C-a")   #'crux-move-beginning-of-line)
+  (global-set-key (kbd "C-x ;") #'comment-line)
+  (global-set-key (kbd "C-o")   #'crux-smart-open-line)
+  (global-set-key (kbd "C-k")   #'crux-smart-kill-line)
 
-    (global-set-key (kbd "C-x C-o") #'crux-other-window-or-switch-buffer)
-    (global-set-key (kbd "C-c C-o") #'crux-other-window-or-switch-buffer)
-    (global-set-key (kbd "C-c C-l") #'crux-duplicate-current-line-or-region)
-    (global-set-key (kbd "C-c C--") #'crux-kill-whole-line)
+  (global-set-key (kbd "C-x C-o") #'crux-other-window-or-switch-buffer)
+  (global-set-key (kbd "C-c C-o") #'crux-other-window-or-switch-buffer)
+  (global-set-key (kbd "C-c C-l") #'crux-duplicate-current-line-or-region)
+  (global-set-key (kbd "C-c C--") #'crux-kill-whole-line)
 
-    (global-set-key (kbd "C-c o")   #'crux-open-with)
-    (global-set-key (kbd "C-S-RET") #'crux-smart-open-line-above)
-    (global-set-key (kbd "S-RET")   #'crux-smart-open-line)
-    (global-set-key (kbd "C-c t")   #'crux-visit-term-buffer)
+  (global-set-key (kbd "C-c o")   #'crux-open-with)
+  (global-set-key (kbd "C-S-RET") #'crux-smart-open-line-above)
+  (global-set-key (kbd "S-RET")   #'crux-smart-open-line)
+  (global-set-key (kbd "C-c t")   #'crux-visit-term-buffer)
 
-    (global-set-key (kbd "C-c ;") #'crux-duplicate-and-comment-current-line-or-region)))
+  (global-set-key (kbd "C-c ;") #'crux-duplicate-and-comment-current-line-or-region))
 
 ;;;}}}
 ;;;===================================================================

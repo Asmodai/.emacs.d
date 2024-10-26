@@ -33,10 +33,9 @@
 
 (use-package auto-highlight-symbol
   :defer t
-  :hook
-  (common-lisp-mode      . auto-highlight-symbol-mode)
-  (emacs-lisp-mode       . auto-highlight-symbol-mode)
-  (lisp-interaction-mode . auto-highlight-symbol-mode)
+  :hook ((common-lisp-mode      . auto-highlight-symbol-mode)
+         (emacs-lisp-mode       . auto-highlight-symbol-mode)
+         (lisp-interaction-mode . auto-highlight-symbol-mode))
   :config
   (require 'auto-highlight-symbol)
   (add-to-list 'ahs-plugin-bod-modes 'lisp-mode))
@@ -59,7 +58,7 @@
 
 (use-package sly
   :ensure nil
-  :defer t
+  :load-path "~/.emacs.d/lisp/extensions/sly"
   :bind (:map sly-mrepl-mode-map
          ("M-<up>"   . #'sly-mrepl-previous-input-or-button)
          ("M-<down>" . #'sly-mrepl-next-input-or-button))
@@ -87,7 +86,10 @@
 (use-package sly-asdf             :after sly :ensure t)
 (use-package sly-named-readtables :after sly :ensure t)
 (use-package sly-macrostep        :after sly :ensure t)
-(use-package sly-stepper          :after sly :ensure nil)
+(use-package sly-stepper
+  :after sly
+  :ensure nil
+  :load-path "~/.emacs.d/lisp/extensions/sly-stepper")
 
 (provide 'zmacs-prog-common-lisp)
 

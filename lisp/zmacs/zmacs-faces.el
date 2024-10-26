@@ -31,29 +31,46 @@
 (eval-when-compile
   (require 'cl-lib))
 
-;;;===================================================================
-;;;{{{ Outline faces:
+;;; Outline faces:
+;;;; Outline package:
 
 (use-package outline
   :ensure nil
   :commands (outline-minor-mode)
-  :hook ((emacs-lisp-mode
-          lisp-interaction-mode
-          lisp-mode
-          common-lisp-mode) . outline-minor-mode))
+  :hook ((emacs-lisp-mode       . outline-minor-mode)
+         (lisp-interaction-mode . outline-minor-mode)
+         (lisp-mode             . outline-minor-mode)))
+
+;;;; Outline minor faces package:
 
 (use-package outline-minor-faces
   :after outline
   :commands (outline-minor-faces-mode)
   :hook (outline-minor-mode . outline-minor-faces-mode))
 
-;;;}}}
-;;;===================================================================
+;;;; Bicycle package:
 
-;;;===================================================================
-;;;{{{ What face?
+(use-package bicycle
+  :after outline
+  :bind (:map outline-minor-mode-map
+              ([C-tab] . bicycle-cycle)
+              ([S-tab] . bicycle-cycle-global)))
 
-;;; TODO: move to ZLISP
+;;;; Outli packages:
+
+(use-package outli
+  :vc (:fetcher github
+                :repo jdtsmith/outli)
+  :after outline
+  :bind (:map outli-mode-map
+              ("C-c C-p" . (lambda ()
+                             (interactive)
+                             (outline-back-to-heading))))
+  :hook ((emacs-lisp-mode . outli-mode)))
+
+;;; What face?
+
+;; TODO: move to ZLISP
 (defun what-face (pos)
   "State the face at the point POS."
   (interactive "d")
@@ -63,27 +80,15 @@
         (message "Face: %s" face)
       (message "No face at %d" pos))))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Underline:
+;;; Underlines:
 
 (customize-set-variable 'x-underline-at-descent-line t)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Cursor:
+;;; Cursor:
 
 (customize-set-variable 'cursor-in-non-selected-windows nil)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Reveal mode:
+;;; Reveal:
 
 (use-package reveal
   :ensure nil
@@ -93,13 +98,12 @@
   (setq reveal-auto-hide nil)
   (global-reveal-mode))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ SVG stuff:
+;;; SVG
+;;;; Library:
 
 (use-package svg-lib)
+
+;;;; SVG tags:
 
 (use-package svg-tag-mode
   :after svg-lib
@@ -130,11 +134,7 @@
           ("BUG:"   . ((lambda (tag)
                          (svg-tag-make "BUG:"   :face 'error   :inverse t)))))))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Widgets:
+;;; Emacs widgets:
 
 (use-package wid-ed
   :ensure nil
@@ -142,17 +142,16 @@
   :custom
   (widget-image-enable nil))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Highlight numbers:
+;;; Highlights:
+;;;; Highlight numbers:
 
 (use-package highlight-numbers
   :defer t
   :commands highlight-numbers-mode
   :init
   (add-hook 'prog-mode-hook #'highlight-numbers-mode))
+
+;;;; Highlight todo:
 
 (use-package hl-todo
   :defer t
@@ -176,6 +175,8 @@
     ("o" h1-todo-occur    "Occur")
     ("q" nil              "Quit" :color blue :exit t)))
 
+;;; Pulse:
+
 (use-package pulse
   :bind ("C-<return>" . pulse-line)
   :commands (pulse-line pulse-momentary-highlight-one-line)
@@ -194,6 +195,8 @@
 
   (push #'pulse-line window-selection-change-functions))
 
+;;; Goggles:
+
 (use-package goggles
   :hook ((prog-mode . goggles-mode)
          (text-mode . goggles-mode))
@@ -201,9 +204,6 @@
   (setq-default goggles-pulse t))
 
 (setq-default indicate-empty-lines nil)
-
-;;;}}}
-;;;===================================================================
 
 (provide 'zmacs-faces)
 

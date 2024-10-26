@@ -88,14 +88,14 @@
 (setopt warning-suppress-types '((comp)))
 (setopt debug-on-error nil)
 (byte-compile-disable-warning 'obsolete)
- (setq byte-compile-warnings '(not-unused
-                               free-vars
-                               unresolved
-                               noruntime
-                               lexical
-                               make-local
-                               ;;obsolete
-                               ))
+(setq byte-compile-warnings '(not-unused
+                              free-vars
+                              unresolved
+                              noruntime
+                              lexical
+                              make-local
+                              ;;obsolete
+                              ))
 
 ;;; When-let errors
 ;;; https://github.com/alphapapa/frame-purpose.el/issues/3
@@ -177,12 +177,25 @@
 ;;; Set up base layers.
 (push *zmacs-lisp-directory* load-path)
 
+;;; XXX this is terribad.
 ;;; Add layer subdirectories.
-(dolist (file (directory-files-recursively *zmacs-lisp-directory* ""  t nil t))
-  (if (and (not (or (equal file ".")
-                    (equal file "..")))
-           (file-directory-p file))
-      (add-to-list 'load-path file)))
+(let ((subdirs (cl-loop for ent in (directory-files *zmacs-lisp-directory* t)
+                        for file = (file-name-nondirectory ent)
+                        when (and (not (or (equal file ".")
+                                            (equal file "..")
+                                            (equal file ".git")))
+                                   (file-directory-p ent))
+                        collect ent)))
+  (cl-loop for dir in subdirs
+           do (progn
+                (add-to-list 'load-path dir)
+                (cl-loop for ent in (directory-files dir t)
+                         for file = (file-name-nondirectory ent)
+                         when (and (not (or (equal file ".")
+                                            (equal file "..")
+                                            (equal file ".git")))
+                                   (file-directory-p ent))
+                         do (add-to-list 'load-path ent)))))
 
 ;;; Load these early.
 (require 'zlisp-timing)

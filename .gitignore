@@ -13,3 +13,6 @@
 /eshell
 .DS_Store
 custom.el
+async-bytecomp.log
+var/
+eln-cacle/

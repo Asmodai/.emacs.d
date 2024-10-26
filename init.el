@@ -33,8 +33,21 @@
   (require 'zlisp-platform)
   (require 'zlisp-features))
 
-;;;===================================================================
-;;;{{{ Early-loaded packages:
+;;;; Early-loaded packages:
+;;;;; Customize:
+
+(use-package cus-edit
+  :ensure nil
+  :defer 1
+  :custom
+  (custom-file (expand-file-name "custom.el" user-emacs-directory))
+  :config
+  (when (not (file-exists-p custom-file))
+    (write-file custom-file))
+  (when (file-exists-p custom-file)
+    (load custom-file)))
+
+;;;;; Use Package:
 
 (use-package use-package
   :custom
@@ -50,6 +63,8 @@
   (package-vc-install "https://github.com/slotThe/vc-use-package"))
 (require 'vc-use-package)
 
+;;;;; El Patch:
+
 (use-package el-patch
   :ensure t
   :defer nil
@@ -57,12 +72,16 @@
   :custom
   (el-patch-enable-use-package-integration t))
 
+;;;;; GNU TLS:
+
 (use-package gnutls
   :ensure nil
   :defer 1
   :custom
   (gnutls-verify-error t)
   (gnutls-min-prime-bits 3072))
+
+;;;;; Auto-Compile:
 
 (use-package auto-compile
   :ensure t
@@ -79,11 +98,7 @@
     (auto-compile-on-load-mode)
     (auto-compile-on-save-mode)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Customisation:
+;;;; Customisation:
 
 (defgroup zmacs-emacs '()
   "Customize group for ZMACS."
@@ -117,22 +132,18 @@
         user-url-address   "http://lisphacker.uk/"
         initial-major-mode 'fundamental-mode)
 
-;;; Project repo directory.
+;; Project repo directory.
 (setq magic-repository-directories
       (list (cons zmacs-projects-directory 1)))
 
-;;;}}}
-;;;===================================================================
+;;;; Start the ball rolling:
 
-;;;===================================================================
-;;;{{{ Start the ball rolling:
-
-;;; Stuff to load in early:
+;;;;; Stuff to load in early:
 (require 'zlisp-base)
 (require 'zlisp-timing)
 (require 'zmacs-early)
 
-;;; Main modules:
+;;;;; Main modules:
 (require 'zmacs-base)
 (require 'zmacs-frames)
 (require 'zmacs-windows)
@@ -150,30 +161,30 @@
 (require 'zmacs-search)
 (require 'zmacs-templates)
 
-;;; Projects and version control:
+;;;;; Projects and version control:
 (require 'zmacs-vc)
 (require 'zmacs-projects)
 
-;;; Shells:
+;;;;; Shells:
 (require 'zmacs-shell)
 (require 'zmacs-eshell)
 
-;;; Org:
+;;;;; Org:
 (require 'zmacs-org-base)
 (require 'zmacs-org-extensions)
 
-;;; Writing:
+;;;;; Writing:
 (require 'zmacs-writing)
 (require 'zmacs-citation)
 (require 'zmacs-notes)
 
-;;; Programming:
+;;;;; Programming:
 (require 'zmacs-prog-debug)
 (require 'zmacs-prog-lisp)
 (require 'zmacs-prog-common-lisp)
 (require 'zmacs-prog-c)
 
-;;; Functions:
+;;;;; Functions:
 (require 'zlisp-files) ;; consult, dired
 (require 'zlisp-frame)
 (require 'zlisp-buffer)
@@ -181,10 +192,9 @@
 (require 'zlisp-clipboard)
 (require 'zlisp-ui) ;; org, markdown
 
-;;;===================================================================
-;;;{{{ Hooks:
+;;;; Hooks:
 
-;;; Set up the `after init' hook.
+;; Set up the `after init' hook.
 (add-hook 'after-init-hook
           #'(lambda ()
               (interactive)
@@ -192,7 +202,7 @@
               (or (server-running-p)
                   (server-start))))
 
-;;; Set up after-startup hook
+;; Set up after-startup hook
 (add-hook 'emacs-startup-hook
           #'(lambda ()
               (message
@@ -209,20 +219,5 @@
                            (message "Garbage Collector has run for %.06fsec"
                                     (zlisp-simple-measure-time
                                      (garbage-collect)))))))
-;;;}}}
-;;;===================================================================
 
 ;;; init.el ends here.
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-vc-selected-packages
-   '((vc-use-package :vc-backend Git :url "https://github.com/slotThe/vc-use-package"))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

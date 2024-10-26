@@ -171,7 +171,7 @@
   :commands (org-download-yank
              org-download-screenshot
              org-download-image)
-  :hook (org-mode-hook . org-download-enable)
+  :hook (org-mode . org-download-enable)
   :custom
   (org-download-method 'directory)
   (org-download-image-dir (concat *zmacs-org-directory* "pictures/"))
@@ -382,7 +382,7 @@
 (use-package org-sticky-header
   :after org
   :defer t
-  :hook (org-mode-hook . org-sticky-header-mode))
+  :hook (org-mode . org-sticky-header-mode))
 
 ;;;}}}
 ;;;===================================================================
@@ -429,7 +429,7 @@
 (use-package org-bullets
   :after org
   :defer t
-  :hook (org-mode-hook . org-bullets-mode))
+  :hook (org-mode . org-bullets-mode))
 
 ;;;}}}
 ;;;===================================================================

@@ -382,8 +382,7 @@ nil. Start at startdir or . if startdir not given"
 
 (use-package flycheck-elsa
   :defer t
-  :hook
-  (emacs-lisp-mode . flycheck-elsa-setup))
+  :hook (emacs-lisp-mode . flycheck-elsa-setup))
 
 (use-package ggtags
   :defer t)
