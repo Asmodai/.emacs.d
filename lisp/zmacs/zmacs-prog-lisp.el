@@ -31,6 +31,8 @@
 (eval-when-compile
   (require 'cl-lib))
 
+;;;; Flycheck:
+
 (use-package flycheck-package
   :defer t
   :hook (emacs-lisp-mode . flycheck-package-setup)
@@ -41,16 +43,24 @@
   :defer t
   :hook (emacs-lisp-mode . flycheck-elsa-setup))
 
+;;;; Inspector:
+
 (use-package inspector
   :defer t)
 
+;;;; Tags:
+
 (use-package ggtags
   :defer t)
+
+;;;; Macrostep:
 
 (use-package macrostep
   :defer t
   :mode (("\\*.el\\'" . emacs-lisp-mode)
          ("Cask\\'"   . emacs-lisp-mode)))
+
+;;;; Nameless:
 
 (use-package nameless
   :defer t
@@ -60,13 +70,12 @@
           nameless-prefix    ">"))
   (put 'nameless-current-name 'safe-local-variable #'stringp))
 
+;;;; Overseer:
+
 (use-package overseer
   :defer t)
 
-(use-package rainbow-identifiers
-  :defer t)
-
-;;; Smart parentheses.
+;;;; Smart parentheses.
 (use-package smartparens
   :defer t
   :init
@@ -87,7 +96,7 @@
     (show-smartparens-global-mode +1)
     (zmacs-diminish smartparens-mode " 🄪" " SP")))
 
-(defun zmacs::deactivate-smartparens (&optional global)
+(defun zmacs-deactivate-smartparens (&optional global)
   "Deactivate `smartparens-mode' and `smartparens-strict-mode'.
 
 If GLOBAL is non-NIL then we work on the global modes."
@@ -101,17 +110,27 @@ If GLOBAL is non-NIL then we work on the global modes."
       (smartparens-strict-mode -1))
     (smartparens-mode -1)))
 
+;;;; EDebug:
+
 (use-package edebug
   :defer t)
+
+;;;; Bug Hunter:
 
 (use-package bug-hunter
   :defer 2)
 
+;;;; Elisp-Def:
+
 (use-package elisp-def
   :defer t)
 
+;;;; EMR:
+
 (use-package emr
   :defer t)
+
+;;;; ESup:
 
 (use-package esup
   :ensure nil
@@ -119,6 +138,8 @@ If GLOBAL is non-NIL then we work on the global modes."
   (unless (package-installed-p 'esup)
     (package-vc-install "https://github.com/kiennq/esup.git"))
   :commands esup)
+
+;;;; Dash:
 
 (use-package dash
   :ensure t
@@ -129,6 +150,8 @@ If GLOBAL is non-NIL then we work on the global modes."
   (global-dash-fontify-mode)
   (with-eval-after-load 'info-look
     (dash-register-info-lookup)))
+
+;;;; Define package:
 
 (provide 'zmacs-prog-lisp)
 

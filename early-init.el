@@ -31,7 +31,7 @@
 (eval-when-compile
   (require 'cl-lib))
 
-;;; Sped hacks
+;;;; Speed hacks
 
 ;; Load in our features support package:
 (load (concat user-emacs-directory "lisp/zlisp/zlisp-features"))
@@ -39,13 +39,12 @@
 
 ;; Initial startup GC settings:
 (setq gc-cons-threshold  most-positive-fixnum
-      gc-cons-percentage 0.2)
+      gc-cons-percentage 0.5)
 
 ;; Sane GC settings:
-(add-hook 'emacs-startup-hook
-          (lambda ()
-            (setq gc-cons-threshold       8192   ; 80MiB
-                  gc-cons-percentage      0.2))) ; 0.2%
+(add-hook 'emacs-startup-hook (lambda ()
+                                (setq gc-cons-threshold  1600000 ;; 800000
+                                      gc-cons-percentage 0.1)))
 
 ;; Do we have native compilation support?
 (defvar *zmacs-has-native-compilation* (and (fboundp 'native-comp-available-p)
@@ -115,8 +114,7 @@
 (when (version< emacs-version "29")
   (setq max-specpdl-size 13000))
 
-
-;;; Variables:
+;;;; Variables:
 
 (defcustom zmacs-active-theme nil
   "Current active ZMACS theme."
@@ -137,7 +135,7 @@
 (or (file-directory-p *zmacs-cache-directory*)
     (make-directory *zmacs-cache-directory*))
 
-;;; Settings:
+;;;; Settings:
 
 (setopt frame-inhibit-implied-resize t
         frame-title-format           "ZMACS"
@@ -157,7 +155,7 @@
         (concat *zmacs-cache-directory*
                 "auto-save-list/.saves-"))
 
-;;; Load path:
+;;;; Load path:
 
 (setopt load-prefer-newer t)
 
@@ -188,7 +186,7 @@
 (require 'zlisp-timing)
 (require 'zlisp-platform)
 
-;;; Configure package system:
+;;;; Configure package system:
 
 (require 'package)
 

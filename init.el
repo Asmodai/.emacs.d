@@ -186,6 +186,7 @@
 (require 'zmacs-prog-lisp)
 (require 'zmacs-prog-common-lisp)
 (require 'zmacs-prog-c)
+(require 'zmacs-prog-go)
 
 ;;;;; Functions:
 (require 'zlisp-files) ;; consult, dired
@@ -214,13 +215,30 @@
                         (time-subtract after-init-time before-init-time))
                        gcs-done))))
 
-;; When idle for 45sec run the GC no matter what.
+;; When idle for 15sec run the GC no matter what.
 (defvar zmacs-gc-timer
-  (run-with-idle-timer 45 t
+  (run-with-idle-timer 15 t
                        (lambda ()
                          (let ((inhibit-message t))
                            (message "Garbage Collector has run for %.06fsec"
                                     (zlisp-simple-measure-time
                                      (garbage-collect)))))))
+
+(defvar *zmacs-report-gc* nil
+  "If T, display GC information.")
+
+(let ((*gc-time-elapsed* 0))
+  (defun zmacs-gc-info ()
+    (let ((time (if (zerop *gc-time-elapsed*)
+                    0
+                  (- gc-elapsed *gc-time-elapsed*))))
+      (when (bound-and-true-p *zmacs-report-gc*)
+	(message "GC Info:  %d (%.06fs) so far, %.06fs this run."
+		 gcs-done
+		 gc-elapsed
+		 time))
+      (setf *gc-time-elapsed* gc-elapsed))))
+
+(add-hook 'post-gc-hook #'zmacs-gc-info)
 
 ;;; init.el ends here.

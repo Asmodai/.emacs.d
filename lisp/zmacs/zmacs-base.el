@@ -669,6 +669,9 @@ This fixes an overlapping issue, that occurs when ZMACS is started in a
 
 ;;;; Hooks:
 
+;; Enable undo
+(add-hook 'after-change-major-mode-hook 'buffer-enable-undo)
+
 ;; Set up whitespace cleanup.
 (add-hook 'before-save-hook #'whitespace-cleanup)
 

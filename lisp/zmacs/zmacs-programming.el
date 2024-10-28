@@ -39,7 +39,6 @@
   :custom
   (prettify-symbols-unprettify-at-point t))
 
-
 ;;;; Delimiters and identifiers:
 ;;;;; Rainbow Delimiters:
 
@@ -136,7 +135,6 @@ If GLOBAL is non-NIL then we work on the global modes."
   :config
   (zmacs-diminish paredit-mode " ⊚" "P"))
 
-
 ;;;; Tree Sitter:
 
 (setq treesit-extra-load-path `(,(concat *zmacs-cache-directory*
@@ -174,29 +172,21 @@ If GLOBAL is non-NIL then we work on the global modes."
   :defer t)
 
 (setq major-mode-remap-alist
-      '((yaml-mode . yaml-ts-mode)
-        (bash-mode . bash-ts-mode)
-        (js2-mode . js-ts-mode)
+      '((yaml-mode       . yaml-ts-mode)
+        (bash-mode       . bash-ts-mode)
+        (js2-mode        . js-ts-mode)
         (typescript-mode . typescript-ts-mode)
-        (json-mode . json-ts-mode)
-        (css-mode . css-ts-mode)
-        (python-mode . python-ts-mode)))
+        (json-mode       . json-ts-mode)
+        (css-mode        . css-ts-mode)
+        (python-mode     . python-ts-mode)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Multiple cursors:
+;;;; Multiple cursors:
 
 (use-package iedit
   :bind (:map lem+search-keys
          ("c" . iedit-mode)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Indentation:
+;;;; Indentation:
 
 ;; (use-package aggressive-indent
 ;;   :preface
@@ -227,11 +217,7 @@ If GLOBAL is non-NIL then we work on the global modes."
                 highlight-indent-guides-auto-enabled t
                 highlight-indentation-blank-lines t))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Flymake and Flycheck:
+;;;; Flymake and Flycheck:
 
 (use-package flymake
   :ensure nil
@@ -261,11 +247,7 @@ If GLOBAL is non-NIL then we work on the global modes."
   :bind (:map lem+flymake-keys
          ("c" . consult-flymake)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Compilation:
+;;;; Compilation:
 
 (use-package multi-compile
   :commands (compile multi-compile-run)
@@ -311,11 +293,7 @@ nil. Start at startdir or . if startdir not given"
                                   compile-command)))
     (compile compile-command)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Emacs Lisp:
+;;;; Emacs Lisp:
 
 (use-package lisp-mode
   :ensure nil
@@ -390,10 +368,10 @@ nil. Start at startdir or . if startdir not given"
   :defer t)
 
 ;;;; Auto Fill Mode
+
 (add-hook 'prog-mode #'auto-fill-mode)
 
-;;;-------------------------------------------------------------------
-;;;{{{ Useful functions:
+;;;; Useful functions:
 
 (defun zmacs-eval-current-form ()
     "Looks for the current def* or set* command then evaluates, unlike
@@ -414,11 +392,7 @@ nil. Start at startdir or . if startdir not given"
         (find-variable-other-window symb)
       (find-function-at-point))))
 
-;;;}}}
-;;;-------------------------------------------------------------------
-
-;;;-------------------------------------------------------------------
-;;;{{{ Emacs indentation shuffle:
+;;;; Emacs indentation shuffle:
 
 (with-eval-after-load 'el-patch
   (el-patch-defun lisp-indent-function (indent-point state)
@@ -504,38 +478,12 @@ Lisp function does not specify a special indentation."
               (current-column)))
            (t $else)))))))
 
-;;;}}}
-;;;-------------------------------------------------------------------
+;;;; GraphQL:
 
-;;;}}}
-;;;===================================================================
+(use-package graphql
+  :defer t)
 
-;;;===================================================================
-;;;{{{ Shell scriptsr:
-
-(use-package sh-script
-  :ensure nil
-  :commands sh-script-mode
-  :init
-  ;; Use sh-mode when opening `.zsh' files, and when opening Prezto runcoms.
-  (dolist (pattern '("\\.zsh\\'"
-                     "zlogin\\'"
-                     "zlogout\\'"
-                     "zpreztorc\\'"
-                     "zprofile\\'"
-                     "zshenv\\'"
-                     "zshrc\\'"))
-    (add-to-list 'auto-mode-alist (cons pattern 'sh-mode))))
-
-(defun zmacs--setup-shell ()
-  (when (and buffer-file-name
-             (string-match-p "\\.zsh\\'" buffer-file-name))
-    (sh-set-shell "zsh")))
-
-(add-hook 'sh-mode-hook 'zmacs--setup-shell)
-
-;;;}}}
-;;;===================================================================
+;;;; Provide package:
 
 (provide 'zmacs-programming)
 

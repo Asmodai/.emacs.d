@@ -31,11 +31,14 @@
 (eval-when-compile
   (require 'cl-lib))
 
+;;;; Find either `ccls' or `clangd':
+
 (when (and (not (executable-find "ccls"))
            (not (executable-find "clangd")))
   (error "You need `ccls' or `clangd' for this to work."))
 
-;;; C/C++ mode.
+;;;; C/C++ mode.
+
 (use-package cc-mode
   :defer t)
 
@@ -45,31 +48,25 @@
 (defconst c-c++-maps '(c-mode-map c++-mode-map)
   "List of known C/C++ keymaps.")
 
-;;;===================================================================
-;;;{{{ LSP detection:
+;;;; LSP detection:
 
 (eval-when-compile
 
   (defvar *zmacs-c-backend-mode* nil
     "Which backend for C/C++ are we using?")
 
-;;;
-;;; For some reason, ccls continuously causes Emacs to lock up.
-;;; For this reason, and this reason alone, prefer clangd over ccls.
-;;;
+;;
+;; For some reason, ccls continuously causes Emacs to lock up.
+;; For this reason, and this reason alone, prefer clangd over ccls.
+;;
 
-;;;-------------------------------------------------------------------
-;;;{{{ `clangd':
+;;;;; clangd:
 
   (when (and (executable-find "clangd")
              (null *zmacs-c-backend-mode*))
     (setq *zmacs-c-backend-mode* "clangd"))
 
-;;;}}}
-;;;-------------------------------------------------------------------
-
-;;;-------------------------------------------------------------------
-;;;{{{ `ccls':
+;;;;; `ccls':
 
   (when (and (executable-find "ccls")
              (null *zmacs-c-backend-mode*))
@@ -78,8 +75,7 @@
     (use-package ccls :ensure t)
     (require 'ccls))
 
-;;;}}}
-;;;-------------------------------------------------------------------
+;;;; Configure the eglot backend:
 
   (when (not (null *zmacs-c-backend-mode*))
     (require 'eglot)
@@ -90,19 +86,19 @@
     (dolist (mode c-c++-modes)
       (add-hook mode #'eglot-ensure))))
 
-;;;}}}
-;;;===================================================================
+;;;; Clang format.
 
-;;; Clang format.
 (use-package clang-format
   :defer t
   :if (executable-find "clang-format"))
 
-;;; Insert and delete C++ headers automatically.
+;;;; Insert and delete C++ headers automatically:
+
 (use-package cpp-auto-include
   :defer t)
 
-;;; Disassemble C, C++, or Fortran.
+;;;; Disassemble C, C++, or Fortran:
+
 (use-package disaster
   :defer t
   :config
@@ -112,11 +108,15 @@
   (when (boundp 'fortran-mode-map)
     (define-key fortran-mode-map (kbd "C-c d") #'disaster)))
 
+;;;; GDB:
+
 (use-package gdb-mi
   :defer t
   :init
   (setq gdb-many-windows t
         gdb-show-main    t))
+
+;;;; Header file indentation:
 
 (use-package ppindent
   :defer t
@@ -125,8 +125,7 @@
   :config
   (require 'ppindent))
 
-;;;===================================================================
-;;;{{{ Mode hooks:
+;;;; Mode hooks:
 
 (defun zmacs--cc-mode-hook ()
   "ZMACS C/C++ mode hook."
@@ -145,11 +144,7 @@
   (add-hook 'c-mode-hook #'zmacs--cc-mode-hook)
   (zmacs--add-realgud-debugger mode "gdb"))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Indentation hacks:
+;;;; Indentation hacks:
 
 ;;;###autoload
 (defun google-c-lineup-expression-plus-4 (langelem)
@@ -359,13 +354,14 @@ Suitable for inclusion in `c-offsets-alist'."
 
 (add-hook 'c++-mode-hook 'fix-enum-class)
 
+;;;; Configure Google C style:
+
 (use-package google-c-style
   :defer t)
 (add-hook 'c-mode-common-hook 'google-set-c-style)
 (add-hook 'c-mode-common-hook 'google-make-newline-indent)
 
-;;;}}}
-;;;===================================================================
+;;;; Provide package:
 
 (provide 'zmacs-prog-c)
 
