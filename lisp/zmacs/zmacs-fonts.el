@@ -28,18 +28,13 @@
 
 ;;; Code:
 
-;;;===================================================================
-;;;{{{ Font checking:
+;;;; Font checking:
 
 (defun zmacs-font-available-p (font-name)
   "Check if FONT-NAME is available."
   (not (null (member font-name (font-family-list)))))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Symbols and Emoji:
+;;;; Symbols and Emoji:
 
 (use-package fontset
   :ensure nil
@@ -81,11 +76,7 @@
 
 (setq-default line-spacing 0.1)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Font lock:
+;;;; Font lock:
 
 (use-package font-lock
   :ensure nil
@@ -99,11 +90,8 @@
 (bind-key "S--" #'text-scale-decrease)
 (bind-key "S-@" #'text-scale-adjust)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Icons:
+;;;; Icons:
+;;;;; All The Icons:
 
 (use-package all-the-icons
   :if (display-graphic-p)
@@ -145,6 +133,8 @@
                         "Material Icons"))
       (set-fontset-font t 'unicode font nil 'prepend))))
 
+;;;;; Nerd Icons:
+
 (use-package nerd-icons
   :if (display-graphic-p))
 
@@ -163,8 +153,7 @@
   :config
   (add-hook 'marginalia-mode-hook #'all-the-icons-completion-marginalia-setup))
 
-;;;}}}
-;;;===================================================================
+;;;; Provide package:
 
 (provide 'zmacs-fonts)
 

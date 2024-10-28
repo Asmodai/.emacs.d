@@ -31,6 +31,8 @@
 (require 'cl-lib)
 (require 'zmacs-prog-lisp)
 
+;;;; Auto-Highlight symbol:
+
 (use-package auto-highlight-symbol
   :defer t
   :hook ((common-lisp-mode      . auto-highlight-symbol-mode)
@@ -40,9 +42,13 @@
   (require 'auto-highlight-symbol)
   (add-to-list 'ahs-plugin-bod-modes 'lisp-mode))
 
+;;;; Snippets:
+
 (use-package common-lisp-snippets
   :defer t
   :after yasnippet)
+
+;;;; Tags:
 
 (use-package ggtags
   :defer t)
@@ -50,11 +56,15 @@
 (use-package counsel-gtags
   :defer t)
 
-;;; TODO: This can go, it should be loaded elsewhere.
+;;;; Rainbow delimiters:
+
+;; TODO: This can go, it should be loaded elsewhere.
 (use-package rainbow-identifiers
   :defer t
   :config
   (add-hook 'lisp-mode-hook #'colors//rainbow-identifiers-ignore-keywords))
+
+;;;; Sly:
 
 (use-package sly
   :ensure nil
@@ -90,6 +100,8 @@
   :after sly
   :ensure nil
   :load-path "~/.emacs.d/lisp/extensions/sly-stepper")
+
+;;;; Provide package:
 
 (provide 'zmacs-prog-common-lisp)
 

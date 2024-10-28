@@ -31,7 +31,7 @@
 (eval-when-compile
   (require 'cl-lib))
 
-;;; Don't confirm themes.
+;; Don't confirm themes.
 (setq custom-safe-themes t)
 
 (defcustom zmacs-custom-themes-dir
@@ -104,7 +104,7 @@
              (load-theme 'zmacs-dark)
              (customize-save-variable zmacs-active-theme 'dark-theme)))))
 
-;;;;; Define User Theme
+;; Define User Theme
 (defcustom zmacs-ui-theme nil
   "Default user theme."
   :group 'lambda-emacs

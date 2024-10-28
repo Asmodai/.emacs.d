@@ -31,18 +31,14 @@
 (eval-when-compile
   (require 'cl-lib))
 
-;;;===================================================================
-;;;{{{ Variables:
+;;;; Variables:
 
 (defvar *zmacs-notes-directory*
   (expand-file-name (concat zmacs-storage-directory "notes/"))
   "Location of note files.")
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Package:
+;;;; Packages:
+;;;;; Denote:
 
 (use-package denote
   :commands (denote
@@ -102,11 +98,7 @@
    nil)
   (zmacs-insert-header-and-time-property))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Citar-Denote:
+;;;; Citar-Denote:
 
 (use-package citar-denote
   :commands (citar-create-note
@@ -115,11 +107,7 @@
   :config
   (citar-denote-mode))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Consult Notes:
+;;;; Consult Notes:
 
 (use-package consult-notes
   :custom
@@ -137,8 +125,7 @@
          '(display-buffer-reuse-window)))
     (consult-notes)))
 
-;;;}}}
-;;;===================================================================
+;;;; Provide package:
 
 (provide 'zmacs-notes)
 

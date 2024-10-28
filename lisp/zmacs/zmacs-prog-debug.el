@@ -31,6 +31,8 @@
 (eval-when-compile
   (require 'cl-lib))
 
+;;;; Functions:
+
 (defvar *zmacs--debug-additional-debuggers* '())
 
 (defun zmacs--debug-generate-symbol (debugger)
@@ -42,12 +44,16 @@
   (let ((dbg-name (zmacs--debug-generate-symbol debugger)))
     (autoload dbg-name "realgud" nil t)))
 
+;;;; RealGUD:
+
 (use-package realgud
   :defer t
   :init
   (dolist (debugger (mapcar #'zmacs--debug-generate-symbol
                             *zmacs--debug-additional-debuggers*))
     (autoload debugger "realgud" nil t)))
+
+;;;; Provide package:
 
 (provide 'zmacs-prog-debug)
 

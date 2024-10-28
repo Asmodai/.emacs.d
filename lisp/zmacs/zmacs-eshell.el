@@ -31,8 +31,8 @@
 (require 'cl-lib)
 (require 'zlisp-platform)
 
-;;;===================================================================
-;;;{{{ EShell settings:
+;;;; EShell settings:
+;;;;; ESH:
 
 (use-package esh-mode
   :ensure nil
@@ -44,6 +44,8 @@
   (eshell-scroll-to-bottom-on-input  'all)
   (eshell-scroll-to-bottom-on-output 'all))
 
+;;;;; em-dirs:
+
 (use-package em-dirs
   :ensure nil
   :after eshell
@@ -52,12 +54,16 @@
   (eshell-last-dir-ring-file-name (concat *zmacs-cache-directory*
                                           "eshell/lastdir")))
 
+;;;;; em-ls:
+
 (use-package em-ls
   :ensure nil
   :after eshell
   :custom
   (eshell-ls-use-colorls  t)
   (eshell-ls-use-in-dired nil))
+
+;;;;; em-cmpl:
 
 (use-package em-cmpl
   :ensure nil
@@ -66,6 +72,8 @@
   (eshell-cmpl-ignore-case       t)
   (eshell-cmpl-cycle-completions t))
 
+;;;;; em-prompt:
+
 (use-package em-prompt
   :ensure nil
   :after eshell
@@ -73,17 +81,23 @@
   (eshell-highlight-prompt t)
   (eshell-prompt-regexp "^[^λ]+ λ "))
 
+;;;;; em-term:
+
 (use-package em-term
   :ensure nil
   :after eshell
   :custom
   (eshell-destroy-buffer-when-process-dies t))
 
+;;;;; em-banner:
+
 (use-package em-banner
   :ensure nil
   :after eshell
   :custom
   (eshell-banner-message "Welcome to the Emacs Shell!"))
+
+;;;;; em-hist:
 
 (use-package em-hist
   :ensure nil
@@ -94,12 +108,16 @@
   (eshell-history-size      (* 10 1024))
   (eshell-hist-ignoredups   t))
 
+;;;;; em-glob:
+
 (use-package em-glob
   :ensure nil
   :after eshell
   :custom
   (eshell-glob-case-insensitive t)
   (eshell-error-if-no-glob      t))
+
+;;;;; em-term:
 
 (use-package em-term
   :ensure nil
@@ -115,25 +133,31 @@
                                             "elinks" "tail" "top" "nano"
                                             "ssh" "btop" "iotop")))
 
-;;;}}}
-;;;===================================================================
+;;;; Pcomplete:
+;;;;; homebrew comletion:
 
-;;;===================================================================
-;;;{{{ Pcomplete:
-
+;; Is this for macOS homebrew?
 (use-package pcmpl-homebrew
   :after eshell)
+
+;;;;; Git completion:
 
 (use-package pcmpl-git
   :vc (:fetcher github
        :repo leoliu/pcmpl-git-el)
   :after eshell)
 
+;;;;; Argument completion:
+
 (use-package pcmpl-args
   :after eshell)
 
+;;;;; Extensions completion:
+
 (use-package pcomplete-extension
   :after eshell)
+
+;;;; ESH help:
 
 ;; Provide help support -- see also the info function below
 (use-package esh-help
@@ -141,17 +165,15 @@
   :config
   (setup-esh-help-eldoc))
 
+;;;; EShell dir jumping:
+
 ;; Dir navigation -- see also dir jumping below
 (use-package eshell-up
   :commands (eshell-up)
   :config
   (defalias 'eshell/up #'eshell-up))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Prompt:
+;;;; Prompt:
 
 (defun zmacs-eshell-config--prompt-char ()
   "Return shell character."
@@ -252,11 +274,7 @@ PWD is not in a git repo (or the git command is not found)."
 
 (setq eshell-prompt-function #'zmacs-eshell-config--prompt-function)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Aliases:
+;;;; Aliases:
 
 (defalias 'eshell/range #'number-sequence)
 
@@ -355,22 +373,14 @@ ALIASES is a flat list of alias -> command pairs. e.g.
         (append eshell-command-aliases-list
                 zmacs-eshell-aliases)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Syntax highlighting:
+;;;; Syntax highlighting:
 
 (use-package eshell-syntax-highlighting
   :after eshell
   :config
   (eshell-syntax-highlighting-global-mode +1))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ File listing:
+;;;; File listing:
 
 (defun eshell-ls-file-at-point ()
   "Get the full path of the Eshell listing at point."
@@ -458,11 +468,7 @@ This function is meant to be used as advice around
 
 (advice-add #'eshell-ls-annotate :filter-return #'zmacs-eshell-better-ls)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Useful functions:
+;;;; Useful functions:
 
 (defun zmacs-eshell-home ()
   "Open eshell in home dir."
@@ -673,8 +679,7 @@ So if we're connected with sudo to 'remotehost'
 
 (add-hook 'eshell-directory-change-hook #'zmacs-eshell-list-files-on-cd)
 
-;;;}}}
-;;;===================================================================
+;;;; Provide package:
 
 (provide 'zmacs-eshell)
 

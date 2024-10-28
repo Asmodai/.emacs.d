@@ -31,8 +31,7 @@
 (require 'cl-lib)
 (require 'zlisp-platform)
 
-;;;===================================================================
-;;;{{{ Compilation:
+;;;; Compilation:
 
 (use-package compile
   :ensure nil
@@ -59,11 +58,7 @@
                      (cons #'dislpay-buffer-no-window nil)))))
     (async-shell-command command)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Exec path:
+;;;; Exec path:
 
 (use-package exec-path-from-shell
   :custom
@@ -72,11 +67,7 @@
   (zlisp-when-macos
     (exec-path-from-shell-initialize)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Terminal:
+;;;; Terminal:
 
 (setq-default term-suppress-hard-newline t)
 
@@ -105,21 +96,17 @@
   (interactive)
   (term-send-raw-string "\t"))
 
-;;; Ensure EDITOR is sane.
+;; Ensure EDITOR is sane.
 (or (getenv "EDITOR")
     (progn
       (setenv "EDITOR" "emacsclient")
       (setenv "VISUAL" (getenv "EDITOR"))))
 
-;;; Ensure PAGER is sane.
+;; Ensure PAGER is sane.
 (or (getenv "PAGER")
     (setenv "PAGER" "cat"))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ EAT:
+;;;; EAT:
 
 (use-package eat
   :config
@@ -131,11 +118,7 @@
         eat-term-scrollback-size           nil)
   (add-hook 'eshell-load-hook #'eat-eshell-mode))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Tramp:
+;;;; Tramp:
 
 (use-package tramp
   :ensure nil
@@ -146,18 +129,17 @@
         tramp-copy-size-limit nil
         tramp-use-ssh-controlmaster-options nil))
 
-;;; ~/.ssh/config settings:
-;;; Host *
-;;; ForwardAgent yes
-;;; AddKeysToAgent yes
-;;; ControlMaster auto
-;;; ControlPath ~/.ssh/master-%r@%h:%p
-;;; ControlPersist yes
-;;; ServerAliveInterval 10
-;;; ServerAliveCountMax 10
+;; ~/.ssh/config settings:
+;; Host *
+;; ForwardAgent yes
+;; AddKeysToAgent yes
+;; ControlMaster auto
+;; ControlPath ~/.ssh/master-%r@%h:%p
+;; ControlPersist yes
+;; ServerAliveInterval 10
+;; ServerAliveCountMax 10
 
-;;;}}}
-;;;===================================================================
+;;;; Provide package:
 
 (provide 'zmacs-shell)
 

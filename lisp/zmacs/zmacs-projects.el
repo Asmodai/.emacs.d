@@ -31,8 +31,7 @@
 (eval-when-compile
   (require 'cl-lib))
 
-;;;===================================================================
-;;;{{{ Project:
+;;;; Project:
 
 (use-package project
   :ensure nil
@@ -98,8 +97,7 @@
     (let ((pr (project--find-in-directory default-directory)))
       (project-remember-project pr))))
 
-;;;}}}
-;;;===================================================================
+;;;; Define package:
 
 (provide 'zmacs-projects)
 

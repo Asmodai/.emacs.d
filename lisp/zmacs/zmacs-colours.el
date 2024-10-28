@@ -31,24 +31,18 @@
 (require 'cl-lib)
 (require 'zlisp-platform)
 
-;;;===================================================================
-;;;{{{ Colourspace:
+;;;; Colourspace:
 
-;;; Does this work outside of macOS?
+;; Does this work outside of macOS?
 (zlisp-when-macos
  (setq-default ns-use-srgb-colorspace t))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Rainbow mode:
+;;;; Rainbow mode:
 
 (use-package rainbow-mode
   :commands rainbow-mode)
 
-;;;}}}
-;;;===================================================================
+;;;; Provide package:
 
 (provide 'zmacs-colours)
 

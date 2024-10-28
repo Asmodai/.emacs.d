@@ -31,9 +31,8 @@
 (require 'cl-lib)
 (require 'zlisp-platform)
 
-;;;===================================================================
-;;;{{{ Speelering:
-
+;;;; Speelering:
+;;;;; ISpell:
 (use-package ispell
   :ensure nil
   :commands (ispell-word
@@ -44,6 +43,8 @@
     (setq ispell-program-name "aspell")
     (setq ispell-extra-args '("--sug-mode=ultra"
                               "--lang=en_GB"))))
+
+;;;;; Flyspell:
 
 (use-package flyspell
   :ensure nil
@@ -73,6 +74,8 @@
   :custom
   (flyspell-correct-interface #'flyspell-correct-completing-read))
 
+;;;;; Hydra menu:
+
 (with-eval-after-load 'hydra
   ;; keybinding is SPC-b S
   (defhydra hydra-spelling (:color blue)
@@ -93,6 +96,8 @@
     ("f" flyspell-buffer :color pink)
     ("m" flyspell-mode)))
 
+;;;;; Consult:
+
 ;; Completion of misspelled words in buffer
 (use-package consult-flyspell
   :after flyspell
@@ -110,11 +115,7 @@
   (flyspell-goto-next-error)
   (ispell-word))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Abbrev:
+;;;; Abbrev:
 
 (use-package abbrev
   :ensure nil
@@ -126,21 +127,14 @@
   (if (file-exists-p abbrev-file-name)
       (quietly-read-abbrev-file)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ String changing:
+;;;; String changing:
 
 (global-set-key (kbd "M-u") 'upcase-dwim)
 (global-set-key (kbd "M-l") 'downcase-dwim)
 (global-set-key (kbd "M-c") 'capitalize-dwim)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Markdown:
+;;;; Markdown:
+;;;;; Main markdown:
 
 (use-package markdown-mode
   :commands (markdown-mode gfm-mode)
@@ -179,12 +173,10 @@
       ;; (auto-fill-mode)
       (hl-todo-mode)))
 
-      ;; markdown hooks
-
+  ;; markdown hooks
   (add-hook 'markdown-mode-hook 'zmacs--markdown-settings)
 
-      ;; for use with meow point movement
-
+  ;; for use with meow point movement
   (modify-syntax-entry ?@ "_" markdown-mode-syntax-table))
 
 ;; macro: delete backslashes in paragraph to cleanup markdown conversion
@@ -195,16 +187,12 @@
         (kmacro-exec-ring-item
          (quote ("\361\361f\\x" 0 "%d")) arg)))
 
-;;; Markdown TOC
+;;;;; Markdown TOC
 (use-package markdown-toc
   :after markdown
   :hook (markdown-mode . markdown-toc))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Lorem Ipsum:
+;;;; Lorem Ipsum:
 
 (use-package lorem-ipsum
   :commands (Lorem-ipsum-insert-sentences
@@ -213,11 +201,7 @@
   :config
   (lorem-ipsum-use-default-bindings))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Palimpset:
+;;;; Palimpset:
 
 (use-package palimpsest
   :diminish palimpsest-mode
@@ -228,11 +212,8 @@
   :config
   (setq palimpsest-trash-file-suffix ".archive"))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ laTeX:
+;;;; LaTeX:
+;;;;; AucTeX:
 
 (use-package auctex
   :mode (("\\.tex\\'" . latex-mode)
@@ -249,6 +230,8 @@
         TeX-PDF-mode t)
   (setq-default TeX-master nil))
 
+;;;;; Preview:
+
 (use-package preview
   :ensure nil
   :after auctex
@@ -260,12 +243,15 @@
                                                 (preview-document-pt))
                                              preview-scale))))
 
+;;;;; RefTeX:
 
 (use-package reftex
   :ensure nil
   :commands turn-on-reftex
   :init
   (setq reftex-plug-into-AUCTeX t))
+
+;;;;; BibTeX:
 
 (use-package bibtex
   :ensure nil
@@ -274,6 +260,8 @@
   :init
   (setq bibtex-align-at-equal-sign t)
   (add-hook 'bibtex-mode-hook (lambda () (set-fill-column 120))))
+
+;;;;; Functions:
 
 (defun zmacs-latex-auto-fill ()
   "Turn on auto-fill for LaTeX mode."
@@ -335,11 +323,7 @@
       (substring fname-or-url 7)
     fname-or-url))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Dictionary:
+;;;; Dictionary:
 
 (use-package define-word
   :commands (define-word define-word-at-point))
@@ -349,11 +333,7 @@
     :commands (osx-dictionary-search-word-at-point
                osx-dictionary-search-input)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Narrow/widen:
+;;;; Narrow/widen:
 
 (defun zmacs-narrow-or-widen-dwim (p)
   "Widen if buffer is narrowed, narrow-dwim otherwise.
@@ -386,8 +366,7 @@ is already narrowed."
 ;;bind this in the narrow keymap
 (bind-key* "C-x n n" #'zmacs-narrow-or-widen-dwim narrow-map)
 
-;;;}}}
-;;;===================================================================
+;;;; Provide package:
 
 (provide 'zmacs-writing)
 

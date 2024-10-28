@@ -326,6 +326,8 @@ includes an icon.  Otherwise, just the navigator button entry is returned."
 
 (zmacs-dashboard)
 
+;;;; Provide package:
+
 (provide 'zmacs-dashboard)
 
 ;;; zmacs-dashboard.el ends here.

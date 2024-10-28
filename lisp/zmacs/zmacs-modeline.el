@@ -31,6 +31,8 @@
 (eval-when-compile
   (require 'cl-lib))
 
+;;;; Package:
+
 (use-package zmacs-line
   :ensure nil
   :custom
@@ -41,9 +43,9 @@
   (zmacs-line-prefix t)
   (zmacs-line-prefix-padding nil)
   (zmacs-line-status-invert nil)
-  (zmacs-line-gui-ro-symbol  " ⨂") ;- ⬤◯⨂
-  (zmacs-line-gui-mod-symbol " ⬤") ;; ⨀⬤
-  (zmacs-line-gui-rw-symbol  " ◯")  ;; ◉ ◎ ⬤◯
+  (zmacs-line-gui-ro-symbol  " ⨂")      ;- ⬤◯⨂
+  (zmacs-line-gui-mod-symbol " ⬤")      ;; ⨀⬤
+  (zmacs-line-gui-rw-symbol  " ◯")      ;; ◉ ◎ ⬤◯
   (zmacs-line-vc-symbol "")
   (zmacs-line-space-top +.50)
   (zmacs-line-space-bottom -.50)
@@ -57,6 +59,8 @@
   (when (eq zmacs-line-position 'top)
     (setq-default mode-line-format (list "%_"))
     (setq mode-line-format (list "%_"))))
+
+;;;; Provide package:
 
 (provide 'zmacs-modeline)
 

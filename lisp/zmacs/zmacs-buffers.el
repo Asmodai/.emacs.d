@@ -31,10 +31,9 @@
 (eval-when-compile
   (require 'cl-lib))
 
-;;;===================================================================
-;;;{{{ Hooks:
+;;;; Hooks:
 
-;;; TODO: Move this to ZLISP.
+;; TODO: Move this to ZLISP.
 
 (defvar zmacs-switch-buffer-hook nil
   "A list of hooks to run after changing the current buffer.")
@@ -47,11 +46,7 @@
 (add-hook 'window-buffer-change-functions #'zmacs-run-switch-buffer-hooks-h)
 (add-hook 'server-visit-hook              #'zmacs-run-switch-buffer-hooks-h)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Scrolling:
+;;;; Scrolling:
 
 (use-package emacs
   :ensure nil
@@ -89,19 +84,11 @@
                                   context-menu-undo
                                   context-menu-dictionary)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Buffer switching point preservation:
+;;;; Buffer switching point preservation:
 
 (setq switch-to-buffer-preserve-window-point t)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Uniquify:
+;;;; Uniquify:
 
 (use-package uniquify
   :ensure nil
@@ -112,11 +99,7 @@
         uniquify-after-kill-buffer-p t
         uniquify-ignore-buffers-re   "^\\*"))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Buffer modes:
+;;;; Buffer modes:
 
 (setq-default major-mode (lambda ()
                            (if buffer-file-name
@@ -124,11 +107,7 @@
                              (let ((buffer-file-name (buffer-name)))
                                (set-auto-mode)))))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Autorevert:
+;;;; Autorevert:
 
 (use-package autorevert
   :ensure nil
@@ -141,20 +120,12 @@
   (add-to-list 'global-auto-revert-ignore-modes 'Buffer-menu-mode)
   (add-to-list 'global-auto-revert-ignore-modes 'dired-mode))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Revert buffers:
+;;;; Revert buffers:
 
 (use-package revert-buffer-all
   :commands (revert-buffer-all))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Popper:
+;;;; Popper:
 
 (use-package popper
   :hook (after-init . popper-mode)
@@ -185,11 +156,7 @@
        (side . top)
        (slot . 1)))))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Xwidget browser:
+;;;; Xwidget browser:
 
 (use-package xwidget
   :ensure nil
@@ -201,11 +168,7 @@
   (defun xwidget-webkit-estimated-load-progress (session)
     1.0))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ xwwp:
+;;;; xwwp:
 
 (use-package xwwp-follow-link
   :ensure nil
@@ -215,19 +178,14 @@
   :bind (:map xwidget-webkit-mode-map
               ("v" . xwwp-follow-link)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Fringe:
+;;;; Fringe:
 
 (use-package fringe
   :ensure nil
   :custom
   (fringe-mode '(8 . 8)))
 
-;;;}}}
-;;;===================================================================
+;;;; Provide package:
 
 (provide 'zmacs-buffers)
 

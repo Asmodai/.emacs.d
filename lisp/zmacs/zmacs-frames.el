@@ -31,8 +31,7 @@
 (require 'cl-lib)
 (require 'zlisp-platform)
 
-;;;===================================================================
-;;;{{{ Frame defaults:
+;;;; Frame defaults:
 
 (use-package frame
   :ensure nil
@@ -54,7 +53,7 @@
 
   (setq-default ns-use-proxy-icon nil))
 
-;;; TODO: move this to ZLISP.
+;; TODO: move this to ZLISP.
 (defun zmacs-frame-recenter (&optional frame)
   "Center FRAME on the screen."
   (interactive)
@@ -65,22 +64,17 @@
        (top           . 0.5)
        (left          . 0.5)))))
 
-;;; Un/comment this if you want it.
+;; Un/comment this if you want it.
 ;;(add-hook 'after-make-frame-functions #'zmacs-frame-recenter)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Titlebar hacks for macOS:
+;;;; Titlebar hacks for macOS:
 
 (zlisp-when-macos
   (use-package ns-auto-titlebar
     :commands ns-auto-titlebar-mode
     :config (ns-auto-titlebar-mode)))
 
-;;;}}}
-;;;===================================================================
+;;;; Provide package:
 
 (provide 'zmacs-frames)
 

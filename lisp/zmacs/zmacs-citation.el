@@ -31,6 +31,8 @@
 (eval-when-compile
   (require 'cl-lib))
 
+;;;; Variables:
+
 (defcustom zmacs-bibliography-files
   (list (expand-file-name (concat zmacs-storage-directory "user.bib"))
         (expand-file-name (concat zmacs-storage-directory "books.bib")))
@@ -47,8 +49,7 @@
 (defvar *zmacs-csl-directory*
   (expand-file-name (concat zmacs-storage-directory "csl/")))
 
-;;;===================================================================
-;;;{{{ Org-Cite:
+;;;; Org-Cite:
 
 (use-package oc
   :ensure nil
@@ -69,11 +70,7 @@
 (use-package citeproc
   :after (oc oc-csl))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Citar:
+;;;; Citar:
 
 (use-package citar
   :commands (citar-open-brief
@@ -112,8 +109,7 @@
 
   (setq citar-notes-paths `(,*zmacs-bib-notes-directory*)))
 
-;;;}}}
-;;;===================================================================
+;;;; Provide package:
 
 (provide 'zmacs-citation)
 

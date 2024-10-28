@@ -31,19 +31,14 @@
 (eval-when-compile
   (require 'cl-lib))
 
-;;;===================================================================
-;;;{{{ Window setup:
+;;;; Window setup:
 
 (use-package window
   :ensure nil
   :custom
   (display-buffer-base-action nil))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Window division:
+;;;; Window division:
 
 (use-package frame
   :ensure nil
@@ -55,16 +50,15 @@
 
 (add-hook 'before-make-frame-hook 'window-divider-mode)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Window movement:
+;;;; Window movement:
+;;;;; Ace:
 
 (use-package ace-window
   :commands (ace-window
              ace-swap-window
              aw-flip-window))
+
+;;;;; Windmove:
 
 (use-package windmove
   :ensure nil
@@ -83,7 +77,7 @@
   :config
   (windmove-default-keybindings))
 
-;;; TODO: move this to zlisp.
+;; TODO: move this to zlisp.
 (defun zmacs-other-window ()
   "Move to another window."
   (interactive)
@@ -91,19 +85,14 @@
 
 (bind-key* "C-c C-o" 'zmacs-other-window)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Window restore:
+;;;; Window restore:
 
 (use-package winner
   :ensure nil
   :commands (winner-mode)
   :hook (after-init . winner-mode))
 
-;;;}}}
-;;;===================================================================
+;;;; Provide package:
 
 (provide 'zmacs-windows)
 

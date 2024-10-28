@@ -31,7 +31,7 @@
 (eval-when-compile
   (require 'cl-lib))
 
-;;; `template.el' should live somewhere in the path.
+;; `template.el' should live somewhere in the path.
 (require 'template)
 (template-initialize)
 

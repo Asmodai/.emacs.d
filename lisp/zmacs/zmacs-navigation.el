@@ -31,8 +31,7 @@
 (eval-when-compile
   (require 'cl-lib))
 
-;;;===================================================================
-;;;{{{ Imenu list outline:
+;;;; Imenu list outline:
 
 (use-package imenu-list
   :commands (imenu-list-smart-toggle
@@ -42,11 +41,7 @@
         imenu-list-auto-resize t
         imenu-list-position 'left))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Save place:
+;;;; Save place:
 
 (use-package saveplace
   :ensure nil
@@ -55,20 +50,12 @@
   (setq save-place-file (concat *zmacs-cache-directory* "saved-places")
         save-place-forget-unreadable-files nil))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Go To Change:
+;;;; Go To Change:
 
 (use-package goto-last-change
   :bind (("C-\"" . #'goto-last-change)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Recent files:
+;;;; Recent files:
 
 (use-package recentf
   :ensure nil
@@ -80,11 +67,7 @@
   :config
   (recentf-mode 1))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Goto address:
+;;;; Goto address:
 
 (use-package goto-addr
   :ensure nil
@@ -133,11 +116,7 @@
   (interactive)
   (find-file zmacs-projects-directory))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Jump in buffer:
+;;;; Jump in buffer:
 
 (defun zmacs-jump-in-buffer ()
   "Jump between headlines in a buffer using consult."
@@ -147,8 +126,7 @@
         (t
          (call-interactively 'consult-outline))))
 
-;;;}}}
-;;;===================================================================
+;;;; Provide package:
 
 (provide 'zmacs-navigation)
 

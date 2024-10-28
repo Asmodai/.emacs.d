@@ -49,22 +49,22 @@
 (eval-when-compile
   (require 'cl-lib))
 
-;;; Outline faces:
-;;;; Outline package:
+;;;; Outline faces:
+;;;;; Outline package:
 
 (use-package outline
   :ensure nil
   :commands (outline-minor-mode)
   :hook ((emacs-lisp-mode       . outline-minor-mode)))
 
-;;;; Outline minor faces package:
+;;;;; Outline minor faces package:
 
 (use-package outline-minor-faces
   :after outline
   :commands (outline-minor-faces-mode)
   :hook (outline-minor-mode . outline-minor-faces-mode))
 
-;;;; Bicycle package:
+;;;;; Bicycle package:
 
 (use-package bicycle
   :after outline
@@ -72,7 +72,7 @@
               ([C-tab] . bicycle-cycle)
               ([S-tab] . bicycle-cycle-global)))
 
-;;;; Outli packages:
+;;;;; Outli packages:
 
 (use-package outli
   :vc (:fetcher github
@@ -84,7 +84,7 @@
                              (outline-back-to-heading))))
   :hook ((emacs-lisp-mode . outli-mode)))
 
-;;; What face?
+;;;; What face?
 
 ;; TODO: move to ZLISP
 (defun what-face (pos)
@@ -96,15 +96,15 @@
         (message "Face: %s" face)
       (message "No face at %d" pos))))
 
-;;; Underlines:
+;;;; Underlines:
 
 (customize-set-variable 'x-underline-at-descent-line t)
 
-;;; Cursor:
+;;;; Cursor:
 
 (customize-set-variable 'cursor-in-non-selected-windows nil)
 
-;;; Reveal:
+;;;; Reveal:
 
 (use-package reveal
   :ensure nil
@@ -114,12 +114,12 @@
   (setq reveal-auto-hide nil)
   (global-reveal-mode))
 
-;;; SVG
-;;;; Library:
+;;;; SVG:
+;;;;; Library:
 
 (use-package svg-lib)
 
-;;;; SVG tags:
+;;;;; SVG tags:
 
 (use-package svg-tag-mode
   :after svg-lib
@@ -150,7 +150,7 @@
           ("BUG:"   . ((lambda (tag)
                          (svg-tag-make "BUG:"   :face 'error   :inverse t)))))))
 
-;;; Emacs widgets:
+;;;; Emacs widgets:
 
 (use-package wid-ed
   :ensure nil
@@ -158,8 +158,8 @@
   :custom
   (widget-image-enable nil))
 
-;;; Highlights:
-;;;; Highlight numbers:
+;;;; Highlights:
+;;;;; Highlight numbers:
 
 (use-package highlight-numbers
   :defer t
@@ -167,7 +167,7 @@
   :init
   (add-hook 'prog-mode-hook #'highlight-numbers-mode))
 
-;;;; Highlight todo:
+;;;;; Highlight todo:
 
 (use-package hl-todo
   :defer t
@@ -191,7 +191,7 @@
     ("o" h1-todo-occur    "Occur")
     ("q" nil              "Quit" :color blue :exit t)))
 
-;;; Pulse:
+;;;;; Pulse:
 
 (use-package pulse
   :bind ("C-<return>" . pulse-line)
@@ -211,7 +211,7 @@
 
   (push #'pulse-line window-selection-change-functions))
 
-;;; Goggles:
+;;;;; Goggles:
 
 (use-package goggles
   :hook ((prog-mode . goggles-mode)
@@ -220,6 +220,8 @@
   (setq-default goggles-pulse t))
 
 (setq-default indicate-empty-lines nil)
+
+;;;; Define package:
 
 (provide 'zmacs-faces)
 
