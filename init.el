@@ -34,7 +34,7 @@
   (require 'zlisp-features))
 
 ;;;; Early-loaded packages:
-;;;;; Customize:
+;;;;; Customise:
 
 (use-package cus-edit
   :ensure nil

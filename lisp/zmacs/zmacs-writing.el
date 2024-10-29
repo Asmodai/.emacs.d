@@ -57,6 +57,11 @@
         flyspell-issue-message-flag        nil
         flyspell-issue-welcome-flag        nil))
 
+(use-package zlisp-spelling
+  :ensure nil
+  :demand t
+  :after flyspell)
+
 (use-package flyspell-correct
   :after flyspell
   :bind (:map flyspell-mode-map
