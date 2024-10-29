@@ -29,6 +29,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'zlisp-platform)
 
 ;;;; Early stuff that's done before anything else:
 
@@ -75,6 +76,14 @@
   (if (boundp 'use-short-answers)
       (setq use-short-answers t)
     (advice-add 'yes-or-no-p :override #'y-or-n-p)))
+
+;;;; macOS support:
+
+(zlisp-when-macos
+  (message "ZMACS: Enabling macOS support.")
+  (use-package zlisp-platform-macos
+    :ensure nil
+    :demand t))
 
 ;;;; Subword package:
 

@@ -25,6 +25,7 @@ custom.el
 /url
 /var
 async-bytecomp.log
+network-security.data
 
 # Tree Sitter:
 tree-sitter/

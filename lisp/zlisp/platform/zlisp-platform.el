@@ -39,18 +39,17 @@
 (defvar *zlisp-emacs-binary* nil
   "The Emacs binary file used on this system.")
 
-(eval-when-compile
-  (zlisp-when-unix
-   (setq *zlisp-emacs-binary* (or (executable-find "/usr/bin/emacs")
-                                  (executable-find "/usr/local/bin/emacs"))))
+(zlisp-when-unix
+  (setq *zlisp-emacs-binary* (or (executable-find "/usr/bin/emacs")
+                                 (executable-find "/usr/local/bin/emacs"))))
 
-  (zlisp-when-macos
-   (require 'zlisp-platform-macos)
-   (setq *zlips-emacs-binary* (zlisp-macos-emacs-path)))
+(zlisp-when-macos
+  (require 'zlisp-platform-macos)
+  (setq *zlisp-emacs-binary* (zlisp-macos-emacs-path)))
 
-  (zlisp-when-windows
-   (require 'zlisp-platform-windows)
-   (setq *zlisp-emacs-binary "emacs.exe")))
+(zlisp-when-windows
+  (require 'zlisp-platform-windows)
+  (setq *zlisp-emacs-binary "emacs.exe"))
 
 (defun emacs-build-description-string ()
   "Run `emacs-build-description' and return the result as a string."
@@ -58,6 +57,7 @@
     (emacs-build-description)
     (buffer-string)))
 
+;;;###autoload
 (defun zlisp-get-home-directory ()
   "Return the path representing a users' home directory."
   (cond ((zlisp-unix-p)
@@ -73,6 +73,7 @@
              (setq dir "C:\\"))
            dir))))
 
+;;;###autoload
 (defvar user-home-directory (zlisp-get-home-directory)
   "Directory containing the users' file on the current operating system.")
 

@@ -28,10 +28,13 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'cl-lib)
-  (require 'zlisp-platform)
-  (require 'zlisp-features))
+(require 'cl-lib)
+(require 'zlisp-platform)
+(require 'zlisp-features)
+
+;; Fix for macOS
+(when (null user-home-directory)
+  (setq user-home-directory (zlisp-get-home-directory)))
 
 ;;;; Early-loaded packages:
 ;;;;; Customise:

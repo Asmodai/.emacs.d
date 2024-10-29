@@ -68,7 +68,8 @@
 
 ;; Bug fixes.
 (if (not (boundp 'comp-enable-subr-trampolines))
-    (setq comp-enable-subr-trampolines native-comp-enable-subr-trampolines))
+    (when (boundp 'native-comp-enable-subr-trampolines)
+      (setq comp-enable-subr-trampolines native-comp-enable-subr-trampolines)))
 
 ;; Improve LSP performance.
 (setq read-process-output-max (* 1024 1024))
