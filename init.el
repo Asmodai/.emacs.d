@@ -152,11 +152,11 @@
       (with-temp-file zmacs-user-config
         (insert ";; user.el --- User-specific settings   -*- mode: emacs-lisp -*-
 
-(setopt user-full-name          \"Your Name\"           ; Your full name.
-        user-mail-address       \"you@example.com\"     ; Your e-mail address.
-        user-url-address        \"http://example.com/\" ; Your website URL.
-        user-work-email-address \"you@example.com\"     ; Your work e-email.
-        initial-major-mode      'fundamental-mode)
+(setopt user-full-name         \"Your Name\"           ; Your full name.
+        user-mail-address      \"you@example.com\"     ; Your e-mail address.
+        user-url-address       \"http://example.com/\" ; Your website URL.
+        user-work-mail-address \"you@example.com\"     ; Your work e-email.
+        initial-major-mode     'fundamental-mode)
 
 ;; user.el ends here.
 "))))
