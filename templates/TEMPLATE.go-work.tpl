@@ -1,4 +1,4 @@
-// -*- Mode: Go; auto-fill: t; fill-column: 78; -*-
+// -*- Mode: Go -*-
 //
 // (>>>FILE<<<) --- (>>>TITLE<<<)
 //
@@ -6,6 +6,12 @@
 //
 // Author:     (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>WORK_AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
 // Maintainer: (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>WORK_AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
+
+;; *** Comments:
+;;
+;;
+
+;; *** Code:
 
 (>>>POINT<<<)
 
