@@ -33,29 +33,37 @@
 (require 'zlisp-platform-macros)
 (require 'zlisp-features)
 
+;;;; Set *ZLISP-FEATURES*:
+
 (eval-when-compile
   (cl-pushnew *zlisp-system-type* *zlisp-features*))
+
+;;;; Guess at Emacs binary location:
 
 (defvar *zlisp-emacs-binary* nil
   "The Emacs binary file used on this system.")
 
-(zlisp-when-unix
-  (setq *zlisp-emacs-binary* (or (executable-find "/usr/bin/emacs")
-                                 (executable-find "/usr/local/bin/emacs"))))
+(defun zlisp-get-emacs-binary ()
+  "Attempt to work out what our binary is."
+  (zlisp-when-unix
+    (setq *zlisp-emacs-binary* (or (executable-find "/usr/bin/emacs")
+                                   (executable-find "/usr/local/bin/emacs"))))
+  (zlisp-when-macos
+    (require 'zlisp-platform-macos)
+    (setq *zlisp-emacs-binary* (zlisp-macos-emacs-path)))
+  (zlisp-when-windows
+    (require 'zlisp-platform-windows)
+    (setq *zlisp-emacs-binary "emacs.exe")))
 
-(zlisp-when-macos
-  (require 'zlisp-platform-macos)
-  (setq *zlisp-emacs-binary* (zlisp-macos-emacs-path)))
-
-(zlisp-when-windows
-  (require 'zlisp-platform-windows)
-  (setq *zlisp-emacs-binary "emacs.exe"))
+;;;; Build description utlilities:
 
 (defun emacs-build-description-string ()
   "Run `emacs-build-description' and return the result as a string."
   (with-temp-buffer
     (emacs-build-description)
     (buffer-string)))
+
+;;;; Home directory:
 
 ;;;###autoload
 (defun zlisp-get-home-directory ()
@@ -80,6 +88,31 @@
 (defun make-home-directory-path (pathspec)
   "Create a new path spec from PATHSPEC rooted to the user's home directory."
   (expand-file-name (concat user-home-directory "/" pathspec "/")))
+
+;;;; Initial window resolution:
+
+(defun zlisp/initial-frame-size ()
+  "Set initial frame and new frame sizes."
+  (when (display-graphic-p)
+    (let* ((max-w (display-pixel-width))
+           (max-h (display-pixel-height))
+           (new-w (/ (- max-w 200) (frame-char-width)))
+           (new-h (/ (- max-h 200) (frame-char-height))))
+      (modify-frame-parameters
+       nil
+       `((user-position . t)
+         (top           . 0.5)
+         (left          . 0.5)
+         (width         . ,new-w)
+         (height        . ,new-h)))
+      (add-to-list 'default-frame-alist
+                   (cons 'height (/ (- max-h 200)
+                                    (frame-char-height))))
+      (add-to-list 'default-frame-alist
+                   (cons 'width (/ (- max-w 200)
+                                   (frame-char-width)))))))
+
+;;;; Provide package:
 
 (provide 'zlisp-platform)
 

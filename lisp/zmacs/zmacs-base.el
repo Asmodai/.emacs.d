@@ -31,6 +31,20 @@
 (require 'cl-lib)
 (require 'zlisp-platform)
 
+;;;; Set initial size:
+
+(zlisp/initial-frame-size)
+
+;;;; Platform package:
+
+(use-package zlisp-platform
+  :ensure nil
+  :defer nil
+  :demand t
+  :config
+  (progn
+    (zlisp-get-emacs-binary)))
+
 ;;;; Early stuff that's done before anything else:
 
 ;; Let's add some Zetalisp all up in this here house!
@@ -76,14 +90,6 @@
   (if (boundp 'use-short-answers)
       (setq use-short-answers t)
     (advice-add 'yes-or-no-p :override #'y-or-n-p)))
-
-;;;; macOS support:
-
-(zlisp-when-macos
-  (message "ZMACS: Enabling macOS support.")
-  (use-package zlisp-platform-macos
-    :ensure nil
-    :demand t))
 
 ;;;; Subword package:
 
@@ -269,7 +275,7 @@ This fixes an overlapping issue, that occurs when ZMACS is started in a
     (desktop-save-mode 1)))
 
 (defun zmacs-save-dsektop-save-buffers-kill-emacs ()
-  "Save buffers and current desktop every time we quit emacs."
+  "Save buffers and current desktop every time we quit Emacs."
   (interactive)
   (desktop-save-in-desktop-dir)
   (save-buffers-kill-emacs))
@@ -797,6 +803,13 @@ This fixes an overlapping issue, that occurs when ZMACS is started in a
 
 (zmacs-diminish eldoc-mode        " ⓔ" " e")
 (zmacs-diminish global-eldoc-mode " ⓔ" " e")
+
+;;;; macOS support:
+
+(zlisp-when-macos
+  (message "ZMACS: Enabling macOS support.")
+  (require 'zlisp-platform-macos)
+  (zlisp-macos-exec-path))
 
 ;;;; Provide package:
 

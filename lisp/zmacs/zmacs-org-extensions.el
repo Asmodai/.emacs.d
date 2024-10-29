@@ -28,8 +28,8 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'cl-lib))
+(require 'cl-lib)
+(require 'zlisp-platform)
 
 ;;;; Org Appearance:
 

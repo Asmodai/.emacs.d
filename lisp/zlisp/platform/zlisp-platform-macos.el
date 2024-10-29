@@ -28,11 +28,17 @@
 
 ;;; Code:
 
+(require 'cl-lib)
+
+;;;; macOS-specific settings:
+
 (setq ns-alternate-modifier    'super
       ns-command-modifier      'meta
       ns-right-option-modifier 'nil
       ns-pop-up-frames         nil
       ns-use-srgb-colorspace   t)
+
+;;;; pixel scroll package:
 
 (use-package pixel-scroll
   :ensure nil
@@ -41,11 +47,26 @@
   :hook
   (after-init . pixel-scroll-precision-mode))
 
+;;;; Emacs bianry:
+
 (defun zlisp-macos-emacs-path ()
   (let ((app-wrapper "Emacs.app/Contents/MacOS/Emacs"))
     (or (executable-find (concat "/Applications/" app-wrapper))
         (executable-find (expand-file-name
                           (concat "~/Applications/" app-wrapper))))))
+
+;;;; macos path:
+
+;; Support for Homebrew.
+(defun zlisp-macos-exec-path ()
+  "Check for any macOS-specific additions to `exec-path'."
+  (when (file-exists-p "/opt/homebrew/bin")
+    (message "ZMACS/macOS: Adding homebrew to `exec-path'.")
+    (setenv "PATH" (concat "/opt/homebrew/bin/:"
+                           (getenv "PATH")))
+    (cl-pushnew "/opt/homebrew/bin/" exec-path)))
+
+;;;; Provide package:
 
 (provide 'zlisp-platform-macos)
 
