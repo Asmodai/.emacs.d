@@ -13,6 +13,7 @@
 
 # Custom files:
 custom.el
+user.el
 
 # Cache and  random state:
 .cache

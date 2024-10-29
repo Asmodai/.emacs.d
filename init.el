@@ -130,14 +130,39 @@
   :type 'string
   :group 'zmacs-emacs)
 
-(setopt user-full-name     "Paul Ward"
-        user-mail-address  "paul@lisphacker.uk"
-        user-url-address   "http://lisphacker.uk/"
-        initial-major-mode 'fundamental-mode)
+(setopt user-full-name          "Paul Ward"             ; Your full name.
+        user-mail-address       "paul@lisphacker.uk"    ; Your e-mail address.
+        user-url-address        "http://lisphacker.uk/" ; Your website URL.
+        user-work-email-address "you@example.com"       ; Your work e-email.
+        initial-major-mode      'fundamental-mode)
 
 ;; Project repo directory.
 (setq magic-repository-directories
       (list (cons zmacs-projects-directory 1)))
+
+;;;; Deal with `user.el'
+
+(defvar zmacs-user-config
+  (expand-file-name (concat user-emacs-directory "user.el"))
+  "File containing user-specific settings.")
+
+;; Ensure `user.el' exists.
+(or (file-exists-p zmacs-user-config)
+    (progn
+      (with-temp-file zmacs-user-config
+        (insert ";; user.el --- User-specific settings   -*- mode: emacs-lisp -*-
+
+(setopt user-full-name          \"Your Name\"           ; Your full name.
+        user-mail-address       \"you@example.com\"     ; Your e-mail address.
+        user-url-address        \"http://example.com/\" ; Your website URL.
+        user-work-email-address \"you@example.com\"     ; Your work e-email.
+        initial-major-mode      'fundamental-mode)
+
+;; user.el ends here.
+"))))
+
+;; Now load it.
+(load-file zmacs-user-config)
 
 ;;;; Start the ball rolling:
 
