@@ -45,13 +45,13 @@
                    (t
                     (error "Go has not been configured!")))))
   (when (file-exists-p gopls)
-    (message (format "Configured '%s' as LSP backend." gopls))
+    (message (format "ZMACS/GO: Configured '%s' as LSP backend." gopls))
     (add-to-list 'eglot-server-programs `(go-mode ,gopls))))
 
 ;;;; Customize:
 
 (defgroup zmacs-golang ()
-  "ZMACS Golang"
+  "ZMACS Golang."
   :group 'zmacs-emacs)
 
 (defcustom zmacs-go-tab-width 8
@@ -64,90 +64,102 @@
   :type 'boolean
   :group 'zmacs-golang)
 
-;;;; Helper functions:
-
-(defun zmacs--go-set-tab-width ()
-  "Set Go mode tab width."
-  (when zmacs-go-tab-width
-    (setq-local tab-width zmacs-go-tab-width)))
-
-(defun zmacs--go-setup-format ()
-  "Conditionally set up formatting on save."
-  (if zmacs-go-format-before-save
-      (add-hook 'before-save-hook 'gofmt-before-save)
-    (remove-hook 'before-save-hook 'gofmt-before-save)))
-
-(defun zmacs--go-packages-gopkgs ()
-  "Return a list of all Go packages using `gopkgs'."
-  (sort (process-lines "gopkgs") #'string<))
-
-;;;; Set up Project:
-
-(defun project-find-go-module (dir)
-  "Locate a go module."
-  (when-let ((root (locate-dominating-file dir "go.mod")))
-    (cons 'go-module root)))
-
-(cl-defmethod project-root ((project (head go-module)))
-  (cdr project))
-
-(add-hook 'project-find-functions #'project-find-go-module)
-
 ;;;; Package:
 ;;;;; Main package:
 
 (use-package go-mode
-  :hook ((go-mode-local-vars . zmacs--go-set-tab-width)
-         (go-mode-local-vars . zmacs-go-setup-format)
-         (go-mode            . eglot-ensure)
-         (go-mode            . outline-minor-mode)
-         (go-mode            . outli-mode))
+  :defer t
+  :hook ((go-mode . eglot-ensure)
+         (go-mode . outline-minor-mode)
+         (go-mode . outli-mode)
+         (go-mode . flycheck-mode))
   :init
   (require 'outline)
   (require 'outline-minor-faces)
   :custom
-  (go-packages-function 'zmacs--go-packages-gopkgs)
   (go-test-verbose      t))
 
 ;;;;; Eldoc:
 
 (use-package go-eldoc
-  :defer t)
+  :after go-mode
+  :demand t
+  :init (go-eldoc-setup))
 
 ;;;;; Fill struct:
 
 (use-package go-fill-struct
-  :defer t)
+  :after go-mode
+  :demand t)
 
 ;;;;; Gen Test:
 
 (use-package go-gen-test
-  :defer t)
+  :after go-mode
+  :demand t)
 
 ;;;;; Go Guru:
 
 (use-package go-guru
-  :defer t)
+  :after go-mode
+  :demand t)
 
 ;;;;; Go Impl:
 
 (use-package go-impl
-  :defer t)
+  :after go-mode
+  :demand t)
 
 ;;;;; Go Rename:
 
 (use-package go-rename
-  :defer t)
+  :after go-mode
+  :demand t)
 
 ;;;;; Go Tag:
 
 (use-package go-tag
-  :defer t)
+  :after go-mode
+  :demand t)
 
 ;;;;; Godoctor:
 
 (use-package godoctor
-  :defer t)
+  :after go-mode
+  :demand t)
+
+;;;;; flycheck-golangci-lint:
+
+(use-package flycheck-golangci-lint
+  :ensure t
+  :after go-mode
+  :demand t
+  :hook (go-mode . flycheck-golangci-lint-setup))
+
+;;;;; zlisp-go:
+
+(use-package zlisp-go
+  :ensure nil
+  :after (go-mode
+          flycheck-golangci-lint)
+  :demand t
+  :commands (zlisp/setup-go-project
+             zlisp/go-enable-flycheck-golangci-lint
+             zlisp/go-setup-tab-width
+             zlisp/go-setup-format)
+  :custom
+  (go-packages-function 'zlisp/go-packages-gopkgs)
+  :config
+  (progn
+    (add-hook 'go-mode-local-vars-hook 'zlisp/go-setup-tab-width)
+    (add-hook 'go-mode-local-vars-hook 'zlisp/go-setup-format)
+    (add-hook 'go-mode-local-vars-hook 'zlisp/go-enable-flycheck-golangci-lint)
+
+    (setq go-packages-function 'zlisp/go-package-gopkgs)
+
+    (zlisp/go-setup-format)
+    (zlisp/go-setup-project)
+    (zlisp/go-enable-flycheck-golangci-lint)))
 
 ;;;; Provide package:
 
