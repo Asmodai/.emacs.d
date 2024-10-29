@@ -1,20 +1,30 @@
-*~
-\#*#
-.\#*
-/**/*~
-*.elc
-/**/*.elc
+# Backup files:
 *.bak
+*.elc
+*~
+.\#*
 /**/*.bak
+/**/*.elc
+/**/*~
+\#*\#
+
+# macOS mess:
+.DS_Store
+
+# Custom files:
+custom.el
+
+# Cache and  random state:
+.cache
 /auto-save-list
 /cache
-.cache
+/eln-cache
 /elpa
 /eshell
-.DS_Store
-custom.el
+/undo-fu-session
+/url
+/var
 async-bytecomp.log
-var/
-eln-cache/
-undo-fu-session/
-url/
+
+# Tree Sitter:
+tree-sitter/

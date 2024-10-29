@@ -110,13 +110,14 @@
 
 (use-package eat
   :config
-  (setq eat-kill-buffer-on-exit            t
-        eat-enable-yank-to-terminal        t
-        eat-enable-directory-tracking      t
-        eat-enable-shell-command-history   t
-        eat-enable-shell-prompt-annotation t
-        eat-term-scrollback-size           nil)
-  (add-hook 'eshell-load-hook #'eat-eshell-mode))
+  :custom
+  (eat-kill-buffer-on-exit            t)
+  (eat-enable-yank-to-terminal        t)
+  (eat-enable-directory-tracking      t)
+  (eat-enable-shell-command-history   t)
+  (eat-enable-shell-prompt-annotation t)
+  (eat-term-scrollback-size           nil)
+  :hook (eshell-load . eat-eshell-mode))
 
 ;;;; Tramp:
 

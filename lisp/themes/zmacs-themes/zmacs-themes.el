@@ -1,47 +1,41 @@
-;;; -*- Mode: Emacs-Lisp; lexical-binding: t; -*-
-;;;
-;;; zmacs-themes.el --- Theme settings for ZMACS.
-;;;
-;;; Copyright (c) 2024 Paul Ward <paul@lisphacker.uk>
-;;;
-;;; Author:     Paul Ward <paul@lisphacker.uk>
-;;; Maintainer: Paul Ward <paul@lisphacker.uk>
-;;; Created:    17 Oct 2024 19:48:42
-;;; Keywords:   theme
-;;; URL:        not distributed yet
-;;;
-;;; This file is not part of GNU Emacs.
-;;;
-;;;{{{ License:
-;;;
-;;; This program is free software: you can redistribute it
-;;; and/or modify it under the terms of the GNU General Public
-;;; License as published by the Free Software Foundation,
-;;; either version 3 of the License, or (at your option) any
-;;; later version.
-;;;
-;;; This program is distributed in the hope that it will be
-;;; useful, but WITHOUT ANY  WARRANTY; without even the implied
-;;; warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-;;; PURPOSE.  See the GNU General Public License for more
-;;; details.
-;;;
-;;; You should have received a copy of the GNU General Public
-;;; License along with this program.  If not, see
-;;; <http://www.gnu.org/licenses/>.
-;;;
-;;;}}}
-;;;{{{ Commentary:
-;;;
-;;;}}}
+;;; zmacs-themes.el --- ZMACS themes  -*- mode: emacs-lisp; lexical-binding: t; -*-
+;;
+;; Copyright (c) 2024 Paul Ward <paul@lisphacker.uk>
+;;
+;; Author:     Paul Ward <paul@lisphacker.uk>
+;; Maintainer: Paul Ward <paul@lisphacker.uk>
+;; Created:    17 Oct 2024 19:48:42
+;; URL:        not distributed yet
+;;
+;; This file is not part of GNU Emacs.
+;;
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY  WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+;;
+;;
 
 ;;; Code:
 
-;;; Yeah yeah, I know.
 (require 'cl-lib)
 
-;;;===================================================================
-;;;{{{ Colour tables:
+;;;; Hooks:
+
+(defvar zmacs-themes-after-load-theme-hook nil
+  "Hook that ise run after zmacs-theme is loaded using `load-theme`.")
+
+;;;; Colour tables:
 
 (defvar *zmacs--primary-color-table*
   ;; Name        Normal    Bright    Faint
@@ -94,6 +88,18 @@
     (:selection-text       . "#ffffff")
     (:cursor               . "#a23ffe"))
   "Colours that are used in my KDE theme.")
+
+(defvar *zmacs-comment-levels-color-table*
+  '("#eae1fe" ;
+    "#d6c7f5" ;
+    "#c2adec" ;
+    "#af93e2" ;
+    "#9c79d8" ;
+    "#caf1f7"
+    "#a6e8f2"
+    "#7ddeed"
+    )
+  "Colours that are used for various comment nesting levels.")
 
 (defsubst zmacs--color-table-list-value (table offset index)
   "Return the colour at index OFFSET in the list at index INDEX in TABLE."
@@ -163,11 +169,10 @@ associated list ALIST."
   "Return the RGB value for the UI theme colour give in NAME."
   (cdr (assoc name *zmacs--ui-color-table*)))
 
-;;;}}}
-;;;===================================================================
+(defsubst zmacs--comment-color (idx)
+  (nth idx *zmacs-comment-levels-color-table*))
 
-;;;===================================================================
-;;;{{{ Fonts:
+;;;; Fonts:
 
 (defvar *zmacs-fixed-font-size*
   (if (eq window-system 'ns)
@@ -245,20 +250,7 @@ shall be used.")
 availability of various fonts on your system.  The first one that is available
 shall be used.")
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Hooks:
-
-(defvar zmacs-themes-after-load-theme-hook nil
-  "Hook that ise run after zmacs-theme is loaded using `load-theme`.")
-
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Default, variable pitch, and fixed pitch faces:
+;;;; Default, variable pitch, and fixed pitch faces:
 
 (custom-set-faces
  `(default
@@ -292,11 +284,7 @@ shall be used.")
         :slant   normal
         :inherit nil)))))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Theme faces:
+;;;; Theme faces:
 
 (defgroup zmacs-themes nil
   "Faces and colors for lambda-themes."
@@ -381,14 +369,9 @@ doesn't stand out."
   "An aqua accent face."
   :group 'faces)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Meta faces:
-;;;
-;;; These are not really used, they're just here to define a set of faces that
-;;; can be used by things like REPLs et al.
+;;;; Meta faces:
+;; These are not really used, they're just here to define a set of faces that
+;; can be used by things like REPLs et al.
 
 (defface meta-repl-prompt-face
   `((t (:inherit    fixed-pitch
@@ -416,10 +399,7 @@ doesn't stand out."
               :style flat))))
   "Meta face for inline UI elements that might be used by a REPL.")
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
+;;;; Theme definition:
 
 (defgroup zmacs-themes nil
   "Faces and colours for zmacs-themes."
@@ -427,6 +407,7 @@ doesn't stand out."
 
 (defun zmacs-themes-create (_ theme-name)
   (let ((class '((class color) (min-colors 89)))
+;;;;; Colour names:
         ;;
         ;; Basic.
         (zmacs-background (zmacs--ui-color :view-background))
@@ -438,11 +419,21 @@ doesn't stand out."
         (zmacs-highlight  (zmacs--theme-color *zmacs--color-grey* 5))
         (zmacs-lowlight   (zmacs--theme-color *zmacs--color-grey* 7))
         ;;
-        ;; Heading levels
+        ;; Heading levels.
         (zmacs-l1 (zmacs--theme-color *zmacs--color-purple* 0))
         (zmacs-l2 (zmacs--theme-color *zmacs--color-purple* 2))
         (zmacs-l3 (zmacs--theme-color *zmacs--color-purple* 5))
         (zmacs-l4 (zmacs--theme-color *zmacs--color-purple* 7))
+        ;;
+        ;; Comment levels.
+        (zmacs-comment-1 (zmacs--comment-color 0))
+        (zmacs-comment-2 (zmacs--comment-color 1))
+        (zmacs-comment-3 (zmacs--comment-color 2))
+        (zmacs-comment-4 (zmacs--comment-color 3))
+        (zmacs-comment-5 (zmacs--comment-color 4))
+        (zmacs-comment-6 (zmacs--comment-color 5))
+        (zmacs-comment-7 (zmacs--comment-color 6))
+        (zmacs-comment-8 (zmacs--comment-color 7))
         ;;
         ;; Attention.
         (zmacs-critical-bg (zmacs--primary-color/normal :red))
@@ -471,8 +462,9 @@ doesn't stand out."
         (zmacs-green   (zmacs--primary-color/faint :green))
         (zmacs-white   (zmacs--primary-color/faint :white))
         (zmacs-black   (zmacs--primary-color/faint :black)))
+;;;;; Faces:
     (custom-set-faces
-;;;{{{ Defaults:
+;;;;;; Defaults:
      `(cursor
        ((,class (:background ,(zmacs--ui-color :cursor)))))
      `(fringe
@@ -502,8 +494,7 @@ doesn't stand out."
                  :foreground ,zmacs-meek
                  :background unspecified
                  :weight     light))))
-;;;}}}
-;;;{{{ Zmacs faces:
+;;;;;; Zmacs faces:
      `(zmacs-fg
        ((,class (:foreground ,zmacs-foreground))))
      `(zmacs-bg
@@ -543,8 +534,7 @@ doesn't stand out."
        ((,class (:foreground ,zmacs-magenta))))
      `(zmacs-meek
        ((,class (:foreground ,zmacs-meek))))
-;;;}}}
-;;;{{{ Basic faces:
+;;;;;; Basic faces:
      `(error
        ((,class (:inherit    fixed-pitch
                  :foreground ,zmacs-critical
@@ -576,8 +566,7 @@ doesn't stand out."
        ((,class (:inherit    fixed-pitch
                  :foreground ,zmacs-lowlight
                  :background ,zmacs-focus))))
-;;;}}}
-;;;{{{ Font Lock faces:
+;;;;;; Font Lock faces:
      `(font-lock-builtin-face
        ((,class (:inherit    fixed-pitch
                  :foreground ,zmacs-yellow
@@ -672,8 +661,7 @@ doesn't stand out."
                  :weight     bold))))
      `(font-lock-escape-face
        ((,class (:inherit font-lock-regexp-grouping-backslash))))
-;;;}}}
-;;;{{{ Line numbering:
+;;;;;; Line numbering:
      `(line-number
        ((,class (:inherit    fixed-pitch
                  :foreground ,zmacs-ultralight
@@ -682,8 +670,7 @@ doesn't stand out."
        ((,class (:inherit fixed-pitch
                  :foreground ,(zmacs--theme-color *zmacs--color-white* 3)
                  :background ,(zmacs--theme-color *zmacs--color-grey* 6)))))
-;;;}}}
-;;;{{{ Parens:
+;;;;;; Parens:
      `(show-paren-match
        ((,class (:inherit    fixed-pitch
                  :foreground ,zmacs-ok
@@ -706,8 +693,7 @@ doesn't stand out."
      `(highlight-parentheses-highlight
        ((,class (:inherit fixed-pitch
                  :bold nil))))
-;;;}}}
-;;;{{{ Indicators:
+;;;;;; Indicators:
      `(fill-column-indicator
        ((,class (:inherit    fixed-pitch
                  :foreground ,zmacs-ultralight
@@ -742,8 +728,7 @@ doesn't stand out."
                  :background unspecified))))
      `(whitespace-trailing
        ((,class (:background ,zmacs-red))))
-;;;}}}
-;;;{{{ Modeline:
+;;;;;; Modeline:
      `(mode-line
        ((,class (:foreground ,(zmacs--theme-color *zmacs--color-pwhite* 2)
                  :background ,(zmacs--theme-color *zmacs--color-purple* 6)
@@ -760,14 +745,12 @@ doesn't stand out."
      `(mode-line-highlight
        ((,class (:inherit bold
                  :foreground ,zmacs-orange))))
-;;;}}}
-;;;{{{ Child frames:
+;;;;;; Child frames:
      `(mini-popup-background
        ((,class (:background ,zmacs-faint))))
      `(mini-popup-border
        ((,class (:background ,zmacs-faint))))
-;;;}}}
-;;;{{{ Posframe
+;;;;;; Posframe
      `(which-key-posframe
        ((,class (:background ,zmacs-faint))))
      `(which-key-posframe-border
@@ -777,12 +760,10 @@ doesn't stand out."
                  :background ,zmacs-faint))))
      `(transient-posframe-border
        ((,class (:background ,zmacs-faint))))
-;;;}}}
-;;;{{{ General completion:
+;;;;;; General completion:
      `(completions-annotations
        ((,class (:foreground ,zmacs-meek))))
-;;;}}}
-;;;{{{ Company:
+;;;;;; Company:
      `(company-scrollbar-bg
        ((,class (:inherit fringe))))
      `(company-scrollbar-fg
@@ -813,11 +794,7 @@ doesn't stand out."
                  :background ,zmacs-yellow))))
      `(company-echo-common
        ((,class (:foreground ,zmacs-red))))
-;;;}}}
-;;;{{{ Git, Magit, and VC:
-
-;;;}}}
-;;;{{{ Org:
+;;;;;; Org:
      `(org-code
        ((,class (:inherit (shadow fixed-pitch)
                  :foreground ,(zmacs--ascii-color/bright :yellow)))))
@@ -954,8 +931,7 @@ doesn't stand out."
                  :foreground ,zmacs-foreground
                  :weight     bold
                  :extend     t))))
-;;;}}}
-;;;{{{ Slime
+;;;;;; Slime
      `(slime-inspector-action-face
        ((,class (:inherit    fixed-pitch
                  :foreground ,zmacs-blue
@@ -993,8 +969,7 @@ doesn't stand out."
        ((,class (:inherit meta-repl-output-face))))
      `(slime-repl-output-mouseover-face
        ((,class (:inherit meta-repl-inline-ui-face))))
-;;;}}}
-;;;{{{ Flycheck:
+;;;;;; Flycheck:
      `(flycheck-warning
        ((,class (:underline (:style wave :color ,zmacs-crucial)))))
      `(flycheck-error
@@ -1016,20 +991,17 @@ doesn't stand out."
      `(flycheck-error-list-info
        ((,class (:foreground ,zmacs-focus
                  :bold       t))))
-;;;}}}
-;;;{{{ Flyspell:
+;;;;;; Flyspell:
      `(flyspell-duplicate
        ((,class (:underline (:color ,zmacs-red :style line)))))
      `(flyspell-duplicate
        ((,class (:underline (:color ,zmacs-red :style line)))))
-;;;}}}
-;;;{{{ Magit:
+;;;;;; Magit:
      `(magit-header-line
        ((,class (:inherit fixed-pitch
                  :foreground ,zmacs-foreground
                  :background ,zmacs-l1))))
-;;;}}}
-;;;{{{ Dashboard:
+;;;;;; Dashboard:
      `(dashboard-text-banner
        ((,class (:inherit    fixed-pitch
                  :foreground ,zmacs-violet
@@ -1050,14 +1022,12 @@ doesn't stand out."
      `(dashboard-init-info-face
        ((,class (:inherit    fixed-pitch
                  :foreground ,zmacs-strong))))
-;;;}}}
-;;;{{{ Highlight Indentation:
+;;;;;; Highlight Indentation:
      `(highlight-indentation-current-column-face
        ((,class (:background ,(zmacs--theme-color *zmacs--color-purple* 6)))))
      `(highlight-indentation-face
        ((,class (:background ,(zmacs--theme-color *zmacs--color-purple* 7)))))
-;;;}}}
-;;;{{{ Highlight indentation guides:
+;;;;;; Highlight indentation guides:
      `(highlight-indent-guides-stack-odd-face
        ((,class (:foreground ,zmacs-orange
                  :background unspecified))))
@@ -1085,7 +1055,79 @@ doesn't stand out."
      `(highlight-indent-guides-stack-character-face
        ((,class (:foreground ,zmacs-highlight
                  :background unspecified))))
-;;;}}}
+;;;;;; Outline:
+     `(outline-1
+       ((,class (:inherit    fixed-pitch
+                 :foreground ,zmacs-comment-1
+                 :background unspecified
+                 :weight     bold
+                 :extend     t))))
+     `(outline-2
+       ((,class (:inherit    fixed-pitch
+                 :foreground ,zmacs-comment-2
+                 :background unspecified
+                 :weight     bold
+                 :extend     t))))
+     `(outline-3
+       ((,class (:inherit    fixed-pitch
+                 :foreground ,zmacs-comment-3
+                 :background unspecified
+                 :weight     bold
+                 :extend     t))))
+     `(outline-4
+       ((,class (:inherit    fixed-pitch
+                 :foreground ,zmacs-comment-4
+                 :background unspecified
+                 :weight     bold
+                 :extend     t))))
+     `(outline-5
+       ((,class (:inherit    fixed-pitch
+                 :foreground ,zmacs-comment-5
+                 :background unspecified
+                 :weight     bold
+                 :extend     t))))
+     `(outline-6
+       ((,class (:inherit    fixed-pitch
+                 :foreground ,zmacs-comment-6
+                 :background unspecified
+                 :weight     bold
+                 :extend     t))))
+     `(outline-7
+       ((,class (:inherit    fixed-pitch
+                 :foreground ,zmacs-comment-7
+                 :background unspecified
+                 :weight     bold
+                 :extend     t))))
+     `(outline-8
+       ((,class (:inherit    fixed-pitch
+                 :foreground ,zmacs-comment-8
+                 :background unspecified
+                 :weight     bold
+                 :extend     t))))
+     `(outline-minor-0
+       ((,class (:inherit    fixed-pitch
+                 :background ,(zmacs--theme-color *zmacs--color-purple* 7)
+                 :weight     bold
+                 :extend     t))))
+;;;;;; Outline minor:
+     `(outline-minor-1
+       ((,class (:inherit   fixed-pitch
+                 :weight    bold
+                 :extend    t
+                 :underline (:color ,(zmacs--theme-color *zmacs--color-purple* 2)
+                             :style line
+                             :position nil)))))
+     `(outline-minor-2 ((,class (:inherit (outline-minor-0 outline-2)))))
+     `(outline-minor-3 ((,class (:inherit (outline-minor-0 outline-3)))))
+     `(outline-minor-4 ((,class (:inherit (outline-minor-0 outline-4)))))
+     `(outline-minor-5 ((,class (:inherit (outline-minor-0 outline-5)))))
+     `(outline-minor-6 ((,class (:inherit (outline-minor-0 outline-6)))))
+     `(outline-minor-7 ((,class (:inherit (outline-minor-0 outline-7)))))
+     `(outline-minor-8 ((,class (:inherit (outline-minor-0 outline-8)))))
+;;;;;; Breadcrumb:
+     `(breadcrumb-face
+       ((,class (:inherit shadow))))
+;;;;; End of faces:
      )                                  ; custom-set-faces
     (custom-theme-set-variables
      theme-name
@@ -1099,12 +1141,14 @@ doesn't stand out."
         ,(zmacs--ascii-color/normal :cyan)
         ,(zmacs--ascii-color/normal :white)]))))
 
-;;;===================================================================
-;;; Highlight colours for parentheses &c.
+;;;; Highlight parentheses:
+
 (setq-default highlight-parentheses-colors '("#dcff75"
                                              "#f3cc62"
                                              "#fd964f"
                                              "#ff543d"))
+
+;;;; Highlight Todo:
 
 (setq-default hl-todo-keyword-faces
               '(("HOLD"       . query-replace)
@@ -1124,12 +1168,16 @@ doesn't stand out."
                 ("REVIEW"     . warning)
                 ("DEPRECATED" . warning)))
 
+;;;; Autoload:
+
 ;;;###autoload
 (and load-file-name
      (boundp 'custom-theme-load-path)
      (add-to-list 'custom-theme-load-path
                   (file-name-as-directory
                    (file-name-directory load-file-name))))
+
+;;;; Provide theme:
 
 (provide 'zmacs-themes)
 

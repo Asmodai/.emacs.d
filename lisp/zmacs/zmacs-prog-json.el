@@ -1,10 +1,10 @@
-;;; zmacs-dark-theme.el --- ZMACS dark theme  -*- mode: emacs-lisp; lexical-binding: t; -*-
+;;; zmacs-prog-json.el --- JSON packages  -*- mode: emacs-lisp; lexical-binding: t; -*-
 ;;
 ;; Copyright (c) 2024 Paul Ward <paul@lisphacker.uk>
 ;;
 ;; Author:     Paul Ward <paul@lisphacker.uk>
 ;; Maintainer: Paul Ward <paul@lisphacker.uk>
-;; Created:    20 Oct 2024 22:18:50
+;; Created:    28 Oct 2024 10:32:12
 ;; URL:        not distributed yet
 ;;
 ;; This file is not part of GNU Emacs.
@@ -26,15 +26,26 @@
 ;;
 ;;
 
-(require 'zmacs-themes)
+;;; Code:
 
-(deftheme zmacs-dark
-  "ZMACS Dark theme.")
+(eval-when-compile
+  (require 'cl-lib))
 
-(zmacs-themes-create 'dark 'zmacs-dark)
-(run-hooks 'zmacs-themes-after-load-theme-hook)
-(provide-theme 'zmacs-dark)
+(defun zmacs-json-prettify-dwim ()
+  "Prettify JSON."
+  (interactive)
+  (if (use-region-p)
+      (json-pretty-print-ordered (use-region-beginning)
+                                 (use-region-end))
+    (json-pretty-print-buffer-ordered)))
 
-(provide 'zmacs-dark-theme)
+(use-package json-ts-mode
+  :ensure nil
+  :bind (:map json-ts-mode-map
+         ([remap fill-paragraph] . zmacs-json-prettify-dwim)))
 
-;;; zmacs-dark-theme.el ends here.
+(add-to-list 'major-mode-remap-alist '(json-mode . json-ts-mode))
+
+(provide 'zmacs-prog-json)
+
+;;; zmacs-prog-json.el ends here.

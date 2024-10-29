@@ -360,6 +360,7 @@ Suitable for inclusion in `c-offsets-alist'."
   :defer t)
 (add-hook 'c-mode-common-hook 'google-set-c-style)
 (add-hook 'c-mode-common-hook 'google-make-newline-indent)
+(add-hook 'c-mode-common-hook 'electric-pair-mode)
 
 ;;;; Provide package:
 

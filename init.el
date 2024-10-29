@@ -182,11 +182,15 @@
 
 ;;;;; Programming:
 (require 'zmacs-programming)
+(require 'zmacs-prog-html)
+(require 'zmacs-prog-yaml)
+(require 'zmacs-prog-json)
 (require 'zmacs-prog-debug)
 (require 'zmacs-prog-lisp)
 (require 'zmacs-prog-common-lisp)
 (require 'zmacs-prog-c)
 (require 'zmacs-prog-go)
+(require 'zmacs-prog-js)
 
 ;;;;; Functions:
 (require 'zlisp-files) ;; consult, dired
@@ -233,10 +237,10 @@
                     0
                   (- gc-elapsed *gc-time-elapsed*))))
       (when (bound-and-true-p *zmacs-report-gc*)
-	(message "GC Info:  %d (%.06fs) so far, %.06fs this run."
-		 gcs-done
-		 gc-elapsed
-		 time))
+        (message "GC Info:  %d (%.06fs) so far, %.06fs this run."
+                 gcs-done
+                 gc-elapsed
+                 time))
       (setf *gc-time-elapsed* gc-elapsed))))
 
 (add-hook 'post-gc-hook #'zmacs-gc-info)

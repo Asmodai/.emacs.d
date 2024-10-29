@@ -1,10 +1,10 @@
-;;; zmacs-dark-theme.el --- ZMACS dark theme  -*- mode: emacs-lisp; lexical-binding: t; -*-
+;;; zmacs-prog-js.el --- JavaScript packages  -*- mode: emacs-lisp; lexical-binding: t; -*-
 ;;
 ;; Copyright (c) 2024 Paul Ward <paul@lisphacker.uk>
 ;;
 ;; Author:     Paul Ward <paul@lisphacker.uk>
 ;; Maintainer: Paul Ward <paul@lisphacker.uk>
-;; Created:    20 Oct 2024 22:18:50
+;; Created:    28 Oct 2024 10:21:34
 ;; URL:        not distributed yet
 ;;
 ;; This file is not part of GNU Emacs.
@@ -26,15 +26,25 @@
 ;;
 ;;
 
-(require 'zmacs-themes)
+;;; Code:
 
-(deftheme zmacs-dark
-  "ZMACS Dark theme.")
+(eval-when-compile
+  (require 'cl-lib))
 
-(zmacs-themes-create 'dark 'zmacs-dark)
-(run-hooks 'zmacs-themes-after-load-theme-hook)
-(provide-theme 'zmacs-dark)
+;;;; Vue package:
 
-(provide 'zmacs-dark-theme)
+(use-package vue-mode
+  :defer t
+  :ensure t
+  :custom
+  (js-indent-level 2))
 
-;;; zmacs-dark-theme.el ends here.
+;;;; TypeScript:
+
+(use-package typescript-ts-mode
+  :ensure nil
+  :hook (tsx-ts-mode . sgml-electric-tag-pair-mode))
+
+(provide 'zmacs-prog-js)
+
+;;; zmacs-prog-js.el ends here.

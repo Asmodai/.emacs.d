@@ -1,10 +1,10 @@
-;;; zmacs-dark-theme.el --- ZMACS dark theme  -*- mode: emacs-lisp; lexical-binding: t; -*-
+;;; zmacs-prog-yaml.el --- YAML packages  -*- mode: emacs-lisp; lexical-binding: t; -*-
 ;;
 ;; Copyright (c) 2024 Paul Ward <paul@lisphacker.uk>
 ;;
 ;; Author:     Paul Ward <paul@lisphacker.uk>
 ;; Maintainer: Paul Ward <paul@lisphacker.uk>
-;; Created:    20 Oct 2024 22:18:50
+;; Created:    28 Oct 2024 10:49:05
 ;; URL:        not distributed yet
 ;;
 ;; This file is not part of GNU Emacs.
@@ -26,15 +26,27 @@
 ;;
 ;;
 
-(require 'zmacs-themes)
+;;; Code:
 
-(deftheme zmacs-dark
-  "ZMACS Dark theme.")
+(eval-when-compile
+  (require 'cl-lib))
 
-(zmacs-themes-create 'dark 'zmacs-dark)
-(run-hooks 'zmacs-themes-after-load-theme-hook)
-(provide-theme 'zmacs-dark)
+;;;; YAML mode
 
-(provide 'zmacs-dark-theme)
+(use-package yaml-mode
+  :ensure t
+  :defer t)
 
-;;; zmacs-dark-theme.el ends here.
+;;;; YAML Pro:
+
+(use-package yaml-pro
+  :ensure t
+  :defer t
+  :after yaml-mode
+  :hook (yaml-mode . yaml-pro-mode))
+
+;;;; Provide package:
+
+(provide 'zmacs-prog-yaml)
+
+;;; zmacs-prog-yaml.el ends here.

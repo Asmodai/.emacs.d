@@ -31,6 +31,8 @@
 (require 'cl-lib)
 (require 'zlisp-platform)
 
+;;;; Main package:
+
 (use-package dired
   :ensure nil
   :commands (dired
@@ -67,16 +69,24 @@
 
   (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode))
 
+;;;; Narrow:
+
 (use-package dired-narrow
   :bind* (:map dired-mode-map
-               ("/" . dired-narrow)))
+          ("/" . dired-narrow)))
+
+;;;; Quick sort:
 
 (use-package dired-quick-sort
   :bind* (:map dired-mode-map
-               ("s" . hydra-dired-quick-sort/body)))
+          ("s" . hydra-dired-quick-sort/body)))
+
+;;;; Dired font lock:
 
 (use-package diredfl
   :hook (diredom.de . diredfl-global-mode))
+
+;;;; Peep:
 
 (use-package peep-dired
   :after dired
@@ -101,12 +111,14 @@
   (setq peep-dired-enable-on-directories t)
   (setq peep-dired-cleanup-on-disable t))
 
+;;;; Ranger:
+
 (use-package dired-ranger
   :after dired
   :bind (:map dired-mode-map
-              ("s-c" . dired-ranger-copy)
-              ("s-m" . dired-ranger-move)
-              ("s-v" . dired-ranger-paste)))
+         ("s-c" . dired-ranger-copy)
+         ("s-m" . dired-ranger-move)
+         ("s-v" . dired-ranger-paste)))
 
 ;; Allow for cycling from bottom to top of dired buffer and vice versa
 (add-hook 'dired-mode-hook
@@ -124,6 +136,8 @@
                               (goto-line (count-lines
                                           (point-min)
                                           (point-max))))))))
+
+;;;; Provide package:
 
 (provide 'zmacs-dired)
 

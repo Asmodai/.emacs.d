@@ -31,26 +31,21 @@
 (eval-when-compile
   (require 'cl-lib))
 
-;;;===================================================================
-;;;{{{ Dialogs, menus and popups:
+;;;; Dialogs, menus and popups:
 
-;;; No file dialog.
+;; No file dialog.
 (setq use-file-dialog nil)
 
-;;; No dialog boxes.
+;; No dialog boxes.
 (setq use-dialog-box nil)
 
-;;; No confirmation for visiting non-existent files.
+;; No confirmation for visiting non-existent files.
 (setq confirm-nonexistent-file-or-buffer nil)
 
 ;;(setq-default pop-up-windows nil)
 ;;(setq-default pop-up-frames nil)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Hydra:
+;;;; Hydra:
 
 (use-package hydra
   :defer 1
@@ -58,11 +53,7 @@
   (advice-remove 'find-function-search-for-symbol
                  #'hydra--around-find-function-search-for-symbol-advice))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Transient menues:
+;;;; Transient menues:
 
 (use-package transient
   :ensure nil
@@ -81,33 +72,21 @@
                                      (window-parameters
                                       (no-other-window .t)))))
 
-;;;}}}
-;;;===================================================================
+;;;; Menu bar:
 
-;;;===================================================================
-;;;{{{ Menu bar:
-
-;;; Use a menu bar when using a windowing system of some sort.
+;; Use a menu bar when using a windowing system of some sort.
 (if (display-graphic-p)
     (customize-set-variable 'menu-bar-mode t)
   (customize-set-variable 'menu-bar-mode nil))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Help focus:
+;;;; Help focus:
 
 (use-package help
   :ensure nil
   :custom
   (help-window-select 't))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Help at point:
+;;;; Help at point:
 
 (use-package help-at-pt
   :ensure nil
@@ -115,11 +94,7 @@
   (help-at-pt-timer-delay 0.1)
   (help-at-pt-display-when-idle '(flymake-diagnostic)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Helpful:
+;;;; Helpful:
 
 (use-package helpful
   :bind (;; Remap standard commands.
@@ -133,31 +108,19 @@
          ;; Display file commentary section
          ("C-h C-c"                  . finder-commentary)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Emacs Lisp demos:
+;;;; Emacs Lisp demos:
 
 (use-package elisp-demos
   :defer t
   :config
   (advice-add 'helpful-update :after #'elisp-demos-advice-helpful-update))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Better Info:
+;;;; Better Info:
 
 (use-package info-colors
   :hook (Info-selection . info-colors.fontify-node))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Help transient:
+;;;; Help transient:
 
 (with-eval-after-load 'transient
   (bind-key (concat "C-c C-SPC" " h") 'zmacs-help-transient)
@@ -204,11 +167,7 @@
     [["External"
       ("W" "Dictionary" dictionary-lookup-definition)]]))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Completing-Read info:
+;;;; Completing-Read info:
 
 (defvar Info-directory-list)
 (defvar Info-additional-directory-list)
@@ -402,8 +361,7 @@ If TOP-NODE is provided, then just select from its sub-nodes."
 ;; Bind keys for completing-read-info
 (bind-key "C-h I" #'completing-read-info)
 
-;;;}}}
-;;;===================================================================
+;;;; Provide package:
 
 (provide 'zmacs-help)
 

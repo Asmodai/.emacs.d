@@ -48,6 +48,12 @@
   :defer t
   :after yasnippet)
 
+;;;; Paredit:
+
+(use-package paredit
+  :ensure t
+  :hook (common-lisp-mode . paredit-mode))
+
 ;;;; Tags:
 
 (use-package ggtags
@@ -58,7 +64,6 @@
 
 ;;;; Rainbow delimiters:
 
-;; TODO: This can go, it should be loaded elsewhere.
 (use-package rainbow-identifiers
   :defer t
   :config
@@ -88,10 +93,9 @@
   :config
   (sly-setup)
   (setq-default sly-mrepl-pop-sylvester nil)
-  (add-hook 'sly-mrepl-mode-hook      #'zmacs::deactivate-smartparens)
-  (add-hook 'sly-inspector-mode-hook  #'visual-line-mode)
-  ;;(add-hook 'sly-mrepl-mode-hook      #'company-mode)
-  )
+  (add-hook 'sly-mrepl-mode-hook      #'zmacs-deactivate-smartparens)
+  (add-hook 'sly-mrepl-mode-hook      #'zmacs-deactivate-paredit)
+  (add-hook 'sly-inspector-mode-hook  'visual-line-mode))
 
 (use-package sly-asdf             :after sly :ensure t)
 (use-package sly-named-readtables :after sly :ensure t)

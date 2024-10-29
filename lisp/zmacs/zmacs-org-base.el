@@ -31,27 +31,18 @@
 (require 'cl-lib)
 (require 'zlisp-platform)
 
-;;;===================================================================
-;;;{{{ Emoji cheat sheet:
+;;;; Emoji cheat sheet:
 
 (use-package emoji-cheat-sheet-plus
   :defer t)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ HTMLize:
+;;;; HTMLize:
 
 (use-package htmlize
   :defer t
   :commands (htmlize-buffer))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Org Babel:
+;;;; Org Babel:
 
 (use-package ob
   :ensure nil
@@ -63,11 +54,7 @@
     (advice-remove 'org-babel-excecute-src-block
                    'org-babel-execute-src-block@load-lang)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Main package:
+;;;; Main package:
 
 (use-package org
   :ensure t
@@ -164,11 +151,7 @@
                              (org-table-header-line-mode 1)
                              (visual-line-mode 1))))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Org Contrib:
+;;;; Org Contrib:
 
 (use-package org-contrib
   :ensure t
@@ -178,11 +161,7 @@
   (require 'ox-extra)
   (ox-extras-activate '(ignore-headlines)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Org Export:
+;;;; Org Export:
 
 (use-package ox
   :ensure nil
@@ -206,11 +185,7 @@
                                      md))
   (org-odt-preferred-output-format "docx"))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Org Agenda:
+;;;; Org Agenda:
 
 (use-package org-agenda
   :ensure nil
@@ -313,12 +288,14 @@
               (org-agenda-files org-agenda-files))))))))
 
 ;;;;; Agenda Jump to Dashboard
+
 (defun zmacs-jump-to-org-dashboard ()
   (interactive)
   (require 'org)
   (org-agenda nil "d"))
 
 ;;;;; Agenda Refresh
+
 ;; automatically refresh the agenda after adding a task
 (defun zmacs-org-agenda-refresh ()
   (interactive)
@@ -329,6 +306,7 @@
 (add-hook 'org-capture-after-finalize-hook 'zmacs-org-agenda-refresh)
 
 ;;;;; Hydra for Agenda
+
 ;; Hydra for org agenda (graciously offered by Spacemacs)
 (with-eval-after-load 'org-agenda
   (defhydra zmacs-hydra-org-agenda (:color pink :hint none)
@@ -408,11 +386,7 @@ _vr_ reset      ^^                       ^^                 ^^
     ("." org-agenda-goto-today)
     ("gr" org-agenda-redo)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Org Id:
+;;;; Org Id:
 
 (use-package org-id
   :ensure nil
@@ -422,11 +396,7 @@ _vr_ reset      ^^                       ^^                 ^^
   (org-id-method 'ts) ;; use timestamp for id
   (org-id-link-to-org-use-id 'create-if-interactive))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Org modules:
+;;;; Org modules:
 
 (with-eval-after-load 'org
   (add-to-list 'org-modules 'org-habit t)
@@ -436,41 +406,29 @@ _vr_ reset      ^^                       ^^                 ^^
   (when (zlisp-macos-p)
     (add-to-list 'org-modules 'org-mac-link t)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Inline tasks:
+;;;; Inline tasks:
 
 (use-package org-inlinetask
   :ensure nil
   :commands org-inlinetask-insert-task)
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Tempo:
+;;;; Tempo:
 
 (use-package org-tempo
   :ensure nil
   :config
   (require 'org-tempo))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Org Archive:
+;;;; Org Archive:
 
 (setq org-archive-location (concat *zmacs-org-directory*
                                    "/org-archive/archived.org::datetree/"))
 
-;;; Also tell org how to archive all the done tasks (DONE or CANCELED) in a
-;;; file.
-;;; From https://changelog.complete.org/archives/9877-emacs-3-more-on-org-mode
-;;; Based on a stack overflow answer.
-;;; See https://stackoverflow.com/a/27043756
+;; Also tell org how to archive all the done tasks (DONE or CANCELED) in a
+;; file.
+;; From https://changelog.complete.org/archives/9877-emacs-3-more-on-org-mode
+;; Based on a stack overflow answer.
+;; See https://stackoverflow.com/a/27043756
 (defun zmacs-org-archive-done-tasks ()
   (interactive)
   (org-map-entries
@@ -484,16 +442,12 @@ _vr_ reset      ^^                       ^^                 ^^
      (setq org-map-continue-from (outline-previous-heading)))
    "/CANCELED" 'file))
 
-;;;}}}
-;;;===================================================================
+;;;; Org Refile:
 
-;;;===================================================================
-;;;{{{ Org Refile:
-
-;;; With the below settings, you can trigger Refile with C-c C-w in any Org file
-;;; and get a completing read of all headings up to three levels deep in all
-;;; files in org-agenda-files. You can also refile to the top header in a
-;;; document and create new parents.
+;; With the below settings, you can trigger Refile with C-c C-w in any Org file
+;; and get a completing read of all headings up to three levels deep in all
+;; files in org-agenda-files. You can also refile to the top header in a
+;; document and create new parents.
 (use-package org-refile
   :ensure nil
   :after org
@@ -512,11 +466,7 @@ _vr_ reset      ^^                       ^^                 ^^
                           ("\\.pdf\\'" . emacs)
                           (auto-mode . emacs)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Org Functions:
+;;;; Org Functions:
 
 (defun org-emphasize-dwim (&optional char)
   (interactive)
@@ -1018,7 +968,7 @@ and 0 means insert a single space in between the headline and the tags."
                                `(space . (:align-to ,align-expr)))))))))
 
 (defun zmacs-fix-tag-alignment ()
-  (setq org-tags-column 70) ;; adjust this
+  (setq org-tags-column 60) ;; adjust this
   (advice-add 'org--align-tags-here :override #'zmacs--align-tags-here)
   ;; this is needed to make it work with https://github.com/minad/org-modern:
   (add-to-list 'char-property-alias-alist '(display my-display))
@@ -1032,8 +982,7 @@ and 0 means insert a single space in between the headline and the tags."
 (add-hook 'org-mode-hook #'zmacs-fix-tag-alignment)
 (add-hook 'org-after-todo-statistics-hook #'zmacs-summary-todo)
 
-;;;}}}
-;;;===================================================================
+;;;; Provide package:
 
 (provide 'zmacs-org-base)
 

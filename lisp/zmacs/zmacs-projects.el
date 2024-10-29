@@ -81,6 +81,8 @@
           (project-current-inhibit-prompt t))
       (call-interactively #'project-find-file))))
 
+;;;; Bookmarks:
+
 (use-package bookmark
   :ensure nil
   :defer 2
@@ -96,6 +98,15 @@
     (setq default-directory project-dir)
     (let ((pr (project--find-in-directory default-directory)))
       (project-remember-project pr))))
+
+;;;; Breadcrumbs:
+
+(use-package breadcrumb
+  :ensure t
+  :vc (:fetcher github
+       :repo joaotavora/breadcrumb)
+  :init
+  (breadcrumb-mode))
 
 ;;;; Define package:
 

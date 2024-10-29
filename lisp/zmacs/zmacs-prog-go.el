@@ -74,8 +74,8 @@
 (defun zmacs--go-setup-format ()
   "Conditionally set up formatting on save."
   (if zmacs-go-format-before-save
-      (add-hook 'before-save-hook #'gofmt-before-save)
-    (remove-hook 'before-save-hook #'gofmt-before-save)))
+      (add-hook 'before-save-hook 'gofmt-before-save)
+    (remove-hook 'before-save-hook 'gofmt-before-save)))
 
 (defun zmacs--go-packages-gopkgs ()
   "Return a list of all Go packages using `gopkgs'."

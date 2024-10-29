@@ -75,41 +75,6 @@
 (use-package overseer
   :defer t)
 
-;;;; Smart parentheses.
-(use-package smartparens
-  :defer t
-  :init
-  (progn
-    (setq sp-show-pair-delay
-          ;; Use this form to allow users to override this setting from
-          ;; dotspacemacs/user-init
-          (or (bound-and-true-p sp-show-pair-delay) 0.2)
-          ;; fix paren highlighting in normal mode
-          sp-show-pair-from-inside t
-          sp-cancel-autoskip-on-backward-movement nil
-          sp-highlight-pair-overlay nil
-          sp-highlight-wrap-overlay nil
-          sp-highlight-wrap-tag-overlay nil))
-  :config
-  (progn
-    (require 'smartparens-config)
-    (show-smartparens-global-mode +1)
-    (zmacs-diminish smartparens-mode " 🄪" " SP")))
-
-(defun zmacs-deactivate-smartparens (&optional global)
-  "Deactivate `smartparens-mode' and `smartparens-strict-mode'.
-
-If GLOBAL is non-NIL then we work on the global modes."
-  (if global
-      (progn
-        (when smartparens-global-strict-mode
-          (smartparens-global-strict-mode -1))
-        (smartparens-global-mode -1))
-    (when (and (boundp 'smartparens-strict-mode)
-               smartparens-strict-mode)
-      (smartparens-strict-mode -1))
-    (smartparens-mode -1)))
-
 ;;;; EDebug:
 
 (use-package edebug
@@ -150,6 +115,14 @@ If GLOBAL is non-NIL then we work on the global modes."
   (global-dash-fontify-mode)
   (with-eval-after-load 'info-look
     (dash-register-info-lookup)))
+
+;;;; Hooks:
+
+(add-hook 'emacs-lisp-mode 'electric-pair-mode)
+(add-hook 'lisp-mode       'electric-pair-mode)
+
+(add-hook 'lisp-interaction-mode #'zmacs-deactivate-smartparens)
+(add-hook 'lisp-interaction-hook #'zmacs-deactivate-paredit)
 
 ;;;; Define package:
 

@@ -701,7 +701,7 @@ This fixes an overlapping issue, that occurs when ZMACS is started in a
 ;;;; Global modes:
 
 (global-eldoc-mode 1)
-(electric-pair-mode 1)
+;;(electric-pair-mode 1)
 (column-number-mode 1)
 (visual-line-mode 0)
 

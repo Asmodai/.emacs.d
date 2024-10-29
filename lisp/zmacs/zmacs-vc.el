@@ -31,8 +31,7 @@
 (require 'cl-lib)
 (require 'ediff)
 
-;;;===================================================================
-;;;{{{ VC:
+;;;; VC:
 
 (use-package vc
   :ensure nil
@@ -54,11 +53,7 @@
   :config
   (setq vc-annotate-display-mode 'scale))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Magit:
+;;;; Magit:
 
 (use-package magit
   :commands (magit-blame-mode
@@ -91,11 +86,7 @@
   (add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Difference highlighting:
+;;;; Difference highlighting:
 
 (use-package diff-hl
   :defer nil
@@ -133,11 +124,7 @@
   (define-fringe-bitmap 'diff-hl-delete
     [#b00000011] nil nil '(center repeated)))
 
-;;;}}}
-;;;===================================================================
-
-;;;===================================================================
-;;;{{{ Diff files with Vdiff:
+;;;; Diff files with Vdiff:
 
 (use-package vdiff-magit
   :defer t
@@ -152,8 +139,7 @@
 
 (setq ediff-window-setup-function #'ediff-setup-windows-plain)
 
-;;;}}}
-;;;===================================================================
+;;;; Provide package:
 
 (provide 'zmacs-vc)
 
