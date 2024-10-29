@@ -7,11 +7,11 @@
 // Author:     (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>WORK_AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
 // Maintainer: (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>WORK_AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
 
-;; *** Comments:
-;;
-;;
+// *** Comments:
+//
+//
 
-;; *** Code:
+// *** Code:
 
 (>>>POINT<<<)
 
