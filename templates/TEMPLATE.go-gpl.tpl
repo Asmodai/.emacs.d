@@ -20,14 +20,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, see <http://www.gnu.org/licenses/>.
 
-// *** Comments:
+// * Comments:
 //
 //
 
-// *** Code:
+// * Code:
 
 (>>>POINT<<<)
 
-/* (>>>FILE<<<) ends here. */
+// * (>>>FILE<<<) ends here.
 >>>TEMPLATE-DEFINITION-SECTION<<<
 ("TITLE" "Enter a description for this file: " "" "" "")

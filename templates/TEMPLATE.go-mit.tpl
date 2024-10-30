@@ -27,14 +27,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// *** Comments:
+// * Comments:
 //
 //
 
-// *** Code:
+// * Code:
 
 (>>>POINT<<<)
 
-// (>>>FILE<<<) ends here.
+// * (>>>FILE<<<) ends here.
 >>>TEMPLATE-DEFINITION-SECTION<<<
 ("TITLE" "Enter a description for this file: " "" "" "")

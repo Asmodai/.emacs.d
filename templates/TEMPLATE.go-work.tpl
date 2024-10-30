@@ -7,14 +7,14 @@
 // Author:     (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>WORK_AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
 // Maintainer: (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>WORK_AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
 
-// *** Comments:
+// * Comments:
 //
 //
 
-// *** Code:
+// * Code:
 
 (>>>POINT<<<)
 
-// (>>>FILE<<<) ends here.
+// * (>>>FILE<<<) ends here.
 >>>TEMPLATE-DEFINITION-SECTION<<<
 ("TITLE" "Enter a description for this file: " "" "" "")
