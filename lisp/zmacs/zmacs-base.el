@@ -345,7 +345,7 @@ This fixes an overlapping issue, that occurs when ZMACS is started in a
   ;; .. ability to go far back in history can be useful, modern systems have
   ;; sufficient memory.
   ;; Limit of 64mb.
-  (setq undo-limit 6710886400)
+  (setq undo-limit 67108864)
   ;; Strong limit of 1.5x (96mb)
   (setq undo-strong-limit 100663296)
   ;; Outer limit of 10x (960mb).
