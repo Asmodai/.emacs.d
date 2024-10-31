@@ -36,8 +36,8 @@
 This function aims to put enough 90-column windows to use up the entire frame
 real-estate."
   (interactive)
-  (let ((cols (1- (floor (/ (frame-width)  90)))))
-    (when (> cols 1)
+  (let ((cols (1- (floor (/ (frame-width) 90)))))
+    (when (> cols 0)
       (balance-windows)
       (delete-other-windows)
       (dotimes (_ cols)
