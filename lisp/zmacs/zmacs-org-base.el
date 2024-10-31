@@ -58,6 +58,7 @@
 
 (use-package org
   :ensure t
+  :defer t
   :commands (org-mode
              orgtbl-mode)
   :mode (("\\.org$" . org-mode))
@@ -150,6 +151,15 @@
                              (org-indent-mode 1)
                              (org-table-header-line-mode 1)
                              (visual-line-mode 1))))
+
+;;;; ZLisp org:
+
+(use-package zlisp-org
+  :after org
+  :ensure nil
+  :defer t
+  :config
+  (require 'zlisp-org))
 
 ;;;; Org Contrib:
 
@@ -403,7 +413,7 @@ _vr_ reset      ^^                       ^^                 ^^
   (add-to-list 'org-modules 'org-tempo t)
   (add-to-list 'org-modules 'org-protocol t)
 
-  (when (zlisp-macos-p)
+  (when (zlisp/macos-p)
     (add-to-list 'org-modules 'org-mac-link t)))
 
 ;;;; Inline tasks:

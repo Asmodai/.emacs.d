@@ -39,7 +39,7 @@
               '((:gopls . ((staticcheck . t)
                            (matcher     . "CaseSensitive")))))
 
-(let ((gopls (cond ((zlisp-unix-p)
+(let ((gopls (cond ((zlisp/unix-p)
                     (expand-file-name
                      (concat zmacs-projects-directory "Go/bin/gopls")))
                    (t
@@ -151,6 +151,8 @@
   (go-packages-function 'zlisp/go-packages-gopkgs)
   :config
   (progn
+    (require 'zlisp-go)
+
     (add-hook 'go-mode-local-vars-hook 'zlisp/go-setup-tab-width)
     (add-hook 'go-mode-local-vars-hook 'zlisp/go-setup-format)
     (add-hook 'go-mode-local-vars-hook 'zlisp/go-enable-flycheck-golangci-lint)

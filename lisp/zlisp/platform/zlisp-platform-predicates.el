@@ -32,7 +32,7 @@
   (require 'cl-lib))
 
 (eval-when-compile
-  (defvar *zlisp-system-type*
+  (defvar zlisp-system-type
     (cond ((memq system-type '(ms-windows win386)) :windows)
           ((eq system-type 'windows-nt)            :windows-nt)
           ((eq system-type 'gnu/linux)             :gnu/linux)
@@ -43,52 +43,52 @@
           (t                                       :unix))
     "The host system."))
 
-(defsubst zlisp-windows-32-p ()
+(defsubst zlisp/windows-32-p ()
   "T if we are running on a non-NT version of Windows."
-  (eq *zlisp-system-type* :windows))
+  (eq zlisp-system-type :windows))
 
-(defsubst zlisp-windows-nt-p ()
+(defsubst zlisp/windows-nt-p ()
   "T if we are running on Windows NT."
-  (eq *zlisp-system-type* :windows-nt))
+  (eq zlisp-system-type :windows-nt))
 
-(defsubst zlisp-windows-p ()
+(defsubst zlisp/windows-p ()
   "T if we are running on some sort of Windows."
-  (or (zlisp-windows-nt-p)
-      (zlisp-windows-32-p)))
+  (or (zlisp/windows-nt-p)
+      (zlisp/windows-32-p)))
 
-(defsubst zlisp-gnu/linux-p ()
+(defsubst zlisp/gnu/linux-p ()
   "T if we are running on a GNU/Linux system."
-  (eq *zlisp-system-type* :gnu/linux))
+  (eq zlisp-system-type :gnu/linux))
 
-(defsubst zlisp-gnu-hurd-p ()
+(defsubst zlisp/gnu-hurd-p ()
   "T if we are running on a GNU Hurd system."
-  (eq *zlisp-system-type* :gnu-hurd))
+  (eq zlisp-system-type :gnu-hurd))
 
-(defsubst zlisp-gnu/kfreebsd-p ()
+(defsubst zlisp/gnu/kfreebsd-p ()
   "T if we are running on GNU/kFreeBSD."
-  (eq *zlisp-system-type* :gnu/kfreebsd))
+  (eq zlisp-system-type :gnu/kfreebsd))
 
-(defsubst zlisp-darwin-p ()
+(defsubst zlisp/darwin-p ()
   "T if we are running on macOS or Darwin."
-  (eq *zlisp-system-type* :darwin))
+  (eq zlisp-system-type :darwin))
 
-(defsubst zlisp-macos-p ()
+(defsubst zlisp/macos-p ()
   "T if we are running on macOS."
-  (and (zlisp-darwin-p)
+  (and (zlisp/darwin-p)
        (memq window-system '(mac ns))))
 
-(defsubst zlisp-bsd-p ()
+(defsubst zlisp/bsd-p ()
   "T if we are running on a BSD of some kind."
-  (or (eq *zlisp-system-type* :bsd)
-      (zlisp-gnu/kfreebsd-p)))
+  (or (eq zlisp-system-type :bsd)
+      (zlisp/gnu/kfreebsd-p)))
 
-(defsubst zlisp-unix-p ()
+(defsubst zlisp/unix-p ()
   "T if we are running on some kind of Unix system."
-  (or (zlisp-gnu/linux-p)
-      (zlisp-gnu-hurd-p)
-      (zlisp-bsd-p)
-      (zlisp-macos-p)
-      (eq *zlisp-system-type* :unix)))
+  (or (zlisp/gnu/linux-p)
+      (zlisp/gnu-hurd-p)
+      (zlisp/bsd-p)
+      (zlisp/macos-p)
+      (eq zlisp-system-type :unix)))
 
 (provide 'zlisp-platform-predicates)
 

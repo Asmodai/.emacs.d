@@ -31,81 +31,78 @@
 (require 'cl-lib)
 (require 'zlisp-platform)
 
-;;;; Main package:
+;;;; Dired:
 
 (use-package dired
   :ensure nil
+  :demand t
   :commands (dired
              dired-jump
              dired-jump-other-window)
   :bind (:map dired-mode-map
-         ("1" . dired-find-alternate-file)
-         ("2" . zmacs-dired-updirectory))
+         ("1" . dired-find-alternate-file))
   :config
-  (defun zmacs-dired-updirectory ()
-    (interactive)
-    (find-alternate-file ".."))
+  (progn
 
-  (when (zlisp-macos-p)
-    (setq dired-use-ls-dired nil)
-    (when (executable-find "gls")
-      (setq insert-directory-program "gls")))
+    (when (zlisp/macos-p)
+      (setq dired-use-ls-dired nil)
+      (when (executable-find "gls")
+        (setq insert-directory-program "gls")))
 
-  (when (or (and (zlisp-macos-p)
-                 (executable-find "gls"))
-            (and (not (zlisp-macos-p))
-                 (executable-find "ls")))
-    (setq ls-lisp-use-insert-directory-program t)
-    (setq dired-listing-switches "-laFh1v --group-directories-first"))
+    (when (or (and (zlisp/macos-p)
+                   (executable-find "gls"))
+              (and (not (zlisp/macos-p))
+                   (executable-find "ls")))
+      (setq ls-lisp-use-insert-directory-program t)
+      (setq dired-listing-switches "-laFh1v --group-directories-first"))
 
-  (setq dired-ls-F-marks-symlinks t
-        dired-clean-confirm-killing-deleted-buffers nil
-        dired-recursive-copies 'always
-        dired-recursive-deletes 'always
-        dired-deletion-confirmer 'y-or-n-p
-        dired-dwim-target t
-        wdired-allow-to-change-permissions t
-        dired-guess-shell-alist-user '(("\.pdf$" . default)))
+    (setq dired-ls-F-marks-symlinks t
+          dired-clean-confirm-killing-deleted-buffers nil
+          dired-recursive-copies 'always
+          dired-recursive-deletes 'always
+          dired-deletion-confirmer 'y-or-n-p
+          dired-dwim-target t
+          wdired-allow-to-change-permissions t
+          dired-guess-shell-alist-user '(("\.pdf$" . default)))
 
-  (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode))
+    (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode)))
 
 ;;;; Narrow:
 
 (use-package dired-narrow
+  :demand t
+  :after dired
   :bind* (:map dired-mode-map
           ("/" . dired-narrow)))
 
 ;;;; Quick sort:
 
 (use-package dired-quick-sort
+  :demand t
+  :after dired
   :bind* (:map dired-mode-map
           ("s" . hydra-dired-quick-sort/body)))
 
 ;;;; Dired font lock:
 
 (use-package diredfl
+  :demand t
+  :after dired
   :hook (diredom.de . diredfl-global-mode))
 
 ;;;; Peep:
 
 (use-package peep-dired
   :after dired
+  :defer nil
+  :demand t
   :commands (peep-dired)
   :bind* (:map dired-mode-map
           ("P" . peep-dired)
           :map peep-dired-mode-map
           ("j"   . peep-dired-next-file)
-          ("k"   . peep-dired-prev-file)
-          ("RET" . zmacs-peep-dired-open)
-          ("TAB" . zmacs-other-window))
+          ("k"   . peep-dired-prev-file))
   :config
-  (defun zmacs-peep-dired-open ()
-    "Open files from peep-dired and clean up."
-    (interactive)
-    (peep-dired-kill-buffers-without-window)
-    (dired-find-file)
-    (delete-other-windows))
-
   (setq peep-dired-ignored-extensions '("mkv" "iso" "mp4" "pdf" "gif"))
   (setq peep-dired-cleanup-eagerly nil)
   (setq peep-dired-enable-on-directories t)
@@ -115,27 +112,27 @@
 
 (use-package dired-ranger
   :after dired
+  :demand t
   :bind (:map dired-mode-map
          ("s-c" . dired-ranger-copy)
          ("s-m" . dired-ranger-move)
          ("s-v" . dired-ranger-paste)))
 
-;; Allow for cycling from bottom to top of dired buffer and vice versa
-(add-hook 'dired-mode-hook
-            (defun zmacs-dired-wrap ()
-              "Cycle from bottom to top of buffer"
-              (make-local-variable 'post-command-hook)
-              (add-hook 'post-command-hook
-                        (defun zmacs--dired-wrap-1 ()
-                          ""
-                          (if (= 1 (save-excursion
-                                     (forward-line)))
-                              (goto-line 3))
-                          (if (= -1 (save-excursion
-                                      (forward-line -1)))
-                              (goto-line (count-lines
-                                          (point-min)
-                                          (point-max))))))))
+;;;; ZLisp dired:
+
+(use-package zlisp-dired
+  :ensure nil
+  :after dired
+  :demand t
+  :bind (:map dired-mode-map
+         ("2" . zlisp/dired-updirectory)
+         :map peep-dired-mode-map
+          ("RET" . zlisp/peep-dired-open)
+          ("TAB" . zlisp/other-window))
+  :config
+  (require 'zlisp-window)
+  (require 'zlisp-dired)
+  (add-hook 'dired-mode-hook 'zlisp/dired-wrap))
 
 ;;;; Provide package:
 

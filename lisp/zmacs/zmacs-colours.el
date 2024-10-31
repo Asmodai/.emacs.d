@@ -34,7 +34,7 @@
 ;;;; Colourspace:
 
 ;; Does this work outside of macOS?
-(zlisp-when-macos
+(zlisp/when-macos
  (setq-default ns-use-srgb-colorspace t))
 
 ;;;; Rainbow mode:

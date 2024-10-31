@@ -69,7 +69,7 @@
 
 ;;;; Titlebar hacks for macOS:
 
-(zlisp-when-macos
+(zlisp/when-macos
   (use-package ns-auto-titlebar
     :commands ns-auto-titlebar-mode
     :config (ns-auto-titlebar-mode)))

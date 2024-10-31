@@ -30,8 +30,9 @@
 
 (require 'cl-lib)
 (require 'dired)
+(require 'consult)
 
-(defun zlisp-setup-kill-and-archive-region ()
+(defun zlisp/setup-kill-and-archive-region ()
   "Delete and suspend a region to the end of zmacs-archive.el."
   (interactive)
   (append-to-file (region-beginning)
@@ -40,12 +41,12 @@
   (delete-region (region-beginning)
                  (region-end)))
 
-(defvar *zmacs-files-sources-data*
+(defvar zmacs--files-sources-data
   `(("Init Files"  ?i ,*zmacs-lisp-directory*))
   "Define titles, quick keys, and directories for ZMACS source files.")
 
-(defun zlisp--files-make-source (name char dir)
-  "Return a source list from NAME suitable for `consult--multi`."
+(defun zlisp//files-make-source (name char dir)
+  "Return a source list from NAME, CHAR, and DIR suitable for `consult--multi'."
   (let ((idir (propertize (file-name-as-directory dir) 'invisible t)))
     `(:name     ,name
       :narrow   ,char
@@ -55,22 +56,10 @@
                    (mapcar (lambda (f)
                              (concat idir f))
                            (directory-files dir nil "[^.].*[.].+")))
-      :action ,(lambda (f)
-                 (find-file f)))))
+      :action   ,(lambda (f)
+                   (find-file f)))))
 
-;;; BUG: requires "consult"
-(defun zlisp-find-zmacs-file ()
-  "Find a file from the list of ZMACS configuration files."
-  (interactive)
-  (require 'consult)
-  (consult--multi (mapcar #'(lambda (s)
-                              (apply 'zlisp--files-make-source s))
-                          *zmacs-files-sources-data*)
-                  :prompt "ZMACS-files: "
-                  :history 'file-name-history))
-
-;;; BUG: requires consult.
-(defun zlisp-search-zmacs-files ()
+(defun zlisp/search-zmacs-files ()
   "Search all ZMACS files with `consult-ripgrep'."
   (interactive)
   (require 'consult)
@@ -84,9 +73,7 @@
                                     "--no-heading"
                                     "--line-number"
                                     "--hidden"
-                                    "--glob=base/**"
-                                    "--glob=layers/**"
-                                    "--glob=extensions/**"
+                                    "--glob=lisp/**"
                                     "--glob=!straight"
                                     "--glob=!var"
                                     "--glob=!.git/ .")
@@ -95,34 +82,34 @@
         (consult-ripgrep user-emacs-directory)
       (message "Please install `rg' first."))))
 
-(defun zlisp-load-init-file ()
+(defun zlisp/load-init-file ()
   "Load the base init file."
   (interactive)
   (load-file (concat user-emacs-directory "init.el")))
 
-(defun zlisp-load-custom-file ()
+(defun zlisp/load-custom-file ()
   "Load custom.el."
   (interactive)
   (load-file (concat user-emacs-directory "custom.el")))
 
-(defun zlisp-search-in-input-dir ()
+(defun zlisp/search-in-input-dir ()
   "Search for a string in the input directory."
   (interactive)
   (let ((current-prefix-arg '(4)))
     (call-interactively #'consult-ripgrep)))
 
-(defun zlisp-get-string-from-file (filePath)
+(defun zlisp/get-string-from-file (filePath)
   "Read a file from FILEPATH and return the contents as a string."
   (with-temp-buffer
     (insert-file-contents filePath)
     (buffer-string)))
 
-(defun zlisp-duplicate-file ()
+(defun zlisp/duplicate-file ()
   "Duplicate a file."
   (interactive)
   (dired-do-copy-regexp "\\(.*\\)\\.\\(.*\\)" "\\1 (copy).\\2"))
 
-(defun zlisp-move-file ()
+(defun zlisp/move-file ()
   "Write this file to a new location, and delete the old one."
   (interactive)
   (let ((old-location (buffer-file-name)))
@@ -130,29 +117,11 @@
     (when old-location
       (delete-file old-location))))
 
-(defun make-parent-directory ()
-  "Make sure the directory of `buffer-file-name' exists."
+(defun zmacs/make-parent-directory ()
+  "Make sure the directory of function `buffer-file-name' exists."
   (make-directory (file-name-directory buffer-file-name) t))
 
-(add-hook 'find-file-not-found-functions #'make-parent-directory)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+(add-hook 'find-file-not-found-functions #'zmacs/make-parent-directory)
 
 (provide 'zlisp-files)
 

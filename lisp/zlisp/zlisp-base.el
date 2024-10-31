@@ -31,20 +31,18 @@
 (eval-when-compile
   (require 'cl-lib))
 
-(define-inline zlisp-xcons (x y)
+(define-inline zlisp/xcons (x y)
   `(cons ,x ,y))
 
-;;; Zetalisp `si:neq'
-(define-inline zlisp-neq (x y)
+(define-inline zlisp/neq (x y)
   `(not (eq ,x ,y)))
 
-(defun zlisp-mem (pred item list)
+(defun zlisp/mem (pred item list)
   (dolist (elt list)
     (and (funcall pred list (car elt))
          (return elt))))
 
-;;; Zetalisp `si:defprop'
-(define-inline zlisp-defprop (sym value indicator)
+(define-inline zlisp/defprop (sym value indicator)
   (when (not (symbolp sym))
     (error "%S is not a symbol." sym)
     `(setf (get ',sym ',indicator) ',value)))

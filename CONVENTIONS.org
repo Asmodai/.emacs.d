@@ -1,0 +1,44 @@
+#+TITLE: ZMACS Conventions
+#+AUTHOR: Paul Ward
+#+DATE: 29 Oct 2024
+
+* Code Guidelines
+:PROPERTIES:
+:CREATED:  [2024-10-29 06:27:55]
+:TOC:      :include all
+:END:
+** Functions and macros
+:PROPERTIES:
+:CREATED:  [2024-10-29 06:28:14]
+:TOC:      :include all
+:END:
+This is true for both =ZMACS= and =ZLISP=, just swap the identifier around.
+
+Symbol names follow these conventions:
+ * ~zmacs/...~ :: Public function.
+ * ~zmacs//...~ :: Private function.
+ * ~zmacs|...~ :: Public macro.
+ * ~zmacs||...~ :: Private macro.
+
+If a function is to be used with ~add-hook~ or ~add-to-list~ then it must be a public function.
+Likewise, if a function is added to a key mapping then it must be a public function.
+** Variables
+:PROPERTIES:
+:CREATED:  [2024-10-29 06:32:02]
+:TOC:      :include all
+:END:
+Variable names follow these conventions:
+ * ~zmacs-~ :: Public variable.
+ * ~zmacs--~ :: Private variable.
+
+Variables that are defined via ~defgroup~, ~defcustom~, ~defface~ et al must be defined as if they were public variables created via ~defvar~.
+** Constants
+:PROPERTIES:
+:CREATED:  [2024-10-29 06:38:56]
+:TOC:      :include all
+:END:
+Constant names must follow these conventions:
+ * ~zmacs!~ :: Public constant.
+ * ~zmacs!!~ :: Private constant.
+
+Something is considered "constant" if it is declared via ~defconst~.

@@ -49,7 +49,7 @@
 
 ;;;; Emacs bianry:
 
-(defun zlisp-macos-emacs-path ()
+(defun zlisp/macos-emacs-path ()
   (let ((app-wrapper "Emacs.app/Contents/MacOS/Emacs"))
     (or (executable-find (concat "/Applications/" app-wrapper))
         (executable-find (expand-file-name
@@ -58,7 +58,7 @@
 ;;;; macos path:
 
 ;; Support for Homebrew.
-(defun zlisp-macos-exec-path ()
+(defun zlisp/macos-exec-path ()
   "Check for any macOS-specific additions to `exec-path'."
   (when (file-exists-p "/opt/homebrew/bin")
     (message "ZMACS/macOS: Adding homebrew to `exec-path'.")

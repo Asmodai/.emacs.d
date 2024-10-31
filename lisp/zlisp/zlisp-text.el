@@ -30,63 +30,10 @@
 
 (require 'cl-lib)
 
-;;; BUG: needs org
-(defun zlisp-fill-paragraph ()
-  "If in an org buffer use `org-fill-paragraph'; else use `fill-paragraph'."
-  (interactive)
-  (if (derived-mode-p 'org-mode)
-      (call-interactively #'org-fill-paragraph)
-    (call-interactively #'fill-paragraph)))
-
-(global-set-key [remap fill-paragraph] #'zlisp-fill-paragraph)
-
-(defun zlisp-unfill-paragraph (&optional region)
-  "Takes a multi line paragraph and makes it into a single line of text."
-  (interactive (progn (barf-if-buffer-read-only) '(t)))
-  (let ((fill-column (point-max))
-        ;; This would override `fill-column' if it's an integer.
-        (emacs-lisp-docstring-fill-column t))
-    (fill-paragraph nil region)))
-
-(global-set-key (kbd "M-Q") #'zlisp-unfill-paragraph)
-
-;;; TODO: Teach this about other programming modes.
-(defun zlisp--insert-comment (title char)
-  (interactive)
-  (let* ((line (make-string 67 (string-to-char char)))
-         (start (if (member major-mode '(emacs-lisp-mode
-                                         lisp-mode
-                                         common-lisp-mode))
-                    ";;;"
-                  "// "))
-         (seperator (concat start line)))
-    (when (> (current-column) 0)
-      (end-of-line)
-      (newline))
-    (insert (format "%s\n%s{{{ %s:\n\n%s}}}\n%s"
-                    seperator
-                    start
-                    title
-                    start
-                    seperator))
-    (previous-line)))
-
-(defsubst zlisp-insert-group-comment ()
-  (interactive)
-  (zlisp--insert-comment "Group" "*"))
-
-(defsubst zlisp-insert-major-comment ()
-  (interactive)
-  (zlisp--insert-comment "Major" "="))
-
-(defsubst zlisp-insert-minor-comment ()
-  (interactive)
-  (zlisp--insert-comment "Minor" "-"))
-
-(defun has-space-at-boundary-p (string)
+(defun zlisp/has-space-at-boundary-p (string)
   "Check whether STRING has any whitespace on the boundary.
 
-Return 'left, 'right, 'both, or NIL."
+Return LEFT, RIGHT, BOTH, or NIL."
   (let ((result nil))
     (when (string-match-p "^[[:space:]]+" string)
       (setq result 'left))
@@ -96,9 +43,9 @@ Return 'left, 'right, 'both, or NIL."
         (setq result 'right)))
     result))
 
-(defun is-there-space-around-point-p ()
+(defun zlisp/is-there-space-around-point-p ()
   "Check whether there is whitespace around point.
-Returns 'left, 'right, 'both or NIL."
+Returns LEFT, RIGHT, BOTH or NIL."
   (let ((result nil))
     (when (< (save-excursion
                (skip-chars-backward "[:space:]"))
@@ -112,10 +59,10 @@ Returns 'left, 'right, 'both or NIL."
         (setq result 'right)))
     result))
 
-(defun set-point-before-yanking (string)
+(defun zlisp/set-point-before-yanking (string)
   "Put point in the appropriate place before yanking STRING."
-  (let ((space-in-yanked-string (has-space-at-boundary-p string))
-        (space-at-point (is-there-space-around-point-p)))
+  (let ((space-in-yanked-string (zlisp/has-space-at-boundary-p string))
+        (space-at-point (zlisp/is-there-space-around-point-p)))
     (cond ((and (eq space-in-yanked-string 'left)
                 (eq space-at-point 'left))
            (skip-chars-backward "[:space:]"))
@@ -123,15 +70,15 @@ Returns 'left, 'right, 'both or NIL."
                 (eq space-at-point 'right))
            (skip-chars-forward "[:space:]")))))
 
-(defun set-point-before-yanking-if-in-text-mode (string)
-  "Invoke `set-point-before-yanking' in text modes."
+(defun zlisp/set-point-before-yanking-if-in-text-mode (string)
+  "If in a mode derived from text mode, set point at STRING before yank."
   (when (derived-mode-p 'text-mode)
-    (set-point-before-yanking string)))
+    (zlisp/set-point-before-yanking string)))
 
 (advice-add 'insert-for-yank :before
-            #'set-point-before-yanking-if-in-text-mode)
+            #'zlisp/set-point-before-yanking-if-in-text-mode)
 
-(defun zlisp-yaml-wrap ()
+(defun zlisp/yaml-wrap ()
   "Wrap region in --- for a yaml block."
   (interactive)
   (let ((start (region-beginning))
@@ -141,8 +88,10 @@ Returns 'left, 'right, 'both or NIL."
     (goto-char start)
     (insert "---" "\n")))
 
-(defun zlisp-forward-or-backward-sexp (&optional arg)
-  "Go to the matching parenthesis character if one is adjacent to point."
+(defun zlisp/forward-or-backward-sexp (&optional arg)
+  "Go to the matching parenthesis character if one is adjacent to point.
+
+If ARG is provided, it will be used as an argument to `forward-sexp` et al."
   (interactive "^p")
   (cond ((looking-at "\\s(") (forward-sexp arg))
         ((looking-back "\\s)" 1) (backward-sexp arg))

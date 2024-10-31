@@ -30,6 +30,7 @@
 
 (require 'cl-lib)
 (require 'zlisp-platform)
+(require 'zlisp-frame)
 
 ;;;; Set initial size:
 
@@ -43,7 +44,9 @@
   :demand t
   :config
   (progn
-    (zlisp-get-emacs-binary)))
+    (require 'zlisp-platform)
+
+    (zlisp/get-emacs-binary)))
 
 ;;;; Early stuff that's done before anything else:
 
@@ -293,7 +296,9 @@ This fixes an overlapping issue, that occurs when ZMACS is started in a
 
 (use-package zlisp-time
   :ensure nil
-  :demand t)
+  :demand t
+  :init
+  (require 'zlisp-time))
 
 ;;;; Long lines:
 
@@ -340,17 +345,18 @@ This fixes an overlapping issue, that occurs when ZMACS is started in a
   ;; Don't group undo steps. Why?
   ;; .. without this it groups actions into a fixed number of steps which
   ;; feels unpredictable.
-  (fset 'undo-auto-amalgamate 'ignore)
+  ;;(fset 'undo-auto-amalgamate 'ignore)
   ;; Increase undo limits. Why?
   ;; .. ability to go far back in history can be useful, modern systems have
   ;; sufficient memory.
   ;; Limit of 64mb.
-  (setq undo-limit 67108864)
+  ;;(setq undo-limit 67108864)
   ;; Strong limit of 1.5x (96mb)
-  (setq undo-strong-limit 100663296)
+  ;;(setq undo-strong-limit 100663296)
   ;; Outer limit of 10x (960mb).
   ;; Note that the default is x100), but this seems too high.
-  (setq undo-outer-limit 1006632960))
+  ;;(setq undo-outer-limit 1006632960)
+  )
 
 ;;;; Undo Tree:
 
@@ -806,10 +812,10 @@ This fixes an overlapping issue, that occurs when ZMACS is started in a
 
 ;;;; macOS support:
 
-(zlisp-when-macos
+(zlisp/when-macos
   (message "ZMACS: Enabling macOS support.")
   (require 'zlisp-platform-macos)
-  (zlisp-macos-exec-path))
+  (zlisp/macos-exec-path))
 
 ;;;; Provide package:
 

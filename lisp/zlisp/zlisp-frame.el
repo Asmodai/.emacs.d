@@ -30,7 +30,52 @@
 
 (require 'cl-lib)
 
-(defun zlisp-delete-frame-or-quit ()
+(defun zlisp/make-split-windows-for-frame ()
+  "Evenly divide the current frame into 90-column windows.
+
+This function aims to put enough 90-column windows to use up the entire frame
+real-estate."
+  (interactive)
+  (let ((cols (1- (floor (/ (frame-width)  90)))))
+    (when (> cols 1)
+      (balance-windows)
+      (delete-other-windows)
+      (dotimes (_ cols)
+        (other-window 1)
+        (split-window-horizontally))
+      (other-window -1)
+      (balance-windows))))
+
+(defun zlisp/initial-frame-size ()
+  "Set initial frame and new frame sizes."
+  (when (display-graphic-p)
+    (let* ((max-w (display-pixel-width))
+           (max-h (display-pixel-height))
+           (new-w (/ (- max-w 200) (frame-char-width)))
+           (new-h (/ (- max-h 200) (frame-char-height))))
+      (modify-frame-parameters
+       nil
+       `((user-position . t)
+         (top           . 0.5)
+         (left          . 0.5)
+         (width         . ,new-w)
+         (height        . ,new-h)))
+      (add-to-list 'default-frame-alist
+                   (cons 'height (/ (- max-h 200)
+                                    (frame-char-height))))
+      (add-to-list 'default-frame-alist
+                   (cons 'width (/ (- max-w 200)
+                                   (frame-char-width)))))))
+
+(defun zlisp/recenter-frame ()
+  "Recenter the focused frame to the user's screen."
+  (interactive)
+  (modify-frame-parameters nil
+                           '((user-position . t)
+                             (top           . 0.5)
+                             (left          . 0.5))))
+
+(defun zlisp/delete-frame-or-quit ()
   "Delete the selected frame and kill terminal buffers.
 
 If it is the last frame, then Emacs is also killed."
@@ -40,107 +85,13 @@ If it is the last frame, then Emacs is also killed."
           (error (save-buffers-kill-emacs))))
   (select-frame-set-input-focus (selected-frame)))
 
-(defun zlisp-activate-capture-frame ()
+(defun zlisp/activate-capture-frame ()
   "Run `org-capture' in a capture frame."
   (progn
     (require 'org)
     (select-frame-by-name "capture")
     (switch-to-buffer (get-buffer-create "new"))
     (org-capture)))
-
-;;; Without sources, flymake doesn't know that `get-buffer-window' is in C.
-(defun zlisp-toggle-window-detected ()
-  "Toggle whether the current active window is detected or not."
-  (interactive)
-  (message
-   (if (let (window (get-buffer-window (current-buffer)))
-         (set-window-dedicated-p window (not (window-dedicated-p window))))
-       "Window '%s' is dedicated."
-     "Window '%s' is normal.")
-   (current-buffer)))
-
-;;; BUG: requires ace-window
-;;; BUG: requires aw-flip-window
-(defun zlisp-window-exchange-buffer ()
-  "Swap buffer in windows leaving focus in the original window."
-  (interactive)
-  (ace-swap-window)
-  (aw-flip-window))
-
-(defun zlisp-rotate-windows (count)
-  "Rotate your windows by COUNT.
-
-Dedicated windows are left untouched.
-Giving a negative prefix will result in rotation in the other direction."
-  (interactive "p")
-  (let* ((non-dedicated (cl-remove-if #'window-dedicated-p
-                                      (window-list)))
-         (num-windows (length non-dedicated))
-         (i 0)
-         (step (+ num-windows count)))
-    (cond ((not (> num-windows 1))
-           (message "You can't rotate a single window!"))
-          (t
-           (dotimes (_ (- num-windows 1))
-             (let* ((next-i (% (+ step 1) num-windows))
-                    (w1 (elt non-dedicated i))
-                    (w2 (elt non-dedicated next-i))
-
-                    (b1 (window-buffer w1))
-                    (b2 (window-buffer w2))
-
-                    (s1 (window-start w1))
-                    (s2 (window-start w2)))
-               (set-window-buffer w1 b2)
-               (set-window-buffer w2 b1)
-               (set-window-start w1 s2)
-               (set-window-start w2 s1)
-               (setq i next-i)))))))
-
-(defun zlisp-rotate-windows-backward (count)
-  "Rotate your windows the other direction by COUNT."
-  (interactive "p")
-  (zlisp-rotate-windows (* -1 count)))
-
-(defun zlisp-split-window-right-and-focus ()
-  "Split the window horizontally and focus the new window."
-  (interactive)
-  (require 'windmove)
-  (split-window-right)
-  (windmove-right))
-
-(defun zlisp-split-window-below-and-focus ()
-  "Split the window vertically and focus the new window."
-  (interactive)
-  (require 'windmove)
-  (split-window-below)
-  (windmove-down))
-
-(defun zlisp-toggle-window-split ()
-  "Move from a horizontal to a vertical split and vice versa."
-  (interactive)
-  (if (= (count-windows) 2)
-      (let* ((this-win-buffer (window-buffer))
-             (next-win-buffer (window-buffer (next-window)))
-             (this-win-edges (window-edges (selected-window)))
-             (next-win-edges (window-edges (next-window)))
-             (this-win-2nd (not (and (<= (car this-win-edges)
-                                         (car next-win-edges))
-                                     (<= (cadr this-win-edges)
-                                         (cadr next-win-edges)))))
-             (splitter
-              (if (= (car this-win-edges)
-                     (car (window-edges (next-window))))
-                  'split-window-horizontally
-                'split-window-vertically)))
-        (delete-other-windows)
-        (let ((first-win (selected-window)))
-          (funcall splitter)
-          (if this-win-2nd (other-window 1))
-          (set-window-buffer (selected-window) this-win-buffer)
-          (set-window-buffer (next-window) next-win-buffer)
-          (select-window first-win)
-          (if this-win-2nd (other-window 1))))))
 
 (provide 'zlisp-frame)
 

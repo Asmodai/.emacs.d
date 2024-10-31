@@ -36,24 +36,24 @@
 ;;;; Set *ZLISP-FEATURES*:
 
 (eval-when-compile
-  (cl-pushnew *zlisp-system-type* *zlisp-features*))
+  (cl-pushnew zlisp-system-type zlisp--features))
 
 ;;;; Guess at Emacs binary location:
 
-(defvar *zlisp-emacs-binary* nil
+(defvar zlisp--emacs-binary nil
   "The Emacs binary file used on this system.")
 
-(defun zlisp-get-emacs-binary ()
+(defun zlisp/get-emacs-binary ()
   "Attempt to work out what our binary is."
-  (zlisp-when-unix
-    (setq *zlisp-emacs-binary* (or (executable-find "/usr/bin/emacs")
-                                   (executable-find "/usr/local/bin/emacs"))))
-  (zlisp-when-macos
+  (zlisp/when-unix
+    (setq zlisp-emacs-binary (or (executable-find "/usr/bin/emacs")
+                                 (executable-find "/usr/local/bin/emacs"))))
+  (zlisp/when-macos
     (require 'zlisp-platform-macos)
-    (setq *zlisp-emacs-binary* (zlisp-macos-emacs-path)))
-  (zlisp-when-windows
+    (setq zlisp-emacs-binary (zlisp/macos-emacs-path)))
+  (zlisp/when-windows
     (require 'zlisp-platform-windows)
-    (setq *zlisp-emacs-binary "emacs.exe")))
+    (setq zlisp-emacs-binary "emacs.exe")))
 
 ;;;; Build description utlilities:
 
@@ -66,51 +66,28 @@
 ;;;; Home directory:
 
 ;;;###autoload
-(defun zlisp-get-home-directory ()
+(defun zlisp/get-home-directory ()
   "Return the path representing a users' home directory."
-  (cond ((zlisp-unix-p)
+  (cond ((zlisp/unix-p)
          (getenv "HOME"))
-        ((zlisp-windows-nt-p)
+        ((zlisp/windows-nt-p)
          (let ((dir (getenv "HOMEDIR")))
            (when (null dir)
              (setq dir (getenv "USERPROFILE")))
            dir))
-        ((zlisp-windows-32-p)
+        ((zlisp/windows-32-p)
          (let ((dir (getenv "HOME")))
            (when (null dir)
              (setq dir "C:\\"))
            dir))))
 
 ;;;###autoload
-(defvar user-home-directory (zlisp-get-home-directory)
+(defvar user-home-directory (zlisp/get-home-directory)
   "Directory containing the users' file on the current operating system.")
 
 (defun make-home-directory-path (pathspec)
   "Create a new path spec from PATHSPEC rooted to the user's home directory."
   (expand-file-name (concat user-home-directory "/" pathspec "/")))
-
-;;;; Initial window resolution:
-
-(defun zlisp/initial-frame-size ()
-  "Set initial frame and new frame sizes."
-  (when (display-graphic-p)
-    (let* ((max-w (display-pixel-width))
-           (max-h (display-pixel-height))
-           (new-w (/ (- max-w 200) (frame-char-width)))
-           (new-h (/ (- max-h 200) (frame-char-height))))
-      (modify-frame-parameters
-       nil
-       `((user-position . t)
-         (top           . 0.5)
-         (left          . 0.5)
-         (width         . ,new-w)
-         (height        . ,new-h)))
-      (add-to-list 'default-frame-alist
-                   (cons 'height (/ (- max-h 200)
-                                    (frame-char-height))))
-      (add-to-list 'default-frame-alist
-                   (cons 'width (/ (- max-w 200)
-                                   (frame-char-width)))))))
 
 ;;;; Provide package:
 

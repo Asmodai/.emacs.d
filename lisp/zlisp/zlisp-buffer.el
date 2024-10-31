@@ -30,23 +30,23 @@
 
 (require 'cl-lib)
 
-(defun zlisp-goto-minibuffer-window ()
+(defun zlisp/goto-minibuffer-window ()
   "Locate point to minibuffer window if it is active."
   (interactive)
   (if (active-minibuffer-window)
       (select-window (active-minibuffer-window))
     (error "Minibuffer is not active")))
 
-(bind-key "C-c m" #'zlisp-goto-minibuffer-window)
+(bind-key "C-c m" #'zlisp/goto-minibuffer-window)
 
-(defun zlisp-new-buffer-new-frame ()
+(defun zlisp/new-buffer-new-frame ()
   "Create a new frame with a new empty buffer."
   (interactive)
   (let ((buffer (generate-new-buffer "*new*")))
     (set-buffer-major-mode buffer)
     (display-buffer buffer '(display-buffer-pop-up-frame . nil))))
 
-(defun zlisp-create-new-buffer ()
+(defun zlisp/create-new-buffer ()
   "Create a new buffer in the default major mode."
   (interactive)
   (let ((buffer (generate-new-buffer "*new*")))
@@ -54,7 +54,7 @@
     (with-current-buffer buffer
       (funcall (default-value 'major-mode)))))
 
-(defun zlisp-create-new-elisp-buffer ()
+(defun zlisp/create-new-elisp-buffer ()
   "Create a new buffer in `emacs-lisp' mode."
   (interactive)
   (let ((buffer (generate-new-buffer "*new-elisp*")))
@@ -62,7 +62,7 @@
     (with-current-buffer buffer
       (emacs-lisp-mode))))
 
-(defun zlisp-tmp-buffer ()
+(defun zlisp/tmp-buffer ()
   "Make a temporary buffer and switch to it."
   (interactive)
   (switch-to-buffer
@@ -70,7 +70,7 @@
     (concat "tmp-" (format-time-string "%Y.%m%dT%H.%M.%S"))))
   (delete-other-windows))
 
-(defun zlisp-revert-all-file-buffers ()
+(defun zlisp/revert-all-file-buffers ()
   "Refresh all open file buffers without confirmation.
 Buffers in modified (not yet saved) state in Emacs will not be reverted. They
 will be reverted though if they were modified outside Emacs.
@@ -94,7 +94,7 @@ will be killed."
                      filename))))))
   (message "Finished reverting buffers containing unmodified files."))
 
-(defun zlisp-user-buffer-p ()
+(defun zlisp/user-buffer-p ()
   "Return T if the current buffer is a user buffer."
   (interactive)
   (if (string-equal "*" (cl-subseq (buffer-name) 0 1))
@@ -103,30 +103,30 @@ will be killed."
         nil
       t)))
 
-(defun zlisp-next-user-buffer ()
+(defun zlisp/next-user-buffer ()
   "Switch to the next user buffer."
   (interactive)
   (next-buffer)
   (let ((i 0))
     (while (< i 20)
-      (if (not (zlisp-user-buffer-p))
+      (if (not (zlisp/user-buffer-p))
           (progn (previous-buffer)
                  (setq i (1+ i)))
         (progn (setq i 100))))))
 
-(defun zlisp-eval-buffer-until-error ()
+(defun zlisp/eval-buffer-until-error ()
   "Evaluate a buffer until an error occurs."
   (interactive)
   (goto-char (point-min))
   (while t
     (eval (read (current-buffer)))))
 
-(defun zlisp-kill-this-buffer ()
+(defun zlisp/kill-this-buffer ()
   "Kill this buffer."
   (interactive)
   (kill-buffer))
 
-(defun zlisp-show-and-copy-buffer-full-filename ()
+(defun zlisp/show-and-copy-buffer-full-filename ()
   "Show the full path to the current file  and copy it to the clipboard."
   (interactive)
   (let ((filename (buffer-file-name)))
@@ -136,7 +136,7 @@ will be killed."
           (kill-new filename))
       (error "Buffer is not visiting a file"))))
 
-(defun switch-to-previous-buffer ()
+(defun zmacs/switch-to-previous-buffer ()
   "Switch to the previous buffer."
   (interactive)
   (switch-to-buffer (other-buffer (current-buffer) 1)))

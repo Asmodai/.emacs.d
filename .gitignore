@@ -15,13 +15,14 @@
 custom.el
 user.el
 
-# Cache and  random state:
+# Cache and random state:
 .cache
 /auto-save-list
 /cache
 /eln-cache
 /elpa
 /eshell
+/request
 /undo-fu-session
 /url
 /var

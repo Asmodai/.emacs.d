@@ -45,14 +45,14 @@
 ;;;; Functions
 
 ;; BUG: This isn't really portable yet.
-(defun zmacs-kill-all-emacsen ()
+(defun zmacs/kill-all-emacsen ()
   "Kill all running Emacsen."
   (interactive)
   (progn
     (save-buffers-kill-emacs)
     (shell-command-to-string (concat "pkill -i "
-                                     (cond ((zlisp-macos-p   "Emacs"))
-                                           ((zlisp-windows-p "Emacs.exe"))
+                                     (cond ((zlisp/macos-p   "Emacs"))
+                                           ((zlisp/windows-p "Emacs.exe"))
                                            (t                "emacs"))))))
 (provide 'zmacs-server)
 

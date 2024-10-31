@@ -52,7 +52,7 @@
              vertico-exit
              vertico-mode)
   :bind (:map vertico-map
-         ("<escape>"  . #'minibuffer-keyboard-quit)
+         ("<escape>"  . #'zmacs/minibuffer-keyboard-quit)
          ("M-RET"     . #'vertico-exit))
   :hook (emacs-startup . vertico-mode)
   :custom
@@ -61,26 +61,39 @@
   (vertico-scroll-margin 0)
   (vertico-count         10)
   :config
-  (with-eval-after-load 'rfn-eshadow
-    (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy))
+  (progn
 
-  (advice-add #'vertico--sort-function :before-until
-              #'completion-category-sort-function)
+    (defun zmacs/minibuffer-keyboard-quit ()
+      "Abort recursive edit.
+In Delete Selection mode, if the mark is active, just deactivate it; then it
+takes a second \\[keyboard-quit] to abort the minibuffer."
+      (interactive)
+      (if (and delete-selection-mode transient-mark-mode mark-active)
+          (setq deactivate-mark  t)
+        (when (get-buffer "*Completions*")
+          (delete-windows-on "*Completions*"))
+        (abort-recursive-edit)))
 
-  (defun completion-category-sort-function ()
-    "Sort completion by category."
-    (alist-get (vertico--metadata-get 'category)
-               completion-category-sort-function-overrides))
+    (with-eval-after-load 'rfn-eshadow
+      (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy))
 
-  (defvar completion-category-sort-function-overrides
-    '((file . directories-before-files))
-    "Completion category-specific sorting function overrides.")
+    (defun zmacs/directories-before-files (files)
+      "Put directories before files."
+      (setq files (vertico-sort-history-length-alpha files))
+      (nconc (seq-filter (lambda (x) (string-suffix-p "/" x)) files)
+             (seq-remove (lambda (x) (string-suffix-p "/" x)) files)))
 
-  (defun directories-before-files (files)
-    "Put directories before files."
-    (setq files (vertico-sort-history-length-alpha files))
-    (nconc (seq-filter (lambda (x) (string-suffix-p "/" x)) files)
-           (seq-remove (lambda (x) (string-suffix-p "/" x)) files))))
+    (defvar zmacs/completion-category-sort-function-overrides
+      '((file . zmacs/directories-before-files))
+      "Completion category-specific sorting function overrides.")
+
+    (defun zmacs/completion-category-sort-function ()
+      "Sort completion by category."
+      (alist-get (vertico--metadata-get 'category)
+                 zmacs/completion-category-sort-function-overrides))
+
+    (advice-add #'vertico--sort-function :before-until
+                #'zmacs/completion-category-sort-function)))
 
 ;;;; Vertico repeat:
 
@@ -104,12 +117,12 @@
               ("M-DEL" . vertico-directory-delete-word))
   :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 
-(defun crm-indicator (args)
+(defun zmacs/crm-indicator (args)
   "Append a CRM indicator to ARGS."
   (cons (concat "[CRM] " (car args))
         (cdr args)))
 
-(advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+(advice-add #'completing-read-multiple :filter-args #'zmacs/crm-indicator)
 
 ;;;; Minibuffer settings:
 ;;;;; Grow and shrink minibuffer:
@@ -188,72 +201,47 @@
   :init
   (fset 'multi-occur #'consult-multi-occur)
   :config
-  (consult-customize consult-ripgrep
-                     consult-git-grep
-                     consult-grep
-                     consult-bookmark
-                     consult-recent-file
-                     consult-xref
-                     consult--source-bookmark
-                     consult--source-recent-file
-                     consult--source-project-recent-file
-                     consult-theme
-                     :preview-key '(:debounce 0.2 any))
+  (progn
 
-  (setq register-preview-delay 0.5
-        register-preview-function #'consult-register-format)
+    (consult-customize consult-ripgrep
+                       consult-git-grep
+                       consult-grep
+                       consult-bookmark
+                       consult-recent-file
+                       consult-xref
+                       consult--source-bookmark
+                       consult--source-recent-file
+                       consult--source-project-recent-file
+                       consult-theme
+                       :preview-key '(:debounce 0.2 any))
 
-  (advice-add #'register-preview :override #'consult-register-window)
+    (setq register-preview-delay 0.5
+          register-preview-function #'consult-register-format)
 
-  (setq xref-show-xrefs-function       #'consult-xref
-        xref-show-definitions-function #'consult-xref)
+    (advice-add #'register-preview :override #'consult-register-window)
 
-  (setq consult-ripgrep-args (mapconcat #'identity
-                                        (list "rg"
-                                              "--null"
-                                              "--line-buffered"
-                                              "--color=never"
-                                              "--max-columns=1000"
-                                              "--path-separator /"
-                                              "--smart-case"
-                                              "--no-heading"
-                                              "--with-filename"
-                                              "--line-number"
-                                              "--search-zip")
-                                        " ")
-        consult-async-min-input 2)
+    (setq xref-show-xrefs-function       #'consult-xref
+          xref-show-definitions-function #'consult-xref)
 
-  (when (zlisp-macos-p)
-    (setq consult-locate-args "mdfind -name"))
+    (setq consult-ripgrep-args (mapconcat #'identity
+                                          (list "rg"
+                                                "--null"
+                                                "--line-buffered"
+                                                "--color=never"
+                                                "--max-columns=1000"
+                                                "--path-separator /"
+                                                "--smart-case"
+                                                "--no-heading"
+                                                "--with-filename"
+                                                "--line-number"
+                                                "--search-zip")
+                                          " ")
+          consult-async-min-input 2)
 
-  (defun consult-info-emacs ()
-    "Search through Emacs info pages."
-    (interactive)
-    (consult-info "emacs" "efaq" "elisp" "cl" "compat"))
+    (when (zlisp/macos-p)
+      (setq consult-locate-args "mdfind -name"))
 
-  (defun consult-info-org ()
-    "Search through the Org info page."
-    (interactive)
-    (consult-info "org"))
-
-  (defun consult-info-completion ()
-    "Search through completion info pages."
-    (interactive)
-    (consult-info "vertico"
-                  "consult"
-                  "marginalia"
-                  "orderless"
-                  "embark"
-                  "corfu"
-                  "cape"
-                  "tempel"))
-
-  (bind-key "C-h i" #'consult-info))
-
-(defun consult-line-symbol-at-point ()
-  "Evaluate `consult-line' on the symbol at current point."
-  (interactive)
-  (consult-line (thing-at-point 'symbol)))
+    (bind-key "C-h i" #'consult-info)))
 
 ;;;;; Consult directory:
 
@@ -265,10 +253,27 @@
          ("C-x C-d" . consult-dir)
          ("C-x C-j" . consult-dir-jump-file)))
 
+;;;;; ZLisp consult:
+
+(use-package zlisp-consult
+  :ensure nil
+  :after consult
+  :config
+  (require 'zlisp-consult))
+
+;;;; Which Key:
+
+(use-package which-key
+  :ensure t
+  :demand t
+  :config
+  (require 'which-key))
+
 ;;;; Embark:
 ;;;;; Main package:
 
 (use-package embark
+  :after which-key
   :demand t
   :commands (embark-act
              embark-dwim
@@ -278,10 +283,6 @@
              embark-occur-toggle-view
              embark-keymap-help)
   :custom
-  (embark-indicators '(embark-which-key-indicator
-                       embark-minimal-indicator
-                       embark-highlight-indicator
-                       embark-isearch-highlight-indicator))
   (embark-prompter 'embark-keymap-prompter)
   :bind (("C-."   . embark-act)
          ("M-."   . embark-dwim)
@@ -300,66 +301,33 @@
   :init
   (setq prefix-help-command #'embark-prefix-help-command)
   :config
-  (add-to-list 'display-buffer-alist
-               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-                 nil
-                 (window-parameters (mode-line-format . none))))
+  (progn
+    (add-to-list 'display-buffer-alist
+                 '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                   nil
+                   (window-parameters (mode-line-format . none))))))
 
-  (defun zmacs-dired-here (file)
-    "Open dired in this directory."
-    (dired (file-name-directory file)))
+;;;;; ZLisp embark:
 
-  (defun zmacs-consult-rg-here (file)
-    "Consult `ripgrep' in this directory."
-    (let ((default-directory (file-name-directory file)))
-      (consult-ripgrep)))
+(use-package zlisp-embark
+  :after embark
+  :ensure nil
+  :demand t
+  :config
+  (progn
+    (require 'zlisp-embark)
 
-  (define-key embark-file-map (kbd "D") #'zmacs-dired-here)
-  (define-key embark-file-map (kbd "g") #'zmacs-consult-rg-here)
+    (define-key embark-file-map (kbd "D") #'zlisp/dired-here)
+    (define-key embark-file-map (kbd "g") #'zlisp/consult-rg-here)
 
-  (defun embark-which-key-indicator ()
-    "An embark indicator that displays keymaps using `which-key'.
+    (setq embark-indicators
+          '(zlisp/embark-which-key-indicator
+            embark-minimal-indicator
+            embark-highlight-indicator
+            embark-isearch-highlight-indicator))
 
-The `which-key' help message will show the type and value of the current target
-followed by an ellipsis if there are further targets."
-    (lambda (&optional keymap targets prefix)
-      (if (null keymap)
-          (which-key--hide-popup-ignore-command)
-        (which-key--show-keymap
-         (if (eq (plist-get (car targets) :type) 'embark-become)
-             "Become"
-           (format "Act on %s '%s'%s"
-                   (plist-get (car targets) :type)
-                   (embark--truncate-target (plist-get (car targets) :target))
-                   (if (cdr targets)
-                       "…"
-                     "")))
-         (if prefix
-             (pcase (lookup-key keymap prefix 'accept-default)
-               ((and (pred keymap) km) km)
-               (_ (key-binding prefix 'accept-default)))
-           keymap)
-         nil
-         nil
-         t
-         (lambda (binding)
-           (not (string-suffix-p "-argument" (cdr binding))))))))
-
-  (setq embark-indicators
-        '(embark-which-key-indicator
-          embark-highlight-indicator
-          embark-isearch-highlight-indicator))
-
-  (defun embark-hide-which-key-indicator (fn &rest args)
-    "Hide the `which-key' indicator immediately when using the completing-read
-prompter."
-    (which-key--hide-popup-ignore-command)
-    (let ((embark-indicators (remq #'embark-which-key-indicator
-                                   embark-indicators)))
-      (apply fn args)))
-
-  (advice-add #'embark-completing-read-prompter :around
-              #'embark-hide-which-key-indicator))
+    (advice-add #'embark-completing-read-prompter :around
+                #'zlisp/embark-hide-which-key-indicator)))
 
 ;;;;; Embark Consult:
 
@@ -398,35 +366,37 @@ prompter."
   (corfu-history-mode 1)
   (corfu-popupinfo-delay 1)
   :config
-  (defun corfu-enable-in-minibuffer ()
-    "Enable Corfu in the minibuffer if `completion-at-point' is bound."
-    (when (where-is-internal #'completion-at-point
-                             (list (current-local-map)))
-      (corfu-mode 1)))
+  (progn
 
-  (add-hook 'minibuffer-setup-hook #'corfu-enable-in-minibuffer)
-  (add-hook 'eshell-mode-hook (lambda ()
-                                (setq-local corfu-quit-no-match    t
-                                            corfu-quit-at-boundary t
-                                            corfu-auto             nil)))
-  (defun corfu-send-shell (&rest _)
-    "Send completion candidates when inside comint/eshell."
-    (cond ((and (derived-mode-p 'ehsll-mode)
-                (fboundp 'eshell-send-input))
-           (eshell-send-input))
-          ((and (derived-mode-p 'comint-mode)
-                (fboundp 'comint-send-input))
-           (comint-send-input))))
+    (defun corfu-enable-in-minibuffer ()
+      "Enable Corfu in the minibuffer if `completion-at-point' is bound."
+      (when (where-is-internal #'completion-at-point
+                               (list (current-local-map)))
+        (corfu-mode 1)))
 
-  (advice-add #'corfu-insert :after #'corfu-send-shell)
+    (add-hook 'minibuffer-setup-hook #'corfu-enable-in-minibuffer)
+    (add-hook 'eshell-mode-hook (lambda ()
+                                  (setq-local corfu-quit-no-match    t
+                                              corfu-quit-at-boundary t
+                                              corfu-auto             nil)))
+    (defun corfu-send-shell (&rest _)
+      "Send completion candidates when inside comint/eshell."
+      (cond ((and (derived-mode-p 'ehsll-mode)
+                  (fboundp 'eshell-send-input))
+             (eshell-send-input))
+            ((and (derived-mode-p 'comint-mode)
+                  (fboundp 'comint-send-input))
+             (comint-send-input))))
 
-  (add-hook 'eshell-mode-hook (lambda ()
-                                (setq-local corfu-auto nil)
-                                (corfu-mode)))
+    (advice-add #'corfu-insert :after #'corfu-send-shell)
 
-  (require 'corfu-popupinfo)
-  (corfu-popupinfo-mode 1)
-  (global-corfu-mode))
+    (add-hook 'eshell-mode-hook (lambda ()
+                                  (setq-local corfu-auto nil)
+                                  (corfu-mode)))
+
+    (require 'corfu-popupinfo)
+    (corfu-popupinfo-mode 1)
+    (global-corfu-mode)))
 
 ;;;; Emacs completion settings:
 
@@ -466,7 +436,7 @@ prompter."
   :config
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
-;;;; Yasnippet
+;;;; Yasnippet:
 
 (defcustom zmacs-all-snippets-dir
   (concat zmacs-storage-directory "all-snippets/")
@@ -486,16 +456,17 @@ prompter."
   (yas-installed-snippets-dir yas-snippets-dirs)
   (yas--default-user-snippets-dir yas-snippets-dirs)
   :config
-  (defun zmacs-yas-org-mode-hook ()
-      ;;; XXX Well, might be able to abuse this gem later :)
-    (setq-local yas-buffer-local-condition '(not (org-in-src-block-p t))))
+  (progn
+    (defun zlisp/yas-org-mode-hook ()
+      ;; XXX Well, might be able to abuse this gem later :)
+      (setq-local yas-buffer-local-condition '(not (org-in-src-block-p t))))
 
-  (add-hook 'org-mode-hook #'zmacs-yas-org-mode-hook)
+    (add-hook 'org-mode-hook #'zlisp/yas-org-mode-hook)
 
-  (with-eval-after-load 'warnings
-    (push '(yaznippet backquote-change) warning-suppress-types))
+    (with-eval-after-load 'warnings
+      (push '(yaznippet backquote-change) warning-suppress-types))
 
-  (yas-global-mode 1))
+    (yas-global-mode 1)))
 
 (use-package yasnippet-snippets
   :after (yasnippet)

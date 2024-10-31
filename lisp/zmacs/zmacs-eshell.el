@@ -603,7 +603,7 @@ any directory proferred by `consult-dir'."
 
 (defun eshell/iterm ()
   "Open the current directory of the eshell buffer in iTerm."
-  (when (zlisp-macos-p)
+  (when (zlisp/macos-p)
     (progn
       (interactive)
       (let* ((iterm-app-path "/Applications/iTerm.app")

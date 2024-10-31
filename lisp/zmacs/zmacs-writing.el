@@ -60,7 +60,9 @@
 (use-package zlisp-spelling
   :ensure nil
   :demand t
-  :after flyspell)
+  :after flyspell
+  :config
+  (require 'zlisp-spelling))
 
 (use-package flyspell-correct
   :after flyspell
@@ -333,7 +335,7 @@
 (use-package define-word
   :commands (define-word define-word-at-point))
 
-(when (zlisp-macos-p)
+(when (zlisp/macos-p)
   (use-package osx-dictionary
     :commands (osx-dictionary-search-word-at-point
                osx-dictionary-search-input)))

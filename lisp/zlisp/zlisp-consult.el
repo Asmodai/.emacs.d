@@ -1,10 +1,10 @@
-;;; zlisp-clipboard.el --- Clipboard functions  -*- mode: emacs-lisp; lexical-binding: t; -*-
+;;; zlisp-consult.el --- Consult functions  -*- mode: emacs-lisp; lexical-binding: t; -*-
 ;;
 ;; Copyright (c) 2024 Paul Ward <paul@lisphacker.uk>
 ;;
 ;; Author:     Paul Ward <paul@lisphacker.uk>
 ;; Maintainer: Paul Ward <paul@lisphacker.uk>
-;; Created:    25 Oct 2024 14:30:12
+;; Created:    31 Oct 2024 17:19:03
 ;; URL:        not distributed yet
 ;;
 ;; This file is not part of GNU Emacs.
@@ -28,21 +28,35 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'cl-lib))
+(require 'cl-lib)
 
-(defun zlisp/copy-whole-buffer-to-clipboard ()
-  "Copy the entire buffer to the clipboard."
+(defun zlisp/consult-info-emacs ()
+  "Search through Emacs info pages."
   (interactive)
-  (clipboard-kill-ring-save (point-min) (point-max)))
+  (consult-info "emacs" "efaq" "elisp" "cl" "compat"))
 
-(defun zlisp/copy-clipboard-to-whole-buffer ()
-  "Yank the clipboard contents into a buffer replacing the existing content."
+(defun zlisp/consult-info-org ()
+  "Search through the Org info page."
   (interactive)
-  (delete-region (point-min) (point-max))
-  (clipboard-yank)
-  (deactivate-mark))
+  (consult-info "org"))
 
-(provide 'zlisp-clipboard)
+(defun zlisp/consult-info-completion ()
+  "Search through completion info pages."
+  (interactive)
+  (consult-info "vertico"
+                "consult"
+                "marginalia"
+                "orderless"
+                "embark"
+                "corfu"
+                "cape"
+                "tempel"))
 
-;;; zlisp-clipboard.el ends here.
+(defun zlisp/consult-line-symbol-at-point ()
+  "Evaluate `consult-line' on the symbol at current point."
+  (interactive)
+  (consult-line (thing-at-point 'symbol)))
+
+(provide 'zlisp-consult)
+
+;;; zlisp-consult.el ends here.

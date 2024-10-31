@@ -31,7 +31,7 @@
 (require 'cl-lib)
 (require 'flyspell)
 
-(defun zmacs/save-word-at-point ()
+(defun zlisp/save-word-at-point ()
   "Save the word at the point to the custom dictionary."
   (interactive)
   (let ((current-location (point))

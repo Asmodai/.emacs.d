@@ -30,14 +30,15 @@
 
 (require 'cl-lib)
 
-(defvar *zlisp-features* '(:gnu-emacs))
+(defvar zlisp--features '(:gnu-emacs))
 
-(defsubst zlisp-feature-p (feature)
-  "Is FEATURE on the list of features that ZLISP provides?"
-  (not (null (member feature *zlisp-features*))))
+(defsubst zlisp/feature-p (feature)
+  "Is FEATURE on the list of features that ZMACS provides?"
+  (not (null (member feature zlisp--features))))
 
-(defun zlisp-add-feature (feature)
-  (cl-pushnew feature *zlisp-features*))
+(defun zlisp/add-feature (feature)
+  "Add FEATURE to the list of features that ZMACS provides."
+  (cl-pushnew feature zlisp--features))
 
 (provide 'zlisp-features)
 

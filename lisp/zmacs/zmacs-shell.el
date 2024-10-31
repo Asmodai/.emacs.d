@@ -64,7 +64,7 @@
   :custom
   (exec-path-from-shell-arguments nil)
   :config
-  (zlisp-when-macos
+  (zlisp/when-macos
     (exec-path-from-shell-initialize)))
 
 ;;;; Terminal:

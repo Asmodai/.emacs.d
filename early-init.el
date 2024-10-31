@@ -32,19 +32,44 @@
   (require 'cl-lib))
 
 ;;;; Speed hacks
+;;;;; Garbage collector:
 
 ;; Load in our features support package:
 (load (concat user-emacs-directory "lisp/zlisp/zlisp-features"))
 (require 'zlisp-features)
 
 ;; Initial startup GC settings:
+;;
+;; Danger: these settings will cause Emacs to hang during heavy workloads (due
+;; to Mark and Sweep), so ensure these are set sanely after startup.
+;;
+;; See the addition to `emacs-startup-hook' below.
 (setq gc-cons-threshold  most-positive-fixnum
       gc-cons-percentage 0.5)
 
 ;; Sane GC settings:
-(add-hook 'emacs-startup-hook (lambda ()
-                                (setq gc-cons-threshold  1600000 ;; 800000
-                                      gc-cons-percentage 0.1)))
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            ;; Default GC value is 800,000 bytes -- 800 _kilobytes_.
+            ;;
+            ;; This seems a bit silly, and can result in GC being triggered
+            ;; during as simple as scrolling a buffer.
+            ;;
+            ;; Conversely, setting the GC to silly amounts will result in GCs
+            ;; bringing Emacs to its knees at the most inopportune moments
+            ;; possible -- because of Mark and Sweep.  I wish Emacs used
+            ;; generational collection.
+            ;;
+            ;; Anyhow, here we set the GC cons threshold to 256MiB and the
+            ;; percentage to 0.3%.  This *could* result in hangs where the
+            ;; collector stops the world for a somewhat long period of time, but
+            ;; if we ensure that collection always takes place when Emacs is not
+            ;; being used (idle timer, focus switch), then this could well be
+            ;; demoted to "non-issue" status.
+            (setq gc-cons-threshold  268435456 ;; 800000
+                  gc-cons-percentage 0.3)))
+
+;;;;; Native compilation:
 
 ;; Do we have native compilation support?
 (defvar *zmacs-has-native-compilation* (and (fboundp 'native-comp-available-p)
@@ -58,18 +83,20 @@
 
 ;; Place `:fast-json' in features if it's available.
 (if *zmacs-has-fast-json*
-    (zlisp-add-feature :fast-json)
+    (zlisp/add-feature :fast-json)
   (warn "This Emacs is using the older elisp JSON functions."))
 
 ;; Place `:native-compilation' in feature if it's available.
 (if *zmacs-has-native-compilation*
-    (zlisp-add-feature :native-compilation)
+    (zlisp/add-feature :native-compilation)
   (message "Native compilation is *not* available."))
 
-;; Bug fixes.
-(if (not (boundp 'comp-enable-subr-trampolines))
-    (when (boundp 'native-comp-enable-subr-trampolines)
-      (setq comp-enable-subr-trampolines native-comp-enable-subr-trampolines)))
+;; BUG: On the macOS release of Emacs 29.4, the symbol
+;; `comp-enable-subr-trampolines' is not bound.
+(when (and (boundp 'native-comp-enable-subr-trampolines)
+           (boundp 'comp-enable-subr-trampolines))
+  (setq comp-enable-subr-trampolines native-comp-enable-subr-trampolines)
+  (zlisp/add-feature :native-comp-subr-trampolines))
 
 ;; Improve LSP performance.
 (setq read-process-output-max (* 1024 1024))
@@ -80,6 +107,8 @@
 ;; Native compiler settings.
 (setopt native-comp-speed 2)
 (setopt native-comp-deferred-compilation t)
+
+;;;;; Compiler warnings:
 
 ;; Ensure warnings are really suppressed.
 (require 'warnings)
@@ -99,8 +128,8 @@
 ;; https://github.com/alphapapa/frame-purpose.el/issues/3
 (eval-and-compile
   (when (version< emacs-version "26")
-    (zlisp-add-feature :no-native-when-let*)
-    (zlisp-add-feature :no-native-if-let*)
+    (zlisp/add-feature :no-native-when-let*)
+    (zlisp/add-feature :no-native-if-let*)
     (with-no-warnings
       (defalias 'when-let* #'when-let)
       (function-put #'when-let* 'lisp-indent-function 1)

@@ -28,8 +28,8 @@
 
 ;;; Code:
 
-;;; See https://stackoverflow.com/q/23622296
-(defmacro zlisp-measure-time (&rest body)
+;; See https://stackoverflow.com/q/23622296
+(defmacro zlisp/measure-time (&rest body)
   "Measure the time it takes to evaluate BODY."
   `(let ((time (current-time)))
      ,@body
@@ -43,7 +43,7 @@
                 "")
               (float-time (time-since time)))))
 
-(defmacro zlisp-simple-measure-time (&rest body)
+(defmacro zlisp/simple-measure-time (&rest body)
   "Measure and return the time it takes evaluating BODY."
   `(let ((time (current-time)))
      ,@body

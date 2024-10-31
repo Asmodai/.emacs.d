@@ -31,37 +31,37 @@
 (eval-when-compile
   (require 'cl-lib))
 
-(defun zlisp-format-date (fmt &optional time zone)
+(defun zlisp//format-date (fmt &optional time zone)
   "Use FMT to format the time value TIME, using ZONE if provided."
   (let ((system-time-locale "en_GB.UTF-8"))
     (format-time-string fmt time zone)))
 
-(defun zlisp-insert-timestamp ()
+(defun zlisp/insert-timestamp ()
   "Produce a timestamp."
   (interactive)
-  (insert (zlisp-format-date "%Y-%02m-%02d-%02H:%02M:%02S")))
+  (insert (zlisp//format-date "%Y-%02m-%02d-%02H:%02M:%02S")))
 
-(defun zlisp-insert-rfc3339-timestamp ()
+(defun zlisp/insert-rfc3339-timestamp ()
   "Produce an RFC3339 timestamp."
   (interactive)
-  (insert (zlisp-format-date "%Y-%02m-%02dT%02H:%02M:%02SZ"
+  (insert (zlisp//format-date "%Y-%02m-%02dT%02H:%02M:%02SZ"
                              (current-time)
                              0)))
 
-(defun zlisp-insert-date ()
+(defun zlisp/insert-date ()
   "Insert the current date."
   (interactive)
-  (insert (zlisp-format-date "%A, %B %d %Y")))
+  (insert (zlisp//format-date "%A, %B %d %Y")))
 
-(defun zlisp-insert-time ()
+(defun zlisp/insert-time ()
   "Insert the current time."
   (interactive)
-  (insert (zlisp-format-date "%H:%M:%S")))
+  (insert (zlisp//format-date "%H:%M:%S")))
 
-(defun zlisp-insert-date-and-time ()
+(defun zlisp/insert-date-and-time ()
   "Insert the current date and time."
   (interactive)
-  (insert (zlisp-format-date "%m-%d-%Y %H:%M:%S")))
+  (insert (zlisp//format-date "%m-%d-%Y %H:%M:%S")))
 
 (provide 'zlisp-time)
 

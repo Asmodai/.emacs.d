@@ -33,24 +33,24 @@
   (require 'zlisp-platform-predicates))
 
 (eval-when-compile
-  (defmacro zlisp-when-macos (&rest body)
+  (defmacro zlisp/when-macos (&rest body)
     "Evaluate BODY only when the host system is macOS."
     (declare (indent 0))
-    (if (zlisp-macos-p)
+    (if (zlisp/macos-p)
         `(progn ,@body)
       nil))
 
-  (defmacro zlisp-when-windows (&rest body)
+  (defmacro zlisp/when-windows (&rest body)
     "Evaluate BODY only when the host system is Windows."
     (declare (indent 0))
-    (if (zlisp-windows-p)
+    (if (zlisp/windows-p)
         `(progn ,@body)
       nil))
 
-  (defmacro zlisp-when-unix (&rest body)
+  (defmacro zlisp/when-unix (&rest body)
     "Evaluate BODY only when the host system is a Unix."
     (declare (indent 0))
-    (if (zlisp-windows-p)
+    (if (zlisp/windows-p)
         `(progn ,@body))))
 
 (provide 'zlisp-platform-macros)
