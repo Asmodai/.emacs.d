@@ -351,20 +351,19 @@ takes a second \\[keyboard-quit] to abort the minibuffer."
               ("TAB"      . corfu-insert)
               ([tab]      . corfu-insert))
   :custom
-  (corfu-auto 1)
-  (corfu-min-width 25)
-  (corfu-max-width 100)
-  (corfu-count 10)
-  (corfu-scroll-margin 5)
-  (corfu-cycle t)
-  (completion--cycle-threshold 3)
-  (corfu-separator ?\s)
-  (corfu-quit-no-match 'separator)
-  (corfu-quit-at-boundary 'separator)
-  (corfu-preview-current t)
-  (corfu-preselect-first t)
-  (corfu-history-mode 1)
-  (corfu-popupinfo-delay 1)
+  (corfu-auto                  t)          ; Enable auto-completion.
+  (corfu-min-width             25)         ; Minimum completion window width.
+  (corfu-max-width             100)        ; Maximum completion window width.
+  (corfu-count                 10)         ; Number of candidates to show.
+  (corfu-scroll-margin         5)          ; Use scroll margin.
+  (corfu-cycle                 t)          ; Enable cycling.
+  (corfu-separator             ?\s)        ;
+  (corfu-quit-no-match         'separator) ;
+  (corfu-quit-at-boundary      'separator) ;
+  (corfu-preview-current       t)          ; Enable current candidate preview.
+  (corfu-preselect             'prompt)    ; Preselect the prompt.
+  (corfu-history-mode          1)          ;
+  (corfu-popupinfo-delay       1)          ;
   :config
   (progn
 
@@ -378,20 +377,7 @@ takes a second \\[keyboard-quit] to abort the minibuffer."
     (add-hook 'eshell-mode-hook (lambda ()
                                   (setq-local corfu-quit-no-match    t
                                               corfu-quit-at-boundary t
-                                              corfu-auto             nil)))
-    (defun corfu-send-shell (&rest _)
-      "Send completion candidates when inside comint/eshell."
-      (cond ((and (derived-mode-p 'ehsll-mode)
-                  (fboundp 'eshell-send-input))
-             (eshell-send-input))
-            ((and (derived-mode-p 'comint-mode)
-                  (fboundp 'comint-send-input))
-             (comint-send-input))))
-
-    (advice-add #'corfu-insert :after #'corfu-send-shell)
-
-    (add-hook 'eshell-mode-hook (lambda ()
-                                  (setq-local corfu-auto nil)
+                                              corfu-auto             nil)
                                   (corfu-mode)))
 
     (require 'corfu-popupinfo)

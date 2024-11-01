@@ -31,7 +31,7 @@
 (require 'cl-lib)
 (require 'zlisp-math)
 
-(defun zmacs/room ()
+(defun zlisp/room ()
   "Show approximate memory usages for Emacs Lisp."
   (prog1 nil
     (let ((info (garbage-collect)))

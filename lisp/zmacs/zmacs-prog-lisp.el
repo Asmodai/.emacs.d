@@ -28,8 +28,18 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'cl-lib))
+(require 'cl-lib)
+(require 'zmacs-programming)
+
+;;;; Interior Emacs Lisp Mode:
+
+(use-package ielm
+  :ensure nil
+  :demand t
+  :custom
+  (ielm-dynamic-return           t)
+  (ielm-dynamic-multiline-inputs t)
+  (ielm-header                   "*** Welcome to IELM ***"))
 
 ;;;; Flycheck:
 
@@ -121,8 +131,8 @@
 (add-hook 'emacs-lisp-mode 'electric-pair-mode)
 (add-hook 'lisp-mode       'electric-pair-mode)
 
-(add-hook 'lisp-interaction-mode #'zmacs-deactivate-smartparens)
-(add-hook 'lisp-interaction-hook #'zmacs-deactivate-paredit)
+(add-hook 'lisp-interaction-mode #'zmacs/deactivate-smartparens)
+(add-hook 'lisp-interaction-hook #'zmacs/deactivate-paredit)
 
 ;;;; Define package:
 

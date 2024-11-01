@@ -245,62 +245,6 @@
 
 ;;;; Garbage Collection:
 
-(defvar zmacs-report-gc nil
-  "If T, display GC information.")
-
-;; Add a post-GC hook that displays GC information.
-;;
-;; To enable this at run-time, set `*zmacs-report-gc*' to t.
-(let ((gc-time-elapsed 0))
-  (defun zmacs/gc-elapsed-time ()
-    gc-time-elapsed)
-
-  (defun zmacs/reset-gc-elapsed-time ()
-    (setq gc-time-elapsed 0))
-
-  (defun zmacs/gc-info ()
-    "Report garbage collection metrics."
-    (let ((inhibit-message t)
-          (garbage-collection-messages zmacs-report-gc)
-          (time (if (zerop gc-time-elapsed)
-                    0
-                  (- gc-elapsed gc-time-elapsed))))
-      (when (bound-and-true-p zmacs-report-gc)
-        (message "GC Info:  %d (%.03fs) collections so far, %.06fs this run."
-                 gcs-done
-                 gc-elapsed
-                 time))
-      (setf gc-time-elapsed gc-elapsed))))
-
-(defun zmacs/timed-garbage-collect (&optional source)
-  "Perform a garbage collection and report on the time taken.
-
-If SOURCE is non-nil, then it is listed as the trigger for the collection."
-  (let ((inhibit-message t)
-        results)
-    (message "GC Info: %sCollector ran for %.06f seconds"
-             (if (not (null source))
-                 (concat "[" source "] ")
-               "")
-             (zlisp/simple-measure-time
-              (setq results (garbage-collect))))
-    results))
-
-;; Add the post-GC hook.
-(add-hook 'post-gc-hook #'zmacs/gc-info)
-
-;; When idle for 15sec run the GC no matter what.
-(defvar zmacs-gc-timer
-  (run-with-idle-timer 15 t (lambda ()
-                              (zmacs/timed-garbage-collect
-                               "idle-timer"))))
-
-;; Force a GC on focus change.
-(add-function :after after-focus-change-function
-  (lambda ()
-    (unless (frame-focus-state)
-      (run-with-timer 3.0 nil (lambda ()
-                                (zmacs/timed-garbage-collect
-                                 "focus-change"))))))
+(require 'zlisp-gc)
 
 ;;; init.el ends here.

@@ -94,51 +94,53 @@
 
 (use-package smartparens
   :defer t
-  :init
-  (progn
-    (setq sp-show-pair-delay
-          ;; Use this form to allow users to override this setting from
-          ;; dotspacemacs/user-init
-          (or (bound-and-true-p sp-show-pair-delay) 0.2)
-          ;; fix paren highlighting in normal mode
-          sp-show-pair-from-inside t
-          sp-cancel-autoskip-on-backward-movement nil
-          sp-highlight-pair-overlay nil
-          sp-highlight-wrap-overlay nil
-          sp-highlight-wrap-tag-overlay nil))
+  :commands (show-smartparens-global-mode
+             smart-parens-mode
+             smartparens-global-strict-mode
+             smartparens-strict-mode
+             smartparens-mode)
+  :custom
+  (sp-show-pair-delay (or (bound-and-true-p sp-show-pair-delay) 0.2))
+  (sp-show-pair-from-inside t)
+  (sp-cancel-autoskip-on-backward-movement nil)
+  (sp-highlight-pair-overlay nil)
+  (sp-highlight-wrap-overlay nil)
+  (sp-highlight-wrap-tag-overlay nil)
   :config
   (progn
     (require 'smartparens-config)
     (show-smartparens-global-mode +1)
-    (zmacs-diminish smartparens-mode " 🄪" " SP")))
+    (zmacs-diminish smartparens-mode " 🄪" " SP"))
 
-(defun zmacs-deactivate-smartparens (&optional global)
-  "Deactivate `smartparens-mode' and `smartparens-strict-mode'.
+  (defun zmacs/deactivate-smartparens (&optional global)
+    "Deactivate `smartparens-mode' and `smartparens-strict-mode'.
 
 If GLOBAL is non-NIL then we work on the global modes."
-  (if global
-      (progn
-        (when smartparens-global-strict-mode
-          (smartparens-global-strict-mode -1))
-        (smartparens-global-mode -1))
-    (when (and (boundp 'smartparens-strict-mode)
-               smartparens-strict-mode)
-      (smartparens-strict-mode -1))
-    (smartparens-mode -1)))
+    (if global
+        (progn
+          (when smartparens-global-strict-mode
+            (smartparens-global-strict-mode -1))
+          (smartparens-global-mode -1))
+      (when (and (boundp 'smartparens-strict-mode)
+                 smartparens-strict-mode)
+        (smartparens-strict-mode -1))
+      (smartparens-mode -1))))
 
 ;;;; Paredit:
 
 (use-package paredit
   :defer t
-  :commands (enable-paredit-mode)
+  :commands (enable-paredit-mode
+             paredit-mode)
   :hook ((emacs-lisp-mode  . enable-paredit-mode)
          (lisp-mode-hook   . enable-paredit-mode)
          (scheme-mode-hook . enable-paredit-mode))
   :config
-  (zmacs-diminish paredit-mode " ⊚" "P"))
+  (progn
+    (zmacs-diminish paredit-mode " ⊚" "P")
 
-(defun zmacs-deactivate-paredit ()
-  (paredit-mode -1))
+    (defun zmacs/deactivate-paredit ()
+      (paredit-mode -1))))
 
 ;;;; Tree Sitter:
 

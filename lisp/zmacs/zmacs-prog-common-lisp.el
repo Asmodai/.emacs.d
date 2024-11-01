@@ -30,6 +30,7 @@
 
 (require 'cl-lib)
 (require 'zmacs-prog-lisp)
+(require 'cl-indent)
 
 ;;;; Auto-Highlight symbol:
 
@@ -76,9 +77,11 @@
   :load-path "~/.emacs.d/lisp/extensions/sly"
   :bind (:map sly-mrepl-mode-map
          ("M-<up>"   . #'sly-mrepl-previous-input-or-button)
-         ("M-<down>" . #'sly-mrepl-next-input-or-button))
-  ;;:custom
-  ;;(sly-complete-symbol-function #'sly-flex-completions)
+         ("M-<down>" . #'sly-mrepl-next-input-or-button)
+         ("C-<up>"   . #'sly-mrepl-previous-input-or-button)
+         ("C-<down>" . #'sly-mrepl-next-input-or-button))
+  :custom
+  (sly-complete-symbol-function #'sly-flex-completions)
   :init
   (setq sly-contribs '(sly-autodoc
                        sly-fancy
@@ -93,8 +96,8 @@
   :config
   (sly-setup)
   (setq-default sly-mrepl-pop-sylvester nil)
-  (add-hook 'sly-mrepl-mode-hook      #'zmacs-deactivate-smartparens)
-  (add-hook 'sly-mrepl-mode-hook      #'zmacs-deactivate-paredit)
+  (add-hook 'sly-mrepl-mode-hook      #'zmacs/deactivate-smartparens)
+  (add-hook 'sly-mrepl-mode-hook      #'zmacs/deactivate-paredit)
   (add-hook 'sly-inspector-mode-hook  'visual-line-mode))
 
 (use-package sly-asdf             :after sly :ensure t)
