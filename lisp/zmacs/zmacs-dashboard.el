@@ -27,6 +27,10 @@
 ;;
 
 ;;; Code:
+
+(require 'cl-lib)
+(require 'zlisp-versioning)
+
 ;;;; Dependencies:
 ;;;;; Dashboard package.
 
@@ -104,8 +108,11 @@
 
 (defsubst zmacs--emacs-version ()
   "Produce a string describing this Emacs."
-  (format "GNU Emacs %s" emacs-version))
-
+  (format "GNU Emacs %s -- ZMACS %s"
+          emacs-version
+          (or (zlisp/git-get-current-tag)
+              (zlisp/git-get-current-branch-rev)
+              "<local>")))
 
 ;;;; Variables:
 
@@ -149,8 +156,10 @@
 ;;;; Icon hacks:
 
 (defmacro zmacs--with-icon (icon text info-text &rest fn)
-  "When running on a graphical display, present a navigator button entry that
-includes an icon.  Otherwise, just the navigator button entry is returned."
+  "Return a list with ICON, TEXT, and INFO-TEXT.
+
+If non-NIL, FN will be included.
+If not on a graphical display, ICON is excluded."
   `(list ,(if (display-graphic-p)
               `,icon
             nil)
