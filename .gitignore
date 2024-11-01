@@ -29,5 +29,8 @@ user.el
 async-bytecomp.log
 network-security.data
 
+# Extensions that use git:
+/lisp/extensions/sly*
+
 # Tree Sitter:
 tree-sitter/
