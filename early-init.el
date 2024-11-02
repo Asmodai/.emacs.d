@@ -31,6 +31,17 @@
 (eval-when-compile
   (require 'cl-lib))
 
+;;;; Minimum requrements:
+
+(defvar zmacs-min-emacs-version "28.2"
+  "Miniumum version of Emacs that this .emacs.d/ supports.")
+
+(if (not (version<= zmacs-min-emacs-version emacs-version))
+    (error (concat "Your version of Emacs (%s) is too old. "
+                   "ZMACS requires emacs version %s or above.")
+           emacs-version
+           zmacs-min-emacs-version))
+
 ;;;; Speed hacks
 ;;;;; Garbage collector:
 
@@ -53,7 +64,7 @@
             ;; Default GC value is 800,000 bytes -- 800 _kilobytes_.
             ;;
             ;; This seems a bit silly, and can result in GC being triggered
-            ;; during as simple as scrolling a buffer.
+            ;; during something as simple as scrolling a buffer.
             ;;
             ;; Conversely, setting the GC to silly amounts will result in GCs
             ;; bringing Emacs to its knees at the most inopportune moments

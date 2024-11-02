@@ -30,6 +30,16 @@
 
 (require 'cl-lib)
 
+(defvar zlisp-text-ellipsis "…"
+  "Character(s) to use for ellipses.")
+
+(defun zlisp/elide-text (text width)
+  (let ((text-length (length text)))
+    (if (> text-length width)
+        (concat (substring text 0 (min width text-length))
+                zlisp-text-ellipsis)
+      text)))
+
 (defun zlisp/has-space-at-boundary-p (string)
   "Check whether STRING has any whitespace on the boundary.
 

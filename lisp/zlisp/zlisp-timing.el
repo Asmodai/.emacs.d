@@ -31,7 +31,8 @@
 ;; See https://stackoverflow.com/q/23622296
 (defmacro zlisp/measure-time (&rest body)
   "Measure the time it takes to evaluate BODY."
-  `(let ((time (current-time)))
+  `(let ((time (current-time))
+         (inhibit-message t))
      ,@body
      (message "
 ;; ======================================================

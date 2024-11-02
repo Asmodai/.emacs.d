@@ -56,7 +56,13 @@
 ;;;; Inspector:
 
 (use-package inspector
-  :defer t)
+  :defer t
+  :commands (inspector-inspect)
+  :config
+  (progn
+    (require 'inspector)
+    (unless (fboundp 'inspect)
+      (defalias 'inspect #'inspector-inspect))))
 
 ;;;; Tags:
 

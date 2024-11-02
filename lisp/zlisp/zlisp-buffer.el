@@ -30,6 +30,19 @@
 
 (require 'cl-lib)
 
+(defun zlisp/get-buffer-width ()
+  "Return the length of longest line in the current buffer."
+  (save-excursion
+    (goto-char 0)
+    (let ((current-max 0))
+      (while (not (eobp))
+        (let ((line-length (- (line-end-position) (line-beginning-position)     )))
+          (setq current-max (max current-max line-length)))
+        (forward-line 1))
+      current-max)))
+
+
+
 (defun zlisp/goto-minibuffer-window ()
   "Locate point to minibuffer window if it is active."
   (interactive)
