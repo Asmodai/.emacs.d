@@ -1,10 +1,10 @@
-;;; zmacs-prog-yaml.el --- YAML packages  -*- mode: emacs-lisp; lexical-binding: t; -*-
+;;; zmacs-prog-ruby.el --- Ruby packages  -*- mode: emacs-lisp; lexical-binding: t; -*-
 ;;
 ;; Copyright (c) 2024 Paul Ward <paul@lisphacker.uk>
 ;;
 ;; Author:     Paul Ward <paul@lisphacker.uk>
 ;; Maintainer: Paul Ward <paul@lisphacker.uk>
-;; Created:    28 Oct 2024 10:49:05
+;; Created:    05 Nov 2024 09:08:39
 ;; URL:        not distributed yet
 ;;
 ;; This file is not part of GNU Emacs.
@@ -31,22 +31,37 @@
 (eval-when-compile
   (require 'cl-lib))
 
-;;;; YAML mode
+;;;; Enhanced Ruby Mode:
 
-(use-package yaml-mode
+(use-package enh-ruby-mode
   :ensure t
-  :defer t)
+  :defer t
+  :mode (("\\.rb$"      . enh-ruby-mode)
+         ("\\.rake$"    . enh-ruby-mode)
+         ("Rakefile$"   . enh-ruby-mode)
+         ("\\.gemspec$" . enh-ruby-mode)
+         ("\\.ru$"      . enh-ruby-mode)
+         ("Gemfile$"    . enh-ruby-mode)
+         ("Capfile$"    . enh-ruby-mode)
+         ("\\.thor$"    . enh-ruby-mode))
+  :custom
+  (enh-ruby-bounce-deep-indent         t)
+  (enh-ruby-hanging-brace-indent-level 2)
+  (enh-ruby-check-syntax               nil)
+  :config
+  (add-to-list 'interpreter-mode-alist '("ruby" . enh-ruby-mode)))
 
-;;;; YAML Pro:
+;;;; Robe
 
-(use-package yaml-pro
+(use-package robe
   :ensure t
+  :after enh-ruby-mode
   :demand t
-  :after yaml-mode
-  :hook (yaml-mode . yaml-pro-mode))
+  :hook ((ruby-mode         . robe-mode)
+         (ruby-ts-mode-hook . robe-mode)))
 
 ;;;; Provide package:
 
-(provide 'zmacs-prog-yaml)
+(provide 'zmacs-prog-ruby)
 
-;;; zmacs-prog-yaml.el ends here.
+;;; zmacs-prog-ruby.el ends here.

@@ -34,9 +34,10 @@
   "Character(s) to use for ellipses.")
 
 (defun zlisp/elide-text (text width)
-  (let ((text-length (length text)))
+  (let* ((text-length  (length text))
+         (elide-length (length zlisp-text-ellipsis)))
     (if (> text-length width)
-        (concat (substring text 0 (min width text-length))
+        (concat (substring text 0 (min (1- width) text-length))
                 zlisp-text-ellipsis)
       text)))
 

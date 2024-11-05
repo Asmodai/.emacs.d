@@ -213,6 +213,7 @@
 (require 'zmacs-prog-c)
 (require 'zmacs-prog-go)
 (require 'zmacs-prog-js)
+(require 'zmacs-prog-ruby)
 
 ;;;;; Functions:
 (require 'zlisp-memory)
