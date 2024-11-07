@@ -110,21 +110,21 @@
   (progn
     (require 'smartparens-config)
     (show-smartparens-global-mode +1)
-    (zmacs-diminish smartparens-mode " 🄪" " SP"))
+    (zmacs-diminish smartparens-mode " 🄪" " SP")))
 
-  (defun zmacs/deactivate-smartparens (&optional global)
-    "Deactivate `smartparens-mode' and `smartparens-strict-mode'.
+(defun zmacs/deactivate-smartparens (&optional global)
+  "Deactivate `smartparens-mode' and `smartparens-strict-mode'.
 
 If GLOBAL is non-NIL then we work on the global modes."
-    (if global
-        (progn
-          (when smartparens-global-strict-mode
-            (smartparens-global-strict-mode -1))
-          (smartparens-global-mode -1))
-      (when (and (boundp 'smartparens-strict-mode)
-                 smartparens-strict-mode)
-        (smartparens-strict-mode -1))
-      (smartparens-mode -1))))
+  (if global
+      (progn
+        (when smartparens-global-strict-mode
+          (smartparens-global-strict-mode -1))
+        (smartparens-global-mode -1))
+    (when (and (boundp 'smartparens-strict-mode)
+               smartparens-strict-mode)
+      (smartparens-strict-mode -1))
+    (smartparens-mode -1)))
 
 ;;;; Paredit:
 
@@ -136,11 +136,10 @@ If GLOBAL is non-NIL then we work on the global modes."
          (lisp-mode-hook   . enable-paredit-mode)
          (scheme-mode-hook . enable-paredit-mode))
   :config
-  (progn
-    (zmacs-diminish paredit-mode " ⊚" "P")
+  (zmacs-diminish paredit-mode " ⊚" "P"))
 
-    (defun zmacs/deactivate-paredit ()
-      (paredit-mode -1))))
+(defun zmacs/deactivate-paredit ()
+  (paredit-mode -1))
 
 ;;;; Tree Sitter:
 

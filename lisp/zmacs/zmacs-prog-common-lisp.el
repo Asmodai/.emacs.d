@@ -29,6 +29,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'zmacs-programming)
 (require 'zmacs-prog-lisp)
 (require 'cl-indent)
 
