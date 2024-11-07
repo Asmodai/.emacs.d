@@ -254,21 +254,36 @@ shall be used.")
 
 (custom-set-faces
  `(default
-   ((t (,@*zmacs-fixed-face*
-        :width          normal
-        :height         ,*zmacs-fixed-font-size*
-        :weight         normal
-        :slant          normal
-        :underline      nil
-        :overline       nil
-        :extend         nil
-        :strike-through nil
-        :box            nil
-        :inverse-video  nil
-        :foreground     ,(zmacs--theme-color *zmacs--color-pwhite* 0)
-        :background     ,(zmacs--ui-color :view-background)
-        :stipple        nil
-        :inherit        nil))))
+    ((((type tty))
+      (:width          normal
+       :weight         normal
+       :slant          normal
+       :underline      nil
+       :overline       nil
+       :extend         nil
+       :strike-through nil
+       :box            nil
+       :inverse-video  nil
+       :foreground     ,(zmacs--theme-color *zmacs--color-pwhite* 0)
+       :background     unspecified
+       :stipple        nil
+       :inherit        nil))
+    (t
+     (,@*zmacs-fixed-face*
+      :width          normal
+      :height         ,*zmacs-fixed-font-size*
+      :weight         normal
+      :slant          normal
+      :underline      nil
+      :overline       nil
+      :extend         nil
+      :strike-through nil
+      :box            nil
+      :inverse-video  nil
+      :foreground     ,(zmacs--theme-color *zmacs--color-pwhite* 0)
+      :background     ,(zmacs--ui-color :view-background)
+      :stipple        nil
+      :inherit        nil))))
  `(variable-pitch
    ((t (,@*zmacs-variable-face*
         :width   normal
