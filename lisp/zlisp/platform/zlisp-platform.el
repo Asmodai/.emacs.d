@@ -82,12 +82,21 @@
            dir))))
 
 ;;;###autoload
+(defvar zlisp--path-separator
+  (cond ((zlisp/windows-32-p) "\\")
+        (t                    "/"))
+  "The path separator character in use on the current operating system.")
+
+;;;###autoload
 (defvar user-home-directory (zlisp/get-home-directory)
   "Directory containing the users' file on the current operating system.")
 
 (defun make-home-directory-path (pathspec)
   "Create a new path spec from PATHSPEC rooted to the user's home directory."
-  (expand-file-name (concat user-home-directory "/" pathspec "/")))
+  (expand-file-name (concat user-home-directory
+                            zlisp--path-separator
+                            pathspec
+                            zlisp--path-separator)))
 
 ;;;; Provide package:
 
