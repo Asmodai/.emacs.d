@@ -61,7 +61,7 @@
 (defun zlisp/insert-date-and-time ()
   "Insert the current date and time."
   (interactive)
-  (insert (zlisp//format-date "%m-%d-%Y %H:%M:%S")))
+  (insert (zlisp//format-date "%d-%m-%Y %H:%M:%S")))
 
 (provide 'zlisp-time)
 
