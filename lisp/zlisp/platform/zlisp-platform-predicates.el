@@ -39,7 +39,7 @@
           ((eq system-type 'gnu)                   :gnu-hurd)
           ((eq system-type 'gnu/kfreebsd)          :gnu/kfreebsd)
           ((eq system-type 'darwin)                :darwin)
-          ((eq system-type 'berkely-unix)          :bsd)
+          ((eq system-type 'berkeley-unix)         :bsd)
           (t                                       :unix))
     "The host system."))
 

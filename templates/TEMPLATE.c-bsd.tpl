@@ -1,4 +1,6 @@
 /*
+ * SPDX-License-Identifier: 0BSD
+ *
  * (>>>FILE<<<) --- (>>>TITLE<<<)
  *
  * Copyright (c) (>>>YEAR<<<) (>>>USER_NAME<<<) (>>>LITERAL<<<)<(>>>/LITERAL<<<)(>>>AUTHOR<<<)(>>>LITERAL<<<)>(>>>/LITERAL<<<)
