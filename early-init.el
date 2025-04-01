@@ -185,8 +185,9 @@
         inhibit-splash-screen        t
         initial-scratch-message      nil)
 
-(setopt tool-bar-mode nil
-        scroll-bar-mode nil)
+(when (not (eq window-system nil))
+  (setopt tool-bar-mode nil
+	  scroll-bar-mode nil))
 
 ;; This is probably better than `inhibit-startup-echo-area-message'.
 (defun display-startup-echo-area-message ()
