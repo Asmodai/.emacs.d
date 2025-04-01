@@ -727,10 +727,14 @@ This fixes an overlapping issue, that occurs when ZMACS is started in a
 (visual-line-mode 0)
 
 (blink-cursor-mode -1)                  ; No cursor blinking.
-(scroll-bar-mode 1)                     ; Want scroll bars.
-;;(fringe-mode 1)                         ; Want fringes.
-(menu-bar-mode -1)                      ; No menu bar.
-(tool-bar-mode -1)                      ; No toolbar.
+(when (fboundp 'scroll-bar-mode)
+  (scroll-bar-mode 1))			; Want scroll bars.
+(when (fboundp 'fringe-mode)
+  (fringe-mode 1))			; Want fringes.
+(when (fboundp 'menu-bar-mode)
+  (menu-bar-mode -1))			; No menu bar.
+(when (fboundp 'tool-bar-mode)
+  (tool-bar-mode -1))			; No toolbar.
 (electric-indent-mode)                  ; Electric indent mode.
 
 (add-hook 'prog-mode-hook (lambda ()
