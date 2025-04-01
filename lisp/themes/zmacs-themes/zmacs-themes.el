@@ -409,9 +409,9 @@ doesn't stand out."
 (defface meta-repl-inline-ui-face
   `((t (:inherit    meta-repl-input-face
         :foreground ,(zmacs--primary-color/faint :orange)
-        :box (:line-width 1
+        :box (:line-width  (1 . 1)
               :color ,(zmacs--theme-color *zmacs--color-purple* 0)
-              :style flat))))
+              :style flat-button))))
   "Meta face for inline UI elements that might be used by a REPL.")
 
 ;;;; Theme definition:
