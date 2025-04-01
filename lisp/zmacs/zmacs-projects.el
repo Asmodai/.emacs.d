@@ -44,7 +44,7 @@
               ("t" . zmacs-goto-projects)
               ("R" . project-remember-projects-under))
   :custom
-  (project-list-file (concat *zmacs-cache-directory* "/projects/"))
+  (project-list-file (concat *zmacs-cache-directory* "/projects"))
   (project-switch-commands '((project-find-file "Find file")
                              (project-find-regexp "Find regexp")
                              (project-find-dir "Find directory")

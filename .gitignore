@@ -14,6 +14,7 @@
 # Custom files:
 custom.el
 user.el
+projects
 
 # Cache and random state:
 .cache
