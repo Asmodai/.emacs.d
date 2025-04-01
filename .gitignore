@@ -15,6 +15,7 @@
 custom.el
 user.el
 projects
+ielm-history.*
 
 # Cache and random state:
 .cache
