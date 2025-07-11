@@ -1,4 +1,4 @@
-// -*- Mode: Go -*-
+// -*- Mode: Protobuf -*-
 //
 // (>>>FILE<<<) --- (>>>TITLE<<<)
 //
@@ -31,15 +31,15 @@
 //
 //
 
+// * Options:
+
+syntax = "proto3";
+
 // * Package:
 
-package (>>>PACKAGE<<<)
+package (>>>PACKAGE<<<);
 
 // * Imports:
-
-// * Constants:
-
-// * Variables:
 
 // * Code:
 

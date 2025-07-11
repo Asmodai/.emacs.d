@@ -24,6 +24,16 @@
 //
 //
 
+// * Package:
+
+package (>>>PACKAGE<<<)
+
+// * Imports:
+
+// * Constants:
+
+// * Variables:
+
 // * Code:
 
 (>>>POINT<<<)
@@ -31,3 +41,4 @@
 // * (>>>FILE<<<) ends here.
 >>>TEMPLATE-DEFINITION-SECTION<<<
 ("TITLE" "Enter a description for this file: " "" "" "")
+("PACKAGE" "Enter the package for this file: " "" "" "")
