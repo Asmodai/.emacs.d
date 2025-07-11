@@ -489,6 +489,16 @@ Lisp function does not specify a special indentation."
 (use-package graphql
   :defer t)
 
+;;;; Protobuf:
+
+(use-package protobuf-mode
+  :defer t
+  :hook ((protobuf-mode . outline-minor-mode)
+         (protobuf-mode . outli-mode))
+  :init
+  (require 'outline)
+  (require 'outline-minor-faces))
+
 ;;;; Provide package:
 
 (provide 'zmacs-programming)
