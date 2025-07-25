@@ -1,4 +1,6 @@
-// -*- Mode: Go -*-
+// -*- Mode: Go; auto-fill: t; fill-column: 78; -*-
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
 //
 // (>>>FILE<<<) --- (>>>TITLE<<<)
 //
@@ -21,6 +23,8 @@
 // along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // * Comments:
+
+//
 //
 //
 

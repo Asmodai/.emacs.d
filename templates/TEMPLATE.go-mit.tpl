@@ -1,4 +1,6 @@
-// -*- Mode: Go -*-
+// -*- Mode: Go; auto-fill: t; fill-column: 78; -*-
+//
+// SPDX-License-Identifier: MIT
 //
 // (>>>FILE<<<) --- (>>>TITLE<<<)
 //
@@ -28,6 +30,8 @@
 // SOFTWARE.
 
 // * Comments:
+
+//
 //
 //
 
