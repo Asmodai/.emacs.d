@@ -22,10 +22,6 @@
 
 // * Comments:
 
-//
-//
-//
-
 // * Package:
 
 package (>>>PACKAGE<<<)
