@@ -499,6 +499,20 @@ Lisp function does not specify a special indentation."
   (require 'outline)
   (require 'outline-minor-faces))
 
+;;;; Bison:
+
+(use-package bison-mode
+  :defer t
+  :hook ((bison-mode . outline-minor-mode)
+         (bison-mode . outli-mode)
+         (flex-mode  . outline-minor-mode)
+         (flex-mode  . outli-mode))
+  :mode (("\\.l\\'" . bison-mode)
+         ("\\.y\\'" . flex-mode))
+  :init
+  (require 'outline)
+  (require 'outline-minor-faces))
+
 ;;;; Provide package:
 
 (provide 'zmacs-programming)
