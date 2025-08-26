@@ -30,6 +30,7 @@
 
 (require 'cl-lib)
 (require 'zlisp-platform)
+(require 'appt)
 
 ;;;; Emoji cheat sheet:
 
@@ -90,6 +91,12 @@
   (org-startup-folded                           nil)
   (org-startup-with-inline-images               t)
   (org-tags-column                              60)
+  (org-blank-before-new-entry '((heading)
+                                (plain-list-item . auto)))
+  (org-show-following-heading t)
+  (org-show-hierarchy-above t)
+  (org-show-siblings t)
+  (org-deadline-warning-days 30)
   ;;
   ;; Footnotes
   (org-footnote-section                         nil)
@@ -138,6 +145,10 @@
   (org-use-fast-todo-selection                  'expert)
   (org-enforce-todo-dependencies                t)
   (org-enforce-todo-checkbox-dependencies       t)
+  (org-todo-keywords
+   '((sequence "TODO(t)" "DOING(i!)" "WAIT(w@/!)" "|" "DONE(d!)")
+     (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|"  "CANCELLED(c@/!"
+               "PHONE" "MEETING")))
   ;;
   ;; Files.
   (org-clock-persist-file                       (concat *zmacs-cache-directory*
@@ -193,6 +204,7 @@
                                      pandoc
                                      hugo
                                      md))
+  (org-default-notes-file (concat *zmacs-org-directory* "/notes.org"))
   (org-odt-preferred-output-format "docx"))
 
 ;;;; Org Agenda:
@@ -209,6 +221,7 @@
   (org-agenda-tags-column 0) ;; Put tags next to heading
   (org-agenda-breadcrumbs-separator "  ")
   (org-agenda-block-separator " ") ;; No default block seperator
+  (org-agenda-use-time-grid t)
   (org-agenda-time-grid
    '((daily today require-timed)
      (800 1000 1200 1400 1600 1800 2000)
@@ -232,12 +245,14 @@
      (search . " %i %-12:c")))
 
   ;; Scheduling
+  (org-agenda-include-diary t)
   (org-agenda-skip-scheduled-if-done t)
   (org-agenda-skip-timestamp-if-done t)
   (org-agenda-todo-ignore-scheduled 'future)
   (org-agenda-todo-ignore-deadlines 'far)
   (org-agenda-sorting-strategy
    '((agenda time-up) (todo time-up) (tags time-up) (search time-up)))
+  (org-agenda-start-on-weekday 1)
   (calendar-week-start-day 1) ;; Start week on Monday
 
   ;; Agenda Custom Commands
@@ -991,6 +1006,37 @@ and 0 means insert a single space in between the headline and the tags."
 (add-hook 'org-mode-hook #'zmacs-org-mode-hook-fixes)
 (add-hook 'org-mode-hook #'zmacs-fix-tag-alignment)
 (add-hook 'org-after-todo-statistics-hook #'zmacs-summary-todo)
+
+;;;; Appointments:
+
+(setq appt-display-interval t
+      appt-message-warning-time 15
+      appt-display-mode-line t
+      appt-audible nil)
+(appt-activate t)
+
+(defun zmacs-refresh-appts ()
+  "Sync Org Agenda entries into `appt` reminders."
+  (interactive)
+  (setq appt-time-msg-list nil)
+  (org-agenda-to-appt t))
+(zmacs-refresh-appts)
+
+;; Auto-refresh appointments.
+(add-hook 'after-save-hook
+          (lambda ()
+            (when (derived-mode-p 'org-mode)
+              (zmacs-refresh-appts))))
+
+(add-hook 'org-agenda-finalize-hook #'zmacs-refresh-appts)
+
+(require 'org-capture)
+;; Add a capture template.
+(add-to-list
+ 'org-capture-templates
+ `("a" "Appointment" entry
+   (file ,(expand-file-name  "todo.org" *zmacs-org-directory*))
+   "* %^{Title}\nSCHEDULED: %^t\n:PROPERTIES:\n:LOCATION: %^{Where}\n:END:\n%?"))
 
 ;;;; Provide package:
 

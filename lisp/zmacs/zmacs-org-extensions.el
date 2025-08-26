@@ -279,7 +279,29 @@
 
 (use-package org-pomodoro
   :after org
-  :commands org-pomodoro)
+  :commands org-pomodoro
+  :defer nil)
+
+;;;; Kanban:
+
+(use-package org-kanban
+  :after org
+  :defer nil)
+
+;;;; Super Agenda:
+
+(use-package org-super-agenda
+  :after org-agenda
+  :config
+  (org-super-agenda-mode)
+  (setq org-super-agenda-groups
+        '((:name "⭐ Today" :time-grid t :scheduled today)
+          (:name "⏰ Due Soon" :deadline future)
+          (:name "⚠️ Overdue" :deadline past)
+          (:name "🔥 Doing" :todo "DOING")
+          (:name "📚 Reading" :tag "reading")
+          (:name "✍️ Writing" :tag "writing")
+          (:name "Someday" :tag "someday"))))
 
 ;;;; Org Mime:
 
