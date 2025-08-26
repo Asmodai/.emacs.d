@@ -81,6 +81,7 @@
   (make-pointer-invisible    t)
   (visible-bell              t)
   (blink-cursor-mode         0)
+  (diary-file (concat zmacs-storage-directory "/diary"))
   :config
   (setq-default tab-width                  8
                 fill-column                80

@@ -197,6 +197,9 @@
 (require 'zmacs-org-base)
 (require 'zmacs-org-extensions)
 
+;;;;; Calendar:
+(require 'zmacs-calendar)
+
 ;;;;; Writing:
 (require 'zmacs-writing)
 (require 'zmacs-citation)
