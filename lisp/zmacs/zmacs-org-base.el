@@ -145,7 +145,7 @@
   (org-enforce-todo-checkbox-dependencies       t)
   (org-todo-keywords
    '((sequence "TODO(t)" "DOING(i!)" "WAIT(w@/!)" "|" "DONE(d!)")
-     (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|"  "CANCELLED(c@/!"
+     (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|"  "CANCELLED(c@/!)"
                "PHONE" "MEETING")))
   ;;
   ;; Files.

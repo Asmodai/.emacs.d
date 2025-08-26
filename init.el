@@ -150,7 +150,13 @@
         user-mail-address      \"you@example.com\"     ; Your e-mail address.
         user-url-address       \"http://example.com/\" ; Your website URL.
         user-work-mail-address \"you@example.com\"     ; Your work e-email.
-        initial-major-mode     'fundamental-mode)
+        initial-major-mode     'fundamental-mode
+
+        ;; Calendar settings.
+        user-latitude  0.0                             ; Your latitude.
+        user-longitude 0.0                             ; Your longitude.
+        user-city      \"some city\"                   ; Your city.
+        user-gcal-secret \"https://...\")              ; Your gcal secret ics.
 
 ;; user.el ends here.
 "))))

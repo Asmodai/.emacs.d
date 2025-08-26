@@ -61,10 +61,11 @@
     (interactive)
     (cfw:open-calendar-buffer
      :contents-sources
-     (list
-      (cfw:org-create-source "Green")
-      (cfw:cal-create-source "Orange")
-      (cfw:ical-create-source "gcal" user-gcal-secret "IndianRed")))))
+      (list
+        (cfw:org-create-source "Green")
+        (cfw:cal-create-source "Orange")
+        (when (boundp 'user-gcal-secret)
+           (cfw:ical-create-source "gcal" user-gcal-secret "IndianRed"))))))
 
 ;;;; Provide package:
 

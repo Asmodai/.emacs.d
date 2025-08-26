@@ -31,6 +31,8 @@
 (require 'cl-lib)
 (require 'zlisp-platform)
 (require 'zlisp-frame)
+(require 'solar)
+(require 'lunar)
 
 ;;;; Set initial size:
 
@@ -821,6 +823,90 @@ This fixes an overlapping issue, that occurs when ZMACS is started in a
   (message "ZMACS: Enabling macOS support.")
   (require 'zlisp-platform-macos)
   (zlisp/macos-exec-path))
+
+;;;; Calendar hacks:
+;;;;; Settings:
+
+(setq calendar-date-style 'european     ; dd/mm/yyyy vibes
+      calendar-week-start-day 1         ; Monday is real week start
+      calendar-mark-holidays-flag t)
+
+;; Show ISO week numbers in M-x calendar’s left margin
+(setq calendar-intermonth-text
+      '(propertize
+        (format "%2d"
+                (car (calendar-iso-from-absolute
+                      (calendar-absolute-from-gregorian (list month day year)))))
+        'font-lock-face 'font-lock-doc-face))
+
+
+(if (and (boundp 'user-latitude)
+           (boundp 'user-longitude))
+  (setq calendar-latitude  user-latitude
+        calendar-longitude user-longitude))
+
+(if (boundp 'user-city)
+    (setq calendar-location-name user-city))
+
+;;;;; Lunar phases:
+
+(defun zmacs-sunrise ()
+  "Local time of sunrise as a diary entry."
+  (with-suppressed-warnings ((lexical date))
+    (defvar date))
+  (let ((l (solar-sunrise-sunset date)))
+    (when (car l)
+      (concat (if (string= entry "")
+                  "Sunrise"
+                (format entry (eval calendar-location-name)))
+              " "
+              (solar-time-string (caar l) nil)))))
+
+(defun zmacs-sunset ()
+  "Local time of sunset as a diary entry."
+  (with-suppressed-warnings ((lexical date))
+    (defvar date))
+  (let ((l (solar-sunrise-sunset date)))
+    (when (cadr l)
+      (concat (if (string= entry "")
+                  "Sunset"
+                (format entry (eval calendar-location-name)))
+              " "
+              (solar-time-string (caadr l) nil)))))
+
+(defun zmacs-lunar-phases ()
+  "Show lunar phase in Agenda buffer."
+  (with-suppressed-warnings ((lexical date))
+    (defvar date))
+  (let* ((phase-list (lunar-phase-list (nth 0 date) (nth 2 date)))
+         (phase (cl-find-if (lambda (phase)
+                              (equal (car phase) date))
+                            phase-list)))
+    (when phase
+      (setq ret (concat (lunar-phase-name (nth 2 phase))
+                        " "
+                        (substring (nth 1 phase) 0 5))))))
+
+(setq lunar-phase-names
+      (if (display-graphic-p)
+          '("🌑 New Moon"
+            "🌓 First Quarter Moon"
+            "🌕 Full Moon"
+            "🌗 Last Quarter Moon")
+        '("● New Moon"
+          "☽ First Quarter Moon"
+          "○ Full Moon"
+          "☾ Last Quarter Moon")))
+
+;;;;; DST hacks:
+
+(setq calendar-daylight-savings-starts
+      '(calendar-nth-named-day -1 0 3 year) ; last Sunday in March
+      calendar-daylight-savings-ends
+      '(calendar-nth-named-day -1 0 10 year)   ; last Sunday in October
+      calendar-daylight-time-offset 60         ; minutes (BST is +1h)
+      calendar-daylight-savings-starts-time 60 ; 01:00 local
+      calendar-daylight-savings-ends-time 120)   ; 02:00 local
 
 ;;;; Provide package:
 
