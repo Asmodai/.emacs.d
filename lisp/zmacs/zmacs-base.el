@@ -829,7 +829,11 @@ This fixes an overlapping issue, that occurs when ZMACS is started in a
 
 (setq calendar-date-style 'european     ; dd/mm/yyyy vibes
       calendar-week-start-day 1         ; Monday is real week start
-      calendar-mark-holidays-flag t)
+      calendar-mark-holidays-flag t
+      calendar-view-diary-initially-flag t
+      calendar-view-holidays-initially-flag t
+      calendar-mark-holidays-flag t
+      calendar-mark-diary-entries-flag t)
 
 ;; Show ISO week numbers in M-x calendar’s left margin
 (setq calendar-intermonth-text

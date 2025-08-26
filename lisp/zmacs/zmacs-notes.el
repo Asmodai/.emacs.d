@@ -76,33 +76,7 @@
   (add-to-list 'org-capture-templates
                `("t" "Quick Todo" entry
                  (file ,(expand-file-name  "todo.org" *zmacs-org-directory*))
-                 "* TODO %?\n:PROPERTIES:\n:created: %U\n:END:\n%a"))
-  (add-to-list 'org-capture-templates
-               `("s" "Some day maybe" entry
-                 (file ,(expand-file-name "someday.org" *zmacs-org-directory*))
-                 "* TODO %? :someday:\n:PROPERTIES:\n:created: %U\n:END:\n"))
-  (add-to-list 'org-capture-templates
-               `("r" "Reading list item" entry
-                 (file ,(expand-file-name "reading.org" *zmacs-org-directory*))
-                 "* TODO %?  :reading:\n:PROPERTIES:\n:source: %a\n:created: %U\n:END:\n"))
-  (add-to-list 'org-capture-templates
-               `("w" "Writing idea" entry
-                 (file ,(expand-file-name "writing.org" *zmacs-org-directory*))
-                 "* TODO %?  :writing:\n:PROPERTIES:\n:created: %U\n:END:\n")))
-
-(defun zmacs-agenda-scan-denote ()
-  (interactive)
-  (setq org-agenda-files
-        (append (list (concat *zmacs-org-directory* "todo.org")
-                      (concat *zmacs-org-directory* "someday.org")
-                      (concat *zmacs-org-directory* "reading.org")
-                      (concat *zmacs-org-directory* "writing.org"))
-                (directory-files-recursively *zmacs-notes-directory*
-                                             "\\.org\\'"))))
-(zmacs-agenda-scan-denote)
-
-(add-hook 'denote-file-created-hook #'zmacs-agenda-scan-denote)
-(add-hook 'denote-file-renamed-hook #'zmacs-agenda-scan-denote)
+                 "* TODO %?\n:PROPERTIES:\n:created: %U\n:END:\n%a")))
 
 (defun zmacs-denote-capture-note ()
   "Create a new note with Denote."

@@ -178,16 +178,19 @@
 
 ;;;; Settings:
 
-(setopt frame-inhibit-implied-resize t
-        frame-title-format           "ZMACS"
-        inhibit-startup-screen       t
-        inhibit-startup-message      t
-        inhibit-splash-screen        t
-        initial-scratch-message      nil)
+(setopt frame-inhibit-implied-resize     t
+        frame-title-format               "ZMACS"
+        inhibit-startup-screen           t
+        inhibit-startup-message          t
+        inhibit-splash-screen            t
+        view-diary-entries-initially     nil
+        view-calendar-holidays-initially nil
+        initial-scratch-message          nil
+        diary-display-function           #'ignore)
 
 (when (not (eq window-system nil))
   (setopt tool-bar-mode nil
-	  scroll-bar-mode nil))
+          scroll-bar-mode nil))
 
 ;; This is probably better than `inhibit-startup-echo-area-message'.
 (defun display-startup-echo-area-message ()

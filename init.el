@@ -251,7 +251,8 @@
                (format "Emacs ready in %0.2f seconds with %d collections."
                        (float-time
                         (time-subtract after-init-time before-init-time))
-                       gcs-done))))
+                       gcs-done))
+              (setf diary-display-function #'diary-fancy-display)))
 
 ;;;; Garbage Collection:
 

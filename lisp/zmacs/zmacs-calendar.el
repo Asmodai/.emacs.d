@@ -30,7 +30,7 @@
 
 (require 'cl-lib)
 (require 'zlisp-platform)
-(require 'icalendar)
+;(require 'icalendar)
 
 ;;;; Calendar framework:
 

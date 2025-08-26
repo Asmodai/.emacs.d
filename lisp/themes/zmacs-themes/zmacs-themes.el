@@ -384,14 +384,39 @@ doesn't stand out."
   "An aqua accent face."
   :group 'faces)
 
+(defface zmacs-todo-todo nil
+  "A `todo' face for todo lists."
+  :group 'faces)
+
+(defface zmacs-todo-doing nil
+  "A `doing' face for todo lists."
+  :group 'faces)
+
+(defface zmacs-todo-done nil
+  "A `done' face for todo lists."
+  :group 'faces)
+
+(defface zmacs-todo-wait nil
+  "A `wait' face for todo lists."
+  :group 'faces)
+
+(defface zmacs-todo-hold nil
+  "A `hold' face for todo lists."
+  :group 'faces)
+
+(defface zmacs-todo-cancelled nil
+  "A `cancelled' face for todo lists."
+  :group 'faces)
+
 ;;;; Meta faces:
-;; These are not really used, they're just here to define a set of faces that
-;; can be used by things like REPLs et al.
+  ;; These are not really used, they're just here to define a set of faces that
+  ;; can be used by things like REPLs et al.
+
 
 (defface meta-repl-prompt-face
   `((t (:inherit    fixed-pitch
-                    :foreground ,(zmacs--primary-color/faint :blue)
-                    :background unspecified)))
+        :foreground ,(zmacs--primary-color/faint :blue)
+        :background unspecified)))
   "Meta face for REPL prompts.")
 
 (defface meta-repl-input-face
@@ -1142,6 +1167,79 @@ doesn't stand out."
 ;;;;;; Breadcrumb:
      `(breadcrumb-face
        ((,class (:inherit shadow))))
+;;;;;; Calfs:
+     `(cfw:face-title
+       ((,class (:foreground ,zmacs-urgent
+                 :weight bold
+                 :height 2.0
+                 :inherit variable-pitch))))
+     `(cfw:face-header
+       ((,class (:foreground ,(zmacs--primary-color/faint :green)
+                 :weight bold))))
+     `(cfw:face-saturday
+       ((,class (:foreground ,(zmacs--primary-color/faint :yellow)
+                 :weight bold))))
+     `(cfw:face-sunday
+       ((,class (:foreground ,(zmacs--primary-color/faint :red)
+                 :weight bold))))
+     `(cfw:face-holiday
+       ((,class (:background "grey10"
+                 :foreground ,zmacs-comment-6
+                 :weight bold))))
+     `(cfw:face-grid
+       ((,class (:foreground ,(zmacs--theme-color *zmacs--color-grey* 2)))))
+     `(cfw:face-default-content
+       ((,class (:foreground "#bfebbf"))))
+     `(cfw:face-periods
+       ((,class (:foreground "cyan"))))
+     `(cfw:face-day-title
+       ((,class (:background "grey10"))))
+     `(cfw:face-default-day
+       ((,class (:weight bold
+                 :inherit cfw:face-day-title))))
+     `(cfw:face-select
+       ((,class (:background ,(zmacs--theme-color *zmacs--color-purple* 2)))))
+     `(cfw:face-toolbar
+       ((,class (:background ,zmacs-l1
+                 :foreground ,zmacs-l1))))
+     `(cfw:face-toolbar-button-on
+       ((,class (:foreground ,zmacs-foreground
+                 :background ,zmacs-l1))))
+     `(cfw:face-toolbar-button-off
+       ((,class (:foreground ,zmacs-background
+                 :background ,zmacs-l1))))
+     `(cfw:face-today
+       ((,class (:background ,(zmacs--theme-color *zmacs--color-pwhite* 9)
+                 :weight bold))))
+     `(cfw:face-today-title
+       ((,class (:background ,(zmacs--theme-color *zmacs--color-pwhite* 6)
+                 :foreground ,zmacs-comment-1
+                 :weight bold))))
+     `(cfw:face-disable
+       ((,class (:foreground ,(zmacs--theme-color *zmacs--color-grey* 1)
+                 :inherit cfw:face-day-title))))
+     `(cfw:face-annotation
+       ((,class (:foreground ,(zmacs--primary-color/bright :magenta)
+                 :inherit cfw:face-day-title))))
+;;;;;; Todo lists:
+     `(zmacs-todo-todo
+       ((,class (:foreground ,zmacs-yellow
+                 :weight bold))))
+     `(zmacs-todo-doing
+       ((,class (:foreground ,zmacs-cyan
+                 :weight bold))))
+     `(zmacs-todo-done
+       ((,class (:foreground ,zmacs-green
+                 :weight bold))))
+     `(zmacs-todo-wait
+       ((,class (:foreground ,zmacs-orange
+                 :weight bold))))
+     `(zmacs-todo-hold
+       ((,class (:foreground ,zmacs-magenta
+                 :weight bold))))
+     `(zmacs-todo-cancelled
+       ((,class (:foreground ,zmacs-red
+                 :weight bold))))
 ;;;;; End of faces:
      )                                  ; custom-set-faces
     (custom-theme-set-variables
@@ -1166,13 +1264,13 @@ doesn't stand out."
 ;;;; Highlight Todo:
 
 (setq-default hl-todo-keyword-faces
-              '(("HOLD"       . query-replace)
-                ("TODO"       . warning)
-                ("NEXT"       . highlight)
-                ("OKAY"       . success)
-                ("DONT"       . error)
-                ("FAIL"       . error)
-                ("DONE"       . success)
+              '(("HOLD"       . zmacs-todo-hold)
+                ("TODO"       . zmacs-todo-todo)
+                ("NEXT"       . zmacs-todo-doing)
+                ("OKAY"       . zmacs-todo-done)
+                ("DONT"       . zmacs-todo-cancelled)
+                ("FAIL"       . zmacs-todo-cancelled)
+                ("DONE"       . zmacs-todo-done)
                 ("NOTE"       . warning)
                 ("KLUDGE"     . warning)
                 ("HACK"       . warning)
@@ -1182,6 +1280,16 @@ doesn't stand out."
                 ("BUG"        . error)
                 ("REVIEW"     . warning)
                 ("DEPRECATED" . warning)))
+
+;;;; Org Todo:
+
+(setq-default org-todo-keyword-faces
+              '(("TODO" . zmacs-todo-todo)
+                ("DOING" . zmacs-todo-doing)
+                ("DONE" . zmacs-todo-done)
+                ("WAIT" . zmacs-todo-wait)
+                ("HOLD" . zmacs-todo-hold)
+                ("CANCELLED" . zmacs-todo-cancelled)))
 
 ;;;; Autoload:
 

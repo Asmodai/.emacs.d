@@ -154,6 +154,10 @@ will be killed."
   (interactive)
   (switch-to-buffer (other-buffer (current-buffer) 1)))
 
+(defun zlisp/buffer-visible-p ()
+  "Is the buffer visible?"
+  (get-buffer-window (current-buffer) t))
+
 (provide 'zlisp-buffer)
 
 ;;; zlisp-buffer.el ends here.

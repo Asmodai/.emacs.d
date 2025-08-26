@@ -144,9 +144,8 @@
   (org-enforce-todo-dependencies                t)
   (org-enforce-todo-checkbox-dependencies       t)
   (org-todo-keywords
-   '((sequence "TODO(t)" "DOING(i!)" "WAIT(w@/!)" "|" "DONE(d!)")
-     (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|"  "CANCELLED(c@/!)"
-               "PHONE" "MEETING")))
+   '((sequence "TODO(t)" "DOING(i!)" "WAIT(w@/!)" "|"
+               "DONE(d!)" "HOLD(h@/!)"  "CANCELLED(c@/!)")))
   ;;
   ;; Files.
   (org-clock-persist-file                       (concat *zmacs-cache-directory*
@@ -205,17 +204,39 @@
   (org-default-notes-file (concat *zmacs-org-directory* "/notes.org"))
   (org-odt-preferred-output-format "docx"))
 
+;;;; Org Capture:
+
+(with-eval-after-load 'org-capture
+    (add-to-list 'org-capture-templates
+               `("i" "Inbox item" entry
+                 (file ,(expand-file-name "inbox.org" *zmacs-org-directory*))
+                 "* TODO %? :someday:\n:PROPERTIES:\n:created: %U\n:END:\n"))
+  (add-to-list 'org-capture-templates
+               `("s" "Some day maybe" entry
+                 (file ,(expand-file-name "someday.org" *zmacs-org-directory*))
+                 "* TODO %? :someday:\n:PROPERTIES:\n:created: %U\n:END:\n"))
+  (add-to-list 'org-capture-templates
+               `("r" "Reading list item" entry
+                 (file ,(expand-file-name "reading.org" *zmacs-org-directory*))
+                 "* TODO %?  :reading:\n:PROPERTIES:\n:source: %a\n:created: %U\n:END:\n"))
+  (add-to-list 'org-capture-templates
+               `("w" "Writing idea" entry
+                 (file ,(expand-file-name "writing.org" *zmacs-org-directory*))
+                 "* TODO %?  :writing:\n:PROPERTIES:\n:created: %U\n:END:\n")))
+
 ;;;; Org Agenda:
 
 (use-package org-agenda
   :ensure nil
   :commands (org-agenda)
   :custom
+  ;; Inhibit startup
+  (org-agenda-inhibit-startup t)
   ;; Agenda logging
   (org-agenda-start-with-log-mode t)
 
   ;; Agenda styling
-  (org-auto-align-tags nil) ;; Don't align tags
+  (org-auto-align-tags nil)  ;; Don't align tags
   (org-agenda-tags-column 0) ;; Put tags next to heading
   (org-agenda-breadcrumbs-separator "  ")
   (org-agenda-block-separator " ") ;; No default block seperator
@@ -232,6 +253,15 @@
   (org-agenda-show-inherited-tags nil)
   (org-agenda-window-setup 'only-window)
   (org-agenda-restore-windows-after-quit t)
+
+  ;; Files
+  (org-agenda-files (list *zmacs-org-directory*))
+
+   ;; (list (concat *zmacs-org-directory* "todo.org")
+   ;;       (concat *zmacs-org-directory* "someday.org")
+   ;;       (concat *zmacs-org-directory* "reading.org")
+   ;;       (concat *zmacs-org-directory* "writing.org")
+   ;;       (concat *zmacs-org-directory* "projects.org")))
 
   ;; from stack overflow https://stackoverflow.com/a/22900459/6277148
   ;; note that the formatting is nicer that just using '%b'
@@ -267,46 +297,43 @@
                   ((org-agenda-overriding-header "Due Soon")))
        (todo "NEXT"
              ((org-agenda-overriding-header "Next Tasks")))
-       (tags-todo "email" ((org-agenda-overriding-header "Email")))
-       ))
+       (tags-todo "email" ((org-agenda-overriding-header "Email")))))
 
      ("n" "Next Tasks"
       ((todo "NEXT"
              ((org-agenda-overriding-header "Next Tasks")))))
 
-     ("W" "Work Tasks" tags-todo "+work")
+     ("1" "Work Tasks" tags-todo "work"
+      ((org-agenda-overriding-header "Work")))
+
+     ("2" "Project tests" tags-todo "project"
+      ((org-agenda-overriding-header "Project")))
+
+     ("3" "Education tests" tags-todo "learning"
+      ((org-agenda-overriding-header "Education")))
 
      ;; Low-effort next actions
-     ("e" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
+     ("w" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
       ((org-agenda-overriding-header "Low Effort Tasks")
        (org-agenda-max-todos 20)
        (org-agenda-files org-agenda-files)))
 
-     ("w" "Workflow Status"
+     ("W" "Workflow Status"
+      ((todo "TODO"
+             ((org-agenda-override-header "Project Backlog"))))
       ((todo "WAIT"
              ((org-agenda-overriding-header "Waiting on External")
               (org-agenda-files org-agenda-files)))
-       (todo "REVIEW"
+       (todo "HOLD"
              ((org-agenda-overriding-header "In Review")
               (org-agenda-files org-agenda-files)))
-       (todo "PLAN"
-             ((org-agenda-overriding-header "In Planning")
-              (org-agenda-todo-list-sublevels nil)
-              (org-agenda-files org-agenda-files)))
-       (todo "BACKLOG"
-             ((org-agenda-overriding-header "Project Backlog")
-              (org-agenda-todo-list-sublevels nil)
-              (org-agenda-files org-agenda-files)))
-       (todo "READY"
-             ((org-agenda-overriding-header "Ready for Work")
-              (org-agenda-files org-agenda-files)))
-       (todo "ACTIVE"
+       (todo "DOING"
              ((org-agenda-overriding-header "Active Projects")
               (org-agenda-files org-agenda-files)))
-       (todo "COMPLETED"
+       (todo "DONE"
              ((org-agenda-overriding-header "Completed Projects")
               (org-agenda-files org-agenda-files)))
-       (todo "CANCELED"
+       (todo "CANCELLED"
              ((org-agenda-overriding-header "Cancelled Projects")
               (org-agenda-files org-agenda-files))))))))
 
@@ -326,6 +353,7 @@
     (with-current-buffer "*Org Agenda*"
       (org-agenda-redo)
       (message "[org agenda] refreshed!"))))
+
 (add-hook 'org-capture-after-finalize-hook 'zmacs-org-agenda-refresh)
 
 ;;;;; Hydra for Agenda
@@ -476,6 +504,9 @@ _vr_ reset      ^^                       ^^                 ^^
   :after org
   :custom
   (org-refile-targets '((nil :maxlevel . 9)
+                        ((concat *zmacs-org-directory* "projects.org" :maxlevel . 3))
+                        ((concat *zmacs-org-directory* "someday.org" :level . 1))
+                        ((concat *zmacs-org-directory* "todo.org" :maxlevel . 2))
                         (org-agenda-files :maxlevel . 8)))
   (org-refile-use-cache t)  ;; use cache for org refile
   (org-refile-use-outline-path 'file)
@@ -548,30 +579,40 @@ _vr_ reset      ^^                       ^^                 ^^
     (switch-to-buffer-other-window buf)))
 
 (defun zmacs-goto-org-files ()
-  "goto org-files directory"
+  "Goto org-files directory."
   (interactive)
   (let ((default-directory *zmacs-org-directory*))
     (call-interactively 'find-file)))
 
 (defun zmacs-goto-todo.org ()
-  "goto org-todo"
+  "Goto org-todo."
   (interactive)
   (find-file (concat *zmacs-org-directory* "todo.org")))
 
+(defun zmacs-goto-inbox.org ()
+  "Goto org inbox.."
+  (interactive)
+  (find-file (concat *zmacs-org-directory* "inbox.org")))
+
 (defun zmacs-goto-someday.org ()
-  "goto org-someday"
+  "Goto org-someday."
   (interactive)
   (find-file (concat *zmacs-org-directory* "someday.org")))
 
 (defun zmacs-goto-reading.org ()
-  "goto reading list"
+  "Goto reading list."
   (interactive)
   (find-file (concat *zmacs-org-directory* "reading.org")))
 
 (defun zmacs-goto-writing.org ()
-  "goto writing list"
+  "Goto writing list."
   (interactive)
   (find-file (concat *zmacs-org-directory* "writing.org")))
+
+(defun zmacs-goto-projects.org ()
+  "Goto projects list."
+  (interactive)
+  (find-file (concat *zmacs-org-directory* "projects.org")))
 
 (defun zmacs-org-export-headlines-to-docx ()
   "Export all subtrees that are *not* tagged with :noexport: to
@@ -940,74 +981,26 @@ one week to the next, unchecking them at the same time"
                   "DONE"
                 "TODO"))))
 
-(defun zmacs--align-tags-here (to-col)
-  "Align tags on the current headline to TO-COL.
-Since TO-COL is derived from `org-tags-column', a negative value is
-interpreted as alignment flush-right, a positive value as flush-left,
-and 0 means insert a single space in between the headline and the tags."
-  ;; source: https://list.orgmode.org/20200916225553.hrtxitzt46dzln7i@ionian.linksys.moosehall/
-  (save-excursion
-    (when (org-match-line org-tag-line-re)
-      (let* ((tags-start (match-beginning 1))
-             (tags-end (match-end 1))
-             (tags-pixel-width
-              (car (window-text-pixel-size (selected-window)
-                                           tags-start tags-end)))
-             (blank-start (progn
-                            (goto-char tags-start)
-                            (skip-chars-backward " \t")
-                            (point)))
-             ;; use this to avoid a 0-width space before tags on long lines:
-             (blank-start-col (progn
-                                (goto-char blank-start)
-                                (current-column)))
-             ;; this is to makes it work with org-indent-mode:
-             (lpref (if (org-fold-folded-p) 0
-                      (length (get-text-property (point) 'line-prefix)))))
-        ;; If there is more than one space between the headline and
-        ;; tags, delete the extra spaces.  Might be better to make the
-        ;; delete region one space smaller rather than inserting a new
-        ;; space?
-        (when (> tags-start (1+  blank-start))
-          (delete-region blank-start tags-start)
-          (goto-char blank-start)
-          (insert " "))
-        (if (or (= to-col 0) (< (abs to-col) (1- blank-start-col)))
-            ;; Just leave one normal space width
-            (remove-text-properties blank-start (1+  blank-start)
-                                    '(my-display nil))
-          (message "In here: %s" lpref)
-          (let ((align-expr
-                 (if (> to-col 0)
-                     ;; Left-align positive values
-                     (+ to-col lpref)
-                   ;; Right-align negative values by subtracting the
-                   ;; width of the tags.  Conveniently, the pixel
-                   ;; specification allows us to mix units,
-                   ;; subtracting a pixel width from a column number.
-                   `(-  ,(- lpref to-col) (,tags-pixel-width)))))
-            (put-text-property blank-start (1+  blank-start)
-                               'my-display
-                               `(space . (:align-to ,align-expr)))))))))
-
-(defun zmacs-fix-tag-alignment ()
-  (setq org-tags-column 60) ;; adjust this
-  (advice-add 'org--align-tags-here :override #'zmacs--align-tags-here)
-  ;; this is needed to make it work with https://github.com/minad/org-modern:
-  (add-to-list 'char-property-alias-alist '(display my-display))
-  ;; this is needed to align tags upon opening an org file:
-  (org-align-tags t))
-
 (defun zmacs-org-mode-hook-fixes ()
   (electric-pair-local-mode -1))
 
 (add-hook 'org-mode-hook #'zmacs-org-mode-hook-fixes)
-(add-hook 'org-mode-hook #'zmacs-fix-tag-alignment)
 (add-hook 'org-after-todo-statistics-hook #'zmacs-summary-todo)
+
+(add-to-list 'font-lock-extra-managed-props 'display)
+(font-lock-add-keywords 'org-mode
+                        `(("^.*?\\( \\)\\(:[[:alnum:]_@#%:]+:\\)$"
+                           (1 `(face nil
+                                     display (space
+                                              :align-to
+                                               (- right
+                                                  ,(org-string-width
+                                                    (match-string 2)) 3)))
+                              prepend))) t)
 
 ;;;; Appointments:
 
-(setq appt-display-interval t
+(setq appt-display-interval 5
       appt-message-warning-time 15
       appt-display-mode-line t
       appt-audible nil)
@@ -1028,7 +1021,18 @@ and 0 means insert a single space in between the headline and the tags."
 
 (add-hook 'org-agenda-finalize-hook #'zmacs-refresh-appts)
 
+;;;; At times I hate everything.  This includes you.
+
+(defun zmacs--orgdir-file-p (&optional file)
+  (let* ((orgdir (file-name-as-directory
+                  (expand-file-name *zmacs-org-directory*)))
+         (f (or file (buffer-file-name))))
+    (and f (string-prefix-p orgdir (file-truename f)))))
+
+;;;; Org Capture hacks:
+
 (require 'org-capture)
+
 ;; Add a capture template.
 (add-to-list
  'org-capture-templates

@@ -309,6 +309,20 @@ If not on a graphical display, ICON is excluded."
                                "Open notes in Dired."
                                (lambda (&rest _)
                                  (zmacs-notebook))))
+       (list (zmacs--with-icon (all-the-icons-faicon "calendar"
+                                                     :height 1.0
+                                                     :v-adjust 0.0)
+                               "Calendar"
+                               "View calendar"
+                               (lambda (&rest _)
+                                 (zmacs-open-calendar)))
+             (zmacs--with-icon (all-the-icons-faicon "tasks"
+                                                     :height 1.0
+                                 :v-adjust 0.0)
+                               "Agenda"
+                               "View daily agenda"
+                               (lambda (&rest _)
+                                 (org-agenda-list))))
        (list (zmacs--with-icon (all-the-icons-faicon "terminal"
                                                      :height 1.0
                                                      :v-adjust 0.0)
