@@ -982,7 +982,6 @@ doesn't stand out."
                        :style flat-button)))))
      `(org-time-grid
        ((,class (:inherit fixed-pitch
-                 :background ,zmacs-background
                  :foreground ,zmacs-comment-8
                  ;;,(zmacs--theme-color *zmacs--color-white* 7)
                  ))))
@@ -997,21 +996,17 @@ doesn't stand out."
                  :weight bold))))
      `(org-agenda-diary
        ((,class (:inherit fixed-pitch
-                 :background ,zmacs-background
                  :foreground ,(zmacs--primary-color/faint :magenta)))))
      `(org-agenda-calendar-event
        ((,class (:inherit fixed-pitch
-                 :background ,zmacs-background
                  :foreground ,(zmacs--primary-color/faint :orange)))))
      `(org-agenda-structure
        ((,class (:inherit fixed-pitch
-                 :background ,zmacs-background
                  :foreground ,zmacs-comment-3
                  :weight bold
                  :height 1.3))))
      `(org-super-agenda-header
        ((,class (:inherit fixed-pitch
-                 :background ,zmacs-background
                  :foreground ,zmacs-comment-5
                  :weight bold))))
 ;;;;;; Slime
