@@ -91,6 +91,7 @@
   (org-tags-column                              60)
   (org-blank-before-new-entry '((heading)
                                 (plain-list-item . auto)))
+  (org-columns-default-format "%40ITEM(Task) %StoryPoints(Points) %DEADLINE(Deadline) %TAGS")
   (org-show-following-heading t)
   (org-show-hierarchy-above t)
   (org-show-siblings t)
@@ -210,7 +211,7 @@
     (add-to-list 'org-capture-templates
                `("i" "Inbox item" entry
                  (file ,(expand-file-name "inbox.org" *zmacs-org-directory*))
-                 "* TODO %? :someday:\n:PROPERTIES:\n:created: %U\n:END:\n"))
+                 "* TODO %? %^g\n:PROPERTIES:\n:StoryPoints: %^{SP|1|2|3|5|8|13|20}\n:created: %U\n:END:\n"))
   (add-to-list 'org-capture-templates
                `("s" "Some day maybe" entry
                  (file ,(expand-file-name "someday.org" *zmacs-org-directory*))
@@ -255,13 +256,13 @@
   (org-agenda-restore-windows-after-quit t)
 
   ;; Files
-  (org-agenda-files (list *zmacs-org-directory*))
-
-   ;; (list (concat *zmacs-org-directory* "todo.org")
-   ;;       (concat *zmacs-org-directory* "someday.org")
-   ;;       (concat *zmacs-org-directory* "reading.org")
-   ;;       (concat *zmacs-org-directory* "writing.org")
-   ;;       (concat *zmacs-org-directory* "projects.org")))
+  (org-agenda-files
+   (list (concat *zmacs-org-directory* "inbox.org")
+         (concat *zmacs-org-directory* "todo.org")
+         (concat *zmacs-org-directory* "someday.org")
+         (concat *zmacs-org-directory* "reading.org")
+         (concat *zmacs-org-directory* "writing.org")
+         (concat *zmacs-org-directory* "projects.org")))
 
   ;; from stack overflow https://stackoverflow.com/a/22900459/6277148
   ;; note that the formatting is nicer that just using '%b'
@@ -292,49 +293,60 @@
    '(("d" "Dashboard"
       ((agenda "" ((org-agenda-span 'day)))
        (tags-todo "DEADLINE=\"<today>\""
-                  ((org-agenda-overriding-header "Due Today!")))
-       (tags-todo "+DEADLINE<\"<+5d>\"+DEADLINE>\"<today>\""
-                  ((org-agenda-overriding-header "Due Soon")))
-       (todo "NEXT"
-             ((org-agenda-overriding-header "Next Tasks")))
-       (tags-todo "email" ((org-agenda-overriding-header "Email")))))
+                  ((org-agenda-overriding-header "‼️ Due Today!")))
+       (tags-todo "DEADLINE<\"<+5d>\"+DEADLINE>\"<today>\""
+                  ((org-agenda-overriding-header "⏰ Due Soon")))
+       (tags-todo "+next"
+                  ((org-agenda-overriding-header "🔜 Next Tasks")))
+       (tags-todo "+email"
+                  ((org-agenda-overriding-header "📧 Email")))
+       (tags-todo "+phone"
+                  ((org-agenda-overriding-header "☎️ Phone")))))
 
+     ;; Low-hanging fruit.
      ("n" "Next Tasks"
-      ((todo "NEXT"
-             ((org-agenda-overriding-header "Next Tasks")))))
+      ((tags-todo "next"
+                  ((org-agenda-overriding-header "🔜 Next Tasks")))))
 
-     ("1" "Work Tasks" tags-todo "work"
-      ((org-agenda-overriding-header "Work")))
+     ;; Home improvement.
+     ("1" "Home tests" tags-todo "home"
+      ((org-agenda-overriding-header "🏠 Home")))
 
+     ;; Personal projects.
      ("2" "Project tests" tags-todo "project"
-      ((org-agenda-overriding-header "Project")))
+      ((org-agenda-overriding-header "📁 Project")))
 
+     ;; Education.
      ("3" "Education tests" tags-todo "learning"
-      ((org-agenda-overriding-header "Education")))
+      ((org-agenda-overriding-header "🎓 Education")))
+
+     ;; Work-related things.
+     ("4" "Work Tasks" tags-todo "work"
+      ((org-agenda-overriding-header "💷 Work")))
 
      ;; Low-effort next actions
-     ("w" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
-      ((org-agenda-overriding-header "Low Effort Tasks")
+     ("w" "Low-Effort" tags-todo "StoryPoints<5&+StoryPoints>0"
+      ((org-agenda-overriding-header "❤️ Low Effort Tasks")
        (org-agenda-max-todos 20)
        (org-agenda-files org-agenda-files)))
 
      ("W" "Workflow Status"
       ((todo "TODO"
-             ((org-agenda-override-header "Project Backlog"))))
+             ((org-agenda-override-header "📝 Task Backlog"))))
       ((todo "WAIT"
-             ((org-agenda-overriding-header "Waiting on External")
+             ((org-agenda-overriding-header "⏳ Waiting on External")
               (org-agenda-files org-agenda-files)))
        (todo "HOLD"
-             ((org-agenda-overriding-header "In Review")
+             ((org-agenda-overriding-header "🔍 In Review")
               (org-agenda-files org-agenda-files)))
        (todo "DOING"
-             ((org-agenda-overriding-header "Active Projects")
+             ((org-agenda-overriding-header "⚡ Active Tasks")
               (org-agenda-files org-agenda-files)))
        (todo "DONE"
-             ((org-agenda-overriding-header "Completed Projects")
+             ((org-agenda-overriding-header "🎉 Completed Tasks")
               (org-agenda-files org-agenda-files)))
        (todo "CANCELLED"
-             ((org-agenda-overriding-header "Cancelled Projects")
+             ((org-agenda-overriding-header "🪦 Cancelled Tasks")
               (org-agenda-files org-agenda-files))))))))
 
 ;;;;; Agenda Jump to Dashboard
@@ -997,6 +1009,41 @@ one week to the next, unchecking them at the same time"
                                                   ,(org-string-width
                                                     (match-string 2)) 3)))
                               prepend))) t)
+
+;;;; Story Points:
+
+(defun zmacs-org-set-story-points (val)
+  (interactive "P")
+  (let* ((value (completing-read "Story Points: " nil)))
+    (org-entry-put (point) "StoryPoints" value)))
+
+(defun zmacs--agenda-cmp-storypoints (a b)
+  "Sort by numeric :StoryPoints: (nil = +inf, so sinks)."
+  (let* ((pa (or (org-entry-get (get-text-property 0
+                                                   'org-hd-marker
+                                                   a)
+                                "StoryPoints")
+                 ""))
+         (pb (or (org-entry-get (get-text-property 0
+                                                   'org-hd-marker
+                                                   b)
+                                "StoryPoints")
+                 ""))
+         (na (ignore-errors (string-to-number pa)))
+         (nb (ignore-errors (string-to-number pb))))
+    (cond
+     ((and na nb) (cond ((< na nb) -1)
+                        ((> na nb) 1)
+                        (t 0)))
+     (na -1)
+     (nb 1)
+     (t 0))))
+
+(setq org-agenda-cmp-user-defined #'zmacs--agenda-cmp-storypoints)
+
+(setq org-agenda-sorting-strategy
+      '((tags-todo user-defined-up priority-down)
+        (todo      user-defined-up priority-down)))
 
 ;;;; Appointments:
 

@@ -301,7 +301,7 @@
           (:name "🔥 Doing" :todo "DOING")
           (:name "📚 Reading" :tag "reading")
           (:name "✍️ Writing" :tag "writing")
-          (:name "Someday" :tag "someday"))))
+          (:name "❓ Someday" :tag "someday"))))
 
 ;;;; Org Mime:
 
