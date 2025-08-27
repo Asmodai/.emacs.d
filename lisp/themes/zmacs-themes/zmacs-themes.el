@@ -408,9 +408,13 @@ doesn't stand out."
   "A `cancelled' face for todo lists."
   :group 'faces)
 
+(defface zmacs-org-list nil
+  "Face used for org-mode lists."
+  :group 'faces)
+
 ;;;; Meta faces:
-  ;; These are not really used, they're just here to define a set of faces that
-  ;; can be used by things like REPLs et al.
+;; These are not really used, they're just here to define a set of faces that
+;; can be used by things like REPLs et al.
 
 
 (defface meta-repl-prompt-face
@@ -886,7 +890,12 @@ doesn't stand out."
                  :weight     bold))))
      `(org-checkbox
        ((,class (:inherit    fixed-pitch
-                 :foreground ,zmacs-foreground
+                 :foreground ,zmacs-comment-6
+                 :background unspecified
+                 :weight     bold))))
+     `(zmacs-org-list
+       ((,class (:inherit    fixed-pitch
+                 :foreground ,zmacs-comment-4
                  :background unspecified
                  :weight     bold))))
      `(org-table-header
@@ -980,6 +989,32 @@ doesn't stand out."
                  :box (:line-width (-1 . -2)
                        :color ,(zmacs--ui-color :button-background)
                        :style flat-button)))))
+     `(org-modern-progress-complete
+       ((,class (:inherit org-modern-label
+                 :foreground "black"
+                 :background ,zmacs-green))))
+     `(org-modern-progress-incomplete
+       ((,class (:inherit org-modern-label
+                 :foreground "black"
+                 :background ,zmacs-highlight))))
+     `(org-modern-date-active
+       ((,class (:inherit org-modern-label
+                 :foreground ,zmacs-foreground
+                 :background ,zmacs-l2))))
+     `(org-modern-date-inactive
+       ((,class (:inherit org-modern-label
+                 :foreground ,zmacs-foreground
+                 :background ,zmacs-l2))))
+     `(org-modern-time-active
+       ((,class (:inherit org-modern-label
+                 :foreground "black"
+                 :distant-foreground "black"
+                 :background ,zmacs-green))))
+     `(org-modern-time-inactive
+       ((,class (:inherit org-modern-label
+                 :foreground ,zmacs-foreground
+                 :distant-foreground ,zmacs-foreground
+                 :background ,zmacs-highlight))))
      `(org-time-grid
        ((,class (:inherit fixed-pitch
                  :foreground ,zmacs-comment-8

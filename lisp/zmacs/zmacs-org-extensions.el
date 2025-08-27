@@ -49,11 +49,12 @@
   :hook ((org-mode            . org-modern-mode)
          (org-agenda-finalize . org-modern-agenda))
   :custom
-  (org-modern-hide-stars   'leading)
-  (org-modern-todo         nil)
-  (org-modern-tag          t)
-  (org-modern-label-border .25)
-  (org-modern-star         ["⦶" "⦷" "⦹" "⊕" "⍟" "⊛" "⏣" "❂"]))
+  (org-modern-hide-stars    'leading)
+  (org-modern-todo          nil)
+  (org-modern-tag           t)
+  (org-modern-label-border  .25)
+  (org-modern-star          'replace)
+  (org-modern-replace-stars ["⦶" "⦷" "⦹" "⊕" "⍟" "⊛" "⏣" "❂"]))
 
 ;;;; Org Autolist:
 
@@ -315,23 +316,63 @@
   "Initiate `org-present' mode."
   (org-present-big)
   (org-display-inline-images)
+  (org-present-read-only)
   (org-present-hide-cursor)
-  (org-present-read-only))
+  (setq-local visual-fill-column-width       110
+              visual-fill-column-center-text t
+              org-modern-star                nil
+              org-hide-leading-stars         t
+              header-line-format             " "
+              face-remapping-alist
+              '((default              (:height 1.5)  default)
+                (header-line          (:height 2.0)  default)
+                (org-document-title   (:height 1.75) org-document-title)
+                (org-code             (:height 1.55) org-code)
+                (org-verbatim         (:height 1.55) org-verbatim)
+                (org-block            (:height 1.25) org-block)
+                (org-block-begin-line (:height 0.7)  org-block)
+                (org-block-end-line   (:height 0.7)  org-block)))
+  (menu-bar-mode 0)
+  (scroll-bar-mode 0)
+  (line-number-mode -1)
+  (display-line-numbers-mode -1)
+  (visual-fill-column-mode 1)
+  (visual-line-mode 1))
 
 (defun zmacs--org-present-end ()
   "Terminate `org-present' mode."
   (org-present-small)
+  (org-present-read-write)
+  (org-present-show-cursor)
+  (setq-local face-remapping-alist           '((default fixed-pitch default))
+              visual-fill-column-center-text nil
+              org-modern-star                'replace
+              org-hide-leading-stars         nil)
   (if (not org-startup-with-inline-images)
       (org-remove-inline-images))
-  (org-present-show-cursor)
-  (org-present-read-write))
+  (line-number-mode 1)
+  (display-line-numbers-mode 1)
+  (visual-fill-column-mode 0)
+  (visual-line-mode 1)
+  (menu-bar-mode 1)
+  (scroll-bar-mode 1))
+
+(defun zmacs--org-present-prepare-slide (buffer-name heading)
+  (org-overview)
+  (org-show-entry)
+  (org-show-children))
+
+(use-package visual-fill-column
+  :after org
+  :defer nil)
 
 (use-package org-present
   :after org
-  :defer t
-  :init
-  (add-hook 'org-present-mode-hook      #'zmacs--org-present-start)
-  (add-hook 'org-present-mode-quit-hook #'zmacs--org-present-end))
+  :defer t)
+
+(add-hook 'org-present-mode-hook      'zmacs--org-present-start)
+(add-hook 'org-present-mode-quit-hook 'zmacs--org-present-end)
+(add-hook 'org-present-after-navigate-functions 'zmacs--org-present-prepare-slide)
 
 ;;;; Org Cliplink:
 

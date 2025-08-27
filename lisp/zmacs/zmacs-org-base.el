@@ -84,6 +84,7 @@
   (org-hide-leading-stars                       nil)
   (org-image-actual-width                       500)
   (org-pretty-entities                          t)
+  (org-use-sub-superscripts                     '{})
   (org-pretty-entities-include-sub-superscripts t)
   (org-read-date-prefer-future                  'time)
   (org-startup-folded                           nil)
@@ -256,7 +257,7 @@
      (800 1000 1200 1400 1600 1800 2000)
      " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄"))
   (org-agenda-current-time-string
-   "–––––––––––––– Now")
+   "◀–––––––––––––– Now")
   ;;
   ;; Display properties
   (org-agenda-tags-column org-tags-column)
@@ -593,7 +594,6 @@ _vr_ reset      ^^                       ^^                 ^^
     (widen)
     (org-backward-heading-same-level 1))
   (org-narrow-to-subtree))
-
 
 (defun zmacs-clone-buffer-and-narrow ()
   "Clone buffer and narrow outline tree"
@@ -1015,16 +1015,23 @@ one week to the next, unchecking them at the same time"
 (add-hook 'org-mode-hook #'zmacs-org-mode-hook-fixes)
 (add-hook 'org-after-todo-statistics-hook #'zmacs-summary-todo)
 
+;;;; Face hacks:
+
 (add-to-list 'font-lock-extra-managed-props 'display)
+
 (font-lock-add-keywords 'org-mode
                         `(("^.*?\\( \\)\\(:[[:alnum:]_@#%:]+:\\)$"
                            (1 `(face nil
                                      display (space
                                               :align-to
-                                               (- right
-                                                  ,(org-string-width
-                                                    (match-string 2)) 3)))
+                                              (- right
+                                                 ,(org-string-width
+                                                   (match-string 2)) 3)))
                               prepend))) t)
+
+(font-lock-add-keywords 'org-mode
+                        '(("^ *\\([-+]\\|[0-9]+[.)]\\) "
+                           (1 'zmacs-org-list))))
 
 ;;;; Story Points:
 
@@ -1091,14 +1098,6 @@ one week to the next, unchecking them at the same time"
               (zmacs-refresh-appts))))
 
 (add-hook 'org-agenda-finalize-hook #'zmacs-refresh-appts)
-
-;;;; At times I hate everything.  This includes you.
-
-(defun zmacs--orgdir-file-p (&optional file)
-  (let* ((orgdir (file-name-as-directory
-                  (expand-file-name *zmacs-org-directory*)))
-         (f (or file (buffer-file-name))))
-    (and f (string-prefix-p orgdir (file-truename f)))))
 
 ;;;; Org Capture hacks:
 
