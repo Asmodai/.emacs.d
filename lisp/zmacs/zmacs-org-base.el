@@ -91,11 +91,15 @@
   (org-tags-column                              60)
   (org-blank-before-new-entry '((heading)
                                 (plain-list-item . auto)))
-  (org-columns-default-format "%40ITEM(Task) %StoryPoints(Points) %DEADLINE(Deadline) %TAGS")
+  (org-columns-default-format "%50ITEM(Task) %StoryPoints(Points) %CLOCKSUM_TODAY(Today) %CLOCKSUM(Total) %DEADLINE(Deadline) %TAGS")
   (org-show-following-heading t)
   (org-show-hierarchy-above t)
   (org-show-siblings t)
   (org-deadline-warning-days 30)
+  ;;
+  ;; Global properties
+  (org-global-properties
+   '(("Effort_ALL" . "0:05 0:10 0:15 0:30 0:45 1:00 1:30 2:00 3:00 4:00 6:00 8:00")))
   ;;
   ;; Footnotes
   (org-footnote-section                         nil)
@@ -123,8 +127,8 @@
   (org-log-done                                 'time)
   (org-log-into-drawer                          t)
   (org-log-state-notes-inert-after-drawers      nil)
-  (org-log-redeadline                           nil)
-  (org-log-reschedule                           nil)
+  (org-log-redeadline                           t)
+  (org-log-reschedule                           t)
   ;;
   ;; Movement.
   (org-return-follows-link                      t)
@@ -147,6 +151,10 @@
   (org-todo-keywords
    '((sequence "TODO(t)" "DOING(i!)" "WAIT(w@/!)" "|"
                "DONE(d!)" "HOLD(h@/!)"  "CANCELLED(c@/!)")))
+  ;;
+  ;; Clock.
+  (org-clock-in-switch-to-state "DOING")
+  (org-clock-out-when-done      t)
   ;;
   ;; Files.
   (org-clock-persist-file                       (concat *zmacs-cache-directory*
@@ -233,9 +241,10 @@
   :custom
   ;; Inhibit startup
   (org-agenda-inhibit-startup t)
+  ;;
   ;; Agenda logging
   (org-agenda-start-with-log-mode t)
-
+  ;;
   ;; Agenda styling
   (org-auto-align-tags nil)  ;; Don't align tags
   (org-agenda-tags-column 0) ;; Put tags next to heading
@@ -248,13 +257,13 @@
      " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄"))
   (org-agenda-current-time-string
    "–––––––––––––– Now")
-
+  ;;
   ;; Display properties
   (org-agenda-tags-column org-tags-column)
   (org-agenda-show-inherited-tags nil)
   (org-agenda-window-setup 'only-window)
   (org-agenda-restore-windows-after-quit t)
-
+  ;;
   ;; Files
   (org-agenda-files
    (list (concat *zmacs-org-directory* "inbox.org")
@@ -263,7 +272,7 @@
          (concat *zmacs-org-directory* "reading.org")
          (concat *zmacs-org-directory* "writing.org")
          (concat *zmacs-org-directory* "projects.org")))
-
+  ;;
   ;; from stack overflow https://stackoverflow.com/a/22900459/6277148
   ;; note that the formatting is nicer that just using '%b'
   (org-agenda-prefix-format
@@ -272,7 +281,7 @@
      (todo . " ")
      (tags . " ")
      (search . " %i %-12:c")))
-
+  ;;
   ;; Scheduling
   (org-agenda-include-diary t)
   (org-agenda-skip-scheduled-if-done t)
@@ -283,12 +292,11 @@
    '((agenda time-up) (todo time-up) (tags time-up) (search time-up)))
   (org-agenda-start-on-weekday 1)
   (calendar-week-start-day 1) ;; Start week on Monday
-
+  ;;
   ;; Agenda Custom Commands
   ;; Configure custom agenda views
   ;; https://orgmode.org/manual/Storing-searches.html#Storing-searches
   ;; https://systemcrafters.cc/emacs-from-scratch/organize-your-life-with-org-mode/
-
   (org-agenda-custom-commands
    '(("d" "Dashboard"
       ((agenda "" ((org-agenda-span 'day)))
@@ -298,6 +306,8 @@
                   ((org-agenda-overriding-header "⏰ Due Soon")))
        (tags-todo "+next"
                   ((org-agenda-overriding-header "🔜 Next Tasks")))
+       (tags-todo "+learning"
+                  ((org-agenda-overriding-header "🎓 Education")))
        (tags-todo "+email"
                   ((org-agenda-overriding-header "📧 Email")))
        (tags-todo "+phone"
@@ -325,11 +335,17 @@
       ((org-agenda-overriding-header "💷 Work")))
 
      ;; Low-effort next actions
-     ("w" "Low-Effort" tags-todo "StoryPoints<5&+StoryPoints>0"
-      ((org-agenda-overriding-header "❤️ Low Effort Tasks")
-       (org-agenda-max-todos 20)
-       (org-agenda-files org-agenda-files)))
+     ("w" "Low-Effort"
+      ((tags-todo "StoryPoints<5&+StoryPoints>0"
+                  ((org-agenda-overriding-header "🪙 Low Point Tasks")
+                   (org-agenda-max-todos 20)
+                   (org-agenda-files org-agenda-files)))
+       (tags-todo "Effort<30&Effort>0"
+                  ((org-agenda-overriding-header "🕑 Low Time Tasks"))
+                  (org-agenda-max-todos 20)
+                  (org-agenda-files org-agenda-files))))
 
+     ;; Workflow.
      ("W" "Workflow Status"
       ((todo "TODO"
              ((org-agenda-override-header "📝 Task Backlog"))))
@@ -1044,6 +1060,14 @@ one week to the next, unchecking them at the same time"
 (setq org-agenda-sorting-strategy
       '((tags-todo user-defined-up priority-down)
         (todo      user-defined-up priority-down)))
+
+;;;; Clocking in and out:
+
+(defun zmacs--clock-in-when-doing ()
+  "Clock in automatically when switching to `DOING'."
+  (when (string= org-state "DOING")
+    (unless (org-clock-is-active)
+      (org-clock-in))))
 
 ;;;; Appointments:
 

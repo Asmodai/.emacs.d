@@ -90,14 +90,14 @@
   "Colours that are used in my KDE theme.")
 
 (defvar *zmacs-comment-levels-color-table*
-  '("#eae1fe" ;
-    "#d6c7f5" ;
-    "#c2adec" ;
-    "#af93e2" ;
-    "#9c79d8" ;
-    "#caf1f7"
-    "#a6e8f2"
-    "#7ddeed"
+  '("#eae1fe" ; 1
+    "#d6c7f5" ; 2
+    "#c2adec" ; 3
+    "#af93e2" ; 4
+    "#9c79d8" ; 5
+    "#caf1f7" ; 6
+    "#a6e8f2" ; 7
+    "#7ddeed" ; 8
     )
   "Colours that are used for various comment nesting levels.")
 
@@ -971,6 +971,49 @@ doesn't stand out."
                  :foreground ,zmacs-foreground
                  :weight     bold
                  :extend     t))))
+     `(org-modern-tag
+       ((,class (:background ,(zmacs--theme-color *zmacs--color-white* 4)
+                 :foreground ,(zmacs--ui-color :button-background)
+                 :width compressed
+                 :height 0.8
+                 :weight bold
+                 :box (:line-width (-1 . -2)
+                       :color ,(zmacs--ui-color :button-background)
+                       :style flat-button)))))
+     `(org-time-grid
+       ((,class (:inherit fixed-pitch
+                 :background ,zmacs-background
+                 :foreground ,zmacs-comment-8
+                 ;;,(zmacs--theme-color *zmacs--color-white* 7)
+                 ))))
+     `(org-agenda-date-today
+       ((,class (:inherit fixed-pitch
+                 :foreground ,zmacs-urgent
+                 :weight bold
+                 :height 1.5))))
+     `(org-agenda-current-time
+       ((,class (:inherit fixed-pitch
+                 :foreground ,zmacs-comment-6
+                 :weight bold))))
+     `(org-agenda-diary
+       ((,class (:inherit fixed-pitch
+                 :background ,zmacs-background
+                 :foreground ,(zmacs--primary-color/faint :magenta)))))
+     `(org-agenda-calendar-event
+       ((,class (:inherit fixed-pitch
+                 :background ,zmacs-background
+                 :foreground ,(zmacs--primary-color/faint :orange)))))
+     `(org-agenda-structure
+       ((,class (:inherit fixed-pitch
+                 :background ,zmacs-background
+                 :foreground ,zmacs-comment-3
+                 :weight bold
+                 :height 1.3))))
+     `(org-super-agenda-header
+       ((,class (:inherit fixed-pitch
+                 :background ,zmacs-background
+                 :foreground ,zmacs-comment-5
+                 :weight bold))))
 ;;;;;; Slime
      `(slime-inspector-action-face
        ((,class (:inherit    fixed-pitch
