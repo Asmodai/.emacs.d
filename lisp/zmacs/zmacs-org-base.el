@@ -532,11 +532,9 @@ _vr_ reset      ^^                       ^^                 ^^
   :ensure nil
   :after org
   :custom
-  (org-refile-targets '((nil :maxlevel . 9)
-                        ((concat *zmacs-org-directory* "projects.org" :maxlevel . 3))
-                        ((concat *zmacs-org-directory* "someday.org" :level . 1))
-                        ((concat *zmacs-org-directory* "todo.org" :maxlevel . 2))
-                        (org-agenda-files :maxlevel . 8)))
+  (org-refile-targets
+      '((nil              :maxlevel . 9)
+        (org-agenda-files :maxlevel . 8)))
   (org-refile-use-cache t)  ;; use cache for org refile
   (org-refile-use-outline-path 'file)
   (org-outline-path-complete-in-steps nil)
@@ -1026,12 +1024,12 @@ one week to the next, unchecking them at the same time"
                                               :align-to
                                               (- right
                                                  ,(org-string-width
-                                                   (match-string 2)) 3)))
+                                                   (match-string 2)) 1)))
                               prepend))) t)
 
 (font-lock-add-keywords 'org-mode
                         '(("^ *\\([-+]\\|[0-9]+[.)]\\) "
-                           (1 'zmacs-org-list))))
+                           (1 'zmacs-org-list-symbol))))
 
 ;;;; Story Points:
 

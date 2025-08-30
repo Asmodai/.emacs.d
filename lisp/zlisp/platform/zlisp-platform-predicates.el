@@ -90,6 +90,24 @@
       (zlisp/macos-p)
       (eq zlisp-system-type :unix)))
 
+(defsubst zlisp/display-backend ()
+  "Return the display backend type for the current frame.
+  
+Possible symbols:  'x, 'pgtk, 'w32, 'ns, 'pc."
+  (framep (selected-frame)))
+      
+(defsubst zlisp/wayland-p ()
+  "T if the display system is Wayland."
+  (eq (zlisp/display-backend) 'pgtk))
+
+(defsubst zlisp/x11-p ()
+  "T if the display system is X11."
+  (eq (zlisp/display-backend) 'x))
+
+(defsubst zlisp/cocoa-p ()
+  "T if the display system is Cocoa."
+  (eq (zlisp/display-backend) 'ns))
+
 (provide 'zlisp-platform-predicates)
 
 ;;; zlisp-platform-predicates.el ends here.

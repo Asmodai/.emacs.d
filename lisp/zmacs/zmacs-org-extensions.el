@@ -296,13 +296,13 @@
   :config
   (org-super-agenda-mode)
   (setq org-super-agenda-groups
-        '((:name "⭐ Today" :time-grid t :scheduled today)
+        '((:name "⭐ Today"    :time-grid t :scheduled today)
           (:name "⏰ Due Soon" :deadline future)
-          (:name "⚠️ Overdue" :deadline past)
-          (:name "🔥 Doing" :todo "DOING")
-          (:name "📚 Reading" :tag "reading")
-          (:name "✍️ Writing" :tag "writing")
-          (:name "❓ Someday" :tag "someday"))))
+          (:name "⚠️ Overdue"  :deadline past)
+          (:name "🔥 Doing"    :todo "DOING")
+          (:name "📚 Reading"  :tag "reading")
+          (:name "✍️ Writing"  :tag "writing")
+          (:name "❓ Someday"  :tag "someday"))))
 
 ;;;; Org Mime:
 
@@ -324,14 +324,24 @@
               org-hide-leading-stars         t
               header-line-format             " "
               face-remapping-alist
-              '((default              (:height 1.5)  default)
-                (header-line          (:height 2.0)  default)
-                (org-document-title   (:height 1.75) org-document-title)
-                (org-code             (:height 1.55) org-code)
-                (org-verbatim         (:height 1.55) org-verbatim)
-                (org-block            (:height 1.25) org-block)
-                (org-block-begin-line (:height 0.7)  org-block)
-                (org-block-end-line   (:height 0.7)  org-block)))
+              '((default              (:height 1.3)  default)
+                (fixed-pitch          (:height 1.3)  fixed-pitch)
+                (header-line          (:height 2.0)  fixed-pitch)
+                (org-document-title   (:height 2.5)  org-document-title)
+                (org-document-info    (:height 1.75) org-document-info)
+                (org-level-1          (:height 2.0)  org-level-1)
+                (org-level-2          (:height 1.9)  org-level-2)
+                (org-level-3          (:height 1.8)  org-level-3)
+                (org-level-4          (:height 1.7)  org-level-4)
+                (org-level-5          (:height 1.6)  org-level-5)
+                (org-level-6          (:height 1.5)  org-level-6)
+                (org-level-7          (:height 1.4)  org-level-7)
+                (org-level-8          (:height 1.3)  org-level-8)
+                (org-code             (:height 1.2)  org-code)
+                (org-verbatim         (:height 1.2)  org-verbatim)
+                (org-block            (:height 1.2)  org-block)
+                (org-block-begin-line (:height 1.0)  org-block-begin-line)
+                (org-block-end-line   (:height 1.0)  org-block-end-line)))
   (menu-bar-mode 0)
   (scroll-bar-mode 0)
   (line-number-mode -1)
@@ -344,7 +354,7 @@
   (org-present-small)
   (org-present-read-write)
   (org-present-show-cursor)
-  (setq-local face-remapping-alist           '((default fixed-pitch default))
+  (setq-local face-remapping-alist           '((default default))
               visual-fill-column-center-text nil
               org-modern-star                'replace
               org-hide-leading-stars         nil)

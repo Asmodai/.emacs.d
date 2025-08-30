@@ -171,6 +171,10 @@
 (require 'zlisp-timing)
 (require 'zmacs-early)
 
+;;;;; Library modules:
+(require 'zlisp-list)
+(require 'zlisp-colour)
+
 ;;;;; Main modules:
 (require 'zmacs-scratch)
 (require 'zmacs-base)

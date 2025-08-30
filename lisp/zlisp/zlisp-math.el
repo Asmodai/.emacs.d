@@ -30,6 +30,68 @@
 
 (require 'cl-lib)
 
+;;;; Utilities:
+
+(defsubst zlisp/clamp (value lo hi)
+  "Clamp VALUE to a value between LO and HI."
+  (max lo (min hi value)))
+
+(defsubst zlisp/deg->rad (degs)
+  "Convert DEGS from degrees to radians."
+  (* pi (/ degs 180.0)))
+
+(defsubst zlisp/rad->deg (rads)
+  "Convert RADS from radians to degrees."
+  (* 180.0 (/ rads pi)))
+
+(defsubst zlisp/wrap-360 (degs)
+  "Wrap the given DEGS value (in degrees) to always be within 0..360."
+  (let ((x (mod degs 360.0)))
+    (if (< x 0)
+        (+ x 360.0)
+      x)))
+
+(defsubst zlisp/lerp (start end t)
+  "Return the linear interpolation between START and END.
+
+T should be a value between 0 and 1 that represents how far along the result
+should be."
+  (+ start (* (- end start) t)))
+
+(defsubst zlisp/ease-in (value)
+  "Return an `ease-in' curve for VALUE.
+
+The curve starts slowly, then accelerates.
+
+Mathematically, this is just t^2, so values near 0 are even smaller, and
+values near 1 catch up quickly.
+
+Good for gradients that should start gentle and finish strong."
+  (* value value))
+
+(defsubst zlisp/ease-out (value)
+  "Return an `ease-out' curve for VALUE.
+
+The curve starts fast, then decelerates smoothly.
+
+This is 1 - (1 - t)^2, so values near 0 jump quickly, and values near 1
+flatten out. Great if you want the gradient to rush into the target and then
+settle."
+  (- 1.0 (expt (- 1.0 value) 2)))
+
+(defsubst zlisp/ease-in-out (value)
+  "Return an `ease-in-and-out' curve for VALUE.
+
+Ease-in-out curve: slow start, speeds up in the middle, then slows down again
+before reaching the end.
+
+This is built by combining ease-in for the first half and ease-out for the
+second half. Useful for 'natural-feeling' gradients where neither end feels
+abrupt."
+  (if (< value 0.5)
+      (/ (zlisp/ease-in (* 2 value)) 2.0)
+    (/ (+ 1.0 (zlisp/ease-out (* 2 (- value 0.5)))) 2.0)))
+
 ;;;; Basic math:
 
 ;;;; Squares:

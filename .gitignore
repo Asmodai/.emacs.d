@@ -28,6 +28,7 @@ ielm-history.*
 /undo-fu-session
 /url
 /var
+/games
 async-bytecomp.log
 network-security.data
 
