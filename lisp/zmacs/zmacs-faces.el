@@ -136,19 +136,33 @@
                                                :end -1))))
           ;; other tags
           ("DONE:"  . ((lambda (tag)
-                         (svg-tag-make "DONE:"  :face 'fringe  :inverse t ))))
+                         (svg-tag-make "DONE:"
+                                       :face 'zmacs-tag-done
+                                       :inverse t ))))
           ("FIXME:" . ((lambda (tag)
-                         (svg-tag-make "FIXME:" :face 'error   :inverse t))))
+                         (svg-tag-make "FIXME:"
+                                       :face 'error
+                                       :inverse t))))
           ("HACK:"  . ((lambda (tag)
-                         (svg-tag-make "HACK:"  :face 'warning :inverse t))))
+                         (svg-tag-make "HACK:"
+                                       :face 'warning
+                                       :inverse t))))
           ("NOTE:"  . ((lambda (tag)
-                         (svg-tag-make "NOTE:"  :face 'warning :inverse t))))
+                         (svg-tag-make "NOTE:"
+                                       :face 'warning
+                                       :inverse t))))
           ("TODO:"  . ((lambda (tag)
-                         (svg-tag-make "TODO:"  :face 'warning :inverse t))))
+                         (svg-tag-make "TODO:"
+                                       :face 'zmacs-tag-todo
+                                       :inverse t))))
           ("XXX"    . ((lambda (tag)
-                         (svg-tag-make "XXX"    :face 'warning :inverse t))))
+                         (svg-tag-make "XXX"
+                                       :face 'warning
+                                       :inverse t))))
           ("BUG:"   . ((lambda (tag)
-                         (svg-tag-make "BUG:"   :face 'error   :inverse t)))))))
+                         (svg-tag-make "BUG:"
+                                       :face 'error
+                                       :inverse t)))))))
 
 ;;;; Emacs widgets:
 

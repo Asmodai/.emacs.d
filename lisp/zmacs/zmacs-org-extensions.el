@@ -49,12 +49,21 @@
   :hook ((org-mode            . org-modern-mode)
          (org-agenda-finalize . org-modern-agenda))
   :custom
-  (org-modern-hide-stars    'leading)
-  (org-modern-todo          nil)
-  (org-modern-tag           t)
-  (org-modern-label-border  .25)
-  (org-modern-star          'replace)
-  (org-modern-replace-stars ["⦶" "⦷" "⦹" "⊕" "⍟" "⊛" "⏣" "❂"]))
+  (org-modern-hide-stars       'leading)
+  (org-modern-horizontal-rule  nil)
+  (org-modern-table            t)
+  (org-modern-table-vertical   1)
+  (org-modern-table-horizontal 1.0)
+  (org-modern-todo             nil)
+  (org-modern-tag              t)
+  (org-modern-block-name       t)
+  (org-modern-keyword          t)
+  (org-modern-label-border     .25)
+  (org-modern-star             'replace)
+  (org-modern-replace-stars    ["⦶" "⦷" "⦹" "⊕" "⍟" "⊛" "⏣" "❂"]))
+
+(with-eval-after-load 'org-modern
+    (setq org-modern--table-overline '(:strike-through t)))
 
 ;;;; Org Autolist:
 
@@ -415,18 +424,6 @@
 (use-package verb
   :after org
   :defer t)
-
-;;;; VAlign:
-
-(use-package valign
-  :after org
-  :defer t
-  :init
-  (zmacs-diminish valign-mode " ⇅" " VA")
-  (add-hook 'org-mode-hook 'valign-mode)
-  (add-hook 'valign-mode-hook (lambda ()
-                                (unless valign-mode
-                                  (valign-remove-advice)))))
 
 ;;;; Transclusion:
 

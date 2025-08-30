@@ -995,15 +995,16 @@ attention."
                  :background unspecified
                  :weight     bold))))
 ;;;;;;; Tables:
+     `(org-table
+       ((,class (:foreground ,colour-text-light
+                 :background ,(zmacs--get-ui-colour :tone-13)))))
      `(org-table-header
-       ((,class (:inherit    fixed-pitch
+       ((,class (:inherit    org-table
                  :foreground ,colour-text-light
                  :background ,(zmacs--get-ui-colour :tint-5)
+                 :underline  nil
+                 :overline   nil
                  :weight     bold))))
-     `(org-table
-       ((,class (:inherit    fixed-pitch
-                 :foreground ,colour-text-light
-                 :background ,(zmacs--get-ui-colour :tone-13)))))
      `(org-table-row
        ((,class (:inherit org-table))))
 ;;;;;;; Blocks:
@@ -1104,13 +1105,10 @@ attention."
                               :color ,(zmacs--get-ui-colour :tint-4)
                               :style nil)))))
      `(org-modern-tag
-       ((,class (:background unspecified
+       ((,class (:background nil
                  :foreground ,(zmacs--get-ui-colour :bright-orange)
                  :height     0.8
-                 :weight     bold
-                 :box        (:line-width (-1 . -1)
-                              :color ,(zmacs--get-ui-colour :orange)
-                              :style nil)))))
+                 :weight     semi-bold))))
      `(org-modern-progress-complete
        ((,class (:inherit    org-modern-label
                  :foreground ,(zmacs--get-ui-colour :white)
@@ -1277,7 +1275,7 @@ attention."
        ((,class (:foreground ,colour-text-light
                  :bold       t))))
      `(dashboard-footer-face
-       ((,class (:foreground ,colour-mild))))
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-silver)))))
      `(dashboard-init-info-face
        ((,class (:foreground ,colour-faint))))
 ;;;;;; Calfs:
@@ -1290,12 +1288,14 @@ attention."
                  :weight     bold))))
      `(cfw:face-saturday
        ((,class (:foreground ,(zmacs--get-ui-colour :bright-yellow)
+                 :background ,(zmacs--get-ui-colour :grey-10)
                  :weight     bold))))
      `(cfw:face-sunday
        ((,class (:foreground ,(zmacs--get-ui-colour :bright-red)
+                 :background ,(zmacs--get-ui-colour :grey-10)
                  :weight     bold))))
      `(cfw:face-holiday
-       ((,class (:background ,(zmacs--get-ui-colour :grey-2)
+       ((,class (:background ,(zmacs--get-ui-colour :grey-10)
                  :foreground ,(zmacs--get-ui-colour :bright-steel)
                  :weight     bold))))
      `(cfw:face-grid
@@ -1332,6 +1332,7 @@ attention."
                  :inherit    cfw:face-day-title))))
      `(cfw:face-annotation
        ((,class (:foreground ,(zmacs--get-ui-colour :bright-violet)
+                 :background ,(zmacs--get-ui-colour :grey-10)
                  :inherit    cfw:face-day-title))))
 ;;;;;; Slime:
      `(slime-inspector-action-face
