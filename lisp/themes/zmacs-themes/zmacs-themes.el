@@ -531,10 +531,7 @@ attention."
        ((,class (:background ,(zmacs--get-ui-colour :view-background)
                  :foreground ,colour-highlight))))
      `(highlight
-       ((,class (:background ,(zmacs--get-ui-colour :button-background)
-                 :box (:line-width (1 . 1)
-                       :color      ,(zmacs--get-ui-colour :base)
-                       :style      flat-button)))))
+       ((,class (:background ,(zmacs--get-ui-colour :button-background)))))
      `(hl-line
        ((,class (:background ,(zmacs--get-ui-colour :highlight-background)))))
      `(region
@@ -755,10 +752,7 @@ attention."
 ;;;;;; Widget:
      `(widget-button
        ((,class (:foreground ,(zmacs--get-ui-colour :button-face)
-                 :background ,(zmacs--get-ui-colour :button-background)
-                 :box (:line-width (1 . 1)
-                       :color      ,(zmacs--get-ui-colour :base)
-                       :style      flat-button)))))
+                 :background ,(zmacs--get-ui-colour :button-background)))))
      `(widget-field
        ((, class (:foreground ,colour-text-light
                   :background ,(zmacs--get-ui-colour :grey-9)
@@ -774,16 +768,10 @@ attention."
 ;;;;;; Customize:
      `(custom-button
        ((,class (:foreground ,(zmacs--get-ui-colour :button-face)
-                 :background ,(zmacs--get-ui-colour :button-background)
-                 :box (:line-width (1 . 1)
-                       :color      ,(zmacs--get-ui-colour :base)
-                       :style      flat-button)))))
+                 :background ,(zmacs--get-ui-colour :button-background)))))
      `(custom-button-unraised
        ((,class (:foreground ,(zmacs--get-ui-colour :button-face)
-                 :background ,(zmacs--get-ui-colour :button-background)
-                 :box (:line-width (1 . 1)
-                       :color      ,(zmacs--get-ui-colour :button-background)
-                       :style      flat-button)))))
+                 :background ,(zmacs--get-ui-colour :button-background)))))
 ;;;;;; Line Numbering:
      `(line-number
        ((,class (:foreground ,(zmacs--get-ui-colour :grey-5)
@@ -1101,11 +1089,10 @@ attention."
                  :height     0.8
                  :width      condensed
                  :weight     regular
-                 :box        (:line-width (-1 . -1)
-                              :color ,(zmacs--get-ui-colour :tint-4)
-                              :style nil)))))
+                 :underline  nil))))
      `(org-modern-tag
-       ((,class (:background nil
+       ((,class (:inherit    (secondary-selection org-modern-label)
+                 :background nil
                  :foreground ,(zmacs--get-ui-colour :bright-orange)
                  :height     0.8
                  :weight     semi-bold))))
@@ -1265,7 +1252,7 @@ attention."
        ((,class (:foreground ,(zmacs--get-ui-colour :bright-blue)
                  :bold       t))))
      `(dashboard-banner-logo-title
-       ((,class (:foreground ,colour-strong))))
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-silver)))))
      `(dashboard-heading
        ((,class (:foreground ,colour-strong))))
      `(dashboard-items-face
@@ -1275,7 +1262,7 @@ attention."
        ((,class (:foreground ,colour-text-light
                  :bold       t))))
      `(dashboard-footer-face
-       ((,class (:foreground ,(zmacs--get-ui-colour :bright-silver)))))
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-steel)))))
      `(dashboard-init-info-face
        ((,class (:foreground ,colour-faint))))
 ;;;;;; Calfs:
@@ -1365,6 +1352,11 @@ attention."
        ((,class (:inherit zmacs-repl-output-face))))
      `(slime-repl-output-mouseover-face
        ((,class (:inherit zmacs-repl-inline-ui-face))))
+;;;;;; Stripe Buffer:
+     `(stripe-highlight
+       ((,class (:background ,(zmacs--get-ui-colour :tone-12)))))
+     `(stripe-hl-line
+       ((,class (:import highlight))))
 ;;;;; End of faces.
      )                                  ; `custom-set-faces'
 (custom-theme-set-variables

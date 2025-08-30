@@ -481,6 +481,14 @@
 ;;   ;;  :hook (org-mode . org-make-doc-mode)
 ;;   )
 
+;;;; Stripe Buffer:
+
+(use-package stripe-buffer
+  :after org
+  :ensure t
+  :hook ((dired-mode . turn-on-stripe-buffer-mode)
+         (org-mode   . turn-on-stripe-table-mode)))
+
 ;;;; Provide module:
 
 (provide 'zmacs-org-extensions)

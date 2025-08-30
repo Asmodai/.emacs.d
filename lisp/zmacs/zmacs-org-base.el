@@ -168,6 +168,7 @@
                              (org-num-mode 1)
                              (org-indent-mode 1)
                              (org-table-header-line-mode 1)
+                             (hl-line-mode 1)
                              (visual-line-mode 1))))
 
 ;;;; ZLisp org:
@@ -1024,7 +1025,7 @@ one week to the next, unchecking them at the same time"
                                               :align-to
                                               (- right
                                                  ,(org-string-width
-                                                   (match-string 2)) 1)))
+                                                   (match-string 2)) 3)))
                               prepend))) t)
 
 (font-lock-add-keywords 'org-mode

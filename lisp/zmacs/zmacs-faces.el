@@ -128,12 +128,13 @@
   :hook (prog-mode . svg-tag-mode)
   :config
   (setq svg-tag-tags
-        '(("\\(:[A-Z]+:\\)" . ((lambda (tag)
-                                 (svg-tag-make tag
-                                               :face 'success
-                                               :inverse t
-                                               :beg 1
-                                               :end -1))))
+        '(("[ \t]\\(:[A-Z]+:\\)[ \t]"   ; Match on simple tag in all caps.
+           . ((lambda (tag)
+                (svg-tag-make tag
+                              :face 'success
+                              :inverse t
+                              :beg 1
+                              :end -1))))
           ;; other tags
           ("DONE:"  . ((lambda (tag)
                          (svg-tag-make "DONE:"
@@ -145,11 +146,11 @@
                                        :inverse t))))
           ("HACK:"  . ((lambda (tag)
                          (svg-tag-make "HACK:"
-                                       :face 'warning
+                                       :face 'zmacs-colour-violet
                                        :inverse t))))
           ("NOTE:"  . ((lambda (tag)
                          (svg-tag-make "NOTE:"
-                                       :face 'warning
+                                       :face 'zmacs-colour-cyan
                                        :inverse t))))
           ("TODO:"  . ((lambda (tag)
                          (svg-tag-make "TODO:"
@@ -157,7 +158,7 @@
                                        :inverse t))))
           ("XXX"    . ((lambda (tag)
                          (svg-tag-make "XXX"
-                                       :face 'warning
+                                       :face 'zmacs-colour-yellow
                                        :inverse t))))
           ("BUG:"   . ((lambda (tag)
                          (svg-tag-make "BUG:"
