@@ -27,11 +27,12 @@
 ;;
 
 ;;; Code:
+;;;; Requirements:
 
 (require 'cl-lib)
 (require 'zlisp-platform)
 
-;;;; Egot setup:
+;;;; Eglot setup:
 
 (require 'jsonrpc)
 
@@ -77,7 +78,7 @@
   (require 'outline)
   (require 'outline-minor-faces)
   :custom
-  (go-test-verbose      t))
+  (go-test-verbose t))
 
 ;;;;; Eldoc:
 
@@ -85,48 +86,6 @@
   :after go-mode
   :demand t
   :init (go-eldoc-setup))
-
-;;;;; Fill struct:
-
-(use-package go-fill-struct
-  :after go-mode
-  :demand t)
-
-;;;;; Gen Test:
-
-(use-package go-gen-test
-  :after go-mode
-  :demand t)
-
-;;;;; Go Guru:
-
-(use-package go-guru
-  :after go-mode
-  :demand t)
-
-;;;;; Go Impl:
-
-(use-package go-impl
-  :after go-mode
-  :demand t)
-
-;;;;; Go Rename:
-
-(use-package go-rename
-  :after go-mode
-  :demand t)
-
-;;;;; Go Tag:
-
-(use-package go-tag
-  :after go-mode
-  :demand t)
-
-;;;;; Godoctor:
-
-(use-package godoctor
-  :after go-mode
-  :demand t)
 
 ;;;;; flycheck-golangci-lint:
 
