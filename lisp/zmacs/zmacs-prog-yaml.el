@@ -27,6 +27,7 @@
 ;;
 
 ;;; Code:
+;;;; Requirements:
 
 (eval-when-compile
   (require 'cl-lib))
@@ -44,6 +45,10 @@
   :demand t
   :after yaml-mode
   :hook (yaml-mode . yaml-pro-mode))
+
+;;;; Tree-Splitter:
+
+(add-to-list 'major-mode-remap-alist '(yaml-mode . yaml-ts-mode))
 
 ;;;; Provide package:
 

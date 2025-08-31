@@ -27,6 +27,7 @@
 ;;
 
 ;;; Code:
+;;;; Requirements:
 
 (eval-when-compile
   (require 'cl-lib))
@@ -65,6 +66,11 @@
             map))
 
 (add-hook 'html-mode-hook 'html-editing-mode)
+
+;;;; Tree-Splitter:
+
+(add-to-list 'major-mode-remap-alist '(css-mode . css-ts-mode))
+(add-to-list 'major-mode-remap-alist '(html-mode . html-ts-mode))
 
 ;;;; Provide package:
 

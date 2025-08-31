@@ -155,6 +155,15 @@
 (when (version< emacs-version "29")
   (setq max-specpdl-size 13000))
 
+;;;; Hacks:
+
+(defun zmacs-warning (orig-fn type message &optional level buffer-name)
+  "Advice around `display-warning' to add timestamps to warnings."
+  (let ((time (format-time-string "[%Y-%m-%d %H:%M:%S] ")))
+    (funcall orig-fn type (concat time message) level buffer-name)))
+
+(advice-add 'display-warning :around #'zmacs-warning)
+
 ;;;; Variables:
 
 (defcustom zmacs-active-theme nil

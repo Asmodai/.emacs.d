@@ -32,6 +32,15 @@
 (require 'project)
 (require 'flycheck-golangci-lint)
 
+(defun zlisp/go-find-cmd (command)
+  "See if a command has been installed into the Go directory structure."
+  (let ((path (cond ((zlisp/unix-p)
+                     (expand-file-name
+                      (concat zmacs-projects-directory "Go/bin/" command)))
+                    (t
+                     (error "Go has not been configured!")))))
+    (file-exists-p path)))
+
 (defun zlisp/go-setup-tab-width ()
   "Set tab width for Go mode."
   (message "ZLISP/GO: Setting up tab width.")
@@ -69,7 +78,7 @@
                                      go-golint
                                      go-vet
                                      go-errcheck
-                                     go-staticcheck
+                                     ;;go-staticcheck
                                      go-unconvert))
   (flycheck-golangci-lint-setup)
   (flycheck-add-next-checker 'go-build '(warning . golangci-lint) t)

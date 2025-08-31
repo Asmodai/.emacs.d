@@ -27,6 +27,7 @@
 ;;
 
 ;;; Code:
+;;;; Requirements:
 
 (require 'cl-lib)
 (require 'zlisp-platform)
@@ -377,6 +378,7 @@
   (scroll-bar-mode 1))
 
 (defun zmacs--org-present-prepare-slide (buffer-name heading)
+  "Prepare a slide in buffer BUFFER-NAME with the heading given in HEADING."
   (org-overview)
   (org-show-entry)
   (org-show-children))
@@ -488,6 +490,13 @@
   :ensure t
   :hook ((dired-mode . turn-on-stripe-buffer-mode)
          (org-mode   . turn-on-stripe-table-mode)))
+
+;;;; Org QL:
+
+(use-package org-ql
+  :vc (:fetcher github
+       :repo "alphapapa/org-ql"))
+
 
 ;;;; Provide module:
 

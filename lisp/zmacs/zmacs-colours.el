@@ -27,6 +27,7 @@
 ;;
 
 ;;; Code:
+;;;; Requirements:
 
 (require 'cl-lib)
 (require 'zlisp-platform)
@@ -40,7 +41,20 @@
 ;;;; Rainbow mode:
 
 (use-package rainbow-mode
+  :defer nil
   :commands rainbow-mode)
+
+;;;; Colorful mode:
+
+(use-package colorful-mode
+  :defer nil
+  :custom
+  (colorful-use-prefix   t)
+  (colorful-only-strings 'only-prog)
+  (css-fontify-colors    nil)
+  :config
+  (global-colorful-mode t)
+  (add-to-list 'global-colorful-modes 'helpful-mode))
 
 ;;;; Provide package:
 

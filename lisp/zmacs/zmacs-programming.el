@@ -27,6 +27,7 @@
 ;;
 
 ;;; Code:
+;;;; Requirements:
 
 (eval-when-compile
   (require 'cl-lib))
@@ -139,20 +140,22 @@ If GLOBAL is non-NIL then we work on the global modes."
   (zmacs-diminish paredit-mode " ⊚" "P"))
 
 (defun zmacs/deactivate-paredit ()
+  "Deactivate paredit mode."
   (paredit-mode -1))
 
 ;;;; Tree Sitter:
 
-(setq treesit-extra-load-path `(,(concat *zmacs-cache-directory*
-                                         "tree-sitter/")))
+(require 'treesit)
+
+(setq treesit-extra-load-path `(,(concat user-emacs-directory "tree-sitter/")))
 
 ;; List languages for install
 (setq treesit-language-source-alist
-      '((bash "https://github.com/tree-sitter/tree-sitter-bash")
-        (cmake "https://github.com/uyha/tree-sitter-cmake")
+      '((cmake "https://github.com/uyha/tree-sitter-cmake")
         (css "https://github.com/tree-sitter/tree-sitter-css")
         (elisp "https://github.com/Wilfred/tree-sitter-elisp")
-        (go "https://github.com/tree-sitter/tree-sitter-go")
+        (go "https://github.com/tree-sitter/tree-sitter-go" "v0.23.3")
+        (gomod "https://github.com/camdencheek/tree-sitter-go-mod")
         (html "https://github.com/tree-sitter/tree-sitter-html")
         (javascript "https://github.com/tree-sitter/tree-sitter-javascript"
                     "master" "src")
@@ -174,17 +177,10 @@ If GLOBAL is non-NIL then we work on the global modes."
   (mapc #'treesit-install-language-grammar
         (mapcar #'car treesit-language-source-alist)))
 
-(use-package tree-sitter
-  :defer t)
+;; Remap classic modes to ts-modes
+(add-to-list 'major-mode-remap-alist '(json-mode       . json-ts-mode))
+;;(add-to-list 'major-mode-remap-alist '(python-mode     . python-ts-mode))
 
-(setq major-mode-remap-alist
-      '((yaml-mode       . yaml-ts-mode)
-        (bash-mode       . bash-ts-mode)
-        (js2-mode        . js-ts-mode)
-        (typescript-mode . typescript-ts-mode)
-        (json-mode       . json-ts-mode)
-        (css-mode        . css-ts-mode)
-        (python-mode     . python-ts-mode)))
 
 ;;;; Multiple cursors:
 
@@ -193,21 +189,6 @@ If GLOBAL is non-NIL then we work on the global modes."
          ("c" . iedit-mode)))
 
 ;;;; Indentation:
-
-;; (use-package aggressive-indent
-;;   :preface
-;;   (defun lem-aggressive-indent-mode-off ()
-;;     (aggressive-indent-mode 0))
-;;   :hook ((css-mode              . aggressive-indent-mode)
-;;          (emacs-lisp-mode       . aggressive-indent-mode)
-;;          (lisp-interaction-mode . aggressive-indent-mode)
-;;          (lisp-mode             . aggressive-indent-mode)
-;;          (js-mode               . aggressive-indent-mode)
-;;          (sgml-mode             . aggressive-indent-mode))
-;;   :config
-;;   (progn
-;;     (setq-default aggressive-indent-comments-too t)
-;;     (add-to-list 'aggressive-indent-protected-commands 'comment-dwim)))
 
 (use-package highlight-indent-guides
   :hook (prog-mode . highlight-indent-guides-mode)
@@ -269,10 +250,11 @@ If GLOBAL is non-NIL then we work on the global modes."
          (string-match (rx-to-string `(: bos ,prefix) t) string))))
 
 (defun zmacs-upward-find-file (filename &optional startdir)
-  "Move up directories until we find a certain filename. If we
-manage to find it, return the containing directory. Else if we
-get to the toplevel directory and still can't find it, return
-nil. Start at startdir or . if startdir not given"
+  "Move up directories until we find a FILENAME.
+
+If we manage to find it, return the containing directory. Else if we get to
+the toplevel directory and still can't find it, return nil. Start at startdir
+or . if STARTDIR not given."
   (let ((dirname (expand-file-name
                   (if startdir startdir ".")))
         (found nil) ; found is set as a flag to leave loop if we find it
@@ -293,6 +275,10 @@ nil. Start at startdir or . if startdir not given"
       nil)))
 
 (defun zmacs-compile-next-makefile ()
+  "Compile from a makefile.
+
+If found, a makefile in the current directory is used.
+If there is no makefile, then we check the parent directory for one."
   (interactive)
   (let* ((default-directory (or (zmacs-upward-find-file "Makefile") "."))
          (compile-command (concat "cd " default-directory " && "
@@ -380,8 +366,9 @@ nil. Start at startdir or . if startdir not given"
 ;;;; Useful functions:
 
 (defun zmacs-eval-current-form ()
-    "Looks for the current def* or set* command then evaluates, unlike
-`eval-defun', does not go to topmost function."
+    "Look for the current def* or set* command then evaluate.
+
+This is unlike `eval-defun' in that it does not go to topmost function."
   (interactive)
   (save-excursion
     (search-backward-regexp "(def\\|(set")
@@ -512,6 +499,57 @@ Lisp function does not specify a special indentation."
   :init
   (require 'outline)
   (require 'outline-minor-faces))
+
+;;;; DevDocs:
+
+(use-package devdocs
+  :defer nil
+  :ensure t)
+
+(use-package devdocs-browser
+  :after devdocs
+  :defer nil
+  :ensure t)
+
+(defun zmacs-install-devdocs ()
+  "Install all the devdoc manuals that I am interested in."
+  (interactive)
+  (devdocs-install "html")
+  (devdocs-install "css")
+  (devdocs-install "http")
+  (devdocs-install "bash")
+  (devdocs-install "c")
+  (devdocs-install "cpp")
+  (devdocs-install "cmake")
+  (devdocs-install "dart~2")
+  (devdocs-install "docker")
+  (devdocs-install "elisp")
+  (devdocs-install "gcc-12")
+  (devdocs-install "git")
+  (devdocs-install "gnu_make")
+  (devdocs-install "go")
+  (devdocs-install "jq")
+  (devdocs-install "latex")
+  (devdocs-install "lua")
+  (devdocs-install "postgres")
+  (devdocs-install "ruby")
+  (devdocs-install "sqlite")
+  (devdocs-install "svg")
+  (devdocs-install "tensorflow")
+  (devdocs-install "zsh"))
+
+(defun zmacs--devdocs-go-hook ()
+  "Configure DevDocs for Go."
+  (setq-local devdocs-current-docs '("go")))
+
+(defun zmacs--devdocs-elisp-hook ()
+  "Configure DevDocs for Emacs Lisp."
+  (setq-local devdocs-current-docs '("elisp")))
+
+(with-eval-after-load 'devdocs
+  (global-set-key (kbd "C-h D") 'devdocs-lookup)
+  (add-hook 'go-mode-hook         #'zmacs--devdocs-go-hook)
+  (add-hook 'emacs-lisp-mode-hook #'zmacs--devdocs-elisp-hook))
 
 ;;;; Provide package:
 

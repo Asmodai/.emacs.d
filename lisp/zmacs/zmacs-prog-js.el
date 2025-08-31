@@ -27,6 +27,7 @@
 ;;
 
 ;;; Code:
+;;;; Requirements:
 
 (eval-when-compile
   (require 'cl-lib))
@@ -44,6 +45,13 @@
 (use-package typescript-ts-mode
   :ensure nil
   :hook (tsx-ts-mode . sgml-electric-tag-pair-mode))
+
+;;;; Tree-Splitter:
+
+(add-to-list 'major-mode-remap-alist '(js2-mode        . js-ts-mode))
+(add-to-list 'major-mode-remap-alist '(typescript-mode . typescript-ts-mode))
+
+;;;; Provide package:
 
 (provide 'zmacs-prog-js)
 

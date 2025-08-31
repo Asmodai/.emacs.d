@@ -27,6 +27,7 @@
 ;;
 
 ;;; Code:
+;;;; Requirements:
 
 (eval-when-compile
   (require 'cl-lib))
@@ -48,6 +49,14 @@
 (defconst c-c++-maps '(c-mode-map c++-mode-map)
   "List of known C/C++ keymaps.")
 
+;;;; Tree-Sitter:
+
+(add-to-list 'major-mode-remap-alist '(c-mode   . c-ts-mode))
+(add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
+
+(add-hook 'c-ts-mode-hook   #'eglot-ensure)
+(add-hook 'c++-ts-mode-hook #'eglot-ensure)
+
 ;;;; LSP detection:
 
 (eval-when-compile
@@ -55,10 +64,10 @@
   (defvar *zmacs-c-backend-mode* nil
     "Which backend for C/C++ are we using?")
 
-;;
-;; For some reason, ccls continuously causes Emacs to lock up.
-;; For this reason, and this reason alone, prefer clangd over ccls.
-;;
+  ;;
+  ;; For some reason, ccls continuously causes Emacs to lock up.
+  ;; For this reason, and this reason alone, prefer clangd over ccls.
+  ;;
 
 ;;;;; clangd:
 
@@ -75,7 +84,7 @@
     (use-package ccls :ensure t)
     (require 'ccls))
 
-;;;; Configure the eglot backend:
+;;;;; Configure the eglot backend:
 
   (when (not (null *zmacs-c-backend-mode*))
     (require 'eglot)

@@ -80,6 +80,21 @@
   :custom
   (go-test-verbose t))
 
+;;;;; Tree-Sitter:
+
+(use-package go-ts-mode)
+(add-to-list 'major-mode-remap-alist '(go-mode . go-ts-mode))
+(add-to-list 'major-mode-remap-alist '(go-mod-mode . go-mod-ts-mode))
+(add-hook 'go-ts-mode-hook #'eglot-ensure)
+(add-hook 'go-mod-ts-mode-hook #'eglot-ensure)
+
+(when (require 'treesit-fold nil t)
+  (add-hook 'go-ts-mode-hook #'treesit-fold-mode))
+
+(when (require 'treesit-expand-region nil t)
+  (define-key go-ts-mode-map (kbd "C-=") #'treesit-expand-region)
+  (define-key go-ts-mode-map (kbd "C--") #'treesit-contract-region))
+
 ;;;;; Eldoc:
 
 (use-package go-eldoc

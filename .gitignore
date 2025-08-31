@@ -29,6 +29,7 @@ ielm-history.*
 /url
 /var
 /games
+/devdocs
 async-bytecomp.log
 network-security.data
 
