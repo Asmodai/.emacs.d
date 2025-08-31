@@ -120,7 +120,7 @@
 
 (defcustom zmacs-storage-directory
   (expand-file-name (concat user-home-directory "/Dropbox/Emacs/"))
-  "Which directory contains our Org, Citar, and Denote files?"
+  "Which directory contains our Emacs user file storage."
   :type 'string
   :group 'zmacs-emacs)
 

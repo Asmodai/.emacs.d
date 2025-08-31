@@ -391,6 +391,110 @@ attention."
   "A face for very slicht accenting or shading."
   :group 'zmacs-faces)
 
+;;;;; ZMACS Org style faces:
+
+(defgroup zmacs-org-style-faces nil
+  "Faces for ZMACS Org styles."
+  :group 'zmacs-faces)
+
+;;;;;; Org Present
+
+(defgroup zmacs-org-style-present-faces nil
+  "Faces for `org-present'."
+  :group 'zmacs-org-style-faces)
+
+(defface zmacs-org-style-present-default nil
+  "Default face for `org-present'."
+  :group 'zmacs-org-style-present-faces)
+
+(defface zmacs-org-style-present-fixed-pitch nil
+  "Fixed pitch face for `org-present'."
+  :group 'zmacs-org-style-present-faces)
+
+(defface zmacs-org-style-present-header-line nil
+  "Header line face for `org-present'."
+  :group 'zmacs-org-style-present-faces)
+
+(defface zmacs-org-style-present-document-info nil
+  "Document info face for `org-present'."
+  :group 'zmacs-org-style-present-faces)
+
+(defface zmacs-org-style-present-document-title nil
+  "Document title face for `org-present'."
+  :group 'zmacs-org-style-present-faces)
+
+(defface zmacs-org-style-present-level-1 nil
+  "Level 1 heading face for `org-present'."
+  :group 'zmacs-org-style-present-faces)
+
+(defface zmacs-org-style-present-level nil
+  "Heading face for `org-present'."
+  :group 'zmacs-org-style-present-faces)
+
+(defface zmacs-org-style-present-code nil
+  "Code face for `org-present'."
+  :group 'zmacs-org-style-present-faces)
+
+(defface zmacs-org-style-present-verbatim nil
+  "Verbatim face for `org-present'."
+  :group 'zmacs-org-style-present-faces)
+
+(defface zmacs-org-style-present-block nil
+  "Block face for `org-present'."
+  :group 'zmacs-org-style-present-faces)
+
+(defface zmacs-org-style-present-block-begin-line nil
+  "Block begin line face for `org-present'."
+  :group 'zmacs-org-style-present-faces)
+
+(defface zmacs-org-style-present-block-end-line nil
+  "Block end line face for `org-present'."
+  :group 'zmacs-org-style-present-faces)
+
+;;;;;; Org Agenda:
+
+(defgroup zmacs-org-style-agenda-faces nil
+  "Faces for `org-agenda'."
+  :group 'zmacs-org-style-faces)
+
+(defface zmacs-org-style-agenda-level-1 nil
+  "Level 1 heading face for `org-agenda'."
+  :group 'zmacs-org-style-agenda-faces)
+
+(defface zmacs-org-style-agenda-level-2 nil
+  "Level 2 heading face for `org-agenda'."
+  :group 'zmacs-org-style-agenda-faces)
+
+(defface zmacs-org-style-agenda-level-3 nil
+  "Level 3 heading face for `org-agenda'."
+  :group 'zmacs-org-style-agenda-faces)
+
+(defface zmacs-org-style-agenda-level nil
+  "Heading face for `org-agenda'."
+  :group 'zmacs-org-style-agenda-faces)
+
+;;;;;; Denote:
+
+(defgroup zmacs-org-style-denote-faces nil
+  "Faces for `denote'."
+  :group 'zmacs-org-style-faces)
+
+(defface zmacs-org-style-denote-level-1 nil
+  "Level 1 heading face for `denote'."
+  :group 'zmacs-org-style-denote-faces)
+
+(defface zmacs-org-style-denote-level-2 nil
+  "Level 2 heading face for `denote'."
+  :group 'zmacs-org-style-denote-faces)
+
+(defface zmacs-org-style-denote-level-3 nil
+  "Level 3 heading face for `denote'."
+  :group 'zmacs-org-style-denote-faces)
+
+(defface zmacs-org-style-denote-level nil
+  "Heading face for `denote'."
+  :group 'zmacs-org-style-denote-faces)
+
 ;;;;; Colours:
 
 (defface zmacs-colour-black     nil "Black face."      :group 'zmacs-faces)
@@ -1025,7 +1129,6 @@ attention."
                  :foreground ,(zmacs--get-ui-colour :tint-10)
                  :weight     bold
                  :height     1.5
-                 :underline  t
                  :extend     t))))
      `(org-level-2
        ((,class (:inherit    fixed-pitch
@@ -1357,6 +1460,116 @@ attention."
        ((,class (:background ,(zmacs--get-ui-colour :tone-12)))))
      `(stripe-hl-line
        ((,class (:import highlight))))
+;;;;;; ZMACS Org Styles:
+;;;;;;; Present:
+     `(zmacs-org-style-present-default
+       ((,class (:inherit default
+                 :height  1.3))))
+     `(zmacs-org-style-present-fixed-pitch
+       ((,class (:inherit fixed-pitch
+                 :height  1.3))))
+     `(zmacs-org-style-present-header-line
+       ((,class (:inherit fixed-pitch
+                 :height 2.0))))
+     `(zmacs-org-style-present-document-title
+       ((,class (:inherit    fixed-pitch
+                 :background unspecified
+                 :foreground ,(zmacs--get-ui-colour :bright-orange)
+                 :weight     bold
+                 :height     3.0
+                 :underline  t
+                 :extend     t))))
+     `(zmacs-org-style-present-document-info
+       ((,class (:inherit    fixed-pitch
+                 :background unspecified
+                 :foreground ,(zmacs--get-ui-colour :bright-silver)
+                 :weight     bold
+                 :height     1.5))))
+     `(zmacs-org-style-present-level-1
+       ((,class (:inherit    fixed-pitch
+                 :background unspecified
+                 :foreground ,(zmacs--get-ui-colour :tint-10)
+                 :weight     bold
+                 :height     2.0
+                 :underline  t
+                 :overline   nil
+                 :extend     t))))
+     `(zmacs-org-style-present-level
+       ((,class (:inherit    fixed-pitch
+                 :background unspecified
+                 :foreground ,(zmacs--get-ui-colour :tint-10)
+                 :weight     bold
+                 :height     1.3
+                 :overline   nil
+                 :underline  nil
+                 :extend     nil))))
+     `(zmacs-org-style-present-code
+       ((,class (:inherit org-code
+                 :height  1.3))))
+     `(zmacs-org-style-present-verbatim
+       ((,class (:inherit org-verbatim
+                 :height  1.3))))
+     `(zmacs-org-style-present-block
+       ((,class (:inherit org-block
+                 :height 1.3))))
+     `(zmacs-org-style-present-block-begin-line
+       ((,class (:inherit org-block-begin-line
+                 :height 1.0))))
+     `(zmacs-org-style-present-block-end-line
+       ((,class (:inherit org-block-end-line
+                 :height 1.0))))
+;;;;;;; Agenda:
+     `(zmacs-org-style-agenda-level-1
+       ((,class (:inherit    fixed-pitch
+                 :background unspecified
+                 :foreground ,(zmacs--get-ui-colour :bright-steel)
+                 :weight     bold
+                 :height     1.3))))
+     `(zmacs-org-style-agenda-level-2
+       ((,class (:inherit    fixed-pitch
+                 :background unspecified
+                 :foreground ,(zmacs--get-ui-colour :bright-silver)
+                 :weight     bold
+                 :height     1.2))))
+     `(zmacs-org-style-agenda-level-3
+       ((,class (:inherit    fixed-pitch
+                 :background unspecified
+                 :foreground ,(zmacs--get-ui-colour :bright-silver)
+                 :weight     bold
+                 :height     1.1))))
+     `(zmacs-org-style-agenda-level
+       ((,class (:inherit    fixed-pitch
+                 :background unspecified
+                 :foreground ,(zmacs--get-ui-colour :silver)
+                 :weight     bold
+                 :height     1.0))))
+;;;;;;; Denote:
+     `(zmacs-org-style-denote-level-1
+       ((,class (:inherit    fixed-pitch
+                 :background unspecified
+                 :foreground ,(zmacs--get-ui-colour :silver)
+                 :underline  t
+                 :extend     t
+                 :weight     bold
+                 :height     1.4))))
+     `(zmacs-org-style-denote-level-2
+       ((,class (:inherit    fixed-pitch
+                 :background unspecified
+                 :foreground ,(zmacs--get-ui-colour :silver)
+                 :weight     bold
+                 :height     1.3))))
+     `(zmacs-org-style-denote-level-3
+       ((,class (:inherit    fixed-pitch
+                 :background unspecified
+                 :foreground ,(zmacs--get-ui-colour :silver)
+                 :weight     bold
+                 :height     1.2))))
+     `(zmacs-org-style-denote-level
+       ((,class (:inherit    fixed-pitch
+                 :background unspecified
+                 :foreground ,(zmacs--get-ui-colour :silver)
+                 :weight     bold
+                 :height     1.1))))
 ;;;;; End of faces.
      )                                  ; `custom-set-faces'
 (custom-theme-set-variables

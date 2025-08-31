@@ -61,7 +61,7 @@
   (org-modern-keyword          t)
   (org-modern-label-border     .25)
   (org-modern-star             'replace)
-  (org-modern-replace-stars    ["⦶" "⦷" "⦹" "⊕" "⍟" "⊛" "⏣" "❂"]))
+  (org-modern-replace-stars    ["🞙" "🞙" "🞙" "🞙" "🞙" "🞙" "🞙" "🞙"]))
 
 (with-eval-after-load 'org-modern
     (setq org-modern--table-overline '(:strike-through t)))
@@ -333,28 +333,31 @@
               org-modern-star                nil
               org-hide-leading-stars         t
               header-line-format             " "
-              face-remapping-alist
-              '((default              (:height 1.3)  default)
-                (fixed-pitch          (:height 1.3)  fixed-pitch)
-                (header-line          (:height 2.0)  fixed-pitch)
-                (org-document-title   (:height 2.5)  org-document-title)
-                (org-document-info    (:height 1.75) org-document-info)
-                (org-level-1          (:height 2.0)  org-level-1)
-                (org-level-2          (:height 1.9)  org-level-2)
-                (org-level-3          (:height 1.8)  org-level-3)
-                (org-level-4          (:height 1.7)  org-level-4)
-                (org-level-5          (:height 1.6)  org-level-5)
-                (org-level-6          (:height 1.5)  org-level-6)
-                (org-level-7          (:height 1.4)  org-level-7)
-                (org-level-8          (:height 1.3)  org-level-8)
-                (org-code             (:height 1.2)  org-code)
-                (org-verbatim         (:height 1.2)  org-verbatim)
-                (org-block            (:height 1.2)  org-block)
-                (org-block-begin-line (:height 1.0)  org-block-begin-line)
-                (org-block-end-line   (:height 1.0)  org-block-end-line)))
+              ;; face-remapping-alist
+              ;; '((default              (:height 1.3)  default)
+              ;;   (fixed-pitch          (:height 1.3)  fixed-pitch)
+              ;;   (header-line          (:height 2.0)  fixed-pitch)
+              ;;   (org-document-title   (:height 2.5)  org-document-title)
+              ;;   (org-document-info    (:height 1.75) org-document-info)
+              ;;   (org-level-1          (:height 2.0)  org-level-1)
+              ;;   (org-level-2          (:height 1.9)  org-level-2)
+              ;;   (org-level-3          (:height 1.8)  org-level-3)
+              ;;   (org-level-4          (:height 1.7)  org-level-4)
+              ;;   (org-level-5          (:height 1.6)  org-level-5)
+              ;;   (org-level-6          (:height 1.5)  org-level-6)
+              ;;   (org-level-7          (:height 1.4)  org-level-7)
+              ;;   (org-level-8          (:height 1.3)  org-level-8)
+              ;;   (org-code             (:height 1.2)  org-code)
+              ;;   (org-verbatim         (:height 1.2)  org-verbatim)
+              ;;   (org-block            (:height 1.2)  org-block)
+              ;;   (org-block-begin-line (:height 1.0)  org-block-begin-line)
+              ;;   (org-block-end-line   (:height 1.0)  org-block-end-line))
+              )
+  (zlisp/org-style-activate zlisp/org-style-present)
   (menu-bar-mode 0)
   (scroll-bar-mode 0)
   (line-number-mode -1)
+  (hl-line-mode -1)
   (display-line-numbers-mode -1)
   (visual-fill-column-mode 1)
   (visual-line-mode 1))
@@ -368,12 +371,14 @@
               visual-fill-column-center-text nil
               org-modern-star                'replace
               org-hide-leading-stars         nil)
+  (zlisp/org-style-activate zlisp/org-style-writing)
   (if (not org-startup-with-inline-images)
       (org-remove-inline-images))
   (line-number-mode 1)
   (display-line-numbers-mode 1)
   (visual-fill-column-mode 0)
   (visual-line-mode 1)
+  (hl-line-mode 1)
   (menu-bar-mode 1)
   (scroll-bar-mode 1))
 
@@ -497,6 +502,17 @@
   :vc (:fetcher github
        :repo "alphapapa/org-ql"))
 
+
+;;;; ZLisp Org styles:
+
+(use-package zlisp-style
+  :after org
+  :ensure nil
+  :defer t
+  :hook ((org-mode . zlisp/org-style-activate-from-buffer))
+  :config
+  (require 'zlisp-style)
+  (zlisp/org-styles-auto-mode 1))
 
 ;;;; Provide module:
 

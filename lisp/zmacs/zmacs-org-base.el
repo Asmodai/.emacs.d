@@ -25,6 +25,7 @@
 ;;; Commentary:
 
 ;;; Code:
+;;;; Requirements:
 
 (require 'cl-lib)
 (require 'zlisp-platform)
@@ -81,7 +82,7 @@
   (org-fontify-whole-heading-line               t)
   (org-fontify-quote-and-verse-blocks           t)
   (org-hide-emphasis-markers                    t)
-  (org-hide-leading-stars                       nil)
+  (org-hide-leading-stars                       t)
   (org-image-actual-width                       500)
   (org-pretty-entities                          t)
   (org-use-sub-superscripts                     '{})
