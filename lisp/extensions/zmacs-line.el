@@ -38,8 +38,9 @@
 
 (defgroup zmacs-line nil
   "zmacs-line group"
-  :group 'mode-line
-  :link '(url-link :tag "Homepage" "https://github.com/Lambda-Emacs/zmacs-line"))
+  :group 'zmacs-emacs
+  :link '(url-link :tag "Homepage" "https://github.com/Lambda-Emacs/zmacs-line")
+  :tag "ZMACS modeline")
 
 ;;;; Custom Variable Settings
 
@@ -50,7 +51,8 @@ displayed. It can be an integer or a float number. `nil' means no limit."
   :type '(choice integer
                  float
                  (const :tag "Disable" nil))
-  :group 'zmacs-line)
+  :group 'zmacs-line
+  :tag "Window width limit")
 
 (defcustom zmacs-line-position 'bottom
   "Default modeline position (top or bottom)"
@@ -58,83 +60,98 @@ displayed. It can be an integer or a float number. `nil' means no limit."
           (const :tag "Nil" nil)
           (const :tag "Top"    top)
           (const :tag "Bottom" bottom))
-  :group 'zmacs-line)
+  :group 'zmacs-line
+  :tag "Modeline position")
 
 (defcustom zmacs-line-prefix t
   "Include a prefix icon to indicate buffer status in the status-line."
   :type 'boolean
-  :group 'zmacs-line)
+  :group 'zmacs-line
+  :tag "Use a prefix icon?")
 
 (defcustom zmacs-line-prefix-padding t
   "Include prefix padding."
   :type 'boolean
-  :group 'zmacs-line)
+  :group 'zmacs-line
+  :tag "Use padding with the prefix?")
 
 (defcustom zmacs-line-user-mode nil
   "User supplied mode to be evaluated for modeline."
   :type '(choice (const nil) function)
-  :group 'zmacs-line)
+  :group 'zmacs-line
+  :tag "User-supplied mode")
 
 (defcustom zmacs-line-abbrev nil
   "If t then show abbreviated mode symbol in modeline.
 Default is nil. To change the values of the major-mode symbols
 see the value of `zmacs-line-abbrev-alist'"
   :group 'zmacs-line
-  :type 'boolean)
+  :type 'boolean
+  :tag "Show abbrev symbol?")
 
 (defcustom zmacs-line-git-diff-mode-line t
   "If t then show diff lines in modeline."
   :group 'zmacs-line
-  :type 'boolean)
+  :type 'boolean
+  :tag "Show diff lines?")
 
 (defcustom zmacs-line-vc-symbol ""
   "Symbol to use in buffers visiting files under version control"
   :group 'zmacs-line
-  :type 'string)
+  :type 'string
+  :tag "Version control symbol")
 
 ;; Visual Bell
 (defcustom zmacs-line-visual-bell t
   "If t then use `zmacs-line-visual-bell'."
   :group 'zmacs-line
-  :type 'boolean)
+  :type 'boolean
+  :tag "Use visual bell?")
 
 ;; Invert status faces
 ;; This make zmacs-line look more like nano-modeline
 (defcustom zmacs-line-status-invert nil
   "If t then invert the colors to get a box effect for the corner of the status line."
   :group 'zmacs-line
-  :type 'boolean)
+  :type 'boolean
+  :tag "Invert colours for box?")
 
 ;; Mode line symbols
 (defcustom zmacs-line-gui-ro-symbol " ⨂"  ;;  ⬤◯⨂
   "Modeline gui read-only symbol."
   :group 'zmacs-line
-  :type 'string)
+  :type 'string
+  :tag "Read-only buffer symbol")
 
 (defcustom zmacs-line-gui-mod-symbol " ⬤" ;;  ⨀⬤
   "Modeline gui modified symbol."
   :group 'zmacs-line
-  :type 'string)
+  :type 'string
+  :tag "Modified buffer symbol")
 
 (defcustom zmacs-line-gui-rw-symbol " ◯" ; λ ◉ ◎ ⬤◯
   "Modeline gui read-write symbol."
   :group 'zmacs-line
-  :type 'string)
+  :type 'string
+  :tag "Read/write buffer symbol")
 
 (defcustom zmacs-line-tty-ro-symbol " λ "
   "Modeline tty read-only symbol."
   :group 'zmacs-line
-  :type 'string)
+  :type 'string
+  :tag "Read/only buffer symbol for TTY mode")
 
 (defcustom zmacs-line-tty-mod-symbol " λ "
   "Modeline tty read-only symbol."
   :group 'zmacs-line
-  :type 'string)
+  :type 'string
+  :tag "Modified buffer symbol for TTY mode")
 
 (defcustom zmacs-line-tty-rw-symbol " λ "
   "Modeline tty read-write symbol."
   :group 'zmacs-line
-  :type 'string)
+  :type 'string
+  :tag "Read/write buffer symbol for TTY mode")
 
 (defcustom zmacs-line-truncate-value 30
   "Value of modeline truncate-length function."
@@ -144,71 +161,84 @@ see the value of `zmacs-line-abbrev-alist'"
 (defcustom zmacs-line-hspace " "
   "Space adjustment for right end of modeline."
   :type 'string
-  :group 'zmacs-line)
+  :group 'zmacs-line
+  :tag "Horizontal space")
 
 (defcustom zmacs-line-space-top +.35
   "Space adjustment for top of status-line.
 Positive is upwards"
   :type 'float
-  :group 'zmacs-line)
+  :group 'zmacs-line
+  :tag "Top space adjustment")
 
 (defcustom zmacs-line-space-bottom -.5
   "Space adjustment for bottom of status-line.
 Negative is downwards."
   :type 'float
-  :group 'zmacs-line)
+  :group 'zmacs-line
+  :tag "Bottom space adjustment")
 
 (defcustom zmacs-line-symbol-position .067
   "Space adjustment for symbol in status-line.
 Negative is downwards."
   :type 'float
-  :group 'zmacs-line)
+  :group 'zmacs-line
+  :tag "Buffer symbol adjustment")
 
 (defcustom zmacs-line-syntax t
   "Show flycheck/flymake report in status-line."
   :type 'boolean
-  :group 'zmacs-line)
+  :group 'zmacs-line
+  :tag "Show flycheck/flymake report?")
 
 (defcustom zmacs-line-which-func nil
   "Show `which-function-mode' display in status-line."
   :type 'boolean
-  :group 'zmacs-line)
+  :group 'zmacs-line
+  :tag "Show `which-function-mode'?")
 
 (defcustom zmacs-line-flycheck-label "Issues: "
   "Show with flycheck/flymake issues count."
   :type 'string
-  :group 'zmacs-line)
+  :group 'zmacs-line
+  :tag "Flycheck label")
 
 (defcustom zmacs-line-icon-time nil
   "When set to non-nil show the time as an icon clock.
 Time info is only shown `display-time-mode' is non-nil"
   :type 'boolean
-  :group 'zmacs-line)
+  :group 'zmacs-line
+  :tag "Show time as icon clock?")
 
 (defcustom zmacs-line-time-day-and-date-format "  %H:%M %Y-%m-%e "
   "`format-time-string'."
   :type 'string
-  :group 'zmacs-line)
+  :group 'zmacs-line
+  :tag "Time and date format")
 
 (defcustom zmacs-line-time-format "  %H:%M "
   "`format-time-string'."
   :type 'string
-  :group 'zmacs-line)
+  :group 'zmacs-line
+  :tag "Time format")
 
 (defcustom zmacs-line-time-icon-format " %s"
   "`format-time-string'."
   :type 'string
-  :group 'zmacs-line)
+  :group 'zmacs-line
+  :tag "Time icon format")
 
 (defcustom zmacs-line-display-group-start "("
   "Modeline display group start indicator."
   :group 'zmacs-line
-  :type 'string)
+  :type 'string
+  :tag "Display group start symbol")
 
 (defcustom zmacs-line-display-group-end ")"
   "Modeline display group end indicator."
   :group 'zmacs-line
-  :type 'string)
+  :type 'string
+  :tag "Display group end symbol")
 
 (defcustom zmacs-line-mode-formats
   '(;; with :mode-p first
@@ -300,7 +330,6 @@ Time info is only shown `display-time-mode' is non-nil"
                             :on-deactivate zmacs-line-ispell-deactivate)
     (mu4e-mode              :on-activate zmacs-line-mu4e-activate
                             :on-deactivate zmacs-line-mu4e-deactivate))
-
   "Modes to be evalued for modeline.
 KEY mode name, for reference only. Easier to do lookups and/or replacements.
 :MODE-P the function to check if :FORMAT needs to be used, first one wins.
@@ -312,27 +341,31 @@ KEY mode name, for reference only. Easier to do lookups and/or replacements.
                                                      (const :on-activate)
                                                      (const :on-deactivate))
                                    :value-type function))
-  :group 'zmacs-line)
+  :group 'zmacs-line
+  :tag "Modeline formats")
 
 (defcustom zmacs-line-mode-format-activate-hook nil
   "Add hooks on activation of the mode.
 This is for those modes that define their own status-line."
   :type 'hook
   :options '(turn-on-auto-fill flyspell-mode)
-  :group 'zmacs-line)
+  :group 'zmacs-line
+  :tag "Format activation hook")
 
 (defcustom zmacs-line-mode-format-deactivate-hook nil
   "Remove hooks on de-activation of the mode.
 This is for those modes that define their own status-line."
   :type 'hook
   :options '(turn-on-auto-fill flyspell-mode)
-  :group 'zmacs-line)
+  :group 'zmacs-line
+  :tag "Format deactivation hook")
 
 (defcustom zmacs-line-default-mode-format 'zmacs-line-default-mode
   "Default mode to evaluate.
 This is if no match could be found in `zmacs-lines-mode-formats'"
   :type 'function
-  :group 'zmacs-line)
+  :group 'zmacs-line
+  :tag "Default mode format")
 
 ;;;; Faces
 ;;;;; Line Faces
@@ -435,7 +468,8 @@ This is if no match could be found in `zmacs-lines-mode-formats'"
 
 (defface zmacs-line-visual-bell '((t (:background "red3")))
   "Face to use for the mode-line when `zmacs-line-visual-bell-config' is used."
-  :group 'zmacs-line)
+  :group 'zmacs-line
+  :tag "Visual bell face")
 
 ;;;; Setup Functions
 

@@ -27,6 +27,7 @@
 ;;
 
 ;;; Code:
+;;;; Requirements:
 
 (eval-when-compile
   (require 'cl-lib))
@@ -38,7 +39,7 @@
         (expand-file-name (concat zmacs-storage-directory "books.bib")))
   "User bibliography files."
   :group 'zmacs-emacs
-  :tag "ZMACS User Bibliography")
+  :tag "Bibliography databases")
 
 (defvar *zmacs-bib-notes-directory*
   (expand-file-name (concat zmacs-storage-directory "bib/")))

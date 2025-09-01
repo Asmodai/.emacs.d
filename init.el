@@ -103,32 +103,31 @@
 
 ;;;; Customisation:
 
-(defgroup zmacs-emacs '()
-  "Customize group for ZMACS."
-  :tag "ZMACS"
-  :group 'emacs)
-
 (defcustom zmacs-use-persistent-scratch t
   "Should ZMACS use a persistent scratch buffer?"
   :type 'boolean
-  :group 'zmacs-emacs)
+  :group 'zmacs-emacs
+  :tag "Use persistent scratch buffer?")
 
 (defcustom zmacs-preferred-shell "zsh"
   "Which shell should Emacs prefer?"
   :type 'string
-  :group 'zmacs-emacs)
+  :group 'zmacs-emacs
+  :tag "Preferred Unix shell")
 
 (defcustom zmacs-storage-directory
   (expand-file-name (concat user-home-directory "/Dropbox/Emacs/"))
   "Which directory contains our Emacs user file storage."
   :type 'string
-  :group 'zmacs-emacs)
+  :group 'zmacs-emacs
+  :tag "ZMACS storage directory")
 
 (defcustom zmacs-projects-directory
   (expand-file-name (concat user-home-directory "/Projects/"))
   "Which directory contains our projects?"
   :type 'string
-  :group 'zmacs-emacs)
+  :group 'zmacs-emacs
+  :tag "ZMACS projects directory")
 
 ;; Project repo directory.
 (setq magic-repository-directories

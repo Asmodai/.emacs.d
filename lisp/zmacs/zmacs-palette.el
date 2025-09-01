@@ -38,12 +38,14 @@
 
 (defgroup zmacs-colour-display nil
   "Display a list of colours with swatches and contrast."
-  :group 'zmacs)
+  :group 'zmacs-emacs
+  :tag "ZMACS Palette")
 
 (defcustom zmacs-colour-display-example-string "AaBbCcDdEeFfGgHhIi"
   "A sample string that will be displayed in the colours of a swatch."
   :type 'string
-  :group 'zmacs-colour-display)
+  :group 'zmacs-colour-display
+  :tag "Example string")
 
 ;;;; Utilities:
 

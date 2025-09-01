@@ -166,10 +166,17 @@
 
 ;;;; Variables:
 
+(defgroup zmacs-emacs '()
+  "Customise group for ZMACS."
+  :tag "ZMACS"
+  :group 'emacs)
+
+;; XXX Can this go?
 (defcustom zmacs-active-theme nil
   "Current active ZMACS theme."
   :type 'symbol
-  :group 'zmacs)
+  :group 'zmacs-emacs
+  :tag "Active theme")
 
 (defvar *zmacs-cache-directory*
   (expand-file-name (concat user-emacs-directory "cache/"))
@@ -242,17 +249,37 @@
 
 ;;;; Configure package system:
 
+(defcustom zmacs-elpa-url "https://elpa.gnu.org/packages/"
+  "URL for the main ELPA packages repository."
+  :group 'zmacs-emacs
+  :tag "URL for ELPA packages")
+
+(defcustom zmacs-elpa-devel-url "https://elpa.gnu.org/devel/"
+  "URL for the ELPA development packages respository."
+  :group 'zmacs-emacs
+  :tag "URL for ELPA dev packages")
+
+(defcustom zmacs-nongnu-url "https://elpa.nongnu.org/nongnu/"
+  "URL for the non-GNU packages respository."
+  :group 'zmacs-emacs
+  :tag "URL for Non-GNU packages")
+
+(defcustom zmacs-melpa-url "https://melpa.org/packages/"
+  "URL for the MELPA packages respository."
+  :group 'zmacs-emacs
+  :tag "URL for MELPA packages")
+
 (require 'package)
 
-(setopt package-archives '(("elpa"       . "https://elpa.gnu.org/packages/")
-                           ("elpa-devel" . "https://elpa.gnu.org/devel/")
-                           ("nongnu"     . "https://elpa.nongnu.org/nongnu/")
-                           ("melpa"      . "https://melpa.org/packages/"))
-
+(setopt package-archives `(("elpa"       . ,zmacs-elpa-url)
+                           ("elpa-devel" . ,zmacs-elpa-devel-url)
+                           ("nongnu"     . ,zmacs-nongnu-url)
+                           ("melpa"      . ,zmacs-melpa-url))
+        ;;
         ;; Highest number gets priority (what is not mentioned gets priority 0)
         package-archive-priorities '(;; Prefer development packages
                                      ("elpa-devel" . 99)
-                                     ("melpa" . 90)))
+                                     ("melpa"      . 90)))
 
 ;; Make sure the elpa/ folder exists after setting it above.
 (unless (file-exists-p package-user-dir)

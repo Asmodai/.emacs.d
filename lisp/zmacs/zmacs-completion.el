@@ -27,6 +27,7 @@
 ;;
 
 ;;; Code:
+;;;; Requirements:
 
 (require 'cl-lib)
 (require 'zlisp-platform)
@@ -427,7 +428,8 @@ takes a second \\[keyboard-quit] to abort the minibuffer."
 (defcustom zmacs-all-snippets-dir
   (concat zmacs-storage-directory "all-snippets/")
   "Directory for all snippet files."
-  :group 'zmacs-emacs)
+  :group 'zmacs-emacs
+  :tag "Snippets directory")
 
 (use-package yasnippet
   :bind (:map yas-minor-mode-map

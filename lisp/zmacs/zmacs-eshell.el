@@ -407,18 +407,20 @@ ALIASES is a flat list of alias -> command pairs. e.g.
     map)
   "Keys in effect when point is over a file from `eshell/ls'.")
 
+;; XXX unused?
 (defface all-the-icons-eshell-dir-face
   '((((background dark)) :foreground "white")
     (((background light)) :foreground "black"))
   "Face for the directory icon"
   :group 'all-the-icons-faces)
 
-
+;; XXX unused?
 (defcustom all-the-icons-eshell-v-adjust 0.01
   "The default vertical adjustment of the icon in the eshell buffer."
   :group 'all-the-icons
   :type 'number)
 
+;; XXX unused?
 (defcustom all-the-icons-eshell-monochrome nil
   "Whether to show the icons as the same color as the text on the same line."
   :group 'all-the-icons

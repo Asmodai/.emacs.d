@@ -58,12 +58,14 @@
 (defcustom zmacs-go-tab-width 8
   "The tab width to use in Go mode."
   :type 'integer
-  :group 'zmacs-golang)
+  :group 'zmacs-golang
+  :tag "Go tab width")
 
 (defcustom zmacs-go-format-before-save t
   "Should gofmt be run on a buffer before saving?"
   :type 'boolean
-  :group 'zmacs-golang)
+  :group 'zmacs-golang
+  :tag "Format before save?")
 
 ;;;; Package:
 ;;;;; Main package:

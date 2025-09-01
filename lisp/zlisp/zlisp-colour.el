@@ -35,34 +35,40 @@
 
 (defgroup zlisp-colour nil
   "Variables used for colour functions in ZLISP."
-  :group 'zlisp)
+  :group 'zmacs-emacs
+  :tag "ZLISP Colour facility")
 
 (defcustom zlisp-grey-chroma-threshold 0.03
   "Anything with an OKLCh chroma value below this is treated as neutral.
 
 That is, it is considered to have no hue."
   :type 'number
-  :group 'zlisp-colour)
+  :group 'zlisp-colour
+  :tag "Grey chroma threshold")
 
 (defcustom zlisp-palette-dL-bright +0.08
   "ΔL for computation of `bright' colours."
   :type 'number
-  :group 'zlisp-colour)
+  :group 'zlisp-colour
+  :tag "Bright colour luminosity delta")
 
 (defcustom zlisp-palette-dL-dim -0.12
  "ΔL for computation of `dim' colours."
  :type 'number
- :group 'zlisp-colour)
+ :group 'zlisp-colour
+ :tag "Dim colour luminosity delta")
 
 (defcustom zlisp-palette-kC-bright 1.06
   "×C for computation of `bright' colours."
   :type 'number
-  :group 'zlisp-colour)
+  :group 'zlisp-colour
+  :tag "Bright colour chroma delta")
 
 (defcustom zlisp-palette-kC-dim 0.86
   "×C for computation of `dim' colours."
   :type 'number
-  :group 'zlisp-colour)
+  :group 'zlisp-colour
+  :tag "Dim colour chroma delta")
 
 (defcustom zlisp-palette-anchors '((red     . 20)
                                    (orange  . 50)
@@ -74,7 +80,8 @@ That is, it is considered to have no hue."
                                    (magenta . 320))
   "Canonical OKLCh hue anchors (degrees) used to derive named colours."
   :type '(alist :key-type symbol :value-type number)
-  :group 'zlisp-colour)
+  :group 'zlisp-colour
+  :tag "Palette anchors")
 
 ;;;; Conversion:
 

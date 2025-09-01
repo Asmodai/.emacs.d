@@ -38,7 +38,8 @@
   (concat *zmacs-lisp-directory* "themes/")
   "Set a custom themes directory path."
   :group 'zmacs-emacs
-  :type  'string)
+  :type  'string
+  :tag "ZMACS themes directory")
 
 (setq-default custom-theme-directory zmacs-custom-themes-dir)
 
