@@ -853,6 +853,12 @@ attention."
                  :weight     bold))))
      `(font-lock-escape-face
        ((,class (:inherit font-lock-regexp-grouping-backslash))))
+     `(font-lock-regexp-grouping-backslash
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-red)
+                 :weight     semi-bold))))
+     `(font-lock-regexp-grouping-construct
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-yellow)
+                 :weight     semi-bold))))
 ;;;;;; Widget:
      `(widget-button
        ((,class (:foreground ,(zmacs--get-ui-colour :button-face)
@@ -961,6 +967,19 @@ attention."
      `(highlight-indent-guides-even-face
        ((,class (:foreground ,(zmacs--get-ui-colour :dim-steel)
                  :background unspecified))))
+;;;;;; Auto Highlight Symbol:
+     `(ahs-plugin-default-face
+       ((,class (:foreground ,(zmacs--get-ui-colour :black)
+                 :background ,(zmacs--get-ui-colour :bright-steel)))))
+     `(ahs-plugin-default-face-unfocused
+       ((,class (:foreground ,(zmacs--get-ui-colour :black)
+                 :background ,(zmacs--get-ui-colour :steel)))))
+     `(ahs-face
+       ((,class (:foreground ,(zmacs--get-ui-colour :black)
+                 :background ,(zmacs--get-ui-colour :silver)))))
+     `(ahs-face-unfocused
+       ((,class (:foreground ,(zmacs--get-ui-colour :black)
+                 :background ,(zmacs--get-ui-colour :dim-silver)))))
 ;;;;;; Header line:
      `(header-line
        ((,class (:foreground ,(zmacs--get-ui-colour :window-text)
@@ -1038,12 +1057,17 @@ attention."
                  :background ,(zmacs--get-ui-colour :yellow)))))
      `(company-echo-common
        ((,class (:foreground ,(zmacs--get-ui-colour :red)))))
+;;;;;; Dired:
+     `(dired-broken-symlink
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-yellow)
+                 :background ,(zmacs--get-primary-colour :dim-red)
+                 :weight     bold))))
 ;;;;;; Org:
 ;;;;;;; Text attributes:
      `(org-hide
        ((,class (:foreground ,colour-background))))
      `(org-code
-       ((,class (:foreground ,(zmacs--get-ui-colour :bright-orange)
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-cyan)
                  :weight     bold))))
      `(org-verbatim
        ((,class (:foreground ,(zmacs--get-ui-colour :bright-green)
@@ -1261,13 +1285,21 @@ attention."
        ((,class (:foreground ,(zmacs--get-ui-colour :tint-4)
                  :height    1.1
                  :weight     bold))))
+;;;;;;; Pomodoro
+     `(org-pomodoro-mode-line
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-orange)))))
+     `(org-pomodoro-mode-line-overtime
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-red)
+                 :weight     bold))))
+     `(org-pomodoro-mode-line-break
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-silver)))))
 ;;;;;; Outline:
 ;;;;;;; `outline-mode':
-    `(outline-1
-      ((,class (:foreground ,colour-comment1
-                :background unspecified
-                :weight     bold
-                :extend     t))))
+     `(outline-1
+       ((,class (:foreground ,colour-comment1
+                 :background unspecified
+                 :weight     bold
+                 :extend     t))))
     `(outline-2
       ((,class (:foreground ,colour-comment2
                 :background unspecified
@@ -1488,7 +1520,7 @@ attention."
      `(zmacs-org-style-present-level-1
        ((,class (:inherit    fixed-pitch
                  :background unspecified
-                 :foreground ,(zmacs--get-ui-colour :tint-10)
+                 :foreground ,colour-heading1
                  :weight     bold
                  :height     2.0
                  :underline  t
@@ -1497,7 +1529,7 @@ attention."
      `(zmacs-org-style-present-level
        ((,class (:inherit    fixed-pitch
                  :background unspecified
-                 :foreground ,(zmacs--get-ui-colour :tint-10)
+                 :foreground ,colour-heading1
                  :weight     bold
                  :height     1.3
                  :overline   nil
@@ -1522,32 +1554,32 @@ attention."
      `(zmacs-org-style-agenda-level-1
        ((,class (:inherit    fixed-pitch
                  :background unspecified
-                 :foreground ,(zmacs--get-ui-colour :bright-steel)
+                 :foreground ,colour-heading1
                  :weight     bold
-                 :height     1.3))))
+                 :height     1.0))))
      `(zmacs-org-style-agenda-level-2
        ((,class (:inherit    fixed-pitch
                  :background unspecified
-                 :foreground ,(zmacs--get-ui-colour :bright-silver)
+                 :foreground ,colour-heading2
                  :weight     bold
-                 :height     1.2))))
+                 :height     1.0))))
      `(zmacs-org-style-agenda-level-3
        ((,class (:inherit    fixed-pitch
                  :background unspecified
-                 :foreground ,(zmacs--get-ui-colour :bright-silver)
+                 :foreground ,colour-heading3
                  :weight     bold
-                 :height     1.1))))
+                 :height     1.0))))
      `(zmacs-org-style-agenda-level
        ((,class (:inherit    fixed-pitch
                  :background unspecified
-                 :foreground ,(zmacs--get-ui-colour :silver)
+                 :foreground ,colour-heading4
                  :weight     bold
                  :height     1.0))))
 ;;;;;;; Denote:
      `(zmacs-org-style-denote-level-1
        ((,class (:inherit    fixed-pitch
                  :background unspecified
-                 :foreground ,(zmacs--get-ui-colour :silver)
+                 :foreground ,colour-heading1
                  :underline  t
                  :extend     t
                  :weight     bold
@@ -1555,19 +1587,19 @@ attention."
      `(zmacs-org-style-denote-level-2
        ((,class (:inherit    fixed-pitch
                  :background unspecified
-                 :foreground ,(zmacs--get-ui-colour :silver)
+                 :foreground ,colour-heading2
                  :weight     bold
                  :height     1.3))))
      `(zmacs-org-style-denote-level-3
        ((,class (:inherit    fixed-pitch
                  :background unspecified
-                 :foreground ,(zmacs--get-ui-colour :silver)
+                 :foreground ,colour-heading2
                  :weight     bold
                  :height     1.2))))
      `(zmacs-org-style-denote-level
        ((,class (:inherit    fixed-pitch
                  :background unspecified
-                 :foreground ,(zmacs--get-ui-colour :silver)
+                 :foreground ,colour-heading2
                  :weight     bold
                  :height     1.1))))
 ;;;;; End of faces.
@@ -1589,11 +1621,14 @@ attention."
 ;;;; Highlight parens:
 
 (setq-default highlight-parentheses-colors
-              (list (zmacs--get-ui-colour :tone-0)
-                    (zmacs--get-ui-colour :tone-2)
-                    (zmacs--get-ui-colour :tone-4)
-                    (zmacs--get-ui-colour :tone-6)
-                    (zmacs--get-ui-colour :tone-8)))
+              (list (zlisp/adjust-brightness-oklab
+                     (zmacs--get-primary-colour :bright-green)  25)
+                    (zlisp/adjust-brightness-oklab
+                     (zmacs--get-primary-colour :bright-yellow) 25)
+                    (zlisp/adjust-brightness-oklab
+                     (zmacs--get-primary-colour :bright-orange) 25)
+                    (zlisp/adjust-brightness-oklab
+                     (zmacs--get-primary-colour :bright-red) 25)))
 
 ;;;; Highlight Todo:
 
@@ -1638,7 +1673,4 @@ attention."
 
 (provide 'zmacs-themes)
 
-;; Local Variables:
-;; eval: (when (fboundp 'rainbow-mode) (rainbow-mode +1))
-;; End:
 ;;; zmacs-themes.el ends here.

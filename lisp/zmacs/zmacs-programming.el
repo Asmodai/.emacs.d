@@ -29,8 +29,8 @@
 ;;; Code:
 ;;;; Requirements:
 
-(eval-when-compile
-  (require 'cl-lib))
+(require 'cl-lib)
+(require 'zlisp-colour)
 
 ;;;; Show pretty symbols:
 
@@ -59,10 +59,15 @@
   :defer t
   :custom
   (highlight-parentheses-delay 0.2)
-  (highlight-parentheses-colors '("#dcff75"
-                                  "#f3cc62"
-                                  "#fd964f"
-                                  "#ff543d"))
+  (highlight-parentheses-colors (list
+                                 (zlisp/adjust-brightness-oklab
+                                  (zmacs--get-primary-colour :bright-green) 25)
+                                 (zlisp/adjust-brightness-oklab
+                                  (zmacs--get-primary-colour :bright-yellow) 25)
+                                 (zlisp/adjust-brightness-oklab
+                                  (zmacs--get-primary-colour :bright-orange) 25)
+                                 (zlisp/adjust-brightness-oklab
+                                  (zmacs--get-primary-colour :bright-red) 25)))
   :custom-face (highlight-parentheses-highlight ((nil (:weight ultra-bold))))
   :commands highlight-parentheses-minibuffer-setup
   :init

@@ -1030,7 +1030,7 @@ one week to the next, unchecking them at the same time"
                               prepend))) t)
 
 (font-lock-add-keywords 'org-mode
-                        '(("^ *\\([-+]\\|[0-9]+[.)]\\) "
+                        '(("^ *\\([-*+]\\|[0-9]+[.)]\\) "
                            (1 'zmacs-org-list-symbol))))
 
 ;;;; Story Points:

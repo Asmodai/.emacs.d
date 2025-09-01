@@ -7,25 +7,25 @@
 :CREATED:  [2024-10-29 05:55:31]
 :TOC:      :include all
 :END:
-- [ ] [0/4]
-    + [ ] Themes:
-        - [ ] Add OKlab mathematics for gradient computation?
-        - [ ] Neaten up theme colours.
+- [-] [1/4]
+    + [-] Themes:
+        - [X] Add OKlab mathematics for gradient computation?
+        - [X] Neaten up theme colours.
         - [ ] Finish adding relevant faces.
-    + [ ] Lisp:
-        - [ ] Migrate random Lisp to `zlisp' namespace.
+    + [X] Lisp:
+        - [X] Migrate random Lisp to `zlisp' namespace.
     + [ ] Customisation:
         - [ ] Neaten up `customize' groups.
-    + [ ] Org Mod:
+    + [-] Org Mod:
         - [ ] Review Org init files.
-        - [ ] Clean up modern.
-        - [ ] Clean up unicode.
+        - [X] Clean up modern.
+        - [X] Clean up unicode.
 * Emacs modes :modes:
 :PROPERTIES:
 :CREATED:  [2024-10-29 05:59:03]
 :TOC:      :include all
 :END:
-- [-] [10/14]
+- [-] [10/13]
     + [X] Go
     + [X] C/C++
     + [X] Emacs Lisp
@@ -34,12 +34,12 @@
     + [X] JavaScript / TypeScript
     + [X] JSON
     + [X] YAML
-    + [ ] Erlang
     + [X] Shell
     + [ ] Objective-C -- will this be covered by C/C++?
     + [X] SGML/HTML/XML
     + [X] GraphQL
     + [ ] `conf' mode?
+    + [ ] LaTeX
 * Notes
 :PROPERTIES:
 :CREATED:  [2024-10-29 05:55:38]

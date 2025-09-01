@@ -93,11 +93,11 @@ If BORDER is non-nil, then the string shall be enclosed in a box."
 
 (defun zmacs-colour-display ()
   (interactive)
-  (zmacs--colour-display *zmacs-global-theme-colours*))
+  (zmacs--colour-display zmacs-ui-colours))
 
 (defun zmacs-colour-display-sorted ()
   (interactive)
-  (zmacs--colour-display-sorted *zmacs-global-theme-colours*))
+  (zmacs--colour-display-sorted zmacs-ui-colours))
 
 (defun zmacs--colour-display (colours &optional bg fg buffer-name)
   "Display COLOURS in a table.

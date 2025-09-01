@@ -188,6 +188,7 @@
 (require 'zmacs-completion)
 (require 'zmacs-help)
 (require 'zmacs-theme)
+(require 'zmacs-palette)
 (require 'zmacs-dashboard)
 (require 'zmacs-modeline)
 (require 'zmacs-navigation)
