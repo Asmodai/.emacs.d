@@ -61,7 +61,7 @@
   (org-modern-keyword          t)
   (org-modern-label-border     .25)
   (org-modern-star             'replace)
-  (org-modern-replace-stars    ["🞙" "🞙" "🞙" "🞙" "🞙" "🞙" "🞙" "🞙"]))
+  (org-modern-replace-stars    ["◆" "◆" "◆" "◆" "◆" "◆" "◆" "◆"]))
 
 (with-eval-after-load 'org-modern
     (setq org-modern--table-overline '(:strike-through t)))
