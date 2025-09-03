@@ -27,6 +27,7 @@
 ;;
 
 ;;; Code:
+;;;; Requirements:
 
 (require 'cl-lib)
 (require 'zlisp-platform)
@@ -121,6 +122,13 @@
   :type 'string
   :group 'zmacs-emacs
   :tag "ZMACS storage directory")
+
+(defcustom zmacs-org-directory
+  (expand-file-name (concat user-home-directory "/Dropbox/Emacs/org/"))
+  "Which directory contains our Org files?"
+  :type 'string
+  :group 'zmacs-emacs
+  :tag "ZMACS org directory")
 
 (defcustom zmacs-projects-directory
   (expand-file-name (concat user-home-directory "/Projects/"))

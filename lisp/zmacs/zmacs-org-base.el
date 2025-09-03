@@ -29,6 +29,7 @@
 
 (require 'cl-lib)
 (require 'zlisp-platform)
+(require 'zlisp-cpd)
 (require 'appt)
 
 ;;;; Emoji cheat sheet:
@@ -69,11 +70,8 @@
           "[:space:]"
           "."
           1))
-  (defvar *zmacs-org-directory*
-    (expand-file-name (concat zmacs-storage-directory "org/"))
-    "Location of Org files.")
   :custom
-  (org-directory                                *zmacs-org-directory*)
+  (org-directory                                zmacs-org-directory)
   ;; UI
   (org-auto-align-tags                          nil)
   (org-catch-invisible-edits                    'smart)
@@ -213,28 +211,31 @@
                                      pandoc
                                      hugo
                                      md))
-  (org-default-notes-file (concat *zmacs-org-directory* "/notes.org"))
+  (org-default-notes-file (concat zmacs-org-directory "/notes.org"))
   (org-odt-preferred-output-format "docx"))
 
 ;;;; Org Capture:
 
 (with-eval-after-load 'org-capture
-    (add-to-list 'org-capture-templates
+  (add-to-list 'org-capture-templates
                `("i" "Inbox item" entry
-                 (file ,(expand-file-name "inbox.org" *zmacs-org-directory*))
+                 (file ,(expand-file-name "inbox.org" zmacs-org-directory))
                  "* TODO %? %^g\n:PROPERTIES:\n:StoryPoints: %^{SP|1|2|3|5|8|13|20}\n:created: %U\n:END:\n"))
   (add-to-list 'org-capture-templates
                `("s" "Some day maybe" entry
-                 (file ,(expand-file-name "someday.org" *zmacs-org-directory*))
+                 (file ,(expand-file-name "someday.org" zmacs-org-directory))
                  "* TODO %? :someday:\n:PROPERTIES:\n:created: %U\n:END:\n"))
   (add-to-list 'org-capture-templates
                `("r" "Reading list item" entry
-                 (file ,(expand-file-name "reading.org" *zmacs-org-directory*))
+                 (file ,(expand-file-name "reading.org" zmacs-org-directory))
                  "* TODO %?  :reading:\n:PROPERTIES:\n:source: %a\n:created: %U\n:END:\n"))
   (add-to-list 'org-capture-templates
                `("w" "Writing idea" entry
-                 (file ,(expand-file-name "writing.org" *zmacs-org-directory*))
-                 "* TODO %?  :writing:\n:PROPERTIES:\n:created: %U\n:END:\n")))
+                 (file ,(expand-file-name "writing.org" zmacs-org-directory))
+                 "* TODO %?  :writing:\n:PROPERTIES:\n:created: %U\n:END:\n"))
+  ;;
+  ;; CPD capture:
+  (zlisp/cpd-install-templates))
 
 ;;;; Org Agenda:
 
@@ -269,12 +270,13 @@
   ;;
   ;; Files
   (org-agenda-files
-   (list (concat *zmacs-org-directory* "inbox.org")
-         (concat *zmacs-org-directory* "todo.org")
-         (concat *zmacs-org-directory* "someday.org")
-         (concat *zmacs-org-directory* "reading.org")
-         (concat *zmacs-org-directory* "writing.org")
-         (concat *zmacs-org-directory* "projects.org")))
+   (list (concat zmacs-org-directory "inbox.org")
+         (concat zmacs-org-directory "todo.org")
+         (concat zmacs-org-directory "someday.org")
+         (concat zmacs-org-directory "reading.org")
+         (concat zmacs-org-directory "writing.org")
+         (concat zmacs-org-directory "projects.org")
+         (concat zmacs-org-directory "cpd.org")))
   ;;
   ;; from stack overflow https://stackoverflow.com/a/22900459/6277148
   ;; note that the formatting is nicer that just using '%b'
@@ -311,6 +313,8 @@
                   ((org-agenda-overriding-header "🔜 Next Tasks")))
        (tags-todo "+learning"
                   ((org-agenda-overriding-header "🎓 Education")))
+       (tags-tod- "+cpd"
+                  ((org-agenda-overriding-header "🗂️ CPD")))
        (tags-todo "+email"
                   ((org-agenda-overriding-header "📧 Email")))
        (tags-todo "+phone"
@@ -336,6 +340,10 @@
      ;; Work-related things.
      ("4" "Work Tasks" tags-todo "work"
       ((org-agenda-overriding-header "💷 Work")))
+
+     ;; CPD.
+     ("5" "CPD" tags-todo "cpd"
+      ((org-agenda-overriding-header "🗂️ CPD")))
 
      ;; Low-effort next actions
      ("w" "Low-Effort"
@@ -466,7 +474,8 @@ _vr_ reset      ^^                       ^^                 ^^
     ("q" nil :exit t)
     ("gd" org-agenda-goto-date)
     ("." org-agenda-goto-today)
-    ("gr" org-agenda-redo)))
+    ("gr" org-agenda-redo))
+  (global-set-key (kbd "C-c c a") #'zmacs-hydra-org-agenda/body))
 
 ;;;; Org Id:
 
@@ -503,7 +512,7 @@ _vr_ reset      ^^                       ^^                 ^^
 
 ;;;; Org Archive:
 
-(setq org-archive-location (concat *zmacs-org-directory*
+(setq org-archive-location (concat zmacs-org-directory
                                    "/org-archive/archived.org::datetree/"))
 
 ;; Also tell org how to archive all the done tasks (DONE or CANCELED) in a
@@ -609,38 +618,43 @@ _vr_ reset      ^^                       ^^                 ^^
 (defun zmacs-goto-org-files ()
   "Goto org-files directory."
   (interactive)
-  (let ((default-directory *zmacs-org-directory*))
+  (let ((default-directory zmacs-org-directory))
     (call-interactively 'find-file)))
 
 (defun zmacs-goto-todo.org ()
   "Goto org-todo."
   (interactive)
-  (find-file (concat *zmacs-org-directory* "todo.org")))
+  (find-file (concat zmacs-org-directory "todo.org")))
+
+(defun zmacs-goto-cpd.org ()
+  "Goto Org CPD."
+  (interactive)
+  (find-file (concat zmacs-org-directory "cpd.org")))
 
 (defun zmacs-goto-inbox.org ()
-  "Goto org inbox.."
+  "Goto org inbox."
   (interactive)
-  (find-file (concat *zmacs-org-directory* "inbox.org")))
+  (find-file (concat zmacs-org-directory "inbox.org")))
 
 (defun zmacs-goto-someday.org ()
   "Goto org-someday."
   (interactive)
-  (find-file (concat *zmacs-org-directory* "someday.org")))
+  (find-file (concat zmacs-org-directory "someday.org")))
 
 (defun zmacs-goto-reading.org ()
   "Goto reading list."
   (interactive)
-  (find-file (concat *zmacs-org-directory* "reading.org")))
+  (find-file (concat zmacs-org-directory "reading.org")))
 
 (defun zmacs-goto-writing.org ()
   "Goto writing list."
   (interactive)
-  (find-file (concat *zmacs-org-directory* "writing.org")))
+  (find-file (concat zmacs-org-directory "writing.org")))
 
 (defun zmacs-goto-projects.org ()
   "Goto projects list."
   (interactive)
-  (find-file (concat *zmacs-org-directory* "projects.org")))
+  (find-file (concat zmacs-org-directory "projects.org")))
 
 (defun zmacs-org-export-headlines-to-docx ()
   "Export all subtrees that are *not* tagged with :noexport: to
@@ -1029,6 +1043,16 @@ one week to the next, unchecking them at the same time"
                                                    (match-string 2)) 3)))
                               prepend))) t)
 
+(font-lock-add-keywords 'org-agenda-mode
+                        `(("^.*?\\( \\)\\(:[[:alnum:]_@#%:]+:\\)$"
+                           (1 `(face nil
+                                     display (space
+                                              :align-to
+                                              (- right
+                                                 ,(org-string-width
+                                                   (match-string 2)) 3)))
+                              prepend))) t)
+
 (font-lock-add-keywords 'org-mode
                         '(("^ *\\([-*+]\\|[0-9]+[.)]\\) "
                            (1 'zmacs-org-list-symbol))))
@@ -1107,7 +1131,7 @@ one week to the next, unchecking them at the same time"
 (add-to-list
  'org-capture-templates
  `("a" "Appointment" entry
-   (file ,(expand-file-name  "todo.org" *zmacs-org-directory*))
+   (file ,(expand-file-name  "todo.org" zmacs-org-directory))
    "* %^{Title}\nSCHEDULED: %^t\n:PROPERTIES:\n:LOCATION: %^{Where}\n:END:\n%?"))
 
 ;;;; Provide package:

@@ -33,7 +33,7 @@
 
 ;;;; Minimum requrements:
 
-(defvar zmacs-min-emacs-version "29.0"
+(defvar zmacs-min-emacs-version "29.9"
   "Miniumum version of Emacs that this .emacs.d/ supports.")
 
 (if (not (version<= zmacs-min-emacs-version emacs-version))

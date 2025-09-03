@@ -75,7 +75,7 @@
                  :jump-to-captured t))
   (add-to-list 'org-capture-templates
                `("t" "Quick Todo" entry
-                 (file ,(expand-file-name  "todo.org" *zmacs-org-directory*))
+                 (file ,(expand-file-name  "todo.org" zmacs-org-directory))
                  "* TODO %?\n:PROPERTIES:\n:created: %U\n:END:\n%a")))
 
 (defun zmacs-denote-capture-note ()

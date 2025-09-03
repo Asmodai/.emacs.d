@@ -32,7 +32,6 @@
 (require 'cl-lib)
 (require 'org)
 
-
 ;;;; Variables:
 
 (defvar-local zlisp--org-style-current nil
@@ -186,36 +185,37 @@
 ;;;;; `org-present' style:
 
 (defvar zlisp/org-style-present
-  (zlisp/org-style :name 'present
-                   :pred nil
-                   :remaps '((default              . zmacs-org-style-present-default)
-                             (fixed-pitch          . zmacs-org-style-present-fixed-pitch)
-                             (org-document-info    . zmacs-org-style-present-document-info)
-                             (org-document-title   . zmacs-org-style-present-document-title)
-                             (org-level-1          . zmacs-org-style-present-level-1)
-                             (org-level-2          . zmacs-org-style-present-level)
-                             (org-level-3          . zmacs-org-style-present-level)
-                             (org-level-4          . zmacs-org-style-present-level)
-                             (org-level-5          . zmacs-org-style-present-level)
-                             (org-level-6          . zmacs-org-style-present-level)
-                             (org-level-7          . zmacs-org-style-present-level)
-                             (org-level-8          . zmacs-org-style-present-level)
-                             (org-code             . zmacs-org-style-present-code)
-                             (org-verbatim         . zmacs-org-style-present-verbatim)
-                             (org-block            . zmacs-org-style-present-block)
-                             (org-block-begin-line . zmacs-org-style-present-block-begin-line)
-                             (org-block-end-line   . zmacs-org-style-present-block-end-line))
-                   :enter (lambda ()
-                            (setq-local line-spacing 0.2))
-                   :exit (lambda ()
-                           (setq-local line-spacing nil)))
+  (zlisp/org-style
+   :name 'present
+   :pred nil
+   :remaps '((default              . zmacs-org-style-present-default)
+             (fixed-pitch          . zmacs-org-style-present-fixed-pitch)
+             (org-document-info    . zmacs-org-style-present-document-info)
+             (org-document-title   . zmacs-org-style-present-document-title)
+             (org-level-1          . zmacs-org-style-present-level-1)
+             (org-level-2          . zmacs-org-style-present-level)
+             (org-level-3          . zmacs-org-style-present-level)
+             (org-level-4          . zmacs-org-style-present-level)
+             (org-level-5          . zmacs-org-style-present-level)
+             (org-level-6          . zmacs-org-style-present-level)
+             (org-level-7          . zmacs-org-style-present-level)
+             (org-level-8          . zmacs-org-style-present-level)
+             (org-code             . zmacs-org-style-present-code)
+             (org-verbatim         . zmacs-org-style-present-verbatim)
+             (org-block            . zmacs-org-style-present-block)
+             (org-block-begin-line . zmacs-org-style-present-block-begin-line)
+             (org-block-end-line   . zmacs-org-style-present-block-end-line))
+   :enter (lambda ()
+            (setq-local line-spacing 0.2))
+   :exit (lambda ()
+           (setq-local line-spacing nil)))
   "`org-present' style.")
 
 ;;;;; `org-agenda' style:
 
 (defvar zlisp/org-style-agenda
   (zlisp/org-style :name 'agenda
-                   :pred (let ((root (expand-file-name *zmacs-org-directory*)))
+                   :pred (let ((root (expand-file-name zmacs-org-directory)))
                            (lambda ()
                              (and buffer-file-name
                                   (string-prefix-p
@@ -274,11 +274,11 @@
                (prop (when pkw
                        (car (seq-filter (lambda (s)
                                           (string-match-p (rx bos
-                                                              "Z_ORG_STYLE"
+                                                              "ZORGSTYLE"
                                                               (+ space))
                                                           s))
                                         pkw))))
-               (raw  (cond (zkw  (car zkw))
+               (raw  (cond (zkw  (cadr zkw))
                            (prop (cadr (split-string prop "[ \t]+" t))))))
           (and raw
                (intern (downcase raw))))))))
