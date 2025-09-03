@@ -230,7 +230,7 @@ system.  You can override this behaviour by setting this custom variable."
   :group 'zmacs-faces)
 
 (defcustom zmacs-face-fixed
-  (cond ((zlisp--x-list-fonts "SauceCodePro Nerd Font")
+  (cond ((zmacs--x-list-fonts "SauceCodePro Nerd Font")
          '(:font "SauceCodePro Nerd Font"))
         ((zmacs--x-list-fonts "Source Code Pro for Powerline")
          '(:font "Source Code Pro for Powerline"))
