@@ -9,3 +9,12 @@ There are two different paths under the `lisp` directory -- `zmacs` and `zlisp`.
 This is so I can split up Lisp code from Emacs configuration and packages.  I
 have not yet finished moving everything around to obey this layout, so some
 ZMACS files are somewhat... ugly.
+
+
+## External dependencies
+
+* clangd
+* pandoc
+* ripgrep
+* Sly (for Common Lisp, remove from `zmacs-prog-common-lisp.el` if unneeded)
+* Sly Stepper (same as above)
