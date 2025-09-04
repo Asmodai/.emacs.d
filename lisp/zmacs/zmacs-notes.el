@@ -27,6 +27,7 @@
 ;;
 
 ;;; Code:
+;;;; Requirements:
 
 (eval-when-compile
   (require 'cl-lib))
@@ -77,6 +78,16 @@
                `("t" "Quick Todo" entry
                  (file ,(expand-file-name  "todo.org" zmacs-org-directory))
                  "* TODO %?\n:PROPERTIES:\n:created: %U\n:END:\n%a")))
+
+(with-eval-after-load 'denote
+  (setf denote-org-front-matter
+         "#+title:      %s
+#+zorgstyle:  denote
+#+date:       %s
+#+filetags:   %s
+#+identifier: %s
+#+signature:  %s
+\n"))
 
 (defun zmacs-denote-capture-note ()
   "Create a new note with Denote."
