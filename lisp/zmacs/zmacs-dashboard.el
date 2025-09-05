@@ -183,6 +183,19 @@ If not on a graphical display, ICON is excluded."
   (interactive)
   (switch-to-buffer *zmacs--dashboard-buffer-name*))
 
+;;;; Handle `emacsclient':
+
+(defun zmacs-new-frame-file-or-dashboard ()
+  "Show dashboard if FRAME is `*scratch*'."
+  (zlisp/initial-server-frame-size)
+  (when (or (string= (buffer-name) "*scratch*")
+            (eq (current-buffer) (get-buffer "*scratch*")))
+    (zmacs-dashboard)
+    (zmacs-goto-dashboard)))
+
+;; Hook into emacsclient:
+(add-hook 'server-after-make-frame-hook #'zmacs-new-frame-file-or-dashboard)
+
 ;;;; Monkey patches.
 
 ;; Create a custom face for the init info section.
@@ -302,7 +315,7 @@ If not on a graphical display, ICON is excluded."
                                         (sly-connect "localhost" 4006))
                                        (t
                                         (message "SLIME is not installed!")))))
-                          (zmacs--with-icon (all-the-icons-faicon "book"
+             (zmacs--with-icon (all-the-icons-faicon "book"
                                                      :height 1.0
                                                      :v-adjust 0.0)
                                "Notes"
@@ -318,7 +331,7 @@ If not on a graphical display, ICON is excluded."
                                  (zmacs-open-calendar)))
              (zmacs--with-icon (all-the-icons-faicon "tasks"
                                                      :height 1.0
-                                 :v-adjust 0.0)
+                                                     :v-adjust 0.0)
                                "Agenda"
                                "View daily agenda"
                                (lambda (&rest _)

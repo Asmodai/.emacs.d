@@ -46,13 +46,20 @@ real-estate."
       (other-window -1)
       (balance-windows))))
 
-(defun zlisp/initial-frame-size ()
-  "Set initial frame and new frame sizes."
+(defun zlisp/initial-frame-size (&optional max-width max-height)
+  "Set initial frame and new frame sizes.
+
+The default size is max screen dimensions - 200.
+
+If MAX-WIDTH or MAX-HEIGHT are non-NIL, those values shall be used for their
+respective dimension."
   (when (display-graphic-p)
-    (let* ((max-w (display-pixel-width))
-           (max-h (display-pixel-height))
-           (new-w (/ (- max-w 200) (frame-char-width)))
-           (new-h (/ (- max-h 200) (frame-char-height))))
+    (let* ((max-w (or max-width 200))
+           (max-h (or max-height 200))
+           (dpy-w (display-pixel-width))
+           (dpy-h (display-pixel-height))
+           (new-w (/ (- dpy-w max-w) (frame-char-width)))
+           (new-h (/ (- dpy-h max-h) (frame-char-height))))
       (modify-frame-parameters
        nil
        `((user-position . t)
@@ -61,11 +68,15 @@ real-estate."
          (width         . ,new-w)
          (height        . ,new-h)))
       (add-to-list 'default-frame-alist
-                   (cons 'height (/ (- max-h 200)
+                   (cons 'height (/ (- dpy-h max-h)
                                     (frame-char-height))))
       (add-to-list 'default-frame-alist
-                   (cons 'width (/ (- max-w 200)
+                   (cons 'width (/ (- dpy-h max-w)
                                    (frame-char-width)))))))
+
+(defun zlisp/initial-server-frame-size ()
+  "Set the initial frame size for frames created by `emacsclient'."
+  (zlisp/initial-frame-size 1000 400))
 
 (defun zlisp/recenter-frame ()
   "Recenter the focused frame to the user's screen."
