@@ -183,19 +183,6 @@ If not on a graphical display, ICON is excluded."
   (interactive)
   (switch-to-buffer *zmacs--dashboard-buffer-name*))
 
-;;;; Handle `emacsclient':
-
-(defun zmacs-new-frame-file-or-dashboard ()
-  "Show dashboard if FRAME is `*scratch*'."
-  (zlisp/initial-server-frame-size)
-  (when (or (string= (buffer-name) "*scratch*")
-            (eq (current-buffer) (get-buffer "*scratch*")))
-    (zmacs-dashboard)
-    (zmacs-goto-dashboard)))
-
-;; Hook into emacsclient:
-(add-hook 'server-after-make-frame-hook #'zmacs-new-frame-file-or-dashboard)
-
 ;;;; Monkey patches.
 
 ;; Create a custom face for the init info section.

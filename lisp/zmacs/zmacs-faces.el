@@ -50,14 +50,41 @@
   (require 'cl-lib))
 
 ;;;; Outline faces:
+;;;;; `lisp-mode' hacks:
+
+(defun zmacs--lisp-outline ()
+  "Outline settings similar to `emacs-lisp-mode' for use with other Lisp modes."
+  (setq-local outline-heading-end-regexp "\n")
+  ;; `;;; Heading:'     -> level 1
+  ;; `;;;; Subsection:' -> level 2
+  ;; and so on.
+  (setq-local outline-regexp
+              (rx line-start
+                  (group (>= 3 ?\;))      ; Capture `;;;` or more.
+                  (+ (syntax whitespace)) ; Space after semicolons.
+                  (minimal-match
+                   (*? (not (any "\n")))) ; Heading text.
+                  ":"                     ; Terminating colon
+                  (* (syntax whitespace))
+                  line-end))
+  (setq-local outline-level
+              (lambda ()
+                (save-excursion
+                  (beginning-of-line)
+                  (when (looking-at outline-regexp)
+                    (max 1 (- (length (match-string 1)) 2)))))))
+
+(add-hook 'lisp-mode-hook #'zmacs--lisp-outline)
+
 ;;;;; Outline package:
 
 (use-package outline
   :ensure nil
   :commands (outline-minor-mode)
-  :hook ((emacs-lisp-mode       . outline-minor-mode)))
+  :hook ((emacs-lisp-mode . outline-minor-mode)
+         (lisp-mode       . outline-minor-mode)))
 
-;;;;; Outline minor faces package:
+;;;;; outline minor faces package:
 
 (use-package outline-minor-faces
   :after outline
@@ -82,7 +109,8 @@
               ("C-c C-p" . (lambda ()
                              (interactive)
                              (outline-back-to-heading))))
-  :hook ((emacs-lisp-mode . outli-mode)))
+  :hook ((emacs-lisp-mode . outli-mode)
+         (lisp-mode       . outli-mode)))
 
 ;;;; What face?
 

@@ -53,7 +53,7 @@
              vertico-exit
              vertico-mode)
   :bind (:map vertico-map
-         ("<escape>"  . #'zmacs/minibuffer-keyboard-quit)
+         ("<escape>"  . #'zmacs-minibuffer-keyboard-quit)
          ("M-RET"     . #'vertico-exit))
   :hook (emacs-startup . vertico-mode)
   :custom
@@ -64,7 +64,7 @@
   :config
   (progn
 
-    (defun zmacs/minibuffer-keyboard-quit ()
+    (defun zmacs-minibuffer-keyboard-quit ()
       "Abort recursive edit.
 In Delete Selection mode, if the mark is active, just deactivate it; then it
 takes a second \\[keyboard-quit] to abort the minibuffer."
