@@ -123,7 +123,8 @@ be treated as a plain `emacsclient' frame."
   (if (= (zmacs/server-gui-frame-count) 1)
       (zlisp/initial-frame-size)
     (zlisp/initial-server-frame-size))
-  (zmacs-line-clockface-update-fontset "ClockFaceRectSolid")
+  (when (fboundp 'zmacs-line-clockface-update-fontset)
+    (zmacs-line-clockface-update-fontset "ClockFaceRectSolid"))
   (when (or (string= (buffer-name) "*scratch*")
             (eq (current-buffer) (get-buffer "*scratch*")))
     (zmacs-dashboard)
@@ -131,5 +132,9 @@ be treated as a plain `emacsclient' frame."
 
 ;; Hook into emacsclient:
 (add-hook 'server-after-make-frame-hook #'zmacs/new-frame-file-or-dashboard)
+
+;;; Provide package:
+
+(provide 'zmacs-server)
 
 ;;; zmacs-server.el ends here.
