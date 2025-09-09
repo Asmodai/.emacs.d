@@ -27,9 +27,12 @@
 ;;
 
 ;;; Code:
+;;;; Requirements:
 
 (eval-when-compile
   (require 'cl-lib))
+
+;;;; File templates:
 
 ;; `template.el' should live somewhere in the path.
 (require 'template)
@@ -38,6 +41,27 @@
 (let ((dir (expand-file-name (concat user-emacs-directory "templates/"))))
   (setf template-default-directories (list dir)
         template-subdirectories      (list dir)))
+
+;;;; Tempel
+
+(use-package tempel
+  :defer nil
+  :ensure t
+  :bind (("M-+" . tempel-complete)
+         ("M-*" . tempel-insert))
+  :custom
+  (tempel-path (concat user-emacs-directory "tempel"))
+  :init
+  (defun zmacs--tempel-setup-capf ()
+    (setq-local completion-at-point-functions
+                  (cons #'tempel-expand
+                        completion-at-point-functions)))
+
+  (add-hook 'conf-mode-hook #'zmacs--tempel-setup-capf)
+  (add-hook 'prog-mode-hook #'zmacs--tempel-setup-capf)
+  (add-hook 'text-mode-hook #'zmacs--tempel-setup-capf))
+
+(use-package tempel-collection)
 
 (provide 'zmacs-templates)
 
