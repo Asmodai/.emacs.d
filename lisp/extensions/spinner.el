@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2015 Free Software Foundation, Inc.
 
-;; Author: Artur Malabarba <emacs@endlessparentheses.com>
+;; Author: Artur Malabarba <paul@lisphacker.uk>
 ;; Version: 1.7.4
 ;; Package-Requires: ((emacs "24.3"))
 ;; URL: https://github.com/Malabarba/spinner.el

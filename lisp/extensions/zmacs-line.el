@@ -1,7 +1,7 @@
 ;;; zmacs-line.el --- The ZMACS Modeline  -*- mode: emacs-lisp; lexical-binding: t; -*-
 ;;
-;; Copyright (c) 2024 Paul Ward <paul@lisphacker.uk>
-;; Copyright (c)      Colin McLear
+;; Copyright (c) 2024-2025 Paul Ward <paul@lisphacker.uk>
+;; Copyright (c)           Colin McLear
 ;;
 ;; Author:     Paul Ward <paul@lisphacker.uk>
 ;; Maintainer: Paul Ward <paul@lisphacker.uk>

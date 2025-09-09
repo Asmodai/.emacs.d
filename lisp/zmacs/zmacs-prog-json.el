@@ -1,6 +1,6 @@
 ;;; zmacs-prog-json.el --- JSON packages  -*- mode: emacs-lisp; lexical-binding: t; -*-
 ;;
-;; Copyright (c) 2024 Paul Ward <paul@lisphacker.uk>
+;; Copyright (c) 2024-2025 Paul Ward <paul@lisphacker.uk>
 ;;
 ;; Author:     Paul Ward <paul@lisphacker.uk>
 ;; Maintainer: Paul Ward <paul@lisphacker.uk>
