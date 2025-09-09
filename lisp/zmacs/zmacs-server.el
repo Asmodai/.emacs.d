@@ -111,6 +111,10 @@ CLI Emacs session."
 
 ;;;; New frame:
 
+;; Why this and not `initial-buffer-choice'?
+;;
+;; Well... we can use this to regenerate the dashboard, as well as calling
+;; other things that we might wish to set up for new frames, e.g. all-the-icons.
 (defun zmacs/new-frame-file-or-dashboard ()
   "Show dashboard if FRAME is `*scratch*'.
 
@@ -120,6 +124,8 @@ much as the screen as configured, and will switch to the ZMACS dashboard.
 
 If it is either not the first frame, or a filename was given, then it will
 be treated as a plain `emacsclient' frame."
+  (require 'all-the-icons)              ; Just to be sure this is loaded.
+  (require 'nerd-icons)                 ; Same here.
   (if (= (zmacs/server-gui-frame-count) 1)
       (zlisp/initial-frame-size)
     (zlisp/initial-server-frame-size))

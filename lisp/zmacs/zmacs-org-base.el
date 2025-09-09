@@ -239,6 +239,19 @@
 
 ;;;; Org Agenda:
 
+(defun zmacs--get-agenda-files ()
+  "Return a list of usable agenda files for this system."
+  (let ((files (list (concat zmacs-org-directory "inbox.org")
+                     (concat zmacs-org-directory "todo.org")
+                     (concat zmacs-org-directory "someday.org")
+                     (concat zmacs-org-directory "reading.org")
+                     (concat zmacs-org-directory "writing.org")
+                     (concat zmacs-org-directory "projects.org")
+                     (concat zmacs-org-directory "cpd.org"))))
+    (cl-loop for file in files
+             when (file-exists-p file)
+               collect file)))
+
 (use-package org-agenda
   :ensure nil
   :commands (org-agenda)
@@ -269,14 +282,7 @@
   (org-agenda-restore-windows-after-quit t)
   ;;
   ;; Files
-  (org-agenda-files
-   (list (concat zmacs-org-directory "inbox.org")
-         (concat zmacs-org-directory "todo.org")
-         (concat zmacs-org-directory "someday.org")
-         (concat zmacs-org-directory "reading.org")
-         (concat zmacs-org-directory "writing.org")
-         (concat zmacs-org-directory "projects.org")
-         (concat zmacs-org-directory "cpd.org")))
+  (org-agenda-files (zmacs--get-agenda-files))
   ;;
   ;; from stack overflow https://stackoverflow.com/a/22900459/6277148
   ;; note that the formatting is nicer that just using '%b'
