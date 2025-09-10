@@ -97,7 +97,152 @@
      :author "Matz")
     (:lines ("Press <Hyper>-<Super>-<Shift>-<Control>-<Meta>-<Symbol>-<Abort> to"
              "engage Super Turbo Go Go Lisp Party Mode!")
-     :author "Me, that's who!"))
+     :author "Me, that's who!")
+    (:lines ("Any sufficiently complicated C or Fortran program contains an ad hoc,"
+             "informally-specified, bug-ridden, slow implementation of half of Common Lisp.")
+     :author "Philip Greenspun")
+    (:lines ("A language that doesn't affect the way you think about programming"
+             "is not worth knowing.")
+     :author "Alan Perlis")
+    (:lines ("It is better to have 100 functions operate on one data structure"
+             "than 10 functions on 10 data structures.")
+     :author "Alan Perlis")
+    (:lines ("Lisp is worth learning for the profound enlightenment experience"
+             "you will have when you finally get it; that experience will make you"
+             "a better programmer for the rest of your days.")
+     :author "Eric S. Raymond")
+    (:lines ("Python is not Lisp, but it's getting there.")
+     :author "Peter Norvig")
+    (:lines ("There are only two kinds of languages: the ones people complain about"
+             "and the ones nobody uses.")
+     :author "Bjarne Stroustrup")
+    (:lines ("LISP is a language for manipulating symbols.")
+     :author "John McCarthy")
+    (:lines ("In Lisp, you don't just write your program; you write the language"
+             "in which your program is written.")
+     :author "Paul Graham")
+    (:lines ("Once you understand Lisp, you will write Lisp programs"
+             "in any language.")
+     :author "Usenet folklore")
+    (:lines ("C is a portable assembly; Lisp is a portable language lab.")
+     :author "Anonymous")
+    (:lines ("If you think the parentheses are the problem,"
+             "I have some bad news about your algorithm.")
+     :author "Anonymous")
+    (:lines ("Parentheses are just hugs for your code.")
+     :author "Me")
+    (:lines ("Macros don't add features; they remove limitations.")
+     :author "Anonymous")
+    (:lines ("Homoiconicity means your code can butter its own toast.")
+     :author "Me")
+    (:lines ("When in doubt, add a level of indirection;"
+             "when in Lisp, add a macro.")
+     :author "Anonymous")
+    (:lines ("Common Lisp: where the standard library comes with a city map"
+             "and a municipal government.")
+     :author "Me")
+    (:lines ("Programming languages should be designed not by piling feature upon feature,"
+             "but by removing the weaknesses and restrictions that make additional features"
+             "appear necessary.")
+     :author "R5RS Authors")
+    (:lines ("He who refuses to do arithmetic is doomed to talk nonsense.")
+     :author "John McCarthy")
+    (:lines ("Worse is better.")
+     :author "Richard P. Gabriel")
+    (:lines ("Macros are for introducing new linguistic abstractions—"
+             "not for saving keystrokes.")
+     :author "Kent Pitman (paraphrase)")
+    (:lines ("A language should grow by enabling its users to grow it.")
+     :author "Guy L. Steele Jr. (paraphrase)")
+    (:lines ("We don't really understand something unless we can program it.")
+     :author "Gerald Jay Sussman")
+    (:lines ("Simple is not the same as easy.")
+     :author "Rich Hickey")
+    (:lines ("In dynamic languages, many ‘design patterns’ are just features of the language.")
+     :author "Peter Norvig (paraphrase)")
+    (:lines ("Lisp has no syntax—only conventions.")
+     :author "Lisp folklore")
+    (:lines ("To understand continuations, you must be willing to lose your stack.")
+     :author "Scheme folklore")
+    (:lines ("Homoiconicity: when your data structures moonlight as your syntax.")
+     :author "Usenet wisdom")
+    (:lines ("A good macro system is to syntax what higher-order functions are to control.")
+     :author "Anonymous")
+    (:lines ("Compilers and interpreters are the same idea—"
+             "one runs now, the other runs ahead.")
+     :author "Sussman & Steele (paraphrase)")
+    (:lines ("Premature optimization is the root of all evil.")
+     :author "Donald Knuth")
+    (:lines ("Beware of bugs in the above code; I have only proved it correct,"
+             "not tried it.")
+     :author "Donald Knuth")
+    (:lines ("Program testing can be used to show the presence of bugs, but never"
+             "to show their absence!")
+     :author "Edsger W. Dijkstra")
+    (:lines ("Computer science is no more about computers than astronomy is"
+             "about telescopes.")
+     :author "Edsger W. Dijkstra")
+    (:lines ("Simplicity is prerequisite for reliability.")
+     :author "Edsger W. Dijkstra")
+    (:lines ("The use of COBOL cripples the mind; its teaching should therefore"
+             "be regarded as a criminal offense.")
+     :author "Edsger W. Dijkstra")
+    (:lines ("Algorithms + Data Structures = Programs.")
+     :author "Niklaus Wirth")
+    (:lines ("Wirth's law: software is getting slower more rapidly than hardware"
+             "becomes faster.")
+     :author "Niklaus Wirth")
+    (:lines ("There are two ways of constructing a software design: one way is to"
+             "make it so simple that there are obviously no deficiencies; and the"
+             "other way is to make it so complicated that there are no obvious"
+             "deficiencies.")
+     :author "C. A. R. Hoare")
+    (:lines ("I call it my billion-dollar mistake: the invention of the null"
+             "reference.")
+     :author "C. A. R. Hoare")
+    (:lines ("Adding manpower to a late software project makes it later.")
+     :author "Frederick P. Brooks Jr.")
+    (:lines ("Plan to throw one away; you will, anyhow.")
+     :author "Frederick P. Brooks Jr.")
+    (:lines ("There are only two hard things in Computer Science: cache"
+             "invalidation and naming things.")
+     :author "Phil Karlton")
+    (:lines ("The purpose of computing is insight, not numbers.")
+     :author "Richard Hamming")
+    (:lines ("All problems in computer science can be solved by another level of"
+             "indirection… except for the problem of too many indirections.")
+     :author "David Wheeler (with corollary)")
+    (:lines ("The nice thing about standards is that there are so many"
+             "to choose from.")
+     :author "Andrew S. Tanenbaum")
+    (:lines ("The first 90 percent of the code accounts for the first 90 percent"
+             "of the development time. The remaining 10 percent accounts for the"
+             "other 90 percent.")
+     :author "Tom Cargill")
+    (:lines ("Hofstadter's Law: It always takes longer than you expect, even when"
+             "you take into account Hofstadter's Law.")
+     :author "Douglas Hofstadter")
+    (:lines ("Measuring programming progress by lines of code is like measuring"
+             "aircraft building progress by weight.")
+     :author "Bill Gates")
+    (:lines ("When in doubt, use brute force.")
+     :author "Ken Thompson")
+    (:lines ("Talk is cheap. Show me the code.")
+     :author "Linus Torvalds")
+    (:lines ("Bad programmers worry about the code. Good programmers worry about"
+             "data structures and their relationships.")
+     :author "Linus Torvalds")
+    (:lines ("Given enough eyeballs, all bugs are shallow.")
+     :author "Eric S. Raymond")
+    (:lines ("Everyone knows that debugging is twice as hard as writing a program"
+             "in the first place; so if you're as clever as you can be when you"
+             "write it, how will you ever debug it?")
+     :author "Brian W. Kernighan")
+    (:lines ("Controlling complexity is the essence of computer programming.")
+     :author "Brian W. Kernighan")
+    (:lines ("The cheapest, fastest, and most reliable components are those that"
+             "aren't there.")
+     :author "Gordon Bell"))
   "Some random quotes to display on the dashboard.")
 
 (defun zmacs--random-quote ()
@@ -225,6 +370,13 @@ If not on a graphical display, ICON is excluded."
         (the-author (cadr (member :author quote))))
     (concat "“" (mapconcat #'identity the-quote "\n") "”"
             "\n    -- " the-author)))
+
+(defun zmacs-insert-random-quote ()
+  "Insert a random quote into the current buffer."
+  (interactive)
+  (let* ((quote (zmacs--random-quote))
+         (text  (zmacs--dashboard-format-quote-block quote)))
+    (insert text)))
 
 (defun dashboard-insert-footer ()
   "Insert footer of dashboard."

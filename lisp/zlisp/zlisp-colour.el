@@ -70,9 +70,9 @@ That is, it is considered to have no hue."
   :group 'zlisp-colour
   :tag "Dim colour chroma delta")
 
-(defcustom zlisp-palette-anchors '((red     . 20)
-                                   (orange  . 50)
-                                   (yellow  . 90)
+(defcustom zlisp-palette-anchors '((red     . 35)  ; 20
+                                   (orange  . 70)  ; 50
+                                   (yellow  . 100) ; 90
                                    (green   . 150)
                                    (cyan    . 200)
                                    (blue    . 240)

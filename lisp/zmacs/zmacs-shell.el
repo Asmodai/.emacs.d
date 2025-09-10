@@ -108,6 +108,10 @@
 
 ;;;; EAT:
 
+(defun zmacs--shell-hook ()
+  "Hook for shell modes."
+  (setq-local nobreak-char-display nil))
+
 (use-package eat
   :config
   :custom
@@ -117,7 +121,8 @@
   (eat-enable-shell-command-history   t)
   (eat-enable-shell-prompt-annotation t)
   (eat-term-scrollback-size           nil)
-  :hook (eshell-load . eat-eshell-mode))
+  :hook ((eshell-load . eat-eshell-mode)
+         (eat-mode    . zmacs--shell-hook)))
 
 ;;;; Tramp:
 

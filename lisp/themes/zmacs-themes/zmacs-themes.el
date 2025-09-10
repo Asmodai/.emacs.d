@@ -26,6 +26,7 @@
 ;; You want to `M-x rainbow-mode' for the best visuals.
 
 ;;; Code:
+;;;; Requirements:
 
 (require 'cl-lib)
 (require 'zlisp-colour)
@@ -776,6 +777,55 @@ attention."
      `(match
        ((,class (:foreground ,colour-lowlight
                  :background ,colour-focus-fg))))
+;;;;;; ANSI faces:
+     `(ansi-color-black
+       ((,class (:foreground ,(zmacs--get-ui-colour :black)
+                 :background ,(zmacs--get-ui-colour :black)))))
+     `(ansi-color-red
+       ((,class (:foreground ,(zmacs--get-ui-colour :red)
+                 :background ,(zmacs--get-ui-colour :red)))))
+     `(ansi-color-green
+       ((,class (:foreground ,(zmacs--get-ui-colour :green)
+                 :background ,(zmacs--get-ui-colour :green)))))
+     `(ansi-color-yellow
+       ((,class (:foreground ,(zmacs--get-ui-colour :yellow)
+                 :background ,(zmacs--get-ui-colour :yellow)))))
+     `(ansi-color-blue
+       ((,class (:foreground ,(zmacs--get-ui-colour :blue)
+                 :background ,(zmacs--get-ui-colour :blue)))))
+     `(ansi-color-magenta
+       ((,class (:foreground ,(zmacs--get-ui-colour :magenta)
+                 :background ,(zmacs--get-ui-colour :magenta)))))
+     `(ansi-color-cyan
+       ((,class (:foreground ,(zmacs--get-ui-colour :cyan)
+                 :background ,(zmacs--get-ui-colour :cyan)))))
+     `(ansi-color-white
+       ((,class (:foreground ,(zmacs--get-ui-colour :white)
+                 :background ,(zmacs--get-ui-colour :white)))))
+     `(ansi-color-bright-black
+       ((,class (:foreground ,(zmacs--get-ui-colour :grey-6)
+                 :background ,(zmacs--get-ui-colour :grey-6)))))
+     `(ansi-color-bright-red
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-red)
+                 :background ,(zmacs--get-ui-colour :bright-red)))))
+     `(ansi-color-bright-green
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-green)
+                 :background ,(zmacs--get-ui-colour :bright-green)))))
+     `(ansi-color-bright-yellow
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-yellow)
+                 :background ,(zmacs--get-ui-colour :bright-yellow)))))
+     `(ansi-color-bright-blue
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-blue)
+                 :background ,(zmacs--get-ui-colour :bright-blue)))))
+     `(ansi-color-bright-magenta
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-magenta)
+                 :background ,(zmacs--get-ui-colour :bright-magenta)))))
+     `(ansi-color-bright-cyan
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-cyan)
+                 :background ,(zmacs--get-ui-colour :bright-cyan)))))
+     `(ansi-color-bright-white
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-white)
+                 :background ,(zmacs--get-ui-colour :bright-white)))))
 ;;;;;; Font Lock faces:
      `(font-lock-builtin-face
        ((,class (:foreground ,(zmacs--get-ui-colour :bright-magenta)
@@ -1605,18 +1655,7 @@ attention."
                  :weight     bold
                  :height     1.1))))
 ;;;;; End of faces.
-     )                                  ; `custom-set-faces'
-(custom-theme-set-variables
- theme-name
- `(ansi-colour-names-vector
-   [,(zmacs--get-ui-colour :black)
-    ,(zmacs--get-ui-colour :bright-red)
-    ,(zmacs--get-ui-colour :bright-green)
-    ,(zmacs--get-ui-colour :bright-yellow)
-    ,(zmacs--get-ui-colour :bright-blue)
-    ,(zmacs--get-ui-colour :bright-magenta)
-    ,(zmacs--get-ui-colour :bright-cyan)
-    ,(zmacs--get-ui-colour :bright-white)])))
+     ))                                 ; `custom-set-faces'
 ;;;;; END.
   )
 
