@@ -193,26 +193,28 @@
 
 
 (defun zmacs-eshell-config--git-prompt (pwd)
-  "Returns current git branch as a string, or the empty string if
-PWD is not in a git repo (or the git command is not found)."
+  "Return git branch as a string for directory PWD.
+
+If there is no git repository at the current working directory then an empty
+string is returned."
   (interactive)
   (when (and (not (file-remote-p pwd))
              (eshell-search-path "git")
              (locate-dominating-file pwd ".git"))
-    (let* ((git-url (shell-command-to-string "git config --get remote.origin.url"))
-           (git-repo (file-name-base (s-trim git-url)))
+    (let* ((git-url    (shell-command-to-string "git config --get remote.origin.url"))
+           (git-repo   (file-name-base (s-trim git-url)))
            (git-output (shell-command-to-string (concat "git rev-parse --abbrev-ref HEAD")))
            (git-branch (s-trim git-output))
-           (git-icon  "\xe0a0")
-           (git-icon2 (propertize "\xf020" 'face `(:family "octicons")))
-           (git-sep (propertize "" 'face 'zmacs-meek)))
-      (concat (propertize "→ " 'face 'zmacs-mild)
-              (propertize git-repo 'face `(:inherit zmacs-strong :weight light))
+           (git-icon   "\xe0a0")
+           (git-icon2  (propertize "\xf020" 'face `(:family "octicons")))
+           (git-sep    (propertize "" 'face 'zmacs-eshell-prompt-vc)))
+      (concat (propertize "→ " 'face 'zmacs-eshell-prompt)
+              (propertize git-repo 'face 'zmacs-eshell-prompt-vc)
               " "
               git-sep
               " "
-              (propertize git-branch 'face `(:inherit zmacs-strong :weight light))
-              (propertize " " 'face 'zmacs-mild)))))
+              (propertize git-branch 'face 'zmacs-eshell-prompt-vc)
+              (propertize " " 'face 'zmacs-eshell-prompt-vc)))))
 
 (defun zmacs--pwd-replace-home (pwd)
   "Replace home in PWD with tilde (~) character."
@@ -242,33 +244,36 @@ PWD is not in a git repo (or the git command is not found)."
       pwd)))
 
 (defun zmacs--split-directory-prompt (directory)
+  "Split DIRECTORY into basedir and current directory."
   (if (string-match-p ".*/.*" directory)
-      (list (file-name-directory directory) (file-name-base directory))
+      (list (file-name-directory directory)
+            (file-name-nondirectory directory))
     (list "" directory)))
 
 (defun zmacs-eshell-config--prompt-function ()
   "Prettify eshell prompt."
   (let* ((pwd        (eshell/pwd))
-         (directory (zmacs--split-directory-prompt
-                     (zmacs--pwd-shorten-dirs
-                      (zmacs--pwd-replace-home pwd))))
-         (parent (car directory))
-         (name   (cadr directory))
-         (branch (zmacs-eshell-config--git-prompt pwd)))
-    (concat (propertize "\n╭─┤ " 'face 'zmacs-mild)
-            (propertize (format-time-string "%H:%M:%S" (current-time))
-                        'face 'zmacs-meek)
-            (propertize " ├── "  'face 'zmacs-mild)
-            (propertize parent 'face 'zmacs-meek)
-            (propertize name 'face `(:inherit zmacs-meek :weight bold))
+         (directory  (zmacs--split-directory-prompt
+                      (zmacs--pwd-shorten-dirs
+                       (zmacs--pwd-replace-home pwd))))
+         (parent     (car directory))
+         (name       (cadr directory))
+         (branch     (zmacs-eshell-config--git-prompt pwd)))
+    (concat (propertize "\n╭─┤ " 'face 'zmacs-eshell-prompt)
+            (propertize (format-time-string "%H:%M:%S %d-%m-%Y" (current-time))
+                        'face 'zmacs-eshell-prompt-time)
+            (propertize " ├── "  'face 'zmacs-eshell-prompt)
+            (propertize parent 'face 'zmacs-eshell-prompt-cwd)
+            (propertize name 'face `(:inherit zmacs-eshell-prompt-cwd
+                                     :weight bold))
             "\n"
-            (propertize "╰─"  'face 'zmacs-mild)
+            (propertize "╰─"  'face 'zmacs-eshell-prompt)
             (if branch
                 branch
               "")
-            (propertize  ">> " 'face 'zmacs-mild)
+            (propertize  ">> " 'face 'zmacs-eshell-prompt)
             (propertize (zmacs-eshell-config--prompt-char)
-                        'face `(:inherit zmacs-yellow :weight ultra-bold))
+                        'face 'zmacs-eshell-prompt-glyph)
             ;; needed for the input text to not have prompt face
             (propertize " " 'face 'default))))
 
@@ -480,7 +485,7 @@ This function is meant to be used as advice around
     (eshell)))
 
 (defun zmacs-is-eshell-toggled ()
-  "Checks if eshell is toggled."
+  "Check if eshell is toggled."
   (let ((eshell-buffer-name nil)
         (result nil))
     (if (project-current)
@@ -538,7 +543,7 @@ If open and in eshell, toggle closed."
   (eshell 'N))
 
 (defun eshell-clear-buffer ()
-  "Clear terminal"
+  "Clear terminal."
   (interactive)
   (let ((inhibit-read-only t))
     (erase-buffer)
@@ -558,8 +563,15 @@ If open and in eshell, toggle closed."
         1))))
 
 (defun eshell/less (&rest args)
-  "Invoke `view-file' on a file. \"less +42 foo\" will go to line 42 in
-the buffer for foo."
+  "Invoke `view-file' with ARGS.
+
+ARGS may contain just a filename, in which case the file will be displayed in
+its own buffer.
+
+ARGS may also contain an offset in the form of `+<number>', which will display
+the file in its own buffer and then jump to the given line number.
+
+e.g. `eshell/less +42 foo` will open `foo' in a buffer and jump to line 42."
   (while args
     (if (string-match "\\`\\+\\([0-9]+\\)\\'" (car args))
         (let* ((line (string-to-number (match-string 1 (pop args))))
@@ -571,17 +583,20 @@ the buffer for foo."
 (defalias 'eshell/more 'eshell/less)
 
 (defun eshell/mkdir-and-cd (dir)
-  "Create a directory then cd into it."
+  "Create DIR then `cd' into it."
   (make-directory dir t)
   (eshell/cd dir))
 
 (defun eshell/gst (&rest args)
+  "Show git status for ARGS."
   (magit-status (pop args) nil)
   (eshell/echo))
 
 (defun eshell/z (&optional regexp)
-  "Navigate to a previously visited directory in eshell, or to
-any directory proferred by `consult-dir'."
+  "Change directory to a previously visited directory.
+
+If REGEXP is non-NIL, then that will be used to narrow previous directories.
+If REGEXP is NIL, then `consult-dir' is invoked."
   (let ((eshell-dirs (delete-dups
                       (mapcar 'abbreviate-file-name
                               (ring-elements eshell-last-dir-ring)))))
@@ -600,6 +615,7 @@ any directory proferred by `consult-dir'."
                      (completing-read "cd: " eshell-dirs)))))))
 
 (defun eshell/cg ()
+  "Change directory to the VC git root."
   (interactive)
   (eshell/cd (vc-git-root ".")))
 
@@ -608,11 +624,11 @@ any directory proferred by `consult-dir'."
   (when (zlisp/macos-p)
     (progn
       (interactive)
-      (let* ((iterm-app-path "/Applications/iTerm.app")
-         (iterm-brew-path "/opt/homebrew-cask/Caskroom/iterm2/2.1.4/iTerm.app")
-         (iterm-path (if (file-directory-p iterm-app-path)
-                         iterm-app-path
-                       iterm-brew-path)))
+      (let* ((iterm-app-path  "/Applications/iTerm.app")
+             (iterm-brew-path "/opt/homebrew-cask/Caskroom/iterm2/2.1.4/iTerm.app")
+             (iterm-path      (if (file-directory-p iterm-app-path)
+                                  iterm-app-path
+                                iterm-brew-path)))
     (shell-command (concat "open -a " iterm-path " ."))))))
 
 (defun eshell/rcd (&optional directory)

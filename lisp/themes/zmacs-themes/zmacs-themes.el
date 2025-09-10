@@ -577,6 +577,28 @@ attention."
   "Face for inline UI elements that might be used by a REPL."
   :group 'zmacs-faces)
 
+;;;;; ZMACS Eshell faces:
+
+(defface zmacs-eshell-prompt nil
+  "ZMACS Eshell prompt."
+  :group 'zmacs-faces)
+
+(defface zmacs-eshell-prompt-time nil
+  "ZMACS Eshell prompt time/date."
+  :group 'zmacs-faces)
+
+(defface zmacs-eshell-prompt-cwd nil
+  "ZMACS Eshell prompt current directory."
+  :group 'zmacs-faces)
+
+(defface zmacs-eshell-prompt-vc nil
+  "ZMACS Eshell prompt VC status."
+  :group 'zmacs-faces)
+
+(defface zmacs-eshell-prompt-glyph nil
+  "ZMACS Eshell prompt glyph."
+  :group 'zmacs-faces)
+
 ;;;; Theme definition:
 
 (defun zmacs-themes-create (_ theme-name)
@@ -1325,11 +1347,11 @@ attention."
      `(org-agenda-current-time
        ((,class (:foreground ,(zmacs--get-ui-colour :bright-steel)
                  :weight     bold))))
-    `(org-agenda-diary
+     `(org-agenda-diary
        ((,class (:foreground ,(zmacs--get-ui-colour :bright-magenta)))))
-    `(org-agenda-calendar-event
-      ((,class (:foreground ,(zmacs--get-ui-colour :bright-violet)))))
-    `(org-agenda-structure
+     `(org-agenda-calendar-event
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-violet)))))
+     `(org-agenda-structure
        ((,class (:foreground ,(zmacs--get-ui-colour :tint-6)
                  :weight     bold
                  :height     1.3))))
@@ -1352,41 +1374,41 @@ attention."
                  :background unspecified
                  :weight     bold
                  :extend     t))))
-    `(outline-2
-      ((,class (:foreground ,colour-comment2
-                :background unspecified
-                :weight     bold
-                :extend     t))))
-    `(outline-3
-      ((,class (:foreground ,colour-comment3
-                :background unspecified
-                :weight     bold
-                :extend     t))))
-    `(outline-4
-      ((,class (:foreground ,colour-comment4
-                :background unspecified
-                :weight     bold
-                :extend     t))))
-    `(outline-5
-      ((,class (:foreground ,colour-comment5
-                :background unspecified
-                :weight     bold
-                :extend     t))))
-    `(outline-6
-      ((,class (:foreground ,colour-comment6
-                :background unspecified
-                :weight     bold
-                :extend     t))))
-    `(outline-7
-      ((,class (:foreground ,colour-comment7
-                :background unspecified
-                :weight     bold
-                :extend     t))))
-    `(outline-8
-      ((,class (:foreground ,colour-comment1
-                :background unspecified
-                :weight     bold
-                :extend     t))))
+     `(outline-2
+       ((,class (:foreground ,colour-comment2
+                 :background unspecified
+                 :weight     bold
+                 :extend     t))))
+     `(outline-3
+       ((,class (:foreground ,colour-comment3
+                 :background unspecified
+                 :weight     bold
+                 :extend     t))))
+     `(outline-4
+       ((,class (:foreground ,colour-comment4
+                 :background unspecified
+                 :weight     bold
+                 :extend     t))))
+     `(outline-5
+       ((,class (:foreground ,colour-comment5
+                 :background unspecified
+                 :weight     bold
+                 :extend     t))))
+     `(outline-6
+       ((,class (:foreground ,colour-comment6
+                 :background unspecified
+                 :weight     bold
+                 :extend     t))))
+     `(outline-7
+       ((,class (:foreground ,colour-comment7
+                 :background unspecified
+                 :weight     bold
+                 :extend     t))))
+     `(outline-8
+       ((,class (:foreground ,colour-comment1
+                 :background unspecified
+                 :weight     bold
+                 :extend     t))))
 ;;;;;;; `outline-minor-mode':
      ;; These simply mirror what `outline-mode' has, even though they are
      ;; slightly different names.
@@ -1654,6 +1676,28 @@ attention."
                  :foreground ,colour-heading2
                  :weight     bold
                  :height     1.1))))
+;;;;;; EShell:
+     `(eshell-ls-directory
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-blue)
+                 :weight     bold))))
+     `(eshell-ls-executable
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-green)))))
+     `(eshell-ls-special
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-magenta)))))
+     `(eshell-ls-symlink
+       ((,class (:foreground ,(zmacs--get-ui-colour :cyan)))))
+;;;;;; ZMACS Eshell:
+     `(zmacs-eshell-prompt
+       ((,class (:foreground ,(zmacs--get-ui-colour :tone-0)))))
+     `(zmacs-eshell-prompt-time
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-steel)))))
+     `(zmacs-eshell-prompt-cwd
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-silver)))))
+     `(zmacs-eshell-prompt-vc
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-umber)))))
+     `(zmacs-eshell-prompt-glyph
+       ((,class (:foreground ,(zmacs--get-ui-colour :bright-yellow)
+                 :weight     bold))))
 ;;;;; End of faces.
      ))                                 ; `custom-set-faces'
 ;;;;; END.
