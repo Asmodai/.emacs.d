@@ -587,6 +587,10 @@ attention."
   "ZMACS Eshell prompt time/date."
   :group 'zmacs-faces)
 
+(defface zmacs-eshell-prompt-user nil
+  "ZMACS Eshell prompt user."
+  :group 'zmacs-faces)
+
 (defface zmacs-eshell-prompt-cwd nil
   "ZMACS Eshell prompt current directory."
   :group 'zmacs-faces)
@@ -597,6 +601,10 @@ attention."
 
 (defface zmacs-eshell-prompt-glyph nil
   "ZMACS Eshell prompt glyph."
+  :group 'zmacs-faces)
+
+(defface zmacs-eshell-prompt-time-sep nil
+  "ZMACS Eshell prompt time/date separator."
   :group 'zmacs-faces)
 
 ;;;; Theme definition:
@@ -1040,6 +1048,16 @@ attention."
                  :background unspecified))))
      `(highlight-indent-guides-even-face
        ((,class (:foreground ,(zmacs--get-ui-colour :dim-steel)
+                 :background unspecified))))
+;;;;;; Diff Highlight:
+     `(diff-hl-change
+       ((,class (:foreground ,(zmacs--get-ui-colour :dim-blue)
+                 :background unspecified))))
+     `(diff-hl-delete
+       ((,class (:foreground ,(zmacs--get-ui-colour :dim-red)
+                 :background unspecified))))
+     `(diff-hl-insert
+       ((,class (:foreground ,(zmacs--get-ui-colour :dim-green)
                  :background unspecified))))
 ;;;;;; Auto Highlight Symbol:
      `(ahs-plugin-default-face
@@ -1690,14 +1708,24 @@ attention."
      `(zmacs-eshell-prompt
        ((,class (:foreground ,(zmacs--get-ui-colour :tone-0)))))
      `(zmacs-eshell-prompt-time
-       ((,class (:foreground ,(zmacs--get-ui-colour :bright-steel)))))
+       ((,class (:background ,(zmacs--get-ui-colour :tone-8)
+                 :foreground ,(zmacs--get-ui-colour :white)))))
+     `(zmacs-eshell-prompt-time-sep
+       ((,class (:background ,(zmacs--get-ui-colour :tone-8)
+                 :foreground ,(zmacs--get-ui-colour :tone-4)))))
      `(zmacs-eshell-prompt-cwd
-       ((,class (:foreground ,(zmacs--get-ui-colour :bright-silver)))))
+       ((,class (:background ,(zmacs--get-ui-colour :grey-10)
+                 :foreground ,colour-text-light))))
      `(zmacs-eshell-prompt-vc
-       ((,class (:foreground ,(zmacs--get-ui-colour :bright-umber)))))
+       ((,class (:foreground ,(zmacs--get-ui-colour :black)
+                 :background ,(zmacs--get-ui-colour :dim-green)))))
      `(zmacs-eshell-prompt-glyph
-       ((,class (:foreground ,(zmacs--get-ui-colour :bright-yellow)
+       ((,class (:background ,(zmacs--get-ui-colour :grey-10)
+                 :foreground ,(zmacs--get-ui-colour :bright-yellow)
                  :weight     bold))))
+     `(zmacs-eshell-prompt-user
+       ((,class (:foreground ,(zmacs--get-ui-colour :white)
+                 :background ,(zmacs--get-ui-colour :tone-4)))))
 ;;;;; End of faces.
      ))                                 ; `custom-set-faces'
 ;;;;; END.

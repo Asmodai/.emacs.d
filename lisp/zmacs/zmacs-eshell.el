@@ -27,6 +27,7 @@
 ;;
 
 ;;; Code:
+ ;;;; Requirements:
 
 (require 'cl-lib)
 (require 'zlisp-platform)
@@ -126,12 +127,15 @@
   ;; Visual commands
   (add-to-list 'eshell-visual-options     '("git" "--help" "--paginate"))
   (add-to-list 'eshell-visual-subcommands '("git" "log" "diff" "show"))
-  (add-to-list 'eshell-visual-commands    '("ranger" "vi" "screen" "top"
-                                            "less" "more" "lynx" "ncftp"
-                                            "pine" "tin" "trn" "elm" "vim"
-                                            "nmtui" "alsamixer" "htop" "el"
-                                            "elinks" "tail" "top" "nano"
-                                            "ssh" "btop" "iotop")))
+  (add-to-list 'eshell-visual-commands    '("ranger" "vi"    "screen"
+                                            "top"    "less"  "more"
+                                            "lynx"   "ncftp" "pine"
+                                            "tin"    "trn"   "elm"
+                                            "vim"    "nmtui" "alsamixer"
+                                            "htop"   "el"    "elinks"
+                                            "tail"   "top"   "nano"
+                                            "ssh"    "btop"  "iotop")))
+
 
 ;;;; Pcomplete:
 ;;;;; homebrew comletion:
@@ -191,7 +195,6 @@
             (lambda (&rest _)
               (setq eshell-prompt-number (+ 1 eshell-prompt-number))))
 
-
 (defun zmacs-eshell-config--git-prompt (pwd)
   "Return git branch as a string for directory PWD.
 
@@ -201,18 +204,13 @@ string is returned."
   (when (and (not (file-remote-p pwd))
              (eshell-search-path "git")
              (locate-dominating-file pwd ".git"))
-    (let* ((git-url    (shell-command-to-string "git config --get remote.origin.url"))
-           (git-repo   (file-name-base (s-trim git-url)))
-           (git-output (shell-command-to-string (concat "git rev-parse --abbrev-ref HEAD")))
-           (git-branch (s-trim git-output))
-           (git-icon   "\xe0a0")
-           (git-icon2  (propertize "\xf020" 'face `(:family "octicons")))
-           (git-sep    (propertize "" 'face 'zmacs-eshell-prompt-vc)))
-      (concat (propertize "→ " 'face 'zmacs-eshell-prompt)
-              (propertize git-repo 'face 'zmacs-eshell-prompt-vc)
-              " "
-              git-sep
-              " "
+    (let* ((git-output (shell-command-to-string (concat "git rev-parse --abbrev-ref HEAD")))
+           (git-branch (s-trim git-output)))
+      (concat
+              (propertize " "
+                          'face `(:foreground ,(face-background 'zmacs-eshell-prompt-user)
+                                  :background ,(face-background 'zmacs-eshell-prompt-vc)))
+              (propertize " " 'face 'zmacs-eshell-prompt-vc)
               (propertize git-branch 'face 'zmacs-eshell-prompt-vc)
               (propertize " " 'face 'zmacs-eshell-prompt-vc)))))
 
@@ -258,24 +256,58 @@ string is returned."
                        (zmacs--pwd-replace-home pwd))))
          (parent     (car directory))
          (name       (cadr directory))
+         (now        (current-time))
+         (time       (format-time-string "%H:%M:%S" now))
+         (date       (format-time-string "%Y-%m-%d" now))
          (branch     (zmacs-eshell-config--git-prompt pwd)))
-    (concat (propertize "\n╭─┤ " 'face 'zmacs-eshell-prompt)
-            (propertize (format-time-string "%H:%M:%S %d-%m-%Y" (current-time))
-                        'face 'zmacs-eshell-prompt-time)
-            (propertize " ├── "  'face 'zmacs-eshell-prompt)
-            (propertize parent 'face 'zmacs-eshell-prompt-cwd)
-            (propertize name 'face `(:inherit zmacs-eshell-prompt-cwd
-                                     :weight bold))
-            "\n"
-            (propertize "╰─"  'face 'zmacs-eshell-prompt)
-            (if branch
-                branch
-              "")
-            (propertize  ">> " 'face 'zmacs-eshell-prompt)
-            (propertize (zmacs-eshell-config--prompt-char)
-                        'face 'zmacs-eshell-prompt-glyph)
-            ;; needed for the input text to not have prompt face
-            (propertize " " 'face 'default))))
+    (concat
+     "\n"
+     ;;
+     ;; Time/date.
+     (propertize " "    'face 'zmacs-eshell-prompt-time)
+     (propertize time   'face 'zmacs-eshell-prompt-time)
+     (propertize "  "  'face 'zmacs-eshell-prompt-time-sep)
+     (propertize date   'face 'zmacs-eshell-prompt-time)
+     (propertize " "    'face 'zmacs-eshell-prompt-time)
+     (propertize ""
+                 'face `(:foreground ,(face-background 'zmacs-eshell-prompt-time)
+                         :background ,(face-background 'zmacs-eshell-prompt-cwd)))
+     ;;
+     ;; Working directory.
+     (propertize " "    'face 'zmacs-eshell-prompt-cwd)
+     (propertize parent 'face 'zmacs-eshell-prompt-cwd)
+     (propertize name   'face `(:inherit zmacs-eshell-prompt-cwd :weight bold))
+     (propertize " "    'face 'zmacs-eshell-prompt-cwd)
+     (propertize ""
+                 'face `(:foreground ,(face-background 'zmacs-eshell-prompt-cwd)
+                         :background unspecified))
+     "\n"
+     ;;
+     ;; User and hostname.
+     (propertize " "               'face 'zmacs-eshell-prompt-user)
+     (propertize (user-login-name) 'face 'zmacs-eshell-prompt-user)
+     (propertize "@"               'face 'zmacs-eshell-prompt-user)
+     (propertize (system-name)     'face 'zmacs-eshell-prompt-user)
+     (propertize " "               'face 'zmacs-eshell-prompt-user)
+     ;;
+     ;; VC branch.
+     (if branch
+         (concat
+          branch
+          (propertize " "
+                      'face `(:foreground ,(face-background 'zmacs-eshell-prompt-vc)
+                              :background ,(face-background 'zmacs-eshell-prompt-glyph))))
+       (propertize " "
+                   'face `(:foreground ,(face-background 'zmacs-eshell-prompt-user)
+                           :background ,(face-background 'zmacs-eshell-prompt-glyph))))
+     ;;
+     ;; Prompt glyph.
+     (propertize (zmacs-eshell-config--prompt-char) 'face 'zmacs-eshell-prompt-glyph)
+     (propertize " " 'face 'zmacs-eshell-prompt-glyph)
+     (propertize ""
+                 'face `(:foreground ,(face-background 'zmacs-eshell-prompt-glyph)
+                         :background ,(face-background 'zmacs-eshell-prompt)))
+     " ")))
 
 (setq eshell-prompt-function #'zmacs-eshell-config--prompt-function)
 
@@ -289,14 +321,14 @@ string is returned."
 
 (defvar zmacs-eshell-aliases
   '(;; Git
-    ("g" "git --no-pager $*")
-    ("gg" "magit-status")
-    ("gd" "git diff --color $*")
-    ("gl" "magit-log-all")
+    ("g"   "git --no-pager $*")
+    ("gg"  "magit-status")
+    ("gd"  "git diff --color $*")
+    ("gl"  "magit-log-all")
     ("gsh" "git stash")
     ("gbr" "git branch $*")
     ("gco" "git checkout $*")
-    ("gs" "git status")
+    ("gs"  "git status")
     ("grb" "git rebase $*")
     ("grh" "git reset --hard")
 
@@ -307,15 +339,15 @@ string is returned."
 
     ;; Listing
     ("l"  "ls $*")
-    ("ls"  "ls -X $*")
+    ("ls" "ls -X $*")
     ("la" "ls -laX $*")
     ("ll" "ls -lahsX $*")
 
     ;; Navigation
     ("bb" "consult-buffer")
     ("bd" "eshell-up $1")
-    ("d" "dired $1")
-    ("e" "find-file $1")
+    ("d"  "dired $1")
+    ("e"  "find-file $1")
     ("ec" "find-file $1")
     ("ed" (eshell/cd "~/.emacs.d"))
     ("ff" "find-file $1")
@@ -329,16 +361,15 @@ string is returned."
     ("rg" "rg --color=always $*")
 
     ;; Quitting
-    ("ex" "exit")
-    ("x" "exit")
-    ("q"  "exit")
-    ("qr" "restart-emacs")
-    ("qq" "save-buffers-kill-emacs")
+    ("quit" "exit")
+    ("qr"   "restart-emacs")
+    ("qq"   "save-buffers-kill-emacs")
     ) ; more sensible than default
-  "An alist of default eshell aliases, meant to emulate useful shell utilities,
-like fasd and bd. Note that you may overwrite these in your
-`eshell-aliases-file'. This is here to provide an alternative, elisp-centric way
-to define your aliases.
+  "An alist containing some default `eshell' aliases.
+
+Note that you may overwrite these in your `eshell-aliases-file'. This is
+here to provide an alternative, elisp-centric way to define your aliases.
+
 You should use `zmacs-set-eshell-alias' to change this.")
 
 (defvar zmacs-eshell--default-aliases nil)
@@ -447,27 +478,24 @@ This function is meant to be used as advice around
                    (all-the-icons-icon-for-dir name)
                  (all-the-icons-icon-for-file name)))
          (suffix
-          (cond
-           ;; Directory
-           ((eq (cadr file) t)
-            "/")
-           ;; Executable
-           ((and (/= (user-uid) 0) ; root can execute anything
-                 (eshell-ls-applicable (cdr file)
-                                       3
-                                       #'file-executable-p
-                                       (car file)))
-            "*"))))
+          (cond ((eq (cadr file) t)     ; Directory.
+                 "/")
+                ((and (/= (user-uid) 0) ; root can execute anything
+                      (eshell-ls-applicable (cdr file)
+                                            3
+                                            #'file-executable-p
+                                            (car file)))
+                 "*"))))
     (cons
      (concat " "
              icon
              " "
              (propertize name
-                         'keymap eshell-ls-file-keymap
+                         'keymap     eshell-ls-file-keymap
                          'mouse-face 'highlight
-                         'file-name (expand-file-name
-                                     (substring-no-properties (car file))
-                                     default-directory))
+                         'file-name  (expand-file-name
+                                      (substring-no-properties (car file))
+                                      default-directory))
              (when (and suffix (not (string-suffix-p suffix name)))
                (propertize suffix 'face 'shadow)))
      (cdr file))))
@@ -541,13 +569,6 @@ If open and in eshell, toggle closed."
   "Open a new instance of eshell."
   (interactive)
   (eshell 'N))
-
-(defun eshell-clear-buffer ()
-  "Clear terminal."
-  (interactive)
-  (let ((inhibit-read-only t))
-    (erase-buffer)
-    (eshell-send-input)))
 
 (defun eshell/info (subject)
   "Read the Info manual on SUBJECT."
@@ -671,7 +692,7 @@ So if we're connected with sudo to 'remotehost'
 (defun zmacs-setup-eshell ()
   (interactive)
   ;; Clear eshell keybind
-  (local-set-key (kbd "C-l") 'eshell-clear-buffer)
+  (local-set-key (kbd "C-l") 'eshell/clear-scrollback)
   ;; Use imenu to jump prompts
   ;; https://xenodium.com/imenu-on-emacs-eshell/
   (setq-local imenu-generic-expression
@@ -684,7 +705,9 @@ So if we're connected with sudo to 'remotehost'
   (set-window-fringes nil 0 0)
   (set-window-margins nil 1 nil)
   ;; Scrolling
-  (setq hscroll-margin 0)
+  (setq-local hscroll-margin 0)
+  ;; Remove NBSP handling
+  (setq-local nobreak-char-display nil)
   ;; Text wrapping
   (visual-line-mode +1)
   (set-display-table-slot standard-display-table 0 ?\ ))
