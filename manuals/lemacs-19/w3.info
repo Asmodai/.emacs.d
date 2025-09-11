@@ -1,0 +1,79 @@
+This is Info file ./w3.info, produced by Makeinfo-1.55 from the input
+file w3.texi.
+
+   This file documents the W3 World Wide Web browser.
+
+   Copyright (C) 1993, 1994 William M. Perry
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+
+Indirect:
+w3.info-1: 352
+w3.info-2: 49162
+w3.info-3: 97190
+
+Tag Table:
+(Indirect)
+Node: Top352
+Node: Introduction1685
+Node: Markup Languages Supported5609
+Node: Supported Protocols9704
+Node: Setting Up10978
+Node: Retrieving W311597
+Node: Compiling W312684
+Node: Basic Setup15358
+Node: Firewalls20301
+Node: Proxy Gateways27379
+Node: Basic Usage28596
+Node: Movement30135
+Node: Information31352
+Node: Action32700
+Node: Miscellaneous36308
+Node: Compatibility w/Mosaic39945
+Node: Hotlist Handling40829
+Node: Session History43018
+Node: Global History44698
+Node: Annotations46020
+Node: Group Annotations46653
+Node: Personal Annotations49162
+Node: Controlling Formatting50905
+Node: General Formatting52201
+Node: Character based terminals58015
+Node: Smart terminals60046
+Node: Graphics workstations62105
+Node: HTTP/1.0 Support64652
+Node: Redirection65778
+Node: Authentication66612
+Node: Payment70301
+Node: MIME Support70780
+Node: Adding MIME types based on file extensions72463
+Node: Mapping gopher types to MIME types74399
+Node: Specifying Viewers74663
+Node: Mailcap File76132
+Node: Advanced Features82541
+Node: Searching83547
+Node: Interfacing to VM85529
+Node: Interfacing to RMAIL87735
+Node: Interfacing to GNUS89895
+Node: Using PGP/PEM92187
+Node: Native WAIS Support96208
+Node: Rating Links96376
+Node: Gopher+ Support96532
+Node: Hooks96680
+Node: Other Variables97190
+Node: More Help99603
+Node: Future Directions101371
+Node: Programming Interface102380
+Node: Generalized ZONES103275
+Node: Global Variables106206
+Node: Data Structures107558
+Node: Miscellaneous Functions110712
+Node: Concept Index117958
+Node: Key Index122094
+Node: Command Index124477
+Node: Variable Index129685
+
+End Tag Table

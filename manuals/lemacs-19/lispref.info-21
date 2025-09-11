@@ -1,0 +1,1265 @@
+This is Info file ../../info/lispref.info, produced by Makeinfo-1.56
+from the input file lispref.texinfo.
+
+   This version is newer than the second printed edition of the GNU
+Emacs Lisp Reference Manual.  It corresponds to Emacs Version 19.19.
+
+   Published by the Free Software Foundation 675 Massachusetts Avenue
+Cambridge, MA 02139 USA
+
+   Copyright (C) 1990, 1991, 1992, 1993 Free Software Foundation, Inc.
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be stated in a
+translation approved by the Foundation.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided also
+that the section entitled "GNU General Public License" is included
+exactly as in the original, and provided that the entire resulting
+derived work is distributed under the terms of a permission notice
+identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that the section entitled "GNU General Public License"
+may be included in a translation approved by the Free Software
+Foundation instead of in the original English.
+
+
+File: lispref.info,  Node: Vertical Scrolling,  Next: Horizontal Scrolling,  Prev: Window Start,  Up: Windows
+
+Vertical Scrolling
+==================
+
+   Vertical scrolling means moving the text up or down in a window.  It
+works by changing the value of the window's display-start location.  It
+may also change the value of `window-point' to keep it on the screen.
+
+   In the commands `scroll-up' and `scroll-down', the directions "up"
+and "down" refer to the motion of the text in the buffer at which you
+are looking through the window.  Imagine that the text is written on a
+long roll of paper and that the scrolling commands move the paper up
+and down.  Thus, if you are looking at text in the middle of a buffer
+and repeatedly call `scroll-down', you will eventually see the
+beginning of the buffer.
+
+   Some people have urged that the opposite convention be used: they
+imagine that the window moves over text that remains in place.  Then
+"down" commands would take you to the end of the buffer.  This view is
+more consistent with the actual relationship between windows and the
+text in the buffer, but it is less like what the user sees.  The
+position of a window on the terminal does not move, and short scrolling
+commands clearly move the text up or down on the screen.  We have chosen
+names that fit the user's point of view.
+
+   The scrolling functions (aside from `scroll-other-window') will have
+unpredictable results if the current buffer is different from the
+buffer that is displayed in the selected window.  *Note Current
+Buffer::.
+
+ - Command: scroll-up &optional COUNT
+     This function scrolls the text in the selected window upward COUNT
+     lines.  If COUNT is negative, scrolling is actually downward.
+
+     If COUNT is `nil' (or omitted), then the length of scroll is
+     `next-screen-context-lines' lines less than the usable height of
+     the window (not counting its mode line).
+
+     `scroll-up' returns `nil'.
+
+ - Command: scroll-down &optional COUNT
+     This function scrolls the text in the selected window downward
+     COUNT lines.  If COUNT is negative, scrolling is actually upward.
+
+     If COUNT is omitted or `nil', then the length of the scroll is
+     `next-screen-context-lines' lines less than the usable height of
+     the window.
+
+     `scroll-down' returns `nil'.
+
+ - Command: scroll-other-window &optional COUNT
+     This function scrolls the text in another window upward COUNT
+     lines.  Negative values of COUNT, or `nil', are handled as in
+     `scroll-up'.
+
+     The window that is scrolled is normally the one following the
+     selected window in the cyclic ordering of windows--the window that
+     `next-window' would return.  *Note Cyclic Window Ordering::.
+
+     If the selected window is the minibuffer, the next window is
+     normally the one at the top left corner.  However, you can specify
+     the window to scroll by binding the variable
+     `minibuffer-scroll-window'.  This variable has no effect when any
+     other window is selected.  *Note Minibuffer Misc::.
+
+     When the minibuffer is active, it is the next window if the
+     selected window is the one at the bottom right corner.  In this
+     case, `scroll-other-window' attempts to scroll the minibuffer.  If
+     the minibuffer contains just one line, it has nowhere to scroll
+     to, so the line reappears after the echo area momentarily displays
+     the message "Beginning of buffer".
+
+ - Variable: other-window-scroll-buffer
+     If this variable is non-`nil', it tells `scroll-other-window'
+     which buffer to scroll.
+
+ - User Option: scroll-step
+     This variable controls how scrolling is done automatically when
+     point moves off the screen.  If the value is zero, then the text
+     is scrolled so that point is centered vertically in the window.
+     If the value is a positive integer N, then if it is possible to
+     bring point back on screen by scrolling N lines in either
+     direction, that is done; otherwise, point is centered vertically
+     as usual.  The default value is zero.
+
+ - User Option: next-screen-context-lines
+     The value of this variable is the number of lines of continuity to
+     retain when scrolling by full screens.  For example, when
+     `scroll-up' executes, this many lines that were visible at the
+     bottom of the window move to the top of the window.  The default
+     value is `2'.
+
+ - Command: recenter &optional COUNT
+     This function scrolls the selected window to put the text where
+     point is located at a specified vertical position within the
+     window.
+
+     If COUNT is a nonnegative number, it puts the line containing
+     point COUNT lines down from the top of the window.  If COUNT is a
+     negative number, then it counts upward from the bottom of the
+     window, so that -1 stands for the last usable line in the window.
+     If COUNT is a non-`nil' list, then it stands for the line in the
+     middle of the window.
+
+     If COUNT is `nil', then it puts the line containing point in the
+     middle of the window, then clears and redisplays the entire
+     selected screen.
+
+     When `recenter' is called interactively, Emacs sets COUNT to the
+     raw prefix argument.  Thus, typing `C-u' as the prefix sets the
+     COUNT to a non-`nil' list, while typing `C-u 4' sets COUNT to 4,
+     which positions the current line four lines from the top.
+
+     Typing `C-u 0 C-l' positions the current line at the top of the
+     window.  This action is so handy that some people bind the command
+     to a function key.  For example,
+
+          (defun line-to-top-of-window ()
+            "Scroll current line to top of window.
+          Replaces three keystroke sequence C-u 0 C-l."
+            (interactive)
+            (recenter 0))
+          
+          (global-set-key "\C-cl" 'line-to-top-of-window)
+
+
+File: lispref.info,  Node: Horizontal Scrolling,  Next: Size of Window,  Prev: Vertical Scrolling,  Up: Windows
+
+Horizontal Scrolling
+====================
+
+   Because we read English first from top to bottom and second from left
+to right, horizontal scrolling is not like vertical scrolling.  Vertical
+scrolling involves selection of a contiguous portion of text to display.
+Horizontal scrolling causes part of each line to go off screen.  The
+amount of horizontal scrolling is therefore specified as a number of
+columns rather than as a position in the buffer.  It has nothing to do
+with the display-start position returned by `window-start'.
+
+   Usually, no horizontal scrolling is in effect; then the leftmost
+column is at the left edge of the window.  In this state, scrolling to
+the right is meaningless, since there is no data to the left of the
+screen to be revealed by it, so it is not allowed.  Scrolling to the
+left is allowed; it causes the first columns of text to go off the edge
+of the window and can reveal additional columns on the right that were
+truncated before.  Once a window has a nonzero amount of leftward
+horizontal scrolling, you can scroll it back to the right, but only so
+far as to reduce the net horizontal scroll to zero.  There is no limit
+to how far left you can scroll, but eventually all the text will
+disappear off the left edge.
+
+ - Command: scroll-left COUNT
+     This function scrolls the selected window COUNT columns to the
+     left (or to the right if COUNT is negative).  The return value is
+     the total amount of leftward horizontal scrolling in effect after
+     the change--just like the value returned by `window-hscroll'.
+
+ - Command: scroll-right COUNT
+     This function scrolls the selected window COUNT columns to the
+     right  (or to the left if COUNT is negative).  The return value is
+     the total amount of leftward horizontal scrolling in effect after
+     the change--just like the value returned by `window-hscroll'.
+
+     Once you scroll a window as far right as it can go, back to its
+     normal position where the total leftward scrolling is zero,
+     attempts to scroll any farther have no effect.
+
+ - Function: window-hscroll &optional WINDOW
+     This function returns the total leftward horizontal scrolling of
+     WINDOW--the number of columns by which the text in WINDOW is
+     scrolled left past the left margin.
+
+     The value is never negative.  It is zero when no horizontal
+     scrolling has been done in WINDOW (which is usually the case).
+
+     If WINDOW is `nil', the selected window is used.
+
+          (window-hscroll)
+               => 0
+          (scroll-left 5)
+               => 5
+          (window-hscroll)
+               => 5
+
+ - Function: set-window-hscroll WINDOW COLUMNS
+     This function sets the number of columns from the left margin that
+     WINDOW is scrolled to the value of COLUMNS.  The argument COLUMNS
+     should be zero or positive; if not, it is taken as zero.
+
+     The value returned is COLUMNS.
+
+          (set-window-hscroll (selected-window) 10)
+               => 10
+
+   Here is how you can determine whether a given position POSITION is
+off the screen due to horizontal scrolling:
+
+     (save-excursion
+       (goto-char POSITION)
+       (and
+        (>= (- (current-column) (window-hscroll WINDOW)) 0)
+        (< (- (current-column) (window-hscroll WINDOW))
+           (window-width WINDOW))))
+
+
+File: lispref.info,  Node: Size of Window,  Next: Resizing Windows,  Prev: Horizontal Scrolling,  Up: Windows
+
+The Size of a Window
+====================
+
+   An Emacs window is rectangular, and its size information consists of
+the height (the number of lines) and the width (the number of character
+positions in each line).  The mode line is included in the height.  For
+a window that does not abut the right hand edge of the screen, the
+column of `|' characters that separates it from the window on the right
+is included in the width.
+
+   The following three functions return size information about a window:
+
+ - Function: window-height &optional WINDOW
+     This function returns the number of lines in WINDOW, including its
+     mode line.  If WINDOW fills its entire screen, this is one less
+     than the value of `screen-height' on that screen (since the last
+     line is always reserved for the minibuffer).
+
+     If WINDOW is `nil', the function uses the selected window.
+
+          (window-height)
+               => 23
+          (split-window-vertically)
+               => #<window 4 on windows.texi>
+          (window-height)
+               => 11
+
+ - Function: window-width &optional WINDOW
+     This function returns the number of columns in WINDOW.  If WINDOW
+     fills its entire screen, this is the same as the value of
+     `screen-width' on that screen.
+
+     If WINDOW is `nil', the function uses the selected window.
+
+          (window-width)
+               => 80
+
+ - Function: window-edges &optional WINDOW
+     This function returns a list of the edge coordinates of WINDOW.
+     If WINDOW is `nil', the selected window is used.
+
+     The order of the list is `(LEFT TOP RIGHT BOTTOM)', all elements
+     relative to 0, 0 at the top left corner of the screen.  The
+     element RIGHT of the value is one more than the rightmost column
+     used by WINDOW, and BOTTOM is one more than the bottommost row
+     used by WINDOW and its mode-line.
+
+     Here is the result obtained on a typical 24-line terminal with
+     just one window:
+
+          (window-edges (selected-window))
+               => (0 0 80 23)
+
+     If WINDOW is at the upper left corner of its screen, RIGHT and
+     BOTTOM are the same as the values returned by `(window-width)' and
+     `(window-height)' respectively, and TOP and BOTTOM are zero.  For
+     example, the edges of the following window are `0 0 5 8'.
+     Assuming that the screen has more than 8 columns, the last column
+     of the window (column 7) holds a border rather than text.  The
+     last row (row 4) holds the mode line, shown here with `xxxxxxxxx'.
+
+                     0
+                     _______
+                  0 |       |
+                    |       |
+                    |       |
+                    |       |
+                    xxxxxxxxx  4
+          
+                            7
+
+     When there are side-by-side windows, any window not at the right
+     edge of its screen has a border in its last column.  This border
+     counts as one column in the width of the window.  A window never
+     includes a border on its left, since the border there belongs to
+     the window to the left.
+
+     In the following example, let's imagine that the screen is 7
+     columns wide.  Then the edges of the left window are `0 0 4 3' and
+     the edges of the right window are `4 0 7 3'.
+
+                     ___ ___
+                    |   |   |
+                    |   |   |
+                    xxxxxxxxx
+          
+                     0  34  7
+
+
+File: lispref.info,  Node: Resizing Windows,  Next: Coordinates and Windows,  Prev: Size of Window,  Up: Windows
+
+Changing the Size of a Window
+=============================
+
+   The window size functions fall into two classes: high-level commands
+that change the size of windows and low-level functions that access
+window size.  Emacs does not permit overlapping windows or gaps between
+windows, so resizing one window affects other windows.
+
+ - Command: enlarge-window SIZE &optional HORIZONTAL
+     This function makes the selected window SIZE lines bigger,
+     stealing lines from neighboring windows.  It takes the lines from
+     one window at a time until that window is used up, then takes from
+     another.  If a window from which lines are stolen shrinks below
+     `window-min-height' lines, then that window disappears.
+
+     If HORIZONTAL is non-`nil', then this function makes WINDOW wider
+     by SIZE columns, stealing columns instead of lines.  If a window
+     from which columns are stolen shrinks below `window-min-width'
+     columns, then that window disappears.
+
+     If the window's screen is smaller than SIZE lines (or columns),
+     then the function makes the window occupy the entire height (or
+     width) of the screen.
+
+     If SIZE is negative, this function shrinks the window by -SIZE
+     lines.  If it becomes shorter than `window-min-height', it
+     disappears.
+
+     `enlarge-window' returns `nil'.
+
+ - Command: enlarge-window-horizontally COLUMNS
+     This function makes the selected window COLUMNS wider.  It could
+     be defined as follows:
+
+          (defun enlarge-window-horizontally (columns)
+            (enlarge-window columns t))
+
+ - Command: shrink-window SIZE &optional HORIZONTAL
+     This function is like `enlarge-window' but negates the argument
+     SIZE, making the selected window smaller by giving lines (or
+     columns) to the other windows.  If the window shrinks below
+     `window-min-height' or `window-min-width', then it disappears.
+
+     If SIZE is negative, the window is enlarged by -SIZE lines.
+
+ - Command: shrink-window-horizontally COLUMNS
+     This function makes the selected window COLUMNS narrower.  It
+     could be defined as follows:
+
+          (defun shrink-window-horizontally (columns)
+            (shrink-window columns t))
+
+   The following two variables constrain the window size changing
+functions to a minimum height and width.
+
+ - User Option: window-min-height
+     The value of this variable determines how short a window may become
+     before it disappears.  A window disappears when it becomes smaller
+     than `window-min-height', and no window may be created that is
+     smaller.  The absolute minimum height is two (allowing one line
+     for the mode line, and one line for the buffer display).  Actions
+     which change window sizes reset this variable to two if it is less
+     than two.  The default value is 4.
+
+ - User Option: window-min-width
+     The value of this variable determines how narrow a window may
+     become before it disappears.  A window disappears when it becomes
+     narrower than `window-min-width', and no window may be created
+     that is narrower.  The absolute minimum width is one; any value
+     below that is ignored.  The default value is 10.
+
+
+File: lispref.info,  Node: Coordinates and Windows,  Next: Window Configurations,  Prev: Resizing Windows,  Up: Windows
+
+Coordinates and Windows
+=======================
+
+   This section describes how to compare screen coordinates with
+windows.
+
+ - Function: window-at X Y &optional SCREEN
+     This function returns the window containing the specified cursor
+     position in the screen SCREEN.  The coordinates X and Y are
+     measured in characters and count from the top left corner of the
+     screen or screen.
+
+     If you omit SCREEN, the selected screen is used.
+
+ - Function: coordinates-in-window-p COORDINATES WINDOW
+     This function checks whether a particular screen position falls
+     within the window WINDOW.
+
+     The argument COORDINATES is a cons cell of this form:
+
+          (X . Y)
+
+     The coordinates X and Y are measured in characters, and count from
+     the top left corner of the screen or screen.
+
+     The value of `coordinates-in-window-p' is non-`nil' if the
+     coordinates are inside WINDOW.  The value also indicates what part
+     of the window the position is in, as follows:
+
+    `(RELX . RELY)'
+          The coordinates are inside WINDOW.  The numbers RELX and RELY
+          are the equivalent window-relative coordinates for the
+          specified position, counting from 0 at the top left corner of
+          the window.
+
+    `mode-line'
+          The coordinates are in the mode line of WINDOW.
+
+    `vertical-split'
+          The coordinates are in the vertical line between WINDOW and
+          its neighbor to the right.
+
+    `nil'
+          The coordinates are not in any sense within WINDOW.
+
+     The function `coordinates-in-window-p' does not require a screen as
+     argument because it always uses the screen that window WINDOW is
+     on.
+
+
+File: lispref.info,  Node: Window Configurations,  Prev: Coordinates and Windows,  Up: Windows
+
+Window Configurations
+=====================
+
+   A "window configuration" records the entire layout of a screen--all
+windows, their sizes, which buffers they contain, what part of each
+buffer is displayed, and the values of point and the mark.  You can
+bring back an entire previous layout by restoring a window
+configuration previously saved.
+
+ - Function: current-window-configuration
+     This function returns a new object representing Emacs's current
+     window configuration, namely the number of windows, their sizes
+     and current buffers, which window is the selected window, and for
+     each window the displayed buffer, the display-start position, and
+     the positions of point and the mark.  An exception is made for
+     point in the current buffer, whose value is not saved.
+
+ - Function: set-window-configuration CONFIGURATION
+     This function restores the configuration of Emacs's windows and
+     buffers to the state specified by CONFIGURATION.  The argument
+     CONFIGURATION must be a value that was previously returned by
+     `current-window-configuration'.
+
+     Here is a way of using this function to get the same effect as
+     `save-window-excursion':
+
+          (let ((config (current-window-configuration)))
+            (unwind-protect
+                (progn (split-window-vertically nil)
+                       ...)
+              (set-window-configuration config)))
+
+ - Special Form: save-window-excursion FORMS...
+     This special form executes FORMS in sequence, preserving window
+     sizes and contents, including the value of point and the portion
+     of the buffer which is visible.  It also preserves the choice of
+     selected window.  However, it does not restore the value of point
+     in the current buffer; use `save-excursion' for that.
+
+     The return value is the value of the final form in FORMS.  For
+     example:
+
+          (split-window)
+               => #<window 25 on control.texi>
+          (setq w (selected-window))
+               => #<window 19 on control.texi>
+          (save-window-excursion
+            (delete-other-windows w)
+            (switch-to-buffer "foo")
+            'do-something)
+               => do-something
+               ;; The screen is now split again.
+
+ - Function: window-configuration-p OBJECT
+     This function returns `t' if OBJECT is a window configuration.
+
+   Primitives to look inside of window configurations would make sense,
+but none are implemented.  It is not clear they are useful enough to be
+worth implementing.
+
+   s
+
+
+File: lispref.info,  Node: Screens,  Next: Positions,  Prev: Windows,  Up: Top
+
+Screens
+*******
+
+   A SCREEN is a rectangle on the screen that contains one or more
+Emacs windows.  A screen initially contains a single main window (plus
+perhaps a minibuffer window) which you can subdivide vertically or
+horizontally into smaller windows.
+
+   When Emacs runs on a text-only terminal, it has just one screen, a
+"terminal screen".  There is no way to create another terminal screen
+after startup.  If Emacs has an X display, it does not make a terminal
+screen; instead, it initially creates a single "X window screen".  You
+can create more; see *Note Creating Screens::.
+
+ - Function: screenp OBJECT
+     This predicate returns `t' if OBJECT is a screen, and `nil'
+     otherwise.
+
+* Menu:
+
+* Creating Screens::		Creating additional X Window screens.
+* Screen Parameters::		Controlling screen size, position, font, etc.
+* Deleting Screens::		Screens last until explicitly deleted.
+* Finding All Screens::		How to examine all existing screens.
+* Screens and Windows::		A screen contains windows;
+				  display of text always works through windows.
+* Minibuffers and Screens::	How a screen finds the minibuffer to use.
+* Input Focus::			Which screen receives keyboard events.
+* Visibility of Screens::	Screens may be visible or invisible, or icons.
+* Raising and Lowering::	Raising a screen makes it hide other X windows;
+				  lowering it makes the others hide them.
+* Screen Titles and Icons::     Changing the way the screen's title or icon
+                                  appears.
+* Screen Hooks::                Hooks for customizing screen behavior.
+
+   *Note Display::, for related information.
+
+
+File: lispref.info,  Node: Creating Screens,  Next: Screen Parameters,  Up: Screens
+
+Creating Screens
+================
+
+   To create a new screen, call the function `make-screen'.
+
+ - Function: make-screen &optional ALIST
+     This function creates a new screen, if the display mechanism
+     permits creation of screens.  (An X server does; an ordinary
+     terminal does not.)
+
+     The argument is an alist specifying screen parameters.  Any
+     parameters not mentioned in ALIST default according to the value
+     of the variable `default-screen-alist'.  Under the X Window System,
+     parameters not specified in `default-screen-alist' default in turn
+     from `x-screen-defaults' and, if not specified there, from the X
+     resources.
+
+     The set of possible parameters depends in principle on what kind of
+     window system Emacs uses to display its the screens.  *Note X
+     Screen Parameters::, for documentation of individual parameters
+     you can specify when creating an X window screen.
+
+ - Variable: default-screen-alist
+     An alist specifying default values of screen parameters.  Each
+     element has the form:
+
+          (PARAMETER . VALUE)
+
+     If you use options that specify window appearance when you invoke
+     Emacs, they take effect by adding elements to
+     `default-screen-alist'.
+
+
+File: lispref.info,  Node: Screen Parameters,  Next: Deleting Screens,  Prev: Creating Screens,  Up: Screens
+
+Screen Parameters
+=================
+
+   A screen has many parameters that control how it displays.
+
+* Menu:
+
+* Parameter Access::       How to change a screen's parameters.
+* Initial Parameters::	   Specifying screen parameters when you make a screen.
+* X Screen Parameters::     Individual parameters documented.
+* Size And Position::      Changing the size and position of a screen.
+* Screen Name::            The name of a screen (as opposed to its title).
+
+
+File: lispref.info,  Node: Parameter Access,  Next: Initial Parameters,  Up: Screen Parameters
+
+Access to Screen Parameters
+---------------------------
+
+   These functions let you read and change the parameter values of a
+screen.
+
+ - Function: screen-parameters SCREEN
+     The function `screen-parameters' returns an alist of all the
+     parameters of SCREEN.
+
+ - Function: modify-screen-parameters SCREEN ALIST
+     This function alters the parameters of screen SCREEN based on the
+     elements of ALIST.  Each element of ALIST has the form `(PARM .
+     VALUE)', where PARM is a symbol naming a parameter.  If you don't
+     mention a parameter in ALIST, its value doesn't change.
+
+
+File: lispref.info,  Node: Initial Parameters,  Next: X Screen Parameters,  Prev: Parameter Access,  Up: Screen Parameters
+
+Initial Screen Parameters
+-------------------------
+
+   You can specify the parameters for the initial startup screen by
+setting `initial-screen-alist' in your `.emacs' file.
+
+ - Variable: initial-screen-alist
+     This variable's value is an alist of parameter values to when
+     creating the initial X window screen.
+
+
+File: lispref.info,  Node: X Screen Parameters,  Next: Size And Position,  Prev: Initial Parameters,  Up: Screen Parameters
+
+X Window Screen Parameters
+--------------------------
+
+   Just what parameters a screen has depends on what display mechanism
+it uses.  Here is a table of the parameters of an X window screen:
+
+`name'
+     The name of the screen.
+
+`left'
+     The screen position of the left edge, in pixels.
+
+`top'
+     The screen position of the top edge, in pixels.
+
+`height'
+     The height of the screen contents, in lines.  (This differs from
+     FSF Emacs, which measures the value in pixels.)
+
+`width'
+     The width of the screen contents, in characters.  (This differs
+     from FSF Emacs, which measures the value in pixels.)
+
+`window-id'
+     The number of the X window for the screen.
+
+`minibuffer'
+     The minibuffer window for the screen, or `nil' if this screen has
+     no minibuffer.
+
+`cursor-color'
+     The color for the cursor that shows point.
+
+`border-color'
+     The color for the border of the screen.
+
+`border-width'
+     The width in pixels of the window border.
+
+`internal-border-width'
+     The distance in pixels between text and border.
+
+`unsplittable'
+     If non-`nil', this screen's window is never split automatically.
+
+`inter-line-space'
+     The space in pixels between adjacent lines of text. (Not currently
+     implemented.)
+
+`modeline'
+     Whether the screen has a modeline. (Currently always `t'.)
+
+
+File: lispref.info,  Node: Size And Position,  Next: Screen Name,  Prev: X Screen Parameters,  Up: Screen Parameters
+
+Screen Size And Position
+------------------------
+
+   You can read or change the size and position of a screen using the
+screen parameters `left', `top', `height' and `width'.  When you create
+a screen, you must specify either both size parameters or neither.
+Likewise, you must specify either both position parameters or neither.
+Whatever geometry parameters you don't specify are chosen by the window
+manager in its usual fashion.
+
+   Here are some special features for working with sizes and positions:
+
+ - Function: set-screen-position SCREEN XOFFSET YOFFSET
+     This function sets the position of the top left corner of
+     SCREEN--to XOFFSET and YOFFSET.  These arguments are measured in
+     pixels, counting from the top left corner of the screen.  If
+     XOFFSET or YOFFSET is negative, it is interpreted relative to the
+     leftmost or bottommost position SCREEN could occupy without going
+     off the screen.
+
+ - Function: screen-height &optional SCREEN
+ - Function: screen-width &optional SCREEN
+     These functions return the height and width of SCREEN, measured in
+     lines and columns.  If you don't supply SCREEN, they use the
+     selected screen.
+
+ - Function: screen-pixel-height &optional SCREEN
+ - Function: screen-pixel-width &optional SCREEN
+     These functions return the height and width of SCREEN, measured in
+     pixels.  If you don't supply SCREEN, they use the selected screen.
+
+ - Function: set-screen-size SCREEN COLS ROWS &optional PRETEND
+     This function sets the size of SCREEN, measured in characters;
+     COLS and ROWS specify the new width and height.  (If PRETEND is
+     non-nil, it means that redisplay should act as if the screen's
+     size is COLS by ROWS, but the actual size of the screen should not
+     be changed.  You should not normally use this option.)
+
+
+   You can also use the functions `set-screen-height' and
+`set-screen-width' to set the height and width individually.  The
+screen is the first argument and the size (in rows or columns) is the
+second. (There is an optional third argument, PRETEND, which has the
+same purpose as the corresponding argument in `set-screen-size'.)
+
+
+File: lispref.info,  Node: Screen Name,  Prev: Size And Position,  Up: Screen Parameters
+
+The Name of a Screen (As Opposed to Its Title)
+----------------------------------------------
+
+   Under X, every screen has a name, which is not the same as the title
+of the screen.  A screen's name is used to look up its resources and
+does not normally change over the lifetime of a screen.  It is perfectly
+allowable, and quite common, for multiple screens to have the same name.
+
+ - Function: screen-name &optional SCREEN
+     This function returns the name of SCREEN, which defaults to the
+     selected screen if not specified.  The name of a screen can also be
+     obtained from the screen's parameters.  *Note Screen Parameters::.
+
+ - Variable: default-screen-name
+     This variable holds the default name to assign to newly-created
+     screens.  This can be overridden by arguments to
+     `x-create-screen'.  This must be a string.
+
+
+File: lispref.info,  Node: Deleting Screens,  Next: Finding All Screens,  Prev: Screen Parameters,  Up: Screens
+
+Deleting Screens
+================
+
+   Screens remain potentially visible until you explicitly "delete"
+them.  A deleted screen cannot appear on the screen, but continues to
+exist as a Lisp object until there are no references to it.
+
+ - Command: delete-screen &optional SCREEN
+     This function deletes the screen SCREEN.  By default, SCREEN is
+     the selected screen.
+
+ - Function: screen-live-p SCREEN
+     The function `screen-live-p' returns non-`nil' if the screen
+     SCREEN has not been deleted.
+
+
+File: lispref.info,  Node: Finding All Screens,  Next: Screens and Windows,  Prev: Deleting Screens,  Up: Screens
+
+Finding All Screens
+===================
+
+ - Function: screen-list
+     The function `screen-list' returns a list of all the screens that
+     have not been deleted.  It is analogous to `buffer-list' for
+     buffers.  The list that you get is newly created, so modifying the
+     list doesn't have any effect on the internals of Emacs.
+
+ - Function: visible-screen-list
+     This function returns a list of just the currently visible screens.
+
+ - Function: next-screen &optional SCREEN MINIBUF VISIBLE-ONLY-P
+     The function `next-screen' lets you cycle conveniently through all
+     the screens from an arbitrary starting point.  It returns the
+     "next" screen after SCREEN in the cycle.  If SCREEN is omitted or
+     `nil', it defaults to the selected screen.
+
+     The second argument, MINIBUF, says which screens to consider:
+
+    `nil'
+          Exclude minibuffer-only screens.
+
+    anything else
+          Consider all screens.
+
+   If VISIBLE-ONLY-P is non-`nil', then consider only visible screens.
+
+ - Function: previous-screen &optional SCREEN MINIBUF VISIBLE-ONLY-P
+     Like `next-screen', but cycles through all screens in the opposite
+     direction.
+
+
+File: lispref.info,  Node: Screens and Windows,  Next: Minibuffers and Screens,  Prev: Finding All Screens,  Up: Screens
+
+Screens and Windows
+===================
+
+   All the non-minibuffer windows in a screen are arranged in a tree of
+subdivisions; the root of this tree is available via the function
+`screen-root-window'.  Each window is part of one and only one screen;
+you can get the screen with `window-screen'.
+
+ - Function: screen-root-window &optional SCREEN
+     This returns the root window of screen SCREEN.  SCREEN defaults to
+     the current screen if not specified.
+
+ - Function: window-screen WINDOW
+     This function returns the screen that WINDOW is on.
+
+   At any time, exactly one window on any screen is "selected within the
+screen".  The significance of this designation is that selecting the
+screen also selects this window.  You can get the screen's current
+selected window with `screen-selected-window'.
+
+ - Function: screen-selected-window &optional SCREEN
+     This function returns the window on SCREEN which is selected
+     within SCREEN.  SCREEN defaults to the current screen if not
+     specified.
+
+   Conversely, selecting a window for Emacs with `select-window' also
+makes that window selected within its screen.  *Note Selecting
+Windows::.
+
+
+File: lispref.info,  Node: Minibuffers and Screens,  Next: Input Focus,  Prev: Screens and Windows,  Up: Screens
+
+Minibuffers and Screens
+=======================
+
+   Normally, each screen has its own minibuffer window at the bottom,
+which is used whenever that screen is selected.  If the screen has a
+minibuffer, you can get it with `minibuffer-window' (*note Minibuffer
+Misc::.).
+
+   Currently it is not possible for a screen not to have a minibuffer.
+This feature will appear in later versions of Lucid Emacs.
+
+
+File: lispref.info,  Node: Input Focus,  Next: Visibility of Screens,  Prev: Minibuffers and Screens,  Up: Screens
+
+Input Focus
+===========
+
+   At any time, one screen in Emacs is the "selected screen".  The
+selected window always resides on the selected screen.
+
+ - Function: selected-screen
+     This function returns the selected screen.
+
+   The X server normally directs keyboard input to the X window that the
+mouse is in.  Some window managers use mouse clicks or keyboard events
+to "shift the focus" to various X windows, overriding the normal
+behavior of the server.
+
+   Lisp programs can switch screens "temporarily" by calling the
+function `select-screen'.  This does not override the window manager;
+rather, it escapes from the window manager's control until that control
+is somehow reasserted.
+
+ - Function: select-screen SCREEN
+     This function selects screen SCREEN, temporarily disregarding the X
+     Windows focus.  The selection of SCREEN lasts until the next time
+     the user does something to select a different screen, or until the
+     next time this function is called.
+
+
+File: lispref.info,  Node: Visibility of Screens,  Next: Raising and Lowering,  Prev: Input Focus,  Up: Screens
+
+Visibility of Screens
+=====================
+
+   A screen may be "visible", "invisible", or "iconified".  If it is
+visible, you can see its contents.  If it is iconified, the screen's
+contents do not appear on the screen, but an icon does.  If the screen
+is invisible, it doesn't show in the screen, not even as an icon.
+
+ - Function: make-screen-visible SCREEN
+     This function makes screen SCREEN visible.
+
+ - Function: make-screen-invisible SCREEN
+     This function makes screen SCREEN invisible.
+
+ - Function: iconify-screen SCREEN
+     This function iconifies screen SCREEN.
+
+ - Function: deiconify-screen SCREEN
+     This function de-iconifies screen SCREEN.  Under X, this is
+     equivalent to `make-screen-visible'.
+
+ - Function: screen-visible-p SCREEN
+     This returns whether SCREEN is currently "visible" (actually in
+     use for display).  A screen that is not visible is not updated,
+     and, if it works through a window system, may not show at all.
+
+ - Function: screen-iconified-p SCREEN
+     This returns whether SCREEN is iconified.  Not all window managers
+     use icons; some merely unmap the window, so this function is not
+     the inverse of `screen-visible-p'.  It is possible for a screen to
+     not be visible and not be iconified either.  However, if the
+     screen is iconified, it will not be visible.  (Under FSF Emacs,
+     the functionality of this function is obtained through
+     `screen-visible-p'.)
+
+ - Function: screen-totally-visible-p SCREEN
+     This returns whether SCREEN is not obscured by any other X windows.
+
+
+File: lispref.info,  Node: Raising and Lowering,  Next: Screen Titles and Icons,  Prev: Visibility of Screens,  Up: Screens
+
+Raising and Lowering Screens
+============================
+
+   The X window system uses a desktop metaphor.  Part of this metaphor
+is the idea that windows are stacked in a notional third dimension
+perpendicular to the screen surface, and thus ordered from "highest" to
+"lowest".  Where two windows overlap, the one higher up covers the one
+underneath.  Even a window at the bottom of the stack can be seen if no
+other window overlaps it.
+
+   A window's place in this ordering is not fixed; in fact, users tend
+to change the order frequently.  "Raising" a window means moving it
+"up", to the top of the stack.  "Lowering" a window means moving it to
+the bottom of the stack.  This motion is in the notional third
+dimension only, and does not change the position of the window on the
+screen.
+
+   You can raise and lower Emacs's X windows with these functions:
+
+ - Function: raise-screen SCREEN
+     This function raises screen SCREEN.
+
+ - Function: lower-screen SCREEN
+     This function lowers screen SCREEN.
+
+   You can also specify auto-raise (raising automatically when a screen
+is selected) or auto-lower (lowering automatically when it is
+deselected).  Under X, most ICCCM-compliant window managers will have
+an option to do this for you, but the following variables are provided
+in case you're using a broken WM.  (Under FSF Emacs, the same
+functionality is provided through the `auto-raise' and `auto-lower'
+screen parameters.)
+
+ - Variable: auto-raise-screen
+     This variable's value is `t' if screens will be raised to the top
+     when selected.
+
+ - Variable: auto-lower-screen
+     This variable's value is `t' if screens will be lowered to the
+     bottom when no longer selected.
+
+   Auto-raising and auto-lowering is implemented through functions
+attached to `select-screen-hook' and `deselect-screen-hook' (*note
+Screen Hooks::.).  Under normal circumstances, you should not call
+these functions directly.
+
+ - Function: default-select-screen-hook
+     This hook function implements the `auto-raise-screen' variable; it
+     is for use as the value of `select-screen-hook'.
+
+ - Function: default-deselect-screen-hook
+     This hook function implements the `auto-lower-screen' variable; it
+     is for use as the value of `deselect-screen-hook'.
+
+
+File: lispref.info,  Node: Screen Titles and Icons,  Next: Screen Hooks,  Prev: Raising and Lowering,  Up: Screens
+
+Changing the Way a Screen's Title or Icon Appears
+=================================================
+
+   Under the X Window System, the title of the X window corresponding
+to a screen and the title and pixmap of the corresponding icon can be
+set from E-Lisp.
+
+ - Variable: screen-title-format
+     This variable controls how the title of the X window corresponding
+     to a screen appears.  The format is the same as in
+     `mode-line-format'.  *Note Mode Line Format::.
+
+ - Variable: screen-icon-title-format
+     This variable is similar to `screen-title-format' but controls the
+     title of a screen's icon, when the screen is iconified.
+
+ - Function: x-set-screen-icon-pixmap SCREEN PIXMAP &optional MASK
+     This function sets the icon of the given screen to the given
+     pixmap, which should be an object returned by `make-pixmap' or
+     `nil'.  If the given pixmap has a mask, that will be used as the
+     icon mask; however, not all window managers support this.  The
+     window manager is also not required to support color pixmaps, only
+     bitmaps (one plane deep).  If PIXMAP is a pixmap without a mask,
+     then the optional argument MASK may be the pixmap to use as the
+     mask (it must be one plane deep).  *Note Pixmaps::.
+
+
+File: lispref.info,  Node: Screen Hooks,  Prev: Screen Titles and Icons,  Up: Screens
+
+Hooks for Customizing Screen Behavior
+=====================================
+
+   Emacs provides many hooks that are called at various times during a
+screen's lifetime.  *Note Hooks::.
+
+ - Variable: create-screen-hook
+     This hook is called each time a screen is created.  The functions
+     are called with one argument, the newly-created screen.
+
+ - Variable: delete-screen-hook
+     This hook is called each time a screen is deleted.  The functions
+     are called with one argument, the about-to-be-deleted screen.
+
+ - Variable: select-screen-hook
+     This is a normal hook that is run just after a screen is selected.
+     The function `default-select-screen-hook', which implements
+     auto-raising (*note Raising and Lowering::.), is normally attached
+     to this hook.
+
+ - Variable: deselect-screen-hook
+     This is a normal hook that is run just before a screen is
+     deselected (and another screen is selected).  The function
+     `default-deselect-screen-hook', which implements auto-lowering
+     (*note Raising and Lowering::.), is normally attached to this hook.
+
+ - Variable: map-screen-hook
+     This hook is called each time a screen is mapped (i.e. made
+     visible).  The functions are called with one argument, the newly
+     mapped screen.
+
+ - Variable: unmap-screen-hook
+     This hook is called each time a screen is unmapped (i.e. made
+     invisible or iconified).  The functions are called with one
+     argument, the newly unmapped screen.
+
+
+File: lispref.info,  Node: Positions,  Next: Markers,  Prev: Screens,  Up: Top
+
+Positions
+*********
+
+   A "position" is the index of a character in the text of buffer.
+More precisely, a position identifies the place between two characters
+(or before the first character, or after the last character), so we can
+speak of the character before or after a given position.  However, the
+character after a position is often said to be "at" that position.
+
+   Positions are usually represented as integers starting from 1, but
+can also be represented as "markers"--special objects which relocate
+automatically when text is inserted or deleted so they stay with the
+surrounding characters.  *Note Markers::.
+
+* Menu:
+
+* Point::         The special position where editing takes place.
+* Motion::        Changing point.
+* Excursions::    Temporary motion and buffer changes.
+* Narrowing::     Restricting editing to a portion of the buffer.
+
+
+File: lispref.info,  Node: Point,  Next: Motion,  Prev: Positions,  Up: Positions
+
+Point
+=====
+
+   "Point" is a special buffer position used by many editing commands,
+including the self-inserting typed characters and text insertion
+functions.  Other commands move point through the text to allow editing
+and insertion at different places.
+
+   Like other positions, point designates a place between two characters
+(or before the first character, or after the last character), rather
+than a particular character.  Many terminals display the cursor over the
+character that immediately follows point; on such terminals, point is
+actually before the character on which the cursor sits.
+
+   The value of point is a number between 1 and the buffer size plus 1.
+If narrowing is in effect (*note Narrowing::.), then point is
+constrained to fall within the accessible portion of the buffer
+(possibly at one end of it).
+
+   Each buffer has its own value of point, which is independent of the
+value of point in other buffers.  Each window also has a value of point,
+which is independent of the value of point in other windows on the same
+buffer.  This is why point can have different values in various windows
+that display the same buffer.  When a buffer appears in only one window,
+the buffer's point and the window's point normally have the same value,
+so the distinction is rarely important.  *Note Window Point::, for more
+details.
+
+ - Function: point
+     This function returns the position of point in the current buffer,
+     as an integer.
+
+          (point)
+               => 175
+
+ - Function: point-min
+     This function returns the minimum accessible value of point in the
+     current buffer.  This is 1, unless narrowing is in effect, in
+     which case it is the position of the start of the region that you
+     narrowed to.  (*Note Narrowing::.)
+
+ - Function: point-max
+     This function returns the maximum accessible value of point in the
+     current buffer.  This is `(1+ (buffer-size))', unless narrowing is
+     in effect, in which case it is the position of the end of the
+     region that you narrowed to.  (*Note Narrowing::).
+
+ - Function: buffer-end FLAG
+     This function returns `(point-min)' if FLAG is less than 1,
+     `(point-max)' otherwise.  The argument FLAG must be a number.
+
+ - Function: buffer-size
+     This function returns the total number of characters in the current
+     buffer.  In the absence of any narrowing (*note Narrowing::.),
+     `point-max' returns a value one larger than this.
+
+          (buffer-size)
+               => 35
+          (point-max)
+               => 36
+
+ - Variable: buffer-saved-size
+     The value of this buffer-local variable is the former length of the
+     current buffer, as of the last time it was read in, saved or
+     auto-saved.
+
+
+File: lispref.info,  Node: Motion,  Next: Excursions,  Prev: Point,  Up: Positions
+
+Motion
+======
+
+   Motion functions change the value of point, either relative to the
+current value of point, relative to the beginning or end of the buffer,
+or relative to the edges of the selected window.  *Note Point::.
+
+* Menu:
+
+* Character Motion::       Moving in terms of characters.
+* Word Motion::            Moving in terms of words.
+* Buffer End Motion::      Moving to the beginning or end of the buffer.
+* Text Lines::             Moving in terms of lines of text.
+* Screen Lines::           Moving in terms of lines as displayed.
+* Vertical Motion::        Implementation of `next-line' and
+                             `previous-line'.
+* List Motion::            Moving by parsing lists and sexps.
+* Skipping Characters::    Skipping characters belonging to a certain set.
+
+
+File: lispref.info,  Node: Character Motion,  Next: Word Motion,  Prev: Motion,  Up: Motion
+
+Motion by Characters
+--------------------
+
+   These functions move point based on a count of characters.
+`goto-char' is a fundamental primitive because it is the way to move
+point to a specified position.
+
+ - Command: goto-char POSITION
+     This function sets point in the current buffer to the value
+     POSITION.  If POSITION is less than 1, then point is set to the
+     beginning of the buffer.  If it is greater than the length of the
+     buffer, then point is set to the end of the buffer.
+
+     If narrowing is in effect, then the position is still measured
+     from the beginning of the buffer, but point cannot be moved
+     outside of the accessible portion.  Therefore, if POSITION is too
+     small, point is set to the beginning of the accessible portion of
+     the text; if POSITION is too large, point is set to the end.
+
+     When this function is called interactively, POSITION is the
+     numeric prefix argument, if provided; otherwise it is read from the
+     minibuffer.
+
+     `goto-char' returns POSITION.
+
+ - Command: forward-char &optional COUNT
+     This function moves point forward, towards the end of the buffer,
+     COUNT characters (or backward, towards the beginning of the
+     buffer, if COUNT is negative).  If the function attempts to move
+     point past the beginning or end of the buffer (or the limits of the
+     accessible portion, when narrowing is in effect), an error is
+     signaled with error code `beginning-of-buffer' or `end-of-buffer'.
+
+     In an interactive call, COUNT is the numeric prefix argument.
+
+ - Command: backward-char &optional COUNT
+     This function moves point backward, towards the beginning of the
+     buffer, COUNT characters (or forward, towards the end of the
+     buffer, if COUNT is negative).  If the function attempts to move
+     point past the beginning or end of the buffer (or the limits of
+     the accessible portion, when narrowing is in effect), an error is
+     signaled with error code `beginning-of-buffer' or `end-of-buffer'.
+
+     In an interactive call, COUNT is the numeric prefix argument.
+
+
+File: lispref.info,  Node: Word Motion,  Next: Buffer End Motion,  Prev: Character Motion,  Up: Motion
+
+Motion by Words
+---------------
+
+   These functions for parsing words use the syntax table to decide
+whether a given character is part of a word.  *Note Syntax Tables::.
+
+ - Command: forward-word COUNT
+     This function moves point forward COUNT words (or backward if
+     COUNT is negative).  Normally it returns `t'.  If this motion
+     encounters the beginning or end of the buffer, or the limits of the
+     accessible portion when narrowing is in effect, point stops there
+     and the value is `nil'.
+
+     In an interactive call, COUNT is set to the numeric prefix
+     argument.
+
+ - Command: backward-word COUNT
+     This function just like `forward-word', except that it moves
+     backward until encountering the front of a word, rather than
+     forward.
+
+     In an interactive call, COUNT is set to the numeric prefix
+     argument.
+
+     This function is rarely used in programs, as it is more efficient
+     to call `forward-word' with negative argument.
+
+ - Variable: words-include-escapes
+     This variable affects the behavior of `forward-word' and everything
+     that uses it.  If it is non-`nil', then characters in the "escape"
+     and "character quote" syntax classes count as part of words.
+     Otherwise, they do not.
+

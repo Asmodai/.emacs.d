@@ -1,0 +1,110 @@
+This is Info file ../info/gnus.info, produced by Makeinfo-1.55 from the
+input file gnus.texinfo.
+
+   This file documents GNUS, the GNU Emacs newsreader.
+
+   Copyright (C) 1989 Fujitsu Laboratories LTD.  Copyright (C) 1990
+Masanobu UMEDA.
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided also
+that the sections entitled "Distribution" and "GNUS General Public
+License" are included exactly as in the original, and provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that the sections entitled "Distribution" and "GNUS
+General Public License" may be included in a translation approved by
+the author instead of in the original English.
+
+
+Indirect:
+gnus.info-1: 1115
+gnus.info-2: 50067
+gnus.info-3: 83513
+gnus.info-4: 126899
+gnus.info-5: 171341
+
+Tag Table:
+(Indirect)
+Node: Top1115
+Node: Distribution2520
+Node: License4621
+Node: Acknowledgments12768
+Node: Introduction14075
+Node: Installation15762
+Node: Files of GNUS16388
+Node: Compilation17422
+Node: Autoloading19241
+Node: Environment19581
+Node: NNTP Server20449
+Node: NNTP Service21516
+Node: Domain22088
+Node: GENERICFROM24190
+Node: GENERICPATH25392
+Node: Startup File26389
+Node: Texinfo Manual29058
+Node: Starting up30013
+Node: Getting Started30440
+Node: Local News Spool31047
+Node: Private Directory31842
+Node: Buffers of GNUS32660
+Node: Newsgroup Buffer33380
+Node: Subject Buffer34484
+Node: Article Buffer35684
+Node: Newsgroup Commands36021
+Node: Browsing Newsgroups36829
+Node: Selecting a Newsgroup38418
+Node: Maintenance40096
+Node: Exiting GNUS44597
+Node: Other Newsgroup Commands45947
+Node: Subject Commands46764
+Node: Reading Articles47787
+Node: Browsing Headers48400
+Node: Moving Among Articles50067
+Node: Scrolling52488
+Node: Marking Articles55157
+Node: Thread-based Reading57495
+Node: Digest Articles59717
+Node: Searching Articles61650
+Node: Referencing Articles63148
+Node: Saving Articles64289
+Node: Sorting Headers66303
+Node: Followup and Reply67233
+Node: Exiting Newsgroup70374
+Node: Other Subject Commands71713
+Node: Article Commands72499
+Node: KILL File73757
+Node: What KILL Files Do74302
+Node: Making a KILL File74862
+Node: Editing KILL Files77282
+Node: Example of a KILL File79868
+Node: Background Kills80444
+Node: Advanced Kills81086
+Node: Customization82933
+Node: Variables83513
+Node: NNTP Variables103009
+Node: Spool Variables104624
+Node: Directory Variables105776
+Node: Hooks106271
+Node: Problems118286
+Node: NNTP Problems118754
+Node: Kanji Handling119802
+Node: NEmacs2120344
+Node: NEmacs3122122
+Node: SX/A Emacs122863
+Node: Preloading124002
+Node: Reporting Bugs124648
+Node: Key Index126899
+Node: Command Index140097
+Node: Variable Index157639
+Node: Program Index167924
+Node: Concept Index171341
+
+End Tag Table

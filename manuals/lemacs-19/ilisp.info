@@ -1,0 +1,68 @@
+This is Info file ../info/ilisp.info, produced by Makeinfo-1.55 from
+the input file ilisp.texinfo.
+
+   This file documents ILISP.
+
+   This is edition 0.11 of the ILISP manual for ILISP Version 5.5.
+
+   Copyright (C) 1991,1992,1993 Todd Kaufmann
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided that
+the entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be stated in a
+translation approved by the Foundation.
+
+
+Indirect:
+ilisp.info-1: 906
+ilisp.info-2: 50294
+
+Tag Table:
+(Indirect)
+Node: Top906
+Node: Distribution2047
+Node: FTP directions3192
+Node: Acknowledgements3777
+Node: Introduction4993
+Node: Installation6665
+Node: Makefile configuration7523
+Node: Files of ILISP10791
+Node: Autoloading13084
+Node: Starting up17140
+Node: Buffers of ILISP18518
+Node: Popper buffers20019
+Node: Switching buffers22324
+Node: ILISP Commands22960
+Node: Eval and compile functions23765
+Node: Documentation functions28039
+Node: Macroexpansion30232
+Node: Tracing functions30674
+Node: Package Commands31034
+Node: Source code commands32335
+Node: Batch commands36270
+Node: Files and directories37572
+Node: Keyboard modes38883
+Node: Interrupts40048
+Node: Command history41921
+Node: Completion43089
+Node: Miscellany44884
+Node: Customization46128
+Node: Dialects47744
+Node: Defining new dialects48383
+Node: Writing new commands48988
+Node: Concept index50294
+Node: Key index60883
+Node: Command index65540
+Node: Variable index70881
+Node: Function index73791
+
+End Tag Table

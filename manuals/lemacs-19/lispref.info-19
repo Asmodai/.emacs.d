@@ -1,0 +1,1152 @@
+This is Info file ../../info/lispref.info, produced by Makeinfo-1.56
+from the input file lispref.texinfo.
+
+   This version is newer than the second printed edition of the GNU
+Emacs Lisp Reference Manual.  It corresponds to Emacs Version 19.19.
+
+   Published by the Free Software Foundation 675 Massachusetts Avenue
+Cambridge, MA 02139 USA
+
+   Copyright (C) 1990, 1991, 1992, 1993 Free Software Foundation, Inc.
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be stated in a
+translation approved by the Foundation.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided also
+that the section entitled "GNU General Public License" is included
+exactly as in the original, and provided that the entire resulting
+derived work is distributed under the terms of a permission notice
+identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that the section entitled "GNU General Public License"
+may be included in a translation approved by the Free Software
+Foundation instead of in the original English.
+
+
+File: lispref.info,  Node: File Name Completion,  Prev: Unique File Names,  Up: File Names
+
+File Name Completion
+--------------------
+
+   This section describes low-level subroutines for completing a file
+name.  For other completion functions, see *Note Completion::.
+
+ - Function: file-name-all-completions PARTIAL-FILENAME DIRECTORY
+     This function returns a list of all possible completions for a file
+     whose name starts with PARTIAL-FILENAME in directory DIRECTORY.
+     The order of the completions is the order of the files in the
+     directory, which is unpredictable and conveys no useful
+     information.
+
+     The argument PARTIAL-FILENAME must be a file name containing no
+     directory part and no slash.  The current buffer's default
+     directory is prepended to DIRECTORY, if DIRECTORY is not an
+     absolute file name.
+
+     In the following example, suppose that the current default
+     directory, `~rms/lewis', has five files whose names begin with `f':
+     `foo', `file~', `file.c', `file.c.~1~', and `file.c.~2~'.
+
+          (file-name-all-completions "f" "")
+               => ("foo" "file~" "file.c.~2~"
+                          "file.c.~1~" "file.c")
+          
+          (file-name-all-completions "fo" "")
+               => ("foo")
+
+ - Function: file-name-completion FILENAME DIRECTORY
+     This function completes the file name FILENAME in directory
+     DIRECTORY.  It returns the longest prefix common to all file names
+     in directory DIRECTORY that start with FILENAME.
+
+     If only one match exists and FILENAME matches it exactly, the
+     function returns `t'.  The function returns `nil' if directory
+     DIRECTORY contains no name starting with FILENAME.
+
+     In the following example, suppose that the current default
+     directory has five files whose names begin with `f': `foo',
+     `file~', `file.c', `file.c.~1~', and `file.c.~2~'.
+
+          (file-name-completion "fi" "")
+               => "file"
+          
+          (file-name-completion "file.c.~1" "")
+               => "file.c.~1~"
+          
+          (file-name-completion "file.c.~1~" "")
+               => t
+          
+          (file-name-completion "file.c.~3" "")
+               => nil
+
+ - User Option: completion-ignored-extensions
+     `file-name-completion' usually ignores file names that end in any
+     string in this list.  It does not ignore them when all the possible
+     completions end in one of these suffixes or when a buffer showing
+     all possible completions is displayed.
+
+     A typical value might look like this:
+
+          completion-ignored-extensions
+               => (".o" ".elc" "~" ".dvi")
+
+
+File: lispref.info,  Node: Magic File Names,  Next: Partial Files,  Prev: File Names,  Up: Files
+
+Making Certain File Names "Magic"
+=================================
+
+   You can implement special handling for certain file names.  This is
+called making those names "magic".  You must supply a regular
+expression to define the class of names (all those which match the
+regular expression), plus a handler that implements all the primitive
+Emacs file operations for file names that do match.
+
+   The value of `file-name-handler-alist' is a list of handlers,
+together with regular expressions that decide when to apply each
+handler.  Each element has this form:
+
+     (REGEXP . HANDLER)
+
+All the Emacs primitives for file access and file name transformation
+check the given file name against `file-name-handler-alist'.  If the
+file name matches REGEXP, the primitives handle that file by calling
+HANDLER.
+
+   The first argument given to HANDLER is the name of the primitive;
+the remaining arguments are the arguments that were passed to that
+operation.  (The first of these arguments is typically the file name
+itself.)  For example, if you do this:
+
+     (file-exists-p FILENAME)
+
+and FILENAME has handler HANDLER, then HANDLER is called like this:
+
+     (funcall HANDLER 'file-exists-p FILENAME)
+
+   Here are the operations that you can handle for a magic file name:
+
+`add-name-to-file', `copy-file', `delete-directory',
+`delete-file', `directory-file-name', `directory-files',
+`dired-compress-file', `dired-uncache',
+`expand-file-name', `file-accessible-directory-p',
+`file-attributes', `file-directory-p',
+`file-executable-p', `file-exists-p', `file-local-copy',
+`file-modes', `file-name-all-completions',
+`file-name-as-directory', `file-name-completion',
+`file-name-directory', `file-name-nondirectory',
+`file-name-sans-versions', `file-newer-than-file-p',
+`file-readable-p', `file-symlink-p', `file-writable-p',
+`insert-directory', `insert-file-contents', `load',
+`make-directory', `make-symbolic-link', `rename-file',
+`set-file-modes', `set-visited-file-modtime',
+`unhandled-file-name-directory',
+`verify-visited-file-modtime', `write-region'.
+
+   The handler function must handle all of the above operations, and
+possibly others to be added in the future.  Therefore, it should always
+reinvoke the ordinary Lisp primitive when it receives an operation it
+does not recognize.  Here's one way to do this:
+
+     (defun my-file-handler (operation &rest args)
+       ;; First check for the specific operations
+       ;; that we have special handling for.
+       (cond ((eq operation 'insert-file-contents) ...)
+             ((eq operation 'write-region) ...)
+             ...
+             ;; Handle any operation we don't know about.
+             (t (let (file-name-handler-alist)
+                  (apply operation args)))))
+
+ - Function: find-file-name-handler FILE
+     This function returns the handler function for file name FILE, or
+     `nil' if there is none.
+
+ - Function: file-local-copy FILENAME
+     This function copies file FILENAME to the local site, if it isn't
+     there already.  If FILENAME specifies a "magic" file name which
+     programs outside Emacs cannot directly read or write, this copies
+     the contents to an ordinary file and returns that file's name.
+
+     If FILENAME is an ordinary file name, not magic, then this function
+     does nothing and returns `nil'.
+
+ - Function: unhandled-file-name-directory FILENAME
+     This function returns the name of a directory that is not magic.
+     It uses the directory part of FILENAME if that is not magic.
+     Otherwise, it asks the handler what to do.
+
+     This is used for running a subprocess; any subprocess must have a
+     non-magic directory to serve as its current directory.
+
+
+File: lispref.info,  Node: Partial Files,  Prev: Magic File Names,  Up: Files
+
+Partial Files
+=============
+
+* Menu:
+
+* Intro to Partial Files::
+* Creating a Partial File::
+* Detached Partial Files::
+
+
+File: lispref.info,  Node: Intro to Partial Files,  Next: Creating a Partial File,  Prev: Partial Files,  Up: Partial Files
+
+Intro to Partial Files
+----------------------
+
+   A "partial file" is a section of a buffer (called the "master
+buffer") that is placed in its own buffer and treated as its own file.
+Changes made to the partial file are not reflected in the master buffer
+until the partial file is "saved" using the standard buffer save
+commands.  Partial files can be "reverted" (from the master buffer)
+just like normal files.  When a file part is active on a master buffer,
+that section of the master buffer is marked as read-only.  Two file
+parts on the same master buffer are not allowed to overlap.  Partial
+file buffers are indicated by the words `File Part' in the modeline.
+
+   The master buffer knows about all the partial files that are active
+on it, and thus killing or reverting the master buffer will be handled
+properly.  When the master buffer is saved, if there are any unsaved
+partial files active on it then the user will be given the opportunity
+to first save these files.
+
+   When a partial file buffer is first modified, the master buffer is
+automatically marked as modified so that saving the master buffer will
+work correctly.
+
+
+File: lispref.info,  Node: Creating a Partial File,  Next: Detached Partial Files,  Prev: Intro to Partial Files,  Up: Partial Files
+
+Creating a Partial File
+-----------------------
+
+ - Function: make-file-part &optional START END NAME BUFFER
+     Make a file part on buffer BUFFER out of the region.  Call it
+     NAME.  This command creates a new buffer containing the contents
+     of the region and marks the buffer as referring to the specified
+     buffer, called the "master buffer".  When the file-part buffer is
+     saved, its changes are integrated back into the master buffer.
+     When the master buffer is deleted, all file parts are deleted with
+     it.
+
+     When called from a function, expects four arguments, START, END,
+     NAME, and BUFFER, all of which are optional and default to the
+     beginning of BUFFER, the end of BUFFER, a name generated from
+     BUFFER name, and the current buffer, respectively.
+
+
+File: lispref.info,  Node: Detached Partial Files,  Prev: Creating a Partial File,  Up: Partial Files
+
+Detached Partial Files
+----------------------
+
+   Every partial file has an extent in the master buffer associated
+with it (called the "master extent"), marking where in the master
+buffer the partial file begins and ends.  If the text in master buffer
+that is contained by the extent is deleted, then the extent becomes
+"detached", meaning that it no longer refers to a specific region of
+the master buffer.  This can happen either when the text is deleted
+directly or when the master buffer is reverted.  Neither of these should
+happen in normal usage because the master buffer should generally not be
+edited directly.
+
+   Before doing any operation that references a partial file's master
+extent, Emacs checks to make sure that the extent is not detached.  If
+this is the case, Emacs warns the user of this and the master extent is
+deleted out of the master buffer, disconnecting the file part.  The file
+part's filename is cleared and thus must be explicitly specified if the
+detached file part is to be saved.
+
+
+File: lispref.info,  Node: Backups and Auto-Saving,  Next: Buffers,  Prev: Files,  Up: Top
+
+Backups and Auto-Saving
+***********************
+
+   Backup files and auto-save files are two methods by which Emacs tries
+to protect the user from the consequences of crashes or of the user's
+own errors.  Auto-saving preserves the text from earlier in the current
+editing session; backup files preserve file contents prior to the
+current session.
+
+* Menu:
+
+* Backup Files::   How backup files are made; how their names are chosen.
+* Auto-Saving::    How auto-save files are made; how their names are chosen.
+* Reverting::      `revert-buffer', and how to customize what it does.
+
+
+File: lispref.info,  Node: Backup Files,  Next: Auto-Saving,  Prev: Backups and Auto-Saving,  Up: Backups and Auto-Saving
+
+Backup Files
+============
+
+   A "backup file" is a copy of the old contents of a file you are
+editing.  Emacs makes a backup file the first time you save a buffer
+into its visited file.  Normally, this means that the backup file
+contains the contents of the file as it was before the current editing
+session.  The contents of the backup file normally remain unchanged once
+it exists.
+
+   Backups are usually made by renaming the visited file to a new name.
+Optionally, you can specify that backup files should be made by copying
+the visited file.  This choice makes a difference for files with
+multiple names; it also can affect whether the edited file remains owned
+by the original owner or becomes owned by the user editing it.
+
+   By default, Emacs makes a single backup file for each file edited.
+You can alternatively request numbered backups; then each new backup
+file gets a new name.  You can delete old numbered backups when you
+don't want them any more, or Emacs can delete them automatically.
+
+* Menu:
+
+* Making Backups::     How Emacs makes backup files, and when.
+* Rename or Copy::     Two alternatives: renaming the old file or copying it.
+* Numbered Backups::   Keeping multiple backups for each source file.
+* Backup Names::       How backup file names are computed; customization.
+
+
+File: lispref.info,  Node: Making Backups,  Next: Rename or Copy,  Prev: Backup Files,  Up: Backup Files
+
+Making Backup Files
+-------------------
+
+ - Function: backup-buffer
+     This function makes a backup of the file visited by the current
+     buffer, if appropriate.  It is called by `save-buffer' before
+     saving the buffer the first time.
+
+ - Variable: buffer-backed-up
+     This buffer-local variable indicates whether this buffer's file has
+     been backed up on account of this buffer.  If it is non-`nil', then
+     the backup file has been written.  Otherwise, the file should be
+     backed up when it is next saved (if backup files are enabled).
+     This is a permanent local; `kill-local-variables' does not alter
+     it.
+
+ - User Option: make-backup-files
+     This variable determines whether or not to make backup files.  If
+     it is non-`nil', then Emacs creates a backup of each file when it
+     is saved for the first time.
+
+     The following example shows how to change the `make-backup-files'
+     variable only in the `RMAIL' buffer and not elsewhere.  Setting it
+     `nil' stops Emacs from making backups of the `RMAIL' file, which
+     may save disk space.  (You would put this code in your `.emacs'
+     file.)
+
+          (add-hook 'rmail-mode-hook
+                    (function (lambda ()
+                                (make-local-variable
+                                 'make-backup-files)
+                                (setq make-backup-files nil))))
+
+ - Variable: backup-enable-predicate
+     This variable's value is a function to be called on certain
+     occasions to decide whether a there should be backup files for
+     file name FILENAME.  If it returns `nil', backups are disabled.
+     Otherwise, backups are enabled (if `make-backup-files' is true).
+
+
+File: lispref.info,  Node: Rename or Copy,  Next: Numbered Backups,  Prev: Making Backups,  Up: Backup Files
+
+Backup by Renaming or by Copying?
+---------------------------------
+
+   There are two ways that Emacs can make a backup file:
+
+   * Emacs can rename the original file so that it becomes a backup
+     file, and then write the buffer being saved into a new file.
+     After this procedure, any other names (i.e., hard links) of the
+     original file now refer to the backup file.  The new file is owned
+     by the user doing the editing, and its group is the default for
+     new files written by the user in that directory.
+
+   * Emacs can copy the original file into a backup file, and then
+     overwrite the original file with new contents.  After this
+     procedure, any other names (i.e., hard links) of the original file
+     still refer to the current version of the file.  The file's owner
+     and group will be unchanged.
+
+   The first method, renaming, is the default.
+
+   The variable `backup-by-copying', if non-`nil', says to use the
+second method, which is to copy the original file and overwrite it with
+the new buffer contents.  The variable `file-precious-flag', if
+non-`nil', also has this effect (as a sideline of its main
+significance).  *Note Saving Buffers::.
+
+   The following two variables, when non-`nil', cause the second method
+to be used in certain special cases.  They have no effect on the
+treatment of files that don't fall into the special cases.
+
+ - Variable: backup-by-copying
+     This variable controls whether to make backup files by copying.
+     If it is non-`nil', then Emacs always copies the current contents
+     of the file into the backup file before writing the buffer to be
+     saved to the file.  (In many circumstances, this has the same
+     effect as `file-precious-flag'.)
+
+ - Variable: backup-by-copying-when-linked
+     This variable controls whether to make backups by copying for files
+     with multiple names (hard links).  If it is non-`nil', then Emacs
+     uses copying to create backups for those files.
+
+     This variable is significant only if `backup-by-copying' is `nil',
+     since copying is always used when that variable is non-`nil'.
+
+ - Variable: backup-by-copying-when-mismatch
+     This variable controls whether to make backups by copying in cases
+     where renaming would change either the owner or the group of the
+     file.  If it is non-`nil' then Emacs creates backups by copying in
+     such cases.
+
+     The value has no effect when renaming would not alter the owner or
+     group of the file; that is, for files which are owned by the user
+     and whose group matches the default for a new file created there
+     by the user.
+
+     This variable is significant only if `backup-by-copying' is `nil',
+     since copying is always used when that variable is non-`nil'.
+
+
+File: lispref.info,  Node: Numbered Backups,  Next: Backup Names,  Prev: Rename or Copy,  Up: Backup Files
+
+Making and Deleting Numbered Backup Files
+-----------------------------------------
+
+   If a file's name is `foo', the names of its numbered backup versions
+are `foo.~V~', for various integers V, like this: `foo.~1~', `foo.~2~',
+`foo.~3~', ..., `foo.~259~', and so on.
+
+ - User Option: version-control
+     This variable controls whether to make a single non-numbered backup
+     file or multiple numbered backups.
+
+    `nil'
+          Make numbered backups if the visited file already has
+          numbered backups; otherwise, do not.
+
+    `never'
+          Do not make numbered backups.
+
+    ANYTHING ELSE
+          Do make numbered backups.
+
+   The use of numbered backups ultimately leads to a large number of
+backup versions, which must then be deleted.  Emacs can do this
+automatically.
+
+ - User Option: kept-new-versions
+     The value of this variable is the number of oldest versions to keep
+     when a new numbered backup is made.  The newly made backup is
+     included in the count.  The default value is 2.
+
+ - User Option: kept-old-versions
+     The value of this variable is the number of oldest versions to keep
+     when a new numbered backup is made.  The default value is 2.
+
+ - User Option: dired-kept-versions
+     This variable plays a role in Dired's `dired-clean-directory'
+     (`.') command like that played by `kept-old-versions' when a
+     backup file is made.  The default value is 2.
+
+   If there are backups numbered 1, 2, 3, 5, and 7, and both of these
+variables have the value 2, then the backups numbered 1 and 2 are kept
+as old versions and those numbered 5 and 7 are kept as new versions;
+backup version 3 is deleted.  The function `find-backup-file-name'
+(*note Backup Names::.) is responsible for determining which backup
+versions to delete, but does not delete them itself.
+
+ - User Option: trim-versions-without-asking
+     If this variable is non-`nil', then saving a file deletes excess
+     backup versions silently.  Otherwise, it asks the user whether to
+     delete them.
+
+
+File: lispref.info,  Node: Backup Names,  Prev: Numbered Backups,  Up: Backup Files
+
+Naming Backup Files
+-------------------
+
+   The functions in this section are documented mainly because you can
+customize the naming conventions for backup files by redefining them.
+If you change one, you probably need to change the rest.
+
+ - Function: backup-file-name-p FILENAME
+     This function returns a non-`nil' value if FILENAME is a possible
+     name for a backup file.  A file with the name FILENAME need not
+     exist; the function just checks the name.
+
+          (backup-file-name-p "foo")
+               => nil
+
+          (backup-file-name-p "foo~")
+               => 3
+
+     The standard definition of this function is as follows:
+
+          (defun backup-file-name-p (file)
+            "Return non-nil if FILE is a backup file \
+          name (numeric or not)..."
+            (string-match "~$" file))
+
+     Thus, the function returns a non-`nil' value if the file name ends
+     with a `~'.  (We use a backslash to split the documentation
+     string's first line into two lines in the text, but produce just
+     one line in the string itself.)
+
+     This simple expression is placed in a separate function to make it
+     easy to redefine for customization.
+
+ - Function: make-backup-file-name FILENAME
+     This function returns a string which is the name to use for a
+     non-numbered backup file for file FILENAME.  On Unix, this is just
+     FILENAME with a tilde appended.
+
+     The standard definition of this function is as follows:
+
+          (defun make-backup-file-name (file)
+            "Create the non-numeric backup file name for FILE..."
+            (concat file "~"))
+
+     You can change the backup file naming convention by redefining this
+     function.  In the following example, `make-backup-file-name' is
+     redefined to prepend a `.' as well as to append a tilde.
+
+          (defun make-backup-file-name (filename)
+            (concat "." filename "~"))
+
+          (make-backup-file-name "backups.texi")
+               => ".backups.texi~"
+
+ - Function: find-backup-file-name FILENAME
+     This function computes the file name for a new backup file for
+     FILENAME.  It may also propose certain existing backup files for
+     deletion.  `find-backup-file-name' returns a list whose CAR is the
+     name for the new backup file and whose CDR is a list of backup
+     files whose deletion is proposed.
+
+     Two variables, `kept-old-versions' and `kept-new-versions',
+     determine which old backup versions should be kept (by excluding
+     them from the list of backup files ripe for deletion).  *Note
+     Numbered Backups::.
+
+     In this example, the value says that `~rms/foo.~5~' is the name to
+     use for the new backup file, and `~rms/foo.~3~' is an "excess"
+     version that the caller should consider deleting now.
+
+          (find-backup-file-name "~rms/foo")
+               => ("~rms/foo.~5~" "~rms/foo.~3~")
+
+ - Function: file-newest-backup FILENAME
+     This function returns the name of the most recent backup file for
+     FILENAME, or `nil' that file has no backup files.
+
+     Some file comparison commands use this function in order to compare
+     a file by default with its most recent backup.
+
+
+File: lispref.info,  Node: Auto-Saving,  Next: Reverting,  Prev: Backup Files,  Up: Backups and Auto-Saving
+
+Auto-Saving
+===========
+
+   Emacs periodically saves all files that you are visiting; this is
+called "auto-saving".  Auto-saving prevents you from losing more than a
+limited amount of work if the system crashes.  By default, auto-saves
+happen every 300 keystrokes, or after around 30 seconds of idle time.
+*Note Auto-Save: (emacs)Auto-Save, for information on auto-save for
+users.  Here we describe the functions used to implement auto-saving
+and the variables that control them.
+
+ - Variable: buffer-auto-save-file-name
+     This buffer-local variable is the name of the file used for
+     auto-saving the current buffer.  It is `nil' if the buffer should
+     not be auto-saved.
+
+          buffer-auto-save-file-name
+          => "/xcssun/users/rms/lewis/#files.texi#"
+
+ - Command: auto-save-mode ARG
+     When used interactively without an argument, this command is a
+     toggle switch: it turns on auto-saving of the current buffer if it
+     is off, and vice-versa.  With an argument ARG, the command turns
+     auto-saving on if the value of ARG is `t', a nonempty list, or a
+     positive integer.  Otherwise, it turns auto-saving off.
+
+ - Function: auto-save-file-name-p FILENAME
+     This function returns a non-`nil' value if FILENAME is a string
+     that could be the name of an auto-save file.  It works based on
+     knowledge of the naming convention for auto-save files: a name that
+     begins and ends with hash marks (`#') is a possible auto-save file
+     name.  The argument FILENAME should not contain a directory part.
+
+          (make-auto-save-file-name)
+               => "/xcssun/users/rms/lewis/#files.texi#"
+          (auto-save-file-name-p "#files.texi#")
+               => 0
+          (auto-save-file-name-p "files.texi")
+               => nil
+
+     The standard definition of this function is as follows:
+
+          (defun auto-save-file-name-p (filename)
+            "Return non-nil if FILENAME can be yielded by..."
+            (string-match "^#.*#$" filename))
+
+     This function exists so that you can customize it if you wish to
+     change the naming convention for auto-save files.  If you redefine
+     it, be sure to redefine the function `make-auto-save-file-name'
+     correspondingly.
+
+ - Function: make-auto-save-file-name
+     This function returns the file name to use for auto-saving the
+     current buffer.  This is just the file name with hash marks (`#')
+     appended and prepended to it.  This function does not look at the
+     variable `auto-save-visited-file-name'; that should be checked
+     before this function is called.
+
+          (make-auto-save-file-name)
+               => "/xcssun/users/rms/lewis/#backup.texi#"
+
+     The standard definition of this function is as follows:
+
+          (defun make-auto-save-file-name ()
+            "Return file name to use for auto-saves \
+          of current buffer..."
+            (if buffer-file-name
+                (concat
+                 (file-name-directory buffer-file-name)
+                 "#"
+                 (file-name-nondirectory buffer-file-name)
+                 "#")
+              (expand-file-name
+               (concat "#%" (buffer-name) "#"))))
+
+     This exists as a separate function so that you can redefine it to
+     customize the naming convention for auto-save files.  Be sure to
+     change `auto-save-file-name-p' in a corresponding way.
+
+ - Variable: auto-save-visited-file-name
+     If this variable is non-`nil', Emacs auto-saves buffers in the
+     files they are visiting.  That is, the auto-save is done in the
+     same file which you are editing.  Normally, this variable is
+     `nil', so auto-save files have distinct names that are created by
+     `make-auto-save-file-name'.
+
+     When you change the value of this variable, the value does not take
+     effect until the next time auto-save mode is reenabled in any given
+     buffer.  If auto-save mode is already enabled, auto-saves continue
+     to go in the same file name until `auto-save-mode' is called again.
+
+ - Function: recent-auto-save-p
+     This function returns `t' if the current buffer has been
+     auto-saved since the last time it was read in or saved.
+
+ - Function: set-buffer-auto-saved
+     This function marks the current buffer as auto-saved.  The buffer
+     will not be auto-saved again until the buffer text is changed
+     again.  The function returns `nil'.
+
+ - User Option: auto-save-interval
+     The value of this variable is the number of characters that Emacs
+     reads from the keyboard between auto-saves.  Each time this many
+     more characters are read, auto-saving is done for all buffers in
+     which it is enabled.
+
+ - User Option: auto-save-timeout
+     The value of this variable is the number of seconds of idle time
+     that should cause auto-saving.  Each time the user pauses for this
+     long, Emacs auto-saves any buffers that need it.  (Actually, the
+     specified timeout is multiplied by a factor depending on the size
+     of the current buffer.)
+
+ - Variable: auto-save-hook
+     This normal hook is run whenever an auto-save is about to happen.
+
+ - User Option: auto-save-default
+     If this variable is non-`nil', buffers that are visiting files
+     have auto-saving enabled by default.  Otherwise, they do not.
+
+ - Command: do-auto-save &optional NO-MESSAGE
+     This function auto-saves all buffers that need to be auto-saved.
+     This is all buffers for which auto-saving is enabled and that have
+     been changed since the last time they were auto-saved.
+
+     Normally, if any buffers are auto-saved, a message that says
+     `Auto-saving...' is displayed in the echo area while auto-saving is
+     going on.  However, if NO-MESSAGE is non-`nil', the message is
+     inhibited.
+
+ - Function: delete-auto-save-file-if-necessary
+     This function deletes the current buffer's auto-save file if
+     `delete-auto-save-files' is non-`nil'.  It is called every time a
+     buffer is saved.
+
+ - Variable: delete-auto-save-files
+     This variable is used by the function
+     `delete-auto-save-file-if-necessary'.  If it is non-`nil', Emacs
+     deletes auto-save files when a true save is done (in the visited
+     file).  This saves on disk space and unclutters your directory.
+
+ - Function: rename-auto-save-file
+     This function adjusts the current buffer's auto-save file name if
+     the visited file name has changed.  It also renames an existing
+     auto-save file.  If the visited file name has not changed, this
+     function does nothing.
+
+
+File: lispref.info,  Node: Reverting,  Prev: Auto-Saving,  Up: Backups and Auto-Saving
+
+Reverting
+=========
+
+   If you have made extensive changes to a file and then change your
+mind about them, you can get rid of them by reading in the previous
+version of the file with the `revert-buffer' command.  *Note Reverting
+a Buffer: (emacs)Reverting.
+
+ - Command: revert-buffer &optional CHECK-AUTO-SAVE NOCONFIRM
+     This command replaces the buffer text with the text of the visited
+     file on disk.  This action undoes all changes since the file was
+     visited or saved.
+
+     If the argument CHECK-AUTO-SAVE is non-`nil', and the latest
+     auto-save file is more recent than the visited file,
+     `revert-buffer' asks the user whether to use that instead.
+     Otherwise, it always uses the text of the visited file itself.
+     Interactively, CHECK-AUTO-SAVE is set if there is a numeric prefix
+     argument.
+
+     When the value of the NOCONFIRM argument is non-`nil',
+     `revert-buffer' does not ask for confirmation for the reversion
+     action.  This means that the buffer contents are deleted and
+     replaced by the text from the file on the disk, with no further
+     opportunities for the user to prevent it.
+
+     Since reverting works by deleting the entire text of the buffer and
+     inserting the file contents, all the buffer's markers are
+     relocated to point at the beginning of the buffer.  This is not
+     "correct", but then, there is no way to determine what would be
+     correct.  It is not possible to determine, from the text before
+     and after, which characters after reversion correspond to which
+     characters before.
+
+     If the value of the `revert-buffer-function' variable is
+     non-`nil', it is called as a function with no arguments to do the
+     work.
+
+ - Variable: revert-buffer-function
+     The value of this variable is the function to use to revert this
+     buffer; but if the value of this variable is `nil', then the
+     `revert-buffer' function carries out its default action.  Modes
+     such as Dired mode, in which the text being edited does not
+     consist of a file's contents but can be regenerated in some other
+     fashion, give this variable a buffer-local value that is a
+     function to regenerate the contents.
+
+ - Variable: revert-buffer-insert-file-contents-function
+     The value of this variable, if non-`nil', is the function to use
+     to insert contents when reverting this buffer.  The function
+     receives two arguments, first the file name to use, and second,
+     `t' if the user has asked to read the auto-save file.
+
+ - Command: recover-file FILENAME
+     This function visits FILENAME, but gets the contents from its last
+     auto-save file.  This is useful after the system has crashed, to
+     resume editing the same file without losing all the work done in
+     the previous session.
+
+     An error is signaled if there is no auto-save file for FILENAME,
+     or if FILENAME is newer than its auto-save file.  If FILENAME does
+     not exist, but its auto-save file does, then the auto-save file is
+     read as usual.  This last situation may occur if you visited a
+     nonexistent file and never actually saved it.
+
+
+File: lispref.info,  Node: Buffers,  Next: Windows,  Prev: Backups and Auto-Saving,  Up: Top
+
+Buffers
+*******
+
+   A "buffer" is a Lisp object containing text to be edited.  Buffers
+are used to hold the contents of files that are being visited; there may
+also be buffers which are not visiting files.  While several buffers may
+exist at one time, exactly one buffer is designated the "current
+buffer" at any time.  Most editing commands act on the contents of the
+current buffer.  Each buffer, including the current buffer, may or may
+not be displayed in any windows.
+
+* Menu:
+
+* Buffer Basics::       What is a buffer?
+* Buffer Names::        Accessing and changing buffer names.
+* Buffer File Name::    The buffer file name indicates which file is visited.
+* Buffer Modification:: A buffer is "modified" if it needs to be saved.
+* Modification Time::   Determining whether the visited file was changed
+                         "behind Emacs's back".
+* Read Only Buffers::   Modifying text is not allowed in a read-only buffer.
+* The Buffer List::     How to look at all the existing buffers.
+* Creating Buffers::    Functions that create buffers.
+* Killing Buffers::     Buffers exist until explicitly killed.
+* Current Buffer::      Designating a buffer as current
+                          so primitives will access its contents.
+
+
+File: lispref.info,  Node: Buffer Basics,  Next: Buffer Names,  Prev: Buffers,  Up: Buffers
+
+Buffer Basics
+=============
+
+   A "buffer" is a Lisp object containing text to be edited.  Buffers
+are used to hold the contents of files that are being visited; there may
+also be buffers which are not visiting files.  While several buffers may
+exist at one time, exactly one buffer is designated the "current
+buffer" at any time.  Most editing commands act on the contents of the
+current buffer.  Each buffer, including the current buffer, may or may
+not be displayed in any windows.
+
+   Buffers in Emacs editing are objects which have distinct names and
+hold text that can be edited.  Buffers appear to Lisp programs as a
+special data type.  The contents of a buffer may be viewed as an
+extendable string; insertions and deletions may occur in any part of the
+buffer.  *Note Text::.
+
+   A Lisp buffer object contains numerous pieces of information.  Some
+of this information is directly accessible to the programmer through
+variables, while other information is only accessible through
+special-purpose functions.  For example, the width of a tab character is
+directly accessible through a variable, while the value of point is
+accessible only through a primitive function.
+
+   Buffer-specific information that is directly accessible is stored in
+"buffer-local" variable bindings, which are variable values that are
+effective only in a particular buffer.  This feature allows each buffer
+to override the values of certain variables.  Most major modes override
+variables such as `fill-column' or `comment-column' in this way.  For
+more information about buffer-local variables and functions related to
+them, see *Note Buffer-Local Variables::.
+
+   For functions and variables related to visiting files in buffers, see
+*Note Visiting Files:: and *Note Saving Buffers::.  For functions and
+variables related to the display of buffers in windows, see *Note
+Buffers and Windows::.
+
+ - Function: bufferp OBJECT
+     This function returns `t' if OBJECT is a buffer, `nil' otherwise.
+
+
+File: lispref.info,  Node: Buffer Names,  Next: Buffer File Name,  Prev: Buffer Basics,  Up: Buffers
+
+Buffer Names
+============
+
+   Each buffer has a unique name, which is a string.  Many of the
+functions that work on buffers accept either a buffer or a buffer name
+as an argument.  Any argument called BUFFER-OR-NAME is of this sort,
+and an error is signaled if it is neither a string nor a buffer.  Any
+argument called BUFFER is required to be an actual buffer object, not a
+name.
+
+   Buffers that are ephemeral and generally uninteresting to the user
+have names starting with a space, which prevents them from being listed
+by the `list-buffers' or `buffer-menu' commands.  (A name starting with
+space also initially disables recording undo information; see *Note
+Undo::.)
+
+ - Function: buffer-name &optional BUFFER
+     This function returns the name of BUFFER as a string.  If BUFFER
+     is not supplied, it defaults to the current buffer.
+
+     If `buffer-name' returns `nil', it means that BUFFER has been
+     killed.  *Note Killing Buffers::.
+
+          (buffer-name)
+               => "buffers.texi"
+          
+          (setq foo (get-buffer "temp"))
+               => #<buffer temp>
+          (kill-buffer foo)
+               => nil
+          (buffer-name foo)
+               => nil
+          foo
+               => #<killed buffer>
+
+ - Command: rename-buffer NEWNAME &optional UNIQUE
+     This function renames the current buffer to NEWNAME.  An error is
+     signaled if NEWNAME is not a string, or if there is already a
+     buffer with that name.  The function returns `nil'.
+
+     Ordinarily, `rename-buffer' signals an error if NEWNAME is already
+     in use.  However, if UNIQUE is non-`nil', it modifies NEWNAME to
+     make a name that is not in use.  Interactively, you can make
+     UNIQUE non-`nil' with a numeric prefix argument.
+
+     One application of this command is to rename the `*shell*' buffer
+     to some other name, thus making it possible to create a second
+     shell buffer under the name `*shell*'.
+
+ - Function: get-buffer BUFFER-OR-NAME
+     This function returns the buffer specified by BUFFER-OR-NAME.  If
+     BUFFER-OR-NAME is a string and there is no buffer with that name,
+     the value is `nil'.  If BUFFER-OR-NAME is a buffer, it is returned
+     as given.  (That is not very useful, so the argument is usually a
+     name.)  For example:
+
+          (setq b (get-buffer "lewis"))
+               => #<buffer lewis>
+          (get-buffer b)
+               => #<buffer lewis>
+          (get-buffer "Frazzle-nots")
+               => nil
+
+     See also the function `get-buffer-create' in *Note Creating
+     Buffers::.
+
+ - Function: generate-new-buffer-name STARTING-NAME &optional IGNORE
+     This function returns a name that would be unique for a new
+     buffer--but does not create the buffer.  It starts with
+     STARTING-NAME, and produces a name not currently in use for any
+     buffer by appending a number inside of `<...>'.
+
+     If IGNORE is given, it specifies a name that is okay to use (if it
+     is in the sequence to be tried), even if a buffer with that name
+     exists.
+
+     See the related function `generate-new-buffer' in *Note Creating
+     Buffers::.
+
+
+File: lispref.info,  Node: Buffer File Name,  Next: Buffer Modification,  Prev: Buffer Names,  Up: Buffers
+
+Buffer File Name
+================
+
+   The "buffer file name" is the name of the file that is visited in
+that buffer.  When a buffer is not visiting a file, its buffer file name
+is `nil'.  Most of the time, the buffer name is the same as the
+nondirectory part of the buffer file name, but the buffer file name and
+the buffer name are distinct and can be set independently.  *Note
+Visiting Files::.
+
+ - Function: buffer-file-name &optional BUFFER
+     This function returns the absolute file name of the file that
+     BUFFER is visiting.  If BUFFER is not visiting any file,
+     `buffer-file-name' returns `nil'.  If BUFFER is not supplied, it
+     defaults to the current buffer.
+
+          (buffer-file-name (other-buffer))
+               => "/usr/user/lewis/manual/files.texi"
+
+ - Variable: buffer-file-name
+     This buffer-local variable contains the name of the file being
+     visited in the current buffer, or `nil' if it is not visiting a
+     file.  It is a permanent local, unaffected by
+     `kill-local-variables'.
+
+          buffer-file-name
+               => "/usr/user/lewis/manual/buffers.texi"
+
+     It is risky to change this variable's value without doing various
+     other things.  See the definition of `set-visited-file-name' in
+     `files.el'; some of the things done there, such as changing the
+     buffer name, are not strictly necessary, but others are essential
+     to avoid confusing Emacs.
+
+ - Variable: buffer-file-truename
+     This buffer-local variable holds the truename of the file visited
+     in the current buffer, or `nil' if no file is visited.  It is a
+     permanent local, unaffected by `kill-local-variables'.  *Note
+     Truenames::.
+
+ - Variable: buffer-file-number
+     This buffer-local variable holds the file number and directory
+     device number of the file visited in the current buffer, or `nil'
+     if no file or a nonexistent file is visited.  It is a permanent
+     local, unaffected by `kill-local-variables'.  *Note Truenames::.
+
+     The value is normally a list of the form `(FILENUM DEVNUM)'.  This
+     pair of numbers uniquely identifies the file among all files
+     accessible on the system.  See the function `file-attributes', in
+     *Note File Attributes::, for more information about them.
+
+ - Function: get-file-buffer FILENAME
+     This function returns the buffer visiting file FILENAME.  If there
+     is no such buffer, it returns `nil'.  The argument FILENAME, which
+     must be a string, is expanded (*note File Name Expansion::.), then
+     compared against the visited file names of all live buffers.
+
+          (get-file-buffer "buffers.texi")
+              => #<buffer buffers.texi>
+
+     In unusual circumstances, there can be more than one buffer
+     visiting the same file name.  In such cases, this function returns
+     the first such buffer in the buffer list.
+
+ - Command: set-visited-file-name FILENAME
+     If FILENAME is a non-empty string, this function changes the name
+     of the file visited in current buffer to FILENAME.  (If the buffer
+     had no visited file, this gives it one.)  The *next time* the
+     buffer is saved it will go in the newly-specified file.  This
+     command marks the buffer as modified, since it does not (as far as
+     Emacs knows) match the contents of FILENAME, even if it matched the
+     former visited file.
+
+     If FILENAME is `nil' or the empty string, that stands for "no
+     visited file".  In this case, `set-visited-file-name' marks the
+     buffer as having no visited file.
+
+     When the function `set-visited-file-name' is called interactively,
+     it prompts for FILENAME in the minibuffer.
+
+     See also `clear-visited-file-modtime' and
+     `verify-visited-file-modtime' in *Note Buffer Modification::.
+
+ - Variable: list-buffers-directory
+     This buffer-local variable records a string to display in a buffer
+     listing in place of the visited file name, for buffers that don't
+     have a visited file name.  Dired buffers use this variable.
+
+
+File: lispref.info,  Node: Buffer Modification,  Next: Modification Time,  Prev: Buffer File Name,  Up: Buffers
+
+Buffer Modification
+===================
+
+   Emacs keeps a flag called the "modified flag" for each buffer, to
+record whether you have changed the text of the buffer.  This flag is
+set to `t' whenever you alter the contents of the buffer, and cleared
+to `nil' when you save it.  Thus, the flag shows whether there are
+unsaved changes.  The flag value is normally shown in the mode line
+(*note Mode Line Variables::.), and controls saving (*note Saving
+Buffers::.) and auto-saving (*note Auto-Saving::.).
+
+   Some Lisp programs set the flag explicitly.  For example, the
+function `set-visited-file-name' sets the flag to `t', because the text
+does not match the newly-visited file, even if it is unchanged from the
+file formerly visited.
+
+   The functions that modify the contents of buffers are described in
+*Note Text::.
+
+ - Function: buffer-modified-p &optional BUFFER
+     This function returns `t' if the buffer BUFFER has been modified
+     since it was last read in from a file or saved, or `nil'
+     otherwise.  If BUFFER is not supplied, the current buffer is
+     tested.
+
+ - Function: set-buffer-modified-p FLAG
+     This function marks the current buffer as modified if FLAG is
+     non-`nil', or as unmodified if the flag is `nil'.
+
+     Another effect of calling this function is to cause unconditional
+     redisplay of the mode line for the current buffer.  In fact, the
+     function `force-mode-line-update' works by doing this:
+
+          (set-buffer-modified-p (buffer-modified-p))
+
+ - Command: not-modified &optional ARG
+     This command marks the current buffer as unmodified, and not
+     needing to be saved. (If ARG is non-`nil', the buffer is instead
+     marked as modified.) Don't use this function in programs, since it
+     prints a message in the echo area; use `set-buffer-modified-p'
+     (above) instead.
+
+ - Function: buffer-modified-tick &optional BUFFER
+     This function returns BUFFER`s modification-count.  This is a
+     counter that increments every time the buffer is modified.  If
+     BUFFER is `nil' (or omitted), the current buffer is used.
+
+
+File: lispref.info,  Node: Modification Time,  Next: Read Only Buffers,  Prev: Buffer Modification,  Up: Buffers
+
+Comparison of Modification Time
+===============================
+
+   Suppose that you visit a file and make changes in its buffer, and
+meanwhile the file itself is changed on disk.  At this point, saving the
+buffer would overwrite the changes in the file.  Occasionally this may
+be what you want, but usually it would lose valuable information.  Emacs
+therefore checks the file's modification time using the functions
+described below before saving the file.
+
+ - Function: verify-visited-file-modtime BUFFER
+     This function compares Emacs's record of the modification time for
+     the file that the buffer is visiting against the actual
+     modification time of the file as recorded by the operating system.
+     The two should be the same unless some other process has written
+     the file since Emacs visited or saved it.
+
+     The function returns `t' if the last actual modification time and
+     Emacs's recorded modification time are the same, `nil' otherwise.
+
+ - Function: clear-visited-file-modtime
+     This function clears out the record of the last modification time
+     of the file being visited by the current buffer.  As a result, the
+     next attempt to save this buffer will not complain of a
+     discrepancy in file modification times.
+
+     This function is called in `set-visited-file-name' and other
+     exceptional places where the usual test to avoid overwriting a
+     changed file should not be done.
+
+ - Function: set-visited-file-modtime &optional TIME
+     This function updates the buffer's record of the last modification
+     time of the visited file, to the value specified by TIME if TIME
+     is not `nil', and otherwise to the last modification time of the
+     visited file.
+
+     If TIME is not `nil', it should have the form `(HIGH . LOW)' or
+     `(HIGH LOW)', in either case containing two integers, each of
+     which holds 16 bits of the time.  (This is the same format that
+     `file-attributes' uses to return time values; see *Note File
+     Attributes::.)
+
+     This function is useful if the buffer was not read from the file
+     normally, or if the file itself has been changed for some known
+     benign reason.
+
+ - Function: visited-file-modtime
+     This function returns the buffer's recorded last file modification
+     time, as a list of the form `(HIGH . LOW)'.  Note that this is not
+     identical to the last modification time of the file that is
+     visited (though under normal circumstances the values are equal).
+
+ - Function: ask-user-about-supersession-threat FN
+     This function is used to ask a user how to proceed after an
+     attempt to modify an obsolete buffer.  An "obsolete buffer" is an
+     unmodified buffer for which the associated file on disk is newer
+     than the last save-time of the buffer.  This means some other
+     program has probably altered the file.
+
+     This function is called automatically by Emacs on the proper
+     occasions.  It exists so you can customize Emacs by redefining it.
+     See the file `userlock.el' for the standard definition.
+
+     Depending on the user's answer, the function may return normally,
+     in which case the modification of the buffer proceeds, or it may
+     signal a `file-supersession' error with data `(FN)', in which case
+     the proposed buffer modification is not allowed.
+
+     See also the file locking mechanism in *Note File Locks::.
+
