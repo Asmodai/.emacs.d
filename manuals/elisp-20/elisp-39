@@ -1,0 +1,1241 @@
+This is Info file elisp, produced by Makeinfo version 1.68 from the
+input file elisp.texi.
+
+INFO-DIR-SECTION Editors
+START-INFO-DIR-ENTRY
+* Elisp: (elisp).	The Emacs Lisp Reference Manual.
+END-INFO-DIR-ENTRY
+
+   This version is the edition 2.5 of the GNU Emacs Lisp Reference
+Manual.  It corresponds to Emacs Version 20.3
+
+   Published by the Free Software Foundation 59 Temple Place, Suite 330
+Boston, MA  02111-1307  USA
+
+   Copyright (C) 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1998 Free
+Software Foundation, Inc.
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be stated in a
+translation approved by the Foundation.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided also
+that the section entitled "GNU General Public License" is included
+exactly as in the original, and provided that the entire resulting
+derived work is distributed under the terms of a permission notice
+identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that the section entitled "GNU General Public License"
+may be included in a translation approved by the Free Software
+Foundation instead of in the original English.
+
+
+File: elisp,  Node: Blinking,  Next: Inverse Video,  Prev: Faces,  Up: Display
+
+Blinking Parentheses
+====================
+
+   This section describes the mechanism by which Emacs shows a matching
+open parenthesis when the user inserts a close parenthesis.
+
+ - Variable: blink-paren-function
+     The value of this variable should be a function (of no arguments)
+     to be called whenever a character with close parenthesis syntax is
+     inserted.  The value of `blink-paren-function' may be `nil', in
+     which case nothing is done.
+
+ - User Option: blink-matching-paren
+     If this variable is `nil', then `blink-matching-open' does nothing.
+
+ - User Option: blink-matching-paren-distance
+     This variable specifies the maximum distance to scan for a matching
+     parenthesis before giving up.
+
+ - User Option: blink-matching-delay
+     This variable specifies the number of seconds for the cursor to
+     remain at the matching parenthesis.  A fraction of a second often
+     gives good results, but the default is 1, which works on all
+     systems.
+
+ - Command: blink-matching-open
+     This function is the default value of `blink-paren-function'.  It
+     assumes that point follows a character with close parenthesis
+     syntax and moves the cursor momentarily to the matching opening
+     character.  If that character is not already on the screen, it
+     displays the character's context in the echo area.  To avoid long
+     delays, this function does not search farther than
+     `blink-matching-paren-distance' characters.
+
+     Here is an example of calling this function explicitly.
+
+          (defun interactive-blink-matching-open ()
+            "Indicate momentarily the start of sexp before point."
+            (interactive)
+
+          (let ((blink-matching-paren-distance
+                   (buffer-size))
+                  (blink-matching-paren t))
+              (blink-matching-open)))
+
+
+File: elisp,  Node: Inverse Video,  Next: Usual Display,  Prev: Blinking,  Up: Display
+
+Inverse Video
+=============
+
+ - User Option: inverse-video
+     This variable controls whether Emacs uses inverse video for all
+     text on the screen.  Non-`nil' means yes, `nil' means no.  The
+     default is `nil'.
+
+ - User Option: mode-line-inverse-video
+     This variable controls the use of inverse video for mode lines.
+     If it is non-`nil', then mode lines are displayed in inverse video.
+     Otherwise, mode lines are displayed normally, just like text.  The
+     default is `t'.
+
+     For window frames, this displays mode lines using the face named
+     `modeline', which is normally the inverse of the default face
+     unless you change it.
+
+
+File: elisp,  Node: Usual Display,  Next: Display Tables,  Prev: Inverse Video,  Up: Display
+
+Usual Display Conventions
+=========================
+
+   The usual display conventions define how to display each character
+code.  You can override these conventions by setting up a display table
+(*note Display Tables::.).  Here are the usual display conventions:
+
+   * Character codes 32 through 126 map to glyph codes 32 through 126.
+     Normally this means they display as themselves.
+
+   * Character code 9 is a horizontal tab.  It displays as whitespace
+     up to a position determined by `tab-width'.
+
+   * Character code 10 is a newline.
+
+   * All other codes in the range 0 through 31, and code 127, display
+     in one of two ways according to the value of `ctl-arrow'.  If it is
+     non-`nil', these codes map to sequences of two glyphs, where the
+     first glyph is the ASCII code for `^'.  (A display table can
+     specify a glyph to use instead of `^'.)  Otherwise, these codes map
+     just like the codes in the range 128 to 255.
+
+   * Character codes 128 through 255 map to sequences of four glyphs,
+     where the first glyph is the ASCII code for `\', and the others are
+     digit characters representing the character code in octal.  (A
+     display table can specify a glyph to use instead of `\'.)
+
+   * Multibyte character codes above 256 are displayed as themselves,
+     or as a question mark or empty box if the terminal cannot display
+     that character.
+
+   The usual display conventions apply even when there is a display
+table, for any character whose entry in the active display table is
+`nil'.  Thus, when you set up a display table, you need only specify
+the characters for which you want special behavior.
+
+   These variables affect the way certain characters are displayed on
+the screen.  Since they change the number of columns the characters
+occupy, they also affect the indentation functions.  These variables
+also affect how the mode line is displayed; if you want to force
+redisplay of the mode line using the new values, call the function
+`force-mode-line-update' (*note Mode Line Format::.).
+
+ - User Option: ctl-arrow
+     This buffer-local variable controls how control characters are
+     displayed.  If it is non-`nil', they are displayed as a caret
+     followed by the character: `^A'.  If it is `nil', they are
+     displayed as a backslash followed by three octal digits: `\001'.
+
+ - Variable: default-ctl-arrow
+     The value of this variable is the default value for `ctl-arrow' in
+     buffers that do not override it.  *Note Default Value::.
+
+ - User Option: tab-width
+     The value of this variable is the spacing between tab stops used
+     for displaying tab characters in Emacs buffers.  The default is 8.
+     Note that this feature is completely independent of the
+     user-settable tab stops used by the command `tab-to-tab-stop'.
+     *Note Indent Tabs::.
+
+
+File: elisp,  Node: Display Tables,  Next: Beeping,  Prev: Usual Display,  Up: Display
+
+Display Tables
+==============
+
+   You can use the "display table" feature to control how all possible
+character codes display on the screen.  This is useful for displaying
+European languages that have letters not in the ASCII character set.
+
+   The display table maps each character code into a sequence of
+"glyphs", each glyph being an image that takes up one character
+position on the screen.  You can also define how to display each glyph
+on your terminal, using the "glyph table".
+
+   Display tables affect how the mode line is displayed; if you want to
+force redisplay of the mode line using a new display table, call
+`force-mode-line-update' (*note Mode Line Format::.).
+
+* Menu:
+
+* Display Table Format::	What a display table consists of.
+* Active Display Table::	How Emacs selects a display table to use.
+* Glyphs::			How to define a glyph, and what glyphs mean.
+
+
+File: elisp,  Node: Display Table Format,  Next: Active Display Table,  Up: Display Tables
+
+Display Table Format
+--------------------
+
+   A display table is actually a char-table (*note Char-Tables::.) with
+`display-table' as its subtype.
+
+ - Function: make-display-table
+     This creates and returns a display table.  The table initially has
+     `nil' in all elements.
+
+   The ordinary elements of the display table are indexed by character
+codes; the element at index C says how to display the character code C.
+The value should be `nil' or a vector of glyph values (*note
+Glyphs::.).  If an element is `nil', it says to display that character
+according to the usual display conventions (*note Usual Display::.).
+
+   If you use the display table to change the display of newline
+characters, the whole buffer will be displayed as one long "line."
+
+   The display table also has six "extra slots" which serve special
+purposes.  Here is a table of their meanings; `nil' in any slot means
+to use the default for that slot, as stated below.
+
+0
+     The glyph for the end of a truncated screen line (the default for
+     this is `$').  *Note Glyphs::.
+
+1
+     The glyph for the end of a continued line (the default is `\').
+
+2
+     The glyph for indicating a character displayed as an octal
+     character code (the default is `\').
+
+3
+     The glyph for indicating a control character (the default is `^').
+
+4
+     A vector of glyphs for indicating the presence of invisible lines
+     (the default is `...').  *Note Selective Display::.
+
+5
+     The glyph used to draw the border between side-by-side windows (the
+     default is `|').  *Note Splitting Windows::.
+
+   For example, here is how to construct a display table that mimics the
+effect of setting `ctl-arrow' to a non-`nil' value:
+
+     (setq disptab (make-display-table))
+     (let ((i 0))
+       (while (< i 32)
+         (or (= i ?\t) (= i ?\n)
+             (aset disptab i (vector ?^ (+ i 64))))
+         (setq i (1+ i)))
+       (aset disptab 127 (vector ?^ ??)))
+
+ - Function: display-table-slot DISPLAY-TABLE SLOT
+     This function returns the value of the extra slot SLOT of
+     DISPLAY-TABLE.  The argument SLOT may be a number from 0 to 5
+     inclusive, or a slot name (symbol).  Valid symbols are
+     `truncation', `wrap', `escape', `control', `selective-display',
+     and `vertical-border'.
+
+ - Function: set-display-table-slot DISPLAY-TABLE SLOT VALUE
+     This function stores VALUE in the extra slot SLOT of
+     DISPLAY-TABLE.  The argument SLOT may be a number from 0 to 5
+     inclusive, or a slot name (symbol).  Valid symbols are
+     `truncation', `wrap', `escape', `control', `selective-display',
+     and `vertical-border'.
+
+
+File: elisp,  Node: Active Display Table,  Next: Glyphs,  Prev: Display Table Format,  Up: Display Tables
+
+Active Display Table
+--------------------
+
+   Each window can specify a display table, and so can each buffer.
+When a buffer B is displayed in window W, display uses the display
+table for window W if it has one; otherwise, the display table for
+buffer B if it has one; otherwise, the standard display table if any.
+The display table chosen is called the "active" display table.
+
+ - Function: window-display-table WINDOW
+     This function returns WINDOW's display table, or `nil' if WINDOW
+     does not have an assigned display table.
+
+ - Function: set-window-display-table WINDOW TABLE
+     This function sets the display table of WINDOW to TABLE.  The
+     argument TABLE should be either a display table or `nil'.
+
+ - Variable: buffer-display-table
+     This variable is automatically buffer-local in all buffers; its
+     value in a particular buffer specifies the display table for that
+     buffer.  If it is `nil', that means the buffer does not have an
+     assigned display table.
+
+ - Variable: standard-display-table
+     This variable's value is the default display table, used whenever a
+     window has no display table and neither does the buffer displayed
+     in that window.  This variable is `nil' by default.
+
+   If there is no display table to use for a particular window--that is,
+if the window specifies none, its buffer specifies none, and
+`standard-display-table' is `nil'--then Emacs uses the usual display
+conventions for all character codes in that window.  *Note Usual
+Display::.
+
+
+File: elisp,  Node: Glyphs,  Prev: Active Display Table,  Up: Display Tables
+
+Glyphs
+------
+
+   A "glyph" is a generalization of a character; it stands for an image
+that takes up a single character position on the screen.  Glyphs are
+represented in Lisp as integers, just as characters are.
+
+   The meaning of each integer, as a glyph, is defined by the glyph
+table, which is the value of the variable `glyph-table'.
+
+ - Variable: glyph-table
+     The value of this variable is the current glyph table.  It should
+     be a vector; the Gth element defines glyph code G.  If the value
+     is `nil' instead of a vector, then all glyphs are simple (see
+     below).
+
+   Here are the possible types of elements in the glyph table:
+
+STRING
+     Send the characters in STRING to the terminal to output this
+     glyph.  This alternative is available on character terminals, but
+     not under a window system.
+
+INTEGER
+     Define this glyph code as an alias for glyph code INTEGER.  You
+     can use an alias to specify a face code for the glyph; see below.
+
+`nil'
+     This glyph is simple.  On an ordinary terminal, the glyph code mod
+     524288 is the character to output.  In a window system, the glyph
+     code mod 524288 is the character to output, and the glyph code
+     divided by 524288 specifies the face number (*note Face
+     Functions::.) to use while outputting it.  (524288 is 2**19.)
+     *Note Faces::.
+
+   If a glyph code is greater than or equal to the length of the glyph
+table, that code is automatically simple.
+
+
+File: elisp,  Node: Beeping,  Next: Window Systems,  Prev: Display Tables,  Up: Display
+
+Beeping
+=======
+
+   This section describes how to make Emacs ring the bell (or blink the
+screen) to attract the user's attention.  Be conservative about how
+often you do this; frequent bells can become irritating.  Also be
+careful not to use just beeping when signaling an error is more
+appropriate.  (*Note Errors::.)
+
+ - Function: ding &optional DO-NOT-TERMINATE
+     This function beeps, or flashes the screen (see `visible-bell'
+     below).  It also terminates any keyboard macro currently executing
+     unless DO-NOT-TERMINATE is non-`nil'.
+
+ - Function: beep &optional DO-NOT-TERMINATE
+     This is a synonym for `ding'.
+
+ - User Option: visible-bell
+     This variable determines whether Emacs should flash the screen to
+     represent a bell.  Non-`nil' means yes, `nil' means no.  This is
+     effective on a window system, and on a character-only terminal
+     provided the terminal's Termcap entry defines the visible bell
+     capability (`vb').
+
+ - Variable: ring-bell-function
+     If this is non-`nil', it specifies how Emacs should "ring the
+     bell."  Its value should be a function of no arguments.
+
+
+File: elisp,  Node: Window Systems,  Prev: Beeping,  Up: Display
+
+Window Systems
+==============
+
+   Emacs works with several window systems, most notably the X Window
+System.  Both Emacs and X use the term "window", but use it
+differently.  An Emacs frame is a single window as far as X is
+concerned; the individual Emacs windows are not known to X at all.
+
+ - Variable: window-system
+     This variable tells Lisp programs what window system Emacs is
+     running under.  The possible values are
+
+    `x'
+          Emacs is displaying using X.
+
+    `pc'
+          Emacs is displaying using MSDOS.
+
+    `w32'
+          Emacs is displaying using Windows NT or Windows 95.
+
+    `nil'
+          Emacs is using a character-based terminal.
+
+ - Variable: window-setup-hook
+     This variable is a normal hook which Emacs runs after handling the
+     initialization files.  Emacs runs this hook after it has completed
+     loading your `.emacs' file, the default initialization file (if
+     any), and the terminal-specific Lisp code, and running the hook
+     `term-setup-hook'.
+
+     This hook is used for internal purposes: setting up communication
+     with the window system, and creating the initial window.  Users
+     should not interfere with it.
+
+
+File: elisp,  Node: Calendar,  Next: System Interface,  Prev: Display,  Up: Top
+
+Customizing the Calendar and Diary
+**********************************
+
+   There are many customizations that you can use to make the calendar
+and diary suit your personal tastes.
+
+* Menu:
+
+* Calendar Customizing::   Defaults you can set.
+* Holiday Customizing::    Defining your own holidays.
+* Date Display Format::    Changing the format.
+* Time Display Format::    Changing the format.
+* Daylight Savings::       Changing the default.
+* Diary Customizing::      Defaults you can set.
+* Hebrew/Islamic Entries:: How to obtain them.
+* Fancy Diary Display::    Enhancing the diary display, sorting entries,
+                             using included diary files.
+* Sexp Diary Entries::     Fancy things you can do.
+* Appt Customizing::	   Customizing appointment reminders.
+
+
+File: elisp,  Node: Calendar Customizing,  Next: Holiday Customizing,  Up: Calendar
+
+Customizing the Calendar
+========================
+
+   If you set the variable `view-diary-entries-initially' to `t',
+calling up the calendar automatically displays the diary entries for
+the current date as well.  The diary dates appear only if the current
+date is visible.  If you add both of the following lines to your
+`.emacs' file:
+
+     (setq view-diary-entries-initially t)
+     (calendar)
+
+this displays both the calendar and diary windows whenever you start
+Emacs.
+
+   Similarly, if you set the variable
+`view-calendar-holidays-initially' to `t', entering the calendar
+automatically displays a list of holidays for the current three-month
+period.  The holiday list appears in a separate window.
+
+   You can set the variable `mark-diary-entries-in-calendar' to `t' in
+order to mark any dates with diary entries.  This takes effect whenever
+the calendar window contents are recomputed.  There are two ways of
+marking these dates: by changing the face (*note Faces::.), if the
+display supports that, or by placing a plus sign (`+') beside the date
+otherwise.
+
+   Similarly, setting the variable `mark-holidays-in-calendar' to `t'
+marks holiday dates, either with a change of face or with an asterisk
+(`*').
+
+   The variable `calendar-holiday-marker' specifies how to mark a date
+as being a holiday.  Its value may be a character to insert next to the
+date, or a face name to use for displaying the date.  Likewise, the
+variable `diary-entry-marker' specifies how to mark a date that has
+diary entries.  The calendar creates faces named `holiday-face' and
+`diary-face' for these purposes; those symbols are the default values
+of these variables, when Emacs supports multiple faces on your terminal.
+
+   The variable `calendar-load-hook' is a normal hook run when the
+calendar package is first loaded (before actually starting to display
+the calendar).
+
+   Starting the calendar runs the normal hook
+`initial-calendar-window-hook'.  Recomputation of the calendar display
+does not run this hook.  But if you leave the calendar with the `q'
+command and reenter it, the hook runs again.
+
+   The variable `today-visible-calendar-hook' is a normal hook run
+after the calendar buffer has been prepared with the calendar when the
+current date is visible in the window.  One use of this hook is to
+replace today's date with asterisks; to do that, use the hook function
+`calendar-star-date'.
+
+     (add-hook 'today-visible-calendar-hook 'calendar-star-date)
+
+Another standard hook function marks the current date, either by
+changing its face or by adding an asterisk.  Here's how to use it:
+
+     (add-hook 'today-visible-calendar-hook 'calendar-mark-today)
+
+The variable `calendar-today-marker' specifies how to mark today's
+date.  Its value should be a character to insert next to the date or a
+face name to use for displaying the date.  A face named
+`calendar-today-face' is provided for this purpose; that symbol is the
+default for this variable when Emacs supports multiple faces on your
+terminal.
+
+A similar normal hook, `today-invisible-calendar-hook' is run if the
+current date is *not* visible in the window.
+
+
+File: elisp,  Node: Holiday Customizing,  Next: Date Display Format,  Prev: Calendar Customizing,  Up: Calendar
+
+Customizing the Holidays
+========================
+
+   Emacs knows about holidays defined by entries on one of several
+lists.  You can customize these lists of holidays to your own needs,
+adding or deleting holidays.  The lists of holidays that Emacs uses are
+for general holidays (`general-holidays'), local holidays
+(`local-holidays'), Christian holidays (`christian-holidays'), Hebrew
+(Jewish) holidays (`hebrew-holidays'), Islamic (Moslem) holidays
+(`islamic-holidays'), and other holidays (`other-holidays').
+
+   The general holidays are, by default, holidays common throughout the
+United States.  To eliminate these holidays, set `general-holidays' to
+`nil'.
+
+   There are no default local holidays (but sites may supply some).  You
+can set the variable `local-holidays' to any list of holidays, as
+described below.
+
+   By default, Emacs does not include all the holidays of the religions
+that it knows, only those commonly found in secular calendars.  For a
+more extensive collection of religious holidays, you can set any (or
+all) of the variables `all-christian-calendar-holidays',
+`all-hebrew-calendar-holidays', or `all-islamic-calendar-holidays' to
+`t'.  If you want to eliminate the religious holidays, set any or all
+of the corresponding variables `christian-holidays', `hebrew-holidays',
+and `islamic-holidays' to `nil'.
+
+   You can set the variable `other-holidays' to any list of holidays.
+This list, normally empty, is intended for individual use.
+
+   Each of the lists (`general-holidays', `local-holidays',
+`christian-holidays', `hebrew-holidays', `islamic-holidays', and
+`other-holidays') is a list of "holiday forms", each holiday form
+describing a holiday (or sometimes a list of holidays).
+
+   Here is a table of the possible kinds of holiday form.  Day numbers
+and month numbers count starting from 1, but "dayname" numbers count
+Sunday as 0.  The element STRING is always the name of the holiday, as
+a string.
+
+`(holiday-fixed MONTH DAY STRING)'
+     A fixed date on the Gregorian calendar.
+
+`(holiday-float MONTH DAYNAME K STRING)'
+     The Kth DAYNAME in MONTH on the Gregorian calendar (DAYNAME=0 for
+     Sunday, and so on); negative K means count back from the end of
+     the month.
+
+`(holiday-hebrew MONTH DAY STRING)'
+     A fixed date on the Hebrew calendar.
+
+`(holiday-islamic MONTH DAY STRING)'
+     A fixed date on the Islamic calendar.
+
+`(holiday-julian MONTH DAY STRING)'
+     A fixed date on the Julian calendar.
+
+`(holiday-sexp SEXP STRING)'
+     A date calculated by the Lisp expression SEXP.  The expression
+     should use the variable `year' to compute and return the date of a
+     holiday, or `nil' if the holiday doesn't happen this year.  The
+     value of SEXP must represent the date as a list of the form
+     `(MONTH DAY YEAR)'.
+
+`(if CONDITION HOLIDAY-FORM)'
+     A holiday that happens only if CONDITION is true.
+
+`(FUNCTION [ARGS])'
+     A list of dates calculated by the function FUNCTION, called with
+     arguments ARGS.
+
+   For example, suppose you want to add Bastille Day, celebrated in
+France on July 14.  You can do this as follows:
+
+     (setq other-holidays '((holiday-fixed 7 14 "Bastille Day")))
+
+The holiday form `(holiday-fixed 7 14 "Bastille Day")' specifies the
+fourteenth day of the seventh month (July).
+
+   Many holidays occur on a specific day of the week, at a specific time
+of month.  Here is a holiday form describing Hurricane Supplication Day,
+celebrated in the Virgin Islands on the fourth Monday in August:
+
+     (holiday-float 8 1 4 "Hurricane Supplication Day")
+
+Here the 8 specifies August, the 1 specifies Monday (Sunday is 0,
+Tuesday is 2, and so on), and the 4 specifies the fourth occurrence in
+the month (1 specifies the first occurrence, 2 the second occurrence,
+-1 the last occurrence, -2 the second-to-last occurrence, and so on).
+
+   You can specify holidays that occur on fixed days of the Hebrew,
+Islamic, and Julian calendars too.  For example,
+
+     (setq other-holidays
+           '((holiday-hebrew 10 2 "Last day of Hanukkah")
+             (holiday-islamic 3 12 "Mohammed's Birthday")
+             (holiday-julian 4 2 "Jefferson's Birthday")))
+
+adds the last day of Hanukkah (since the Hebrew months are numbered with
+1 starting from Nisan), the Islamic feast celebrating Mohammed's
+birthday (since the Islamic months are numbered from 1 starting with
+Muharram), and Thomas Jefferson's birthday, which is 2 April 1743 on the
+Julian calendar.
+
+   To include a holiday conditionally, use either Emacs Lisp's `if' or
+the `holiday-sexp' form.  For example, American presidential elections
+occur on the first Tuesday after the first Monday in November of years
+divisible by 4:
+
+     (holiday-sexp (if (= 0 (% year 4))
+                        (calendar-gregorian-from-absolute
+                         (1+ (calendar-dayname-on-or-before
+                               1 (+ 6 (calendar-absolute-from-gregorian
+                                       (list 11 1 year))))))
+                   "US Presidential Election"))
+
+or
+
+     (if (= 0 (% displayed-year 4))
+         (fixed 11
+                (extract-calendar-day
+                  (calendar-gregorian-from-absolute
+                    (1+ (calendar-dayname-on-or-before
+                          1 (+ 6 (calendar-absolute-from-gregorian
+                                   (list 11 1 displayed-year)))))))
+                "US Presidential Election"))
+
+   Some holidays just don't fit into any of these forms because special
+calculations are involved in their determination.  In such cases you
+must write a Lisp function to do the calculation.  To include eclipses,
+for example, add `(eclipses)' to `other-holidays' and write an Emacs
+Lisp function `eclipses' that returns a (possibly empty) list of the
+relevant Gregorian dates among the range visible in the calendar
+window, with descriptive strings, like this:
+
+     (((6 27 1991) "Lunar Eclipse") ((7 11 1991) "Solar Eclipse") ... )
+
+
+File: elisp,  Node: Date Display Format,  Next: Time Display Format,  Prev: Holiday Customizing,  Up: Calendar
+
+Date Display Format
+===================
+
+   You can customize the manner of displaying dates in the diary, in
+mode lines, and in messages by setting `calendar-date-display-form'.
+This variable holds a list of expressions that can involve the variables
+`month', `day', and `year', which are all numbers in string form, and
+`monthname' and `dayname', which are both alphabetic strings.  In the
+American style, the default value of this list is as follows:
+
+     ((if dayname (concat dayname ", ")) monthname " " day ", " year)
+
+while in the European style this value is the default:
+
+     ((if dayname (concat dayname ", ")) day " " monthname " " year)
+
+The ISO standard date representation is this:
+
+     (year "-" month "-" day)
+
+This specifies a typical American format:
+
+     (month "/" day "/" (substring year -2))
+
+
+File: elisp,  Node: Time Display Format,  Next: Daylight Savings,  Prev: Date Display Format,  Up: Calendar
+
+Time Display Format
+===================
+
+   The calendar and diary by default display times of day in the
+conventional American style with the hours from 1 through 12, minutes,
+and either `am' or `pm'.  If you prefer the European style, also known
+in the US as military, in which the hours go from 00 to 23, you can
+alter the variable `calendar-time-display-form'.  This variable is a
+list of expressions that can involve the variables `12-hours',
+`24-hours', and `minutes', which are all numbers in string form, and
+`am-pm' and `time-zone', which are both alphabetic strings.  The
+default value of `calendar-time-display-form' is as follows:
+
+     (12-hours ":" minutes am-pm
+               (if time-zone " (") time-zone (if time-zone ")"))
+
+Here is a value that provides European style times:
+
+     (24-hours ":" minutes
+               (if time-zone " (") time-zone (if time-zone ")"))
+
+
+File: elisp,  Node: Daylight Savings,  Next: Diary Customizing,  Prev: Time Display Format,  Up: Calendar
+
+Daylight Savings Time
+=====================
+
+   Emacs understands the difference between standard time and daylight
+savings time--the times given for sunrise, sunset, solstices,
+equinoxes, and the phases of the moon take that into account.  The rules
+for daylight savings time vary from place to place and have also varied
+historically from year to year.  To do the job properly, Emacs needs to
+know which rules to use.
+
+   Some operating systems keep track of the rules that apply to the
+place where you are; on these systems, Emacs gets the information it
+needs from the system automatically.  If some or all of this
+information is missing, Emacs fills in the gaps with the rules
+currently used in Cambridge, Massachusetts, which is the center of
+GNU's world.
+
+   If the default choice of rules is not appropriate for your location,
+you can tell Emacs the rules to use by setting the variables
+`calendar-daylight-savings-starts' and
+`calendar-daylight-savings-ends'.  Their values should be Lisp
+expressions that refer to the variable `year', and evaluate to the
+Gregorian date on which daylight savings time starts or (respectively)
+ends, in the form of a list `(MONTH DAY YEAR)'.  The values should be
+`nil' if your area does not use daylight savings time.
+
+   Emacs uses these expressions to determine the start and end dates of
+daylight savings time as holidays and for correcting times of day in the
+solar and lunar calculations.
+
+   The values for Cambridge, Massachusetts are as follows:
+
+     (calendar-nth-named-day 1 0 4 year)
+     (calendar-nth-named-day -1 0 10 year)
+
+i.e., the first 0th day (Sunday) of the fourth month (April) in the
+year specified by `year', and the last Sunday of the tenth month
+(October) of that year.  If daylight savings time were changed to start
+on October 1, you would set `calendar-daylight-savings-starts' to this:
+
+     (list 10 1 year)
+
+   For a more complex example, suppose daylight savings time begins on
+the first of Nisan on the Hebrew calendar.  You should set
+`calendar-daylight-savings-starts' to this value:
+
+     (calendar-gregorian-from-absolute
+       (calendar-absolute-from-hebrew
+         (list 1 1 (+ year 3760))))
+
+because Nisan is the first month in the Hebrew calendar and the Hebrew
+year differs from the Gregorian year by 3760 at Nisan.
+
+   If there is no daylight savings time at your location, or if you want
+all times in standard time, set `calendar-daylight-savings-starts' and
+`calendar-daylight-savings-ends' to `nil'.
+
+   The variable `calendar-daylight-time-offset' specifies the
+difference between daylight savings time and standard time, measured in
+minutes.  The value for Cambridge is 60.
+
+   The variable `calendar-daylight-savings-starts-time' and the
+variable `calendar-daylight-savings-ends-time' specify the number of
+minutes after midnight local time when the transition to and from
+daylight savings time should occur.  For Cambridge, both variables'
+values are 120.
+
+
+File: elisp,  Node: Diary Customizing,  Next: Hebrew/Islamic Entries,  Prev: Daylight Savings,  Up: Calendar
+
+Customizing the Diary
+=====================
+
+   Ordinarily, the mode line of the diary buffer window indicates any
+holidays that fall on the date of the diary entries.  The process of
+checking for holidays can take several seconds, so including holiday
+information delays the display of the diary buffer noticeably.  If you'd
+prefer to have a faster display of the diary buffer but without the
+holiday information, set the variable `holidays-in-diary-buffer' to
+`nil'.
+
+   The variable `number-of-diary-entries' controls the number of days
+of diary entries to be displayed at one time.  It affects the initial
+display when `view-diary-entries-initially' is `t', as well as the
+command `M-x diary'.  For example, the default value is 1, which says
+to display only the current day's diary entries.  If the value is 2,
+both the current day's and the next day's entries are displayed.  The
+value can also be a vector of seven elements: for example, if the value
+is `[0 2 2 2 2 4 1]' then no diary entries appear on Sunday, the
+current date's and the next day's diary entries appear Monday through
+Thursday, Friday through Monday's entries appear on Friday, while on
+Saturday only that day's entries appear.
+
+   The variable `print-diary-entries-hook' is a normal hook run after
+preparation of a temporary buffer containing just the diary entries
+currently visible in the diary buffer.  (The other, irrelevant diary
+entries are really absent from the temporary buffer; in the diary
+buffer, they are merely hidden.)  The default value of this hook does
+the printing with the command `lpr-buffer'.  If you want to use a
+different command to do the printing, just change the value of this
+hook.  Other uses might include, for example, rearranging the lines into
+order by day and time.
+
+   You can customize the form of dates in your diary file, if neither
+the standard American nor European styles suits your needs, by setting
+the variable `diary-date-forms'.  This variable is a list of patterns
+for recognizing a date.  Each date pattern is a list whose elements may
+be regular expressions (*note Regular Expressions::.) or the symbols
+`month', `day', `year', `monthname', and `dayname'.  All these elements
+serve as patterns that match certain kinds of text in the diary file.
+In order for the date pattern, as a whole, to match, all of its
+elements must match consecutively.
+
+   A regular expression in a date pattern matches in its usual fashion,
+using the standard syntax table altered so that `*' is a word
+constituent.
+
+   The symbols `month', `day', `year', `monthname', and `dayname' match
+the month number, day number, year number, month name, and day name of
+the date being considered.  The symbols that match numbers allow
+leading zeros; those that match names allow three-letter abbreviations
+and capitalization.  All the symbols can match `*'; since `*' in a
+diary entry means "any day", "any month", and so on, it should match
+regardless of the date being considered.
+
+   The default value of `diary-date-forms' in the American style is
+this:
+
+     ((month "/" day "[^/0-9]")
+      (month "/" day "/" year "[^0-9]")
+      (monthname " *" day "[^,0-9]")
+      (monthname " *" day ", *" year "[^0-9]")
+      (dayname "\\W"))
+
+   The date patterns in the list must be *mutually exclusive* and must
+not match any portion of the diary entry itself, just the date and one
+character of whitespace.  If, to be mutually exclusive, the pattern
+must match a portion of the diary entry text--beyond the whitespace
+that ends the date--then the first element of the date pattern *must*
+be `backup'.  This causes the date recognizer to back up to the
+beginning of the current word of the diary entry, after finishing the
+match.  Even if you use `backup', the date pattern must absolutely not
+match more than a portion of the first word of the diary entry.  The
+default value of `diary-date-forms' in the European style is this list:
+
+     ((day "/" month "[^/0-9]")
+      (day "/" month "/" year "[^0-9]")
+      (backup day " *" monthname "\\W+\\<[^*0-9]")
+      (day " *" monthname " *" year "[^0-9]")
+      (dayname "\\W"))
+
+Notice the use of `backup' in the third pattern, because it needs to
+match part of a word beyond the date itself to distinguish it from the
+fourth pattern.
+
+
+File: elisp,  Node: Hebrew/Islamic Entries,  Next: Fancy Diary Display,  Prev: Diary Customizing,  Up: Calendar
+
+Hebrew- and Islamic-Date Diary Entries
+======================================
+
+   Your diary file can have entries based on Hebrew or Islamic dates, as
+well as entries based on the world-standard Gregorian calendar.
+However, because recognition of such entries is time-consuming and most
+people don't use them, you must explicitly enable their use.  If you
+want the diary to recognize Hebrew-date diary entries, for example, you
+must do this:
+
+     (add-hook 'nongregorian-diary-listing-hook 'list-hebrew-diary-entries)
+     (add-hook 'nongregorian-diary-marking-hook 'mark-hebrew-diary-entries)
+
+If you want Islamic-date entries, do this:
+
+     (add-hook 'nongregorian-diary-listing-hook 'list-islamic-diary-entries)
+     (add-hook 'nongregorian-diary-marking-hook 'mark-islamic-diary-entries)
+
+   Hebrew- and Islamic-date diary entries have the same formats as
+Gregorian-date diary entries, except that `H' precedes a Hebrew date
+and `I' precedes an Islamic date.  Moreover, because the Hebrew and
+Islamic month names are not uniquely specified by the first three
+letters, you may not abbreviate them.  For example, a diary entry for
+the Hebrew date Heshvan 25 could look like this:
+
+     HHeshvan 25 Happy Hebrew birthday!
+
+and would appear in the diary for any date that corresponds to Heshvan
+25 on the Hebrew calendar.  And here is an Islamic-date diary entry
+that matches Dhu al-Qada 25:
+
+     IDhu al-Qada 25 Happy Islamic birthday!
+
+   As with Gregorian-date diary entries, Hebrew- and Islamic-date
+entries are nonmarking if they are preceded with an ampersand (`&').
+
+   Here is a table of commands used in the calendar to create diary
+entries that match the selected date and other dates that are similar
+in the Hebrew or Islamic calendar:
+
+`i h d'
+     Add a diary entry for the Hebrew date corresponding to the
+     selected date (`insert-hebrew-diary-entry').
+
+`i h m'
+     Add a diary entry for the day of the Hebrew month corresponding to
+     the selected date (`insert-monthly-hebrew-diary-entry').  This
+     diary entry matches any date that has the same Hebrew
+     day-within-month as the selected date.
+
+`i h y'
+     Add a diary entry for the day of the Hebrew year corresponding to
+     the selected date (`insert-yearly-hebrew-diary-entry').  This diary
+     entry matches any date which has the same Hebrew month and
+     day-within-month as the selected date.
+
+`i i d'
+     Add a diary entry for the Islamic date corresponding to the
+     selected date (`insert-islamic-diary-entry').
+
+`i i m'
+     Add a diary entry for the day of the Islamic month corresponding
+     to the selected date (`insert-monthly-islamic-diary-entry').
+
+`i i y'
+     Add a diary entry for the day of the Islamic year corresponding to
+     the selected date (`insert-yearly-islamic-diary-entry').
+
+   These commands work much like the corresponding commands for ordinary
+diary entries: they apply to the date that point is on in the calendar
+window, and what they do is insert just the date portion of a diary
+entry at the end of your diary file.  You must then insert the rest of
+the diary entry.
+
+
+File: elisp,  Node: Fancy Diary Display,  Next: Sexp Diary Entries,  Prev: Hebrew/Islamic Entries,  Up: Calendar
+
+Fancy Diary Display
+===================
+
+   Diary display works by preparing the diary buffer and then running
+the hook `diary-display-hook'.  The default value of this hook
+(`simple-diary-display') hides the irrelevant diary entries and then
+displays the buffer.  However, if you specify the hook as follows,
+
+     (add-hook 'diary-display-hook 'fancy-diary-display)
+
+this enables fancy diary display.  It displays diary entries and
+holidays by copying them into a special buffer that exists only for the
+sake of display.  Copying to a separate buffer provides an opportunity
+to change the displayed text to make it prettier--for example, to sort
+the entries by the dates they apply to.
+
+   As with simple diary display, you can print a hard copy of the buffer
+with `print-diary-entries'.  To print a hard copy of a day-by-day diary
+for a week by positioning point on Sunday of that week, type `7 d' and
+then do `M-x print-diary-entries'.  As usual, the inclusion of the
+holidays slows down the display slightly; you can speed things up by
+setting the variable `holidays-in-diary-buffer' to `nil'.
+
+   Ordinarily, the fancy diary buffer does not show days for which
+there are no diary entries, even if that day is a holiday.  If you want
+such days to be shown in the fancy diary buffer, set the variable
+`diary-list-include-blanks' to `t'.
+
+   If you use the fancy diary display, you can use the normal hook
+`list-diary-entries-hook' to sort each day's diary entries by their
+time of day.  Here's how:
+
+     (add-hook 'list-diary-entries-hook 'sort-diary-entries t)
+
+For each day, this sorts diary entries that begin with a recognizable
+time of day according to their times.  Diary entries without times come
+first within each day.
+
+   Fancy diary display also has the ability to process included diary
+files.  This permits a group of people to share a diary file for events
+that apply to all of them.  Lines in the diary file of this form:
+
+     #include "FILENAME"
+
+includes the diary entries from the file FILENAME in the fancy diary
+buffer.  The include mechanism is recursive, so that included files can
+include other files, and so on; you must be careful not to have a cycle
+of inclusions, of course.  Here is how to enable the include facility:
+
+     (add-hook 'list-diary-entries-hook 'include-other-diary-files)
+     (add-hook 'mark-diary-entries-hook 'mark-included-diary-files)
+
+   The include mechanism works only with the fancy diary display,
+because ordinary diary display shows the entries directly from your
+diary file.
+
+
+File: elisp,  Node: Sexp Diary Entries,  Next: Appt Customizing,  Prev: Fancy Diary Display,  Up: Calendar
+
+Sexp Entries and the Fancy Diary Display
+========================================
+
+   Sexp diary entries allow you to do more than just have complicated
+conditions under which a diary entry applies.  If you use the fancy
+diary display, sexp entries can generate the text of the entry depending
+on the date itself.  For example, an anniversary diary entry can insert
+the number of years since the anniversary date into the text of the
+diary entry.  Thus the `%d' in this dairy entry:
+
+     %%(diary-anniversary 10 31 1948) Arthur's birthday (%d years old)
+
+gets replaced by the age, so on October 31, 1990 the entry appears in
+the fancy diary buffer like this:
+
+     Arthur's birthday (42 years old)
+
+If the diary file instead contains this entry:
+
+     %%(diary-anniversary 10 31 1948) Arthur's %d%s birthday
+
+the entry in the fancy diary buffer for October 31, 1990 appears like
+this:
+
+     Arthur's 42nd birthday
+
+   Similarly, cyclic diary entries can interpolate the number of
+repetitions that have occurred:
+
+     %%(diary-cyclic 50 1 1 1990) Renew medication (%d%s time)
+
+looks like this:
+
+     Renew medication (5th time)
+
+in the fancy diary display on September 8, 1990.
+
+   There is an early reminder diary sexp that includes its entry in the
+diary not only on the date of occurrence, but also on earlier dates.
+For example, if you want a reminder a week before your anniversary, you
+can use
+
+     %%(diary-remind '(diary-anniversary 12 22 1968) 7) Ed's anniversary
+
+and the fancy diary will show
+     Ruth & Ed's anniversary
+
+both on December 15 and on December 22.
+
+   The function `diary-date' applies to dates described by a month,
+day, year combination, each of which can be an integer, a list of
+integers, or `t'. The value `t' means all values.  For example,
+
+     %%(diary-date '(10 11 12) 22 t) Rake leaves
+
+causes the fancy diary to show
+
+     Rake leaves
+
+on October 22, November 22, and December 22 of every year.
+
+   The function `diary-float' allows you to describe diary entries that
+apply to dates like the third Friday of November, or the last Tuesday
+in April.  The parameters are the MONTH, DAYNAME, and an index N. The
+entry appears on the Nth DAYNAME of MONTH, where DAYNAME=0 means
+Sunday, 1 means Monday, and so on.  If N is negative it counts backward
+from the end of MONTH.  The value of MONTH can be a list of months, a
+single month, or `t' to specify all months.  You can also use an
+optional parameter DAY to specify the Nth DAYNAME of MONTH on or
+after/before DAY; the value of DAY defaults to 1 if N is positive and
+to the last day of MONTH if N is negative.  For example,
+
+     %%(diary-float t 1 -1) Pay rent
+
+causes the fancy diary to show
+
+     Pay rent
+
+on the last Monday of every month.
+
+   The generality of sexp diary entries lets you specify any diary entry
+that you can describe algorithmically.  A sexp diary entry contains an
+expression that computes whether the entry applies to any given date.
+If its value is non-`nil', the entry applies to that date; otherwise,
+it does not.  The expression can use the variable  `date' to find the
+date being considered; its value is a list (MONTH DAY YEAR) that refers
+to the Gregorian calendar.
+
+   Suppose you get paid on the 21st of the month if it is a weekday, and
+on the Friday before if the 21st is on a weekend.  Here is how to write
+a sexp diary entry that matches those dates:
+
+     &%%(let ((dayname (calendar-day-of-week date))
+              (day (car (cdr date))))
+           (or (and (= day 21) (memq dayname '(1 2 3 4 5)))
+               (and (memq day '(19 20)) (= dayname 5)))
+              ) Pay check deposited
+
+   The following sexp diary entries take advantage of the ability (in
+the fancy diary display) to concoct diary entries whose text varies
+based on the date:
+
+`%%(diary-sunrise-sunset)'
+     Make a diary entry for the local times of today's sunrise and
+     sunset.
+
+`%%(diary-phases-of-moon)'
+     Make a diary entry for the phases (quarters) of the moon.
+
+`%%(diary-day-of-year)'
+     Make a diary entry with today's day number in the current year and
+     the number of days remaining in the current year.
+
+`%%(diary-iso-date)'
+     Make a diary entry with today's equivalent ISO commercial date.
+
+`%%(diary-julian-date)'
+     Make a diary entry with today's equivalent date on the Julian
+     calendar.
+
+`%%(diary-astro-day-number)'
+     Make a diary entry with today's equivalent astronomical (Julian)
+     day number.
+
+`%%(diary-hebrew-date)'
+     Make a diary entry with today's equivalent date on the Hebrew
+     calendar.
+
+`%%(diary-islamic-date)'
+     Make a diary entry with today's equivalent date on the Islamic
+     calendar.
+
+`%%(diary-french-date)'
+     Make a diary entry with today's equivalent date on the French
+     Revolutionary calendar.
+
+`%%(diary-mayan-date)'
+     Make a diary entry with today's equivalent date on the Mayan
+     calendar.
+
+Thus including the diary entry
+
+     &%%(diary-hebrew-date)
+
+causes every day's diary display to contain the equivalent date on the
+Hebrew calendar, if you are using the fancy diary display.  (With simple
+diary display, the line `&%%(diary-hebrew-date)' appears in the diary
+for any date, but does nothing particularly useful.)
+
+   These functions can be used to construct sexp diary entries based on
+the Hebrew calendar in certain standard ways:
+
+`%%(diary-rosh-hodesh)'
+     Make a diary entry that tells the occurrence and ritual
+     announcement of each new Hebrew month.
+
+`%%(diary-parasha)'
+     Make a Saturday diary entry that tells the weekly synagogue
+     scripture reading.
+
+`%%(diary-sabbath-candles)'
+     Make a Friday diary entry that tells the *local time* of Sabbath
+     candle lighting.
+
+`%%(diary-omer)'
+     Make a diary entry that gives the omer count, when appropriate.
+
+`%%(diary-yahrzeit MONTH DAY YEAR) NAME'
+     Make a diary entry marking the anniversary of a date of death.
+     The date is the *Gregorian* (civil) date of death.  The diary
+     entry appears on the proper Hebrew calendar anniversary and on the
+     day before.  (In the European style, the order of the parameters
+     is changed to DAY, MONTH, YEAR.)
+
+
+File: elisp,  Node: Appt Customizing,  Prev: Sexp Diary Entries,  Up: Calendar
+
+Customizing Appointment Reminders
+=================================
+
+   You can specify exactly how Emacs reminds you of an appointment, and
+how far in advance it begins doing so, by setting these variables:
+
+`appt-message-warning-time'
+     The time in minutes before an appointment that the reminder
+     begins.  The default is 10 minutes.
+
+`appt-audible'
+     If this is non-`nil', Emacs rings the terminal bell for
+     appointment reminders.  The default is `t'.
+
+`appt-visible'
+     If this is non-`nil', Emacs displays the appointment message in
+     the echo area.  The default is `t'.
+
+`appt-display-mode-line'
+     If this is non-`nil', Emacs displays the number of minutes to the
+     appointment on the mode line.  The default is `t'.
+
+`appt-msg-window'
+     If this is non-`nil', Emacs displays the appointment message in
+     another window.  The default is `t'.
+
+`appt-disp-window-function'
+     This variable holds a function to use to create the other window
+     for the appointment message.
+
+`appt-delete-window-function'
+     This variable holds a function to use to get rid of the appointment
+     message window, when its time is up.
+
+`appt-display-duration'
+     The number of seconds to display an appointment message.  The
+     default is 5 seconds.
+
+
+File: elisp,  Node: Tips,  Next: GNU Emacs Internals,  Prev: System Interface,  Up: Top
+
+Tips and Conventions
+********************
+
+   This chapter describes no additional features of Emacs Lisp.  Instead
+it gives advice on making effective use of the features described in the
+previous chapters, and describes conventions Emacs Lisp programmers
+should follow.
+
+* Menu:
+
+* Coding Conventions::        Conventions for clean and robust programs.
+* Compilation Tips::          Making compiled code run fast.
+* Documentation Tips::        Writing readable documentation strings.
+* Comment Tips::	      Conventions for writing comments.
+* Library Headers::           Standard headers for library packages.
+

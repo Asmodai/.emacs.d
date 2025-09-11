@@ -1,0 +1,211 @@
+This is Info file elisp, produced by Makeinfo version 1.68 from the
+input file elisp.texi.
+
+INFO-DIR-SECTION Editors
+START-INFO-DIR-ENTRY
+* Elisp: (elisp).	The Emacs Lisp Reference Manual.
+END-INFO-DIR-ENTRY
+
+   This version is the edition 2.5 of the GNU Emacs Lisp Reference
+Manual.  It corresponds to Emacs Version 20.3
+
+   Published by the Free Software Foundation 59 Temple Place, Suite 330
+Boston, MA  02111-1307  USA
+
+   Copyright (C) 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1998 Free
+Software Foundation, Inc.
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be stated in a
+translation approved by the Foundation.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided also
+that the section entitled "GNU General Public License" is included
+exactly as in the original, and provided that the entire resulting
+derived work is distributed under the terms of a permission notice
+identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that the section entitled "GNU General Public License"
+may be included in a translation approved by the Free Software
+Foundation instead of in the original English.
+
+
+File: elisp,  Node: New Symbols,  Prev: Index,  Up: Top
+
+New Symbols Since the Previous Edition
+**************************************
+
+* Menu:
+
+* access-file:                           Testing Accessibility.
+* add-to-invisibility-spec:              Invisible Text.
+* after-make-frame-hook:                 Creating Frames.
+* assoc-default:                         Association Lists.
+* assoc-ignore-case:                     Text Comparison.
+* assoc-ignore-representation:           Text Comparison.
+* backward-delete-char-untabify-method:  Deletion.
+* before-make-frame-hook:                Creating Frames.
+* bool-vector-p:                         Bool-Vectors.
+* buffer-display-time:                   Buffers and Windows.
+* buffer-file-coding-system:             Encoding and I/O.
+* buffer-name-history:                   Minibuffer History.
+* caar:                                  List Elements.
+* cadr:                                  List Elements.
+* cdar:                                  List Elements.
+* cddr:                                  List Elements.
+* char-bytes:                            Splitting Characters.
+* char-charset:                          Character Sets.
+* char-table-extra-slot:                 Char-Tables.
+* char-table-p:                          Char-Tables.
+* char-table-parent:                     Char-Tables.
+* char-table-range:                      Char-Tables.
+* char-table-subtype:                    Char-Tables.
+* char-width:                            Width.
+* charset-dimension:                     Chars and Bytes.
+* charset-list:                          Character Sets.
+* charsetp:                              Character Sets.
+* check-coding-system:                   Lisp and Coding Systems.
+* checkdoc-minor-mode:                   Documentation Tips.
+* coding-system-change-eol-conversion:   Lisp and Coding Systems.
+* coding-system-change-text-conversion:  Lisp and Coding Systems.
+* coding-system-for-read:                Specifying Coding Systems.
+* coding-system-for-write:               Specifying Coding Systems.
+* coding-system-get:                     Coding System Basics.
+* coding-system-list:                    Lisp and Coding Systems.
+* coding-system-p:                       Lisp and Coding Systems.
+* combine-after-change-calls:            Change Hooks.
+* compare-strings:                       Text Comparison.
+* condition:                             Conditionals.
+* current-input-method:                  Input Methods.
+* current-message:                       The Echo Area.
+* decode-coding-region:                  Explicit Encoding.
+* decode-coding-string:                  Explicit Encoding.
+* default-enable-multibyte-characters:   Text Representations.
+* default-input-method:                  Input Methods.
+* default-process-coding-system:         Default Coding Systems.
+* defcustom:                             Variable Definitions.
+* defface:                               Defining Faces.
+* defgroup:                              Group Definitions.
+* delete-old-versions:                   Numbered Backups.
+* detect-coding-region:                  Lisp and Coding Systems.
+* detect-coding-string:                  Lisp and Coding Systems.
+* display-table-slot:                    Display Table Format.
+* easy-mmode-define-minor-mode:          Easy-Mmode.
+* echo-area-clear-hook:                  The Echo Area.
+* enable-multibyte-characters:           Text Representations.
+* encode-coding-region:                  Explicit Encoding.
+* encode-coding-string:                  Explicit Encoding.
+* face-bold-p:                           Face Functions.
+* face-documentation:                    Face Functions.
+* face-italic-p:                         Face Functions.
+* file-coding-system-alist:              Default Coding Systems.
+* fill-nobreak-predicate:                Margins.
+* find-charset-region:                   Scanning Charsets.
+* find-charset-string:                   Scanning Charsets.
+* find-coding-systems-for-charsets:      Lisp and Coding Systems.
+* find-coding-systems-region:            Lisp and Coding Systems.
+* find-coding-systems-string:            Lisp and Coding Systems.
+* find-operation-coding-system:          Default Coding Systems.
+* focus-follows-mouse:                   Input Focus.
+* frame-background-mode:                 Defining Faces.
+* frame-update-face-colors:              Face Functions.
+* functionp:                             What Is a Function.
+* help-event-list:                       Help Functions.
+* inhibit-eol-conversion:                Specifying Coding Systems.
+* input-method-alist:                    Input Methods.
+* insert-file-contents-literally:        Reading from Files.
+* keyboard-coding-system:                Terminal I/O Encoding.
+* keyword-symbols-constant-flag:         Constant Variables.
+* last-coding-system-used:               Encoding and I/O.
+* last-prefix-arg:                       Prefix Command Arguments.
+* loadhist-special-hooks:                Unloading.
+* make-bool-vector:                      Bool-Vectors.
+* make-char:                             Splitting Characters.
+* make-char-table:                       Char-Tables.
+* map-char-table:                        Char-Tables.
+* marker-insertion-type:                 Marker Insertion Types.
+* menu-bar-mule-menu:                    Standard Keymaps.
+* minor-mode-overriding-map-alist:       Active Keymaps.
+* mode-line-frame-identification:        Mode Line Variables.
+* mode-line-mule-info:                   Mode Line Variables.
+* multibyte-string-p:                    Text Representations.
+* network-coding-system-alist:           Default Coding Systems.
+* next-char-property-change:             Property Search.
+* nonascii-insert-offset:                Converting Representations.
+* nonascii-translation-table:            Converting Representations.
+* num-nonmacro-input-events:             Key Sequence Input.
+* overlays-in:                           Managing Overlays.
+* parse-sexp-lookup-properties:          Syntax Properties.
+* previous-char-property-change:         Property Search.
+* print-escape-multibyte:                Output Variables.
+* print-escape-nonascii:                 Output Variables.
+* process-coding-system:                 Process Information.
+* process-coding-system-alist:           Default Coding Systems.
+* process-contact:                       Process Information.
+* read-coding-system:                    User-Chosen Coding Systems.
+* read-input-method-name:                Input Methods.
+* read-non-nil-coding-system:            User-Chosen Coding Systems.
+* read-passwd:                           Reading a Password.
+* real-last-command:                     Command Loop Info.
+* redisplay-end-trigger-functions:       Window Hooks.
+* regexp-opt:                            Syntax of Regexps.
+* regexp-opt-depth:                      Syntax of Regexps.
+* remove-from-invisibility-spec:         Invisible Text.
+* ring-bell-function:                    Beeping.
+* safe-length:                           List Elements.
+* save-buffer-coding-system:             Encoding and I/O.
+* save-current-buffer:                   Current Buffer.
+* scroll-conservatively:                 Vertical Scrolling.
+* scroll-margin:                         Vertical Scrolling.
+* scroll-preserve-screen-position:       Vertical Scrolling.
+* select-safe-coding-system:             User-Chosen Coding Systems.
+* selection-coding-system:               Window System Selections.
+* set-buffer-multibyte:                  Selecting a Representation.
+* set-char-table-default:                Char-Tables.
+* set-char-table-extra-slot:             Char-Tables.
+* set-char-table-parent:                 Char-Tables.
+* set-char-table-range:                  Char-Tables.
+* set-display-table-slot:                Display Table Format.
+* set-face-bold-p:                       Face Functions.
+* set-face-italic-p:                     Face Functions.
+* set-input-method:                      Input Methods.
+* set-keyboard-coding-system:            Terminal I/O Encoding.
+* set-marker-insertion-type:             Marker Insertion Types.
+* set-process-coding-system:             Process Information.
+* set-terminal-coding-system:            Terminal I/O Encoding.
+* set-window-redisplay-end-trigger:      Window Hooks.
+* shell-command-to-string:               Synchronous Processes.
+* split-char:                            Splitting Characters.
+* split-string:                          Creating Strings.
+* store-substring:                       Modifying Strings.
+* string:                                Creating Strings.
+* string-as-multibyte:                   Selecting a Representation.
+* string-as-unibyte:                     Selecting a Representation.
+* string-make-multibyte:                 Converting Representations.
+* string-make-unibyte:                   Converting Representations.
+* string-width:                          Width.
+* terminal-coding-system:                Terminal I/O Encoding.
+* truncate-string-to-width:              Width.
+* tty-erase-char:                        System Environment.
+* when:                                  Conditionals.
+* window-configuration-change-hook:      Window Hooks.
+* window-redisplay-end-trigger:          Window Hooks.
+* with-current-buffer:                   Current Buffer.
+* with-output-to-string:                 Output Functions.
+* with-temp-buffer:                      Current Buffer.
+* with-temp-file:                        Writing to Files.
+
+

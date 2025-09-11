@@ -1,0 +1,1179 @@
+This is Info file elisp, produced by Makeinfo-1.63 from the input file
+elisp.texi.
+
+   This version is the edition 2.4b of the GNU Emacs Lisp Reference
+Manual.  It corresponds to Emacs Version 19.34.
+
+   Published by the Free Software Foundation 59 Temple Place, Suite 330
+Boston, MA  02111-1307  USA
+
+   Copyright (C) 1990, 1991, 1992, 1993, 1994, 1995, 1996 Free Software
+Foundation, Inc.
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be stated in a
+translation approved by the Foundation.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided also
+that the section entitled "GNU General Public License" is included
+exactly as in the original, and provided that the entire resulting
+derived work is distributed under the terms of a permission notice
+identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that the section entitled "GNU General Public License"
+may be included in a translation approved by the Free Software
+Foundation instead of in the original English.
+
+
+File: elisp,  Node: Speed of Byte-Code,  Next: Compilation Functions,  Up: Byte Compilation
+
+Performance of Byte-Compiled Code
+=================================
+
+   A byte-compiled function is not as efficient as a primitive function
+written in C, but runs much faster than the version written in Lisp.
+Here is an example:
+
+     (defun silly-loop (n)
+       "Return time before and after N iterations of a loop."
+       (let ((t1 (current-time-string)))
+         (while (> (setq n (1- n))
+                   0))
+         (list t1 (current-time-string))))
+     => silly-loop
+     
+     (silly-loop 100000)
+     => ("Fri Mar 18 17:25:57 1994"
+         "Fri Mar 18 17:26:28 1994")  ; 31 seconds
+     
+     (byte-compile 'silly-loop)
+     => [Compiled code not shown]
+     
+     (silly-loop 100000)
+     => ("Fri Mar 18 17:26:52 1994"
+         "Fri Mar 18 17:26:58 1994")  ; 6 seconds
+
+   In this example, the interpreted code required 31 seconds to run,
+whereas the byte-compiled code required 6 seconds.  These results are
+representative, but actual results will vary greatly.
+
+
+File: elisp,  Node: Compilation Functions,  Next: Docs and Compilation,  Prev: Speed of Byte-Code,  Up: Byte Compilation
+
+The Compilation Functions
+=========================
+
+   You can byte-compile an individual function or macro definition with
+the `byte-compile' function.  You can compile a whole file with
+`byte-compile-file', or several files with `byte-recompile-directory'
+or `batch-byte-compile'.
+
+   When you run the byte compiler, you may get warnings in a buffer
+called `*Compile-Log*'.  These report things in your program that
+suggest a problem but are not necessarily erroneous.
+
+   Be careful when byte-compiling code that uses macros.  Macro calls
+are expanded when they are compiled, so the macros must already be
+defined for proper compilation.  For more details, see *Note Compiling
+Macros::.
+
+   Normally, compiling a file does not evaluate the file's contents or
+load the file.  But it does execute any `require' calls at top level in
+the file.  One way to ensure that necessary macro definitions are
+available during compilation is to require the file that defines them
+(*note Named Features::.).  To avoid loading the macro definition files
+when someone *runs* the compiled program, write `eval-when-compile'
+around the `require' calls (*note Eval During Compile::.).
+
+ - Function: byte-compile SYMBOL
+     This function byte-compiles the function definition of SYMBOL,
+     replacing the previous definition with the compiled one.  The
+     function definition of SYMBOL must be the actual code for the
+     function; i.e., the compiler does not follow indirection to
+     another symbol.  `byte-compile' returns the new, compiled
+     definition of SYMBOL.
+
+     If SYMBOL's definition is a byte-code function object,
+     `byte-compile' does nothing and returns `nil'.  Lisp records only
+     one function definition for any symbol, and if that is already
+     compiled, non-compiled code is not available anywhere.  So there
+     is no way to "compile the same definition again."
+
+          (defun factorial (integer)
+            "Compute factorial of INTEGER."
+            (if (= 1 integer) 1
+              (* integer (factorial (1- integer)))))
+          => factorial
+          
+          (byte-compile 'factorial)
+          =>
+          #[(integer)
+            "^H\301U\203^H^@\301\207\302^H\303^HS!\"\207"
+            [integer 1 * factorial]
+            4 "Compute factorial of INTEGER."]
+
+     The result is a byte-code function object.  The string it contains
+     is the actual byte-code; each character in it is an instruction or
+     an operand of an instruction.  The vector contains all the
+     constants, variable names and function names used by the function,
+     except for certain primitives that are coded as special
+     instructions.
+
+ - Command: compile-defun
+     This command reads the defun containing point, compiles it, and
+     evaluates the result.  If you use this on a defun that is actually
+     a function definition, the effect is to install a compiled version
+     of that function.
+
+ - Command: byte-compile-file FILENAME
+     This function compiles a file of Lisp code named FILENAME into a
+     file of byte-code.  The output file's name is made by appending
+     `c' to the end of FILENAME.
+
+     Compilation works by reading the input file one form at a time.
+     If it is a definition of a function or macro, the compiled
+     function or macro definition is written out.  Other forms are
+     batched together, then each batch is compiled, and written so that
+     its compiled code will be executed when the file is read.  All
+     comments are discarded when the input file is read.
+
+     This command returns `t'.  When called interactively, it prompts
+     for the file name.
+
+          % ls -l push*
+          -rw-r--r--  1 lewis     791 Oct  5 20:31 push.el
+          
+          (byte-compile-file "~/emacs/push.el")
+               => t
+          
+          % ls -l push*
+          -rw-r--r--  1 lewis     791 Oct  5 20:31 push.el
+          -rw-rw-rw-  1 lewis     638 Oct  8 20:25 push.elc
+
+ - Command: byte-recompile-directory DIRECTORY FLAG
+     This function recompiles every `.el' file in DIRECTORY that needs
+     recompilation.  A file needs recompilation if a `.elc' file exists
+     but is older than the `.el' file.
+
+     When a `.el' file has no corresponding `.elc' file, then FLAG says
+     what to do.  If it is `nil', these files are ignored.  If it is
+     non-`nil', the user is asked whether to compile each such file.
+
+     The returned value of this command is unpredictable.
+
+ - Function: batch-byte-compile
+     This function runs `byte-compile-file' on files specified on the
+     command line.  This function must be used only in a batch
+     execution of Emacs, as it kills Emacs on completion.  An error in
+     one file does not prevent processing of subsequent files.  (The
+     file that gets the error will not, of course, produce any compiled
+     code.)
+
+          % emacs -batch -f batch-byte-compile *.el
+
+ - Function: byte-code CODE-STRING DATA-VECTOR MAX-STACK
+     This function actually interprets byte-code.  A byte-compiled
+     function is actually defined with a body that calls `byte-code'.
+     Don't call this function yourself.  Only the byte compiler knows
+     how to generate valid calls to this function.
+
+     In newer Emacs versions (19 and up), byte-code is usually executed
+     as part of a byte-code function object, and only rarely due to an
+     explicit call to `byte-code'.
+
+
+File: elisp,  Node: Docs and Compilation,  Next: Dynamic Loading,  Prev: Compilation Functions,  Up: Byte Compilation
+
+Documentation Strings and Compilation
+=====================================
+
+   Functions and variables loaded from a byte-compiled file access their
+documentation strings dynamically from the file whenever needed.  This
+saves space within Emacs, and makes loading faster because the
+documentation strings themselves need not be processed while loading the
+file.  Actual access to the documentation strings becomes slower as a
+result, but this normally is not enough to bother users.
+
+   Dynamic access to documentation strings does have drawbacks:
+
+   * If you delete or move the compiled file after loading it, Emacs
+     can no longer access the documentation strings for the functions
+     and variables in the file.
+
+   * If you alter the compiled file (such as by compiling a new
+     version), then further access to documentation strings in this
+     file will give nonsense results.
+
+   If your site installs Emacs following the usual procedures, these
+problems will never normally occur.  Installing a new version uses a new
+directory with a different name; as long as the old version remains
+installed, its files will remain unmodified in the places where they are
+expected to be.
+
+   However, if you have built Emacs yourself and use it from the
+directory where you built it, you will experience this problem
+occasionally if you edit and recompile Lisp files.  When it happens, you
+can cure the problem by reloading the file after recompiling it.
+
+   Byte-compiled files made with Emacs 19.29 will not load into older
+versions because the older versions don't support this feature.  You can
+turn off this feature by setting `byte-compile-dynamic-docstrings' to
+`nil'.  Once this is done, you can compile files that will load into
+older Emacs versions.  You can do this globally, or for one source file
+by specifying a file-local binding for the variable.  Here's one way to
+do that:
+
+     -*-byte-compile-dynamic-docstrings: nil;-*-
+
+ - Variable: byte-compile-dynamic-docstrings
+     If this is non-`nil', the byte compiler generates compiled files
+     that are set up for dynamic loading of documentation strings.
+
+   The dynamic documentation string feature writes compiled files that
+use a special Lisp reader construct, `#@COUNT'.  This construct skips
+the next COUNT characters.  It also uses the `#$' construct, which
+stands for "the name of this file, as a string."  It is best not to use
+these constructs in Lisp source files.
+
+
+File: elisp,  Node: Dynamic Loading,  Next: Eval During Compile,  Prev: Docs and Compilation,  Up: Byte Compilation
+
+Dynamic Loading of Individual Functions
+=======================================
+
+   When you compile a file, you can optionally enable the "dynamic
+function loading" feature (also known as "lazy loading").  With dynamic
+function loading, loading the file doesn't fully read the function
+definitions in the file.  Instead, each function definition contains a
+place-holder which refers to the file.  The first time each function is
+called, it reads the full definition from the file, to replace the
+place-holder.
+
+   The advantage of dynamic function loading is that loading the file
+becomes much faster.  This is a good thing for a file which contains
+many separate commands, provided that using one of them does not imply
+you will soon (or ever) use the rest.  A specialized mode which provides
+many keyboard commands often has that usage pattern: a user may invoke
+the mode, but use only a few of the commands it provides.
+
+   The dynamic loading feature has certain disadvantages:
+
+   * If you delete or move the compiled file after loading it, Emacs
+     can no longer load the remaining function definitions not already
+     loaded.
+
+   * If you alter the compiled file (such as by compiling a new
+     version), then trying to load any function not already loaded will
+     get nonsense results.
+
+   If you compile a new version of the file, the best thing to do is
+immediately load the new compiled file.  That will prevent any future
+problems.
+
+   The byte compiler uses the dynamic function loading feature if the
+variable `byte-compile-dynamic' is non-`nil' at compilation time.  Do
+not set this variable globally, since dynamic loading is desirable only
+for certain files.  Instead, enable the feature for specific source
+files with file-local variable bindings, like this:
+
+     -*-byte-compile-dynamic: t;-*-
+
+ - Variable: byte-compile-dynamic
+     If this is non-`nil', the byte compiler generates compiled files
+     that are set up for dynamic function loading.
+
+ - Function: fetch-bytecode FUNCTION
+     This immediately finishes loading the definition of FUNCTION from
+     its byte-compiled file, if it is not fully loaded already.  The
+     argument FUNCTION may be a byte-code function object or a function
+     name.
+
+
+File: elisp,  Node: Eval During Compile,  Next: Byte-Code Objects,  Prev: Dynamic Loading,  Up: Byte Compilation
+
+Evaluation During Compilation
+=============================
+
+   These features permit you to write code to be evaluated during
+compilation of a program.
+
+ - Special Form: eval-and-compile BODY
+     This form marks BODY to be evaluated both when you compile the
+     containing code and when you run it (whether compiled or not).
+
+     You can get a similar result by putting BODY in a separate file
+     and referring to that file with `require'.  Using `require' is
+     preferable if there is a substantial amount of code to be executed
+     in this way.
+
+ - Special Form: eval-when-compile BODY
+     This form marks BODY to be evaluated at compile time and not when
+     the compiled program is loaded.  The result of evaluation by the
+     compiler becomes a constant which appears in the compiled program.
+     When the program is interpreted, not compiled at all, BODY is
+     evaluated normally.
+
+     At top level, this is analogous to the Common Lisp idiom
+     `(eval-when (compile eval) ...)'.  Elsewhere, the Common Lisp `#.'
+     reader macro (but not when interpreting) is closer to what
+     `eval-when-compile' does.
+
+
+File: elisp,  Node: Byte-Code Objects,  Next: Disassembly,  Prev: Eval During Compile,  Up: Byte Compilation
+
+Byte-Code Function Objects
+==========================
+
+   Byte-compiled functions have a special data type: they are
+"byte-code function objects".
+
+   Internally, a byte-code function object is much like a vector;
+however, the evaluator handles this data type specially when it appears
+as a function to be called.  The printed representation for a byte-code
+function object is like that for a vector, with an additional `#'
+before the opening `['.
+
+   In Emacs version 18, there was no byte-code function object data
+type; compiled functions used the function `byte-code' to run the byte
+code.
+
+   A byte-code function object must have at least four elements; there
+is no maximum number, but only the first six elements are actually used.
+They are:
+
+ARGLIST
+     The list of argument symbols.
+
+BYTE-CODE
+     The string containing the byte-code instructions.
+
+CONSTANTS
+     The vector of Lisp objects referenced by the byte code.  These
+     include symbols used as function names and variable names.
+
+STACKSIZE
+     The maximum stack size this function needs.
+
+DOCSTRING
+     The documentation string (if any); otherwise, `nil'.  The value may
+     be a number or a list, in case the documentation string is stored
+     in a file.  Use the function `documentation' to get the real
+     documentation string (*note Accessing Documentation::.).
+
+INTERACTIVE
+     The interactive spec (if any).  This can be a string or a Lisp
+     expression.  It is `nil' for a function that isn't interactive.
+
+   Here's an example of a byte-code function object, in printed
+representation.  It is the definition of the command `backward-sexp'.
+
+     #[(&optional arg)
+       "^H\204^F^@\301^P\302^H[!\207"
+       [arg 1 forward-sexp]
+       2
+       254435
+       "p"]
+
+   The primitive way to create a byte-code object is with
+`make-byte-code':
+
+ - Function: make-byte-code &rest ELEMENTS
+     This function constructs and returns a byte-code function object
+     with ELEMENTS as its elements.
+
+   You should not try to come up with the elements for a byte-code
+function yourself, because if they are inconsistent, Emacs may crash
+when you call the function.  Always leave it to the byte compiler to
+create these objects; it makes the elements consistent (we hope).
+
+   You can access the elements of a byte-code object using `aref'; you
+can also use `vconcat' to create a vector with the same elements.
+
+
+File: elisp,  Node: Disassembly,  Prev: Byte-Code Objects,  Up: Byte Compilation
+
+Disassembled Byte-Code
+======================
+
+   People do not write byte-code; that job is left to the byte compiler.
+But we provide a disassembler to satisfy a cat-like curiosity.  The
+disassembler converts the byte-compiled code into humanly readable form.
+
+   The byte-code interpreter is implemented as a simple stack machine.
+It pushes values onto a stack of its own, then pops them off to use them
+in calculations whose results are themselves pushed back on the stack.
+When a byte-code function returns, it pops a value off the stack and
+returns it as the value of the function.
+
+   In addition to the stack, byte-code functions can use, bind, and set
+ordinary Lisp variables, by transferring values between variables and
+the stack.
+
+ - Command: disassemble OBJECT &optional STREAM
+     This function prints the disassembled code for OBJECT.  If STREAM
+     is supplied, then output goes there.  Otherwise, the disassembled
+     code is printed to the stream `standard-output'.  The argument
+     OBJECT can be a function name or a lambda expression.
+
+     As a special exception, if this function is used interactively, it
+     outputs to a buffer named `*Disassemble*'.
+
+   Here are two examples of using the `disassemble' function.  We have
+added explanatory comments to help you relate the byte-code to the Lisp
+source; these do not appear in the output of `disassemble'.  These
+examples show unoptimized byte-code.  Nowadays byte-code is usually
+optimized, but we did not want to rewrite these examples, since they
+still serve their purpose.
+
+     (defun factorial (integer)
+       "Compute factorial of an integer."
+       (if (= 1 integer) 1
+         (* integer (factorial (1- integer)))))
+          => factorial
+     
+     (factorial 4)
+          => 24
+     
+     (disassemble 'factorial)
+          -| byte-code for factorial:
+      doc: Compute factorial of an integer.
+      args: (integer)
+     
+     0   constant 1              ; Push 1 onto stack.
+     
+     1   varref   integer        ; Get value of `integer'
+                                 ;   from the environment
+                                 ;   and push the value
+                                 ;   onto the stack.
+     
+     2   eqlsign                 ; Pop top two values off stack,
+                                 ;   compare them,
+                                 ;   and push result onto stack.
+     
+     3   goto-if-nil 10          ; Pop and test top of stack;
+                                 ;   if `nil', go to 10,
+                                 ;   else continue.
+     
+     6   constant 1              ; Push 1 onto top of stack.
+     
+     7   goto     17             ; Go to 17 (in this case, 1 will be
+                                 ;   returned by the function).
+     
+     10  constant *              ; Push symbol `*' onto stack.
+     
+     11  varref   integer        ; Push value of `integer' onto stack.
+     
+     12  constant factorial      ; Push `factorial' onto stack.
+     
+     13  varref   integer        ; Push value of `integer' onto stack.
+     
+     14  sub1                    ; Pop `integer', decrement value,
+                                 ;   push new value onto stack.
+     
+                                 ; Stack now contains:
+                                 ;   - decremented value of `integer'
+                                 ;   - `factorial'
+                                 ;   - value of `integer'
+                                 ;   - `*'
+     
+     15  call     1              ; Call function `factorial' using
+                                 ;   the first (i.e., the top) element
+                                 ;   of the stack as the argument;
+                                 ;   push returned value onto stack.
+     
+                                 ; Stack now contains:
+                                 ;   - result of recursive
+                                 ;        call to `factorial'
+                                 ;   - value of `integer'
+                                 ;   - `*'
+     
+     16  call     2              ; Using the first two
+                                 ;   (i.e., the top two)
+                                 ;   elements of the stack
+                                 ;   as arguments,
+                                 ;   call the function `*',
+                                 ;   pushing the result onto the stack.
+     
+     17  return                  ; Return the top element
+                                 ;   of the stack.
+          => nil
+
+   The `silly-loop' function is somewhat more complex:
+
+     (defun silly-loop (n)
+       "Return time before and after N iterations of a loop."
+       (let ((t1 (current-time-string)))
+         (while (> (setq n (1- n))
+                   0))
+         (list t1 (current-time-string))))
+          => silly-loop
+     
+     (disassemble 'silly-loop)
+          -| byte-code for silly-loop:
+      doc: Return time before and after N iterations of a loop.
+      args: (n)
+     
+     0   constant current-time-string  ; Push
+                                       ;   `current-time-string'
+                                       ;   onto top of stack.
+     
+     1   call     0              ; Call `current-time-string'
+                                 ;    with no argument,
+                                 ;    pushing result onto stack.
+     
+     2   varbind  t1             ; Pop stack and bind `t1'
+                                 ;   to popped value.
+     
+     3   varref   n              ; Get value of `n' from
+                                 ;   the environment and push
+                                 ;   the value onto the stack.
+     
+     4   sub1                    ; Subtract 1 from top of stack.
+     
+     5   dup                     ; Duplicate the top of the stack;
+                                 ;   i.e., copy the top of
+                                 ;   the stack and push the
+                                 ;   copy onto the stack.
+     
+     6   varset   n              ; Pop the top of the stack,
+                                 ;   and bind `n' to the value.
+     
+                                 ; In effect, the sequence `dup varset'
+                                 ;   copies the top of the stack
+                                 ;   into the value of `n'
+                                 ;   without popping it.
+     
+     7   constant 0              ; Push 0 onto stack.
+     
+     8   gtr                     ; Pop top two values off stack,
+                                 ;   test if N is greater than 0
+                                 ;   and push result onto stack.
+     
+     9   goto-if-nil-else-pop 17 ; Goto 17 if `n' <= 0
+                                 ;   (this exits the while loop).
+                                 ;   else pop top of stack
+                                 ;   and continue
+     
+     12  constant nil            ; Push `nil' onto stack
+                                 ;   (this is the body of the loop).
+     
+     13  discard                 ; Discard result of the body
+                                 ;   of the loop (a while loop
+                                 ;   is always evaluated for
+                                 ;   its side effects).
+     
+     14  goto     3              ; Jump back to beginning
+                                 ;   of while loop.
+     
+     17  discard                 ; Discard result of while loop
+                                 ;   by popping top of stack.
+                                 ;   This result is the value `nil' that
+                                 ;   was not popped by the goto at 9.
+     
+     18  varref   t1             ; Push value of `t1' onto stack.
+     
+     19  constant current-time-string  ; Push
+                                       ;   `current-time-string'
+                                       ;   onto top of stack.
+     
+     20  call     0              ; Call `current-time-string' again.
+     
+     21  list2                   ; Pop top two elements off stack,
+                                 ;   create a list of them,
+                                 ;   and push list onto stack.
+     
+     22  unbind   1              ; Unbind `t1' in local environment.
+     
+     23  return                  ; Return value of the top of stack.
+     
+          => nil
+
+
+File: elisp,  Node: Debugging,  Next: Read and Print,  Prev: Byte Compilation,  Up: Top
+
+Debugging Lisp Programs
+***********************
+
+   There are three ways to investigate a problem in an Emacs Lisp
+program, depending on what you are doing with the program when the
+problem appears.
+
+   * If the problem occurs when you run the program, you can use a Lisp
+     debugger (either the default debugger or Edebug) to investigate
+     what is happening during execution.
+
+   * If the problem is syntactic, so that Lisp cannot even read the
+     program, you can use the Emacs facilities for editing Lisp to
+     localize it.
+
+   * If the problem occurs when trying to compile the program with the
+     byte compiler, you need to know how to examine the compiler's
+     input buffer.
+
+* Menu:
+
+* Debugger::            How the Emacs Lisp debugger is implemented.
+* Syntax Errors::       How to find syntax errors.
+* Compilation Errors::  How to find errors that show up in byte compilation.
+* Edebug::		A source-level Emacs Lisp debugger.
+
+   Another useful debugging tool is the dribble file.  When a dribble
+file is open, Emacs copies all keyboard input characters to that file.
+Afterward, you can examine the file to find out what input was used.
+*Note Terminal Input::.
+
+   For debugging problems in terminal descriptions, the
+`open-termscript' function can be useful.  *Note Terminal Output::.
+
+
+File: elisp,  Node: Debugger,  Next: Syntax Errors,  Up: Debugging
+
+The Lisp Debugger
+=================
+
+   The "Lisp debugger" provides the ability to suspend evaluation of a
+form.  While evaluation is suspended (a state that is commonly known as
+a "break"), you may examine the run time stack, examine the values of
+local or global variables, or change those values.  Since a break is a
+recursive edit, all the usual editing facilities of Emacs are
+available; you can even run programs that will enter the debugger
+recursively.  *Note Recursive Editing::.
+
+* Menu:
+
+* Error Debugging::       Entering the debugger when an error happens.
+* Infinite Loops::	  Stopping and debugging a program that doesn't exit.
+* Function Debugging::    Entering it when a certain function is called.
+* Explicit Debug::        Entering it at a certain point in the program.
+* Using Debugger::        What the debugger does; what you see while in it.
+* Debugger Commands::     Commands used while in the debugger.
+* Invoking the Debugger:: How to call the function `debug'.
+* Internals of Debugger:: Subroutines of the debugger, and global variables.
+
+
+File: elisp,  Node: Error Debugging,  Next: Infinite Loops,  Up: Debugger
+
+Entering the Debugger on an Error
+---------------------------------
+
+   The most important time to enter the debugger is when a Lisp error
+happens.  This allows you to investigate the immediate causes of the
+error.
+
+   However, entry to the debugger is not a normal consequence of an
+error.  Many commands frequently get Lisp errors when invoked in
+inappropriate contexts (such as `C-f' at the end of the buffer) and
+during ordinary editing it would be very unpleasant to enter the
+debugger each time this happens.  If you want errors to enter the
+debugger, set the variable `debug-on-error' to non-`nil'.
+
+ - User Option: debug-on-error
+     This variable determines whether the debugger is called when an
+     error is signaled and not handled.  If `debug-on-error' is `t', all
+     errors call the debugger.  If it is `nil', none call the debugger.
+
+     The value can also be a list of error conditions that should call
+     the debugger.  For example, if you set it to the list
+     `(void-variable)', then only errors about a variable that has no
+     value invoke the debugger.
+
+     When this variable is non-`nil', Emacs does not catch errors that
+     happen in process filter functions and sentinels.  Therefore, these
+     errors also can invoke the debugger.  *Note Processes::.
+
+ - User Option: debug-ignored-errors
+     This variable specifies certain kinds of errors that should not
+     enter the debugger.  Its value is a list of error condition
+     symbols and/or regular expressions.  If the error has any of those
+     condition symbols, or if the error message matches any of the
+     regular expressions, then that error does not enter the debugger,
+     regardless of the value of `debug-on-error'.
+
+     The normal value of this variable lists several errors that happen
+     often during editing but rarely result from bugs in Lisp programs.
+
+   To debug an error that happens during loading of the `.emacs' file,
+use the option `-debug-init', which binds `debug-on-error' to `t' while
+`.emacs' is loaded and inhibits use of `condition-case' to catch init
+file errors.
+
+   If your `.emacs' file sets `debug-on-error', the effect may not last
+past the end of loading `.emacs'.  (This is an undesirable byproduct of
+the code that implements the `-debug-init' command line option.)  The
+best way to make `.emacs' set `debug-on-error' permanently is with
+`after-init-hook', like this:
+
+     (add-hook 'after-init-hook
+               '(lambda () (setq debug-on-error t)))
+
+
+File: elisp,  Node: Infinite Loops,  Next: Function Debugging,  Prev: Error Debugging,  Up: Debugger
+
+Debugging Infinite Loops
+------------------------
+
+   When a program loops infinitely and fails to return, your first
+problem is to stop the loop.  On most operating systems, you can do this
+with `C-g', which causes quit.
+
+   Ordinary quitting gives no information about why the program was
+looping.  To get more information, you can set the variable
+`debug-on-quit' to non-`nil'.  Quitting with `C-g' is not considered an
+error, and `debug-on-error' has no effect on the handling of `C-g'.
+Likewise, `debug-on-quit' has no effect on errors.
+
+   Once you have the debugger running in the middle of the infinite
+loop, you can proceed from the debugger using the stepping commands.
+If you step through the entire loop, you will probably get enough
+information to solve the problem.
+
+ - User Option: debug-on-quit
+     This variable determines whether the debugger is called when `quit'
+     is signaled and not handled.  If `debug-on-quit' is non-`nil',
+     then the debugger is called whenever you quit (that is, type
+     `C-g').  If `debug-on-quit' is `nil', then the debugger is not
+     called when you quit.  *Note Quitting::.
+
+
+File: elisp,  Node: Function Debugging,  Next: Explicit Debug,  Prev: Infinite Loops,  Up: Debugger
+
+Entering the Debugger on a Function Call
+----------------------------------------
+
+   To investigate a problem that happens in the middle of a program, one
+useful technique is to enter the debugger whenever a certain function is
+called.  You can do this to the function in which the problem occurs,
+and then step through the function, or you can do this to a function
+called shortly before the problem, step quickly over the call to that
+function, and then step through its caller.
+
+ - Command: debug-on-entry FUNCTION-NAME
+     This function requests FUNCTION-NAME to invoke the debugger each
+     time it is called.  It works by inserting the form `(debug
+     'debug)' into the function definition as the first form.
+
+     Any function defined as Lisp code may be set to break on entry,
+     regardless of whether it is interpreted code or compiled code.  If
+     the function is a command, it will enter the debugger when called
+     from Lisp and when called interactively (after the reading of the
+     arguments).  You can't debug primitive functions (i.e., those
+     written in C) this way.
+
+     When `debug-on-entry' is called interactively, it prompts for
+     FUNCTION-NAME in the minibuffer.
+
+     If the function is already set up to invoke the debugger on entry,
+     `debug-on-entry' does nothing.
+
+     *Note:* if you redefine a function after using `debug-on-entry' on
+     it, the code to enter the debugger is lost.
+
+     `debug-on-entry' returns FUNCTION-NAME.
+
+          (defun fact (n)
+            (if (zerop n) 1
+                (* n (fact (1- n)))))
+               => fact
+          (debug-on-entry 'fact)
+               => fact
+          (fact 3)
+          
+          ------ Buffer: *Backtrace* ------
+          Entering:
+          * fact(3)
+            eval-region(4870 4878 t)
+            byte-code("...")
+            eval-last-sexp(nil)
+            (let ...)
+            eval-insert-last-sexp(nil)
+          * call-interactively(eval-insert-last-sexp)
+          ------ Buffer: *Backtrace* ------
+          
+          (symbol-function 'fact)
+               => (lambda (n)
+                    (debug (quote debug))
+                    (if (zerop n) 1 (* n (fact (1- n)))))
+
+ - Command: cancel-debug-on-entry FUNCTION-NAME
+     This function undoes the effect of `debug-on-entry' on
+     FUNCTION-NAME.  When called interactively, it prompts for
+     FUNCTION-NAME in the minibuffer.  If FUNCTION-NAME is `nil' or the
+     empty string, it cancels debugging for all functions.
+
+     If `cancel-debug-on-entry' is called more than once on the same
+     function, the second call does nothing.  `cancel-debug-on-entry'
+     returns FUNCTION-NAME.
+
+
+File: elisp,  Node: Explicit Debug,  Next: Using Debugger,  Prev: Function Debugging,  Up: Debugger
+
+Explicit Entry to the Debugger
+------------------------------
+
+   You can cause the debugger to be called at a certain point in your
+program by writing the expression `(debug)' at that point.  To do this,
+visit the source file, insert the text `(debug)' at the proper place,
+and type `C-M-x'.  Be sure to undo this insertion before you save the
+file!
+
+   The place where you insert `(debug)' must be a place where an
+additional form can be evaluated and its value ignored.  (If the value
+of `(debug)' isn't ignored, it will alter the execution of the
+program!)  The most common suitable places are inside a `progn' or an
+implicit `progn' (*note Sequencing::.).
+
+
+File: elisp,  Node: Using Debugger,  Next: Debugger Commands,  Prev: Explicit Debug,  Up: Debugger
+
+Using the Debugger
+------------------
+
+   When the debugger is entered, it displays the previously selected
+buffer in one window and a buffer named `*Backtrace*' in another
+window.  The backtrace buffer contains one line for each level of Lisp
+function execution currently going on.  At the beginning of this buffer
+is a message describing the reason that the debugger was invoked (such
+as the error message and associated data, if it was invoked due to an
+error).
+
+   The backtrace buffer is read-only and uses a special major mode,
+Debugger mode, in which letters are defined as debugger commands.  The
+usual Emacs editing commands are available; thus, you can switch windows
+to examine the buffer that was being edited at the time of the error,
+switch buffers, visit files, or do any other sort of editing.  However,
+the debugger is a recursive editing level (*note Recursive Editing::.)
+and it is wise to go back to the backtrace buffer and exit the debugger
+(with the `q' command) when you are finished with it.  Exiting the
+debugger gets out of the recursive edit and kills the backtrace buffer.
+
+   The backtrace buffer shows you the functions that are executing and
+their argument values.  It also allows you to specify a stack frame by
+moving point to the line describing that frame.  (A stack frame is the
+place where the Lisp interpreter records information about a particular
+invocation of a function.)  The frame whose line point is on is
+considered the "current frame".  Some of the debugger commands operate
+on the current frame.
+
+   The debugger itself must be run byte-compiled, since it makes
+assumptions about how many stack frames are used for the debugger
+itself.  These assumptions are false if the debugger is running
+interpreted.
+
+
+File: elisp,  Node: Debugger Commands,  Next: Invoking the Debugger,  Prev: Using Debugger,  Up: Debugger
+
+Debugger Commands
+-----------------
+
+   Inside the debugger (in Debugger mode), these special commands are
+available in addition to the usual cursor motion commands.  (Keep in
+mind that all the usual facilities of Emacs, such as switching windows
+or buffers, are still available.)
+
+   The most important use of debugger commands is for stepping through
+code, so that you can see how control flows.  The debugger can step
+through the control structures of an interpreted function, but cannot do
+so in a byte-compiled function.  If you would like to step through a
+byte-compiled function, replace it with an interpreted definition of the
+same function.  (To do this, visit the source file for the function and
+type `C-M-x' on its definition.)
+
+   Here is a list of Debugger mode commands:
+
+`c'
+     Exit the debugger and continue execution.  When continuing is
+     possible, it resumes execution of the program as if the debugger
+     had never been entered (aside from the effect of any variables or
+     data structures you may have changed while inside the debugger).
+
+     Continuing is possible after entry to the debugger due to function
+     entry or exit, explicit invocation, or quitting.  You cannot
+     continue if the debugger was entered because of an error.
+
+`d'
+     Continue execution, but enter the debugger the next time any Lisp
+     function is called.  This allows you to step through the
+     subexpressions of an expression, seeing what values the
+     subexpressions compute, and what else they do.
+
+     The stack frame made for the function call which enters the
+     debugger in this way will be flagged automatically so that the
+     debugger will be called again when the frame is exited.  You can
+     use the `u' command to cancel this flag.
+
+`b'
+     Flag the current frame so that the debugger will be entered when
+     the frame is exited.  Frames flagged in this way are marked with
+     stars in the backtrace buffer.
+
+`u'
+     Don't enter the debugger when the current frame is exited.  This
+     cancels a `b' command on that frame.
+
+`e'
+     Read a Lisp expression in the minibuffer, evaluate it, and print
+     the value in the echo area.  The debugger alters certain important
+     variables, and the current buffer, as part of its operation; `e'
+     temporarily restores their outside-the-debugger values so you can
+     examine them.  This makes the debugger more transparent.  By
+     contrast, `M-:' does nothing special in the debugger; it shows you
+     the variable values within the debugger.
+
+`q'
+     Terminate the program being debugged; return to top-level Emacs
+     command execution.
+
+     If the debugger was entered due to a `C-g' but you really want to
+     quit, and not debug, use the `q' command.
+
+`r'
+     Return a value from the debugger.  The value is computed by
+     reading an expression with the minibuffer and evaluating it.
+
+     The `r' command is useful when the debugger was invoked due to exit
+     from a Lisp call frame (as requested with `b'); then the value
+     specified in the `r' command is used as the value of that frame.
+     It is also useful if you call `debug' and use its return value.
+     Otherwise, `r' has the same effect as `c', and the specified
+     return value does not matter.
+
+     You can't use `r' when the debugger was entered due to an error.
+
+
+File: elisp,  Node: Invoking the Debugger,  Next: Internals of Debugger,  Prev: Debugger Commands,  Up: Debugger
+
+Invoking the Debugger
+---------------------
+
+   Here we describe fully the function used to invoke the debugger.
+
+ - Function: debug &rest DEBUGGER-ARGS
+     This function enters the debugger.  It switches buffers to a buffer
+     named `*Backtrace*' (or `*Backtrace*<2>' if it is the second
+     recursive entry to the debugger, etc.), and fills it with
+     information about the stack of Lisp function calls.  It then
+     enters a recursive edit, showing the backtrace buffer in Debugger
+     mode.
+
+     The Debugger mode `c' and `r' commands exit the recursive edit;
+     then `debug' switches back to the previous buffer and returns to
+     whatever called `debug'.  This is the only way the function
+     `debug' can return to its caller.
+
+     If the first of the DEBUGGER-ARGS passed to `debug' is `nil' (or
+     if it is not one of the special values in the table below), then
+     `debug' displays the rest of its arguments at the top of the
+     `*Backtrace*' buffer.  This mechanism is used to display a message
+     to the user.
+
+     However, if the first argument passed to `debug' is one of the
+     following special values, then it has special significance.
+     Normally, these values are passed to `debug' only by the internals
+     of Emacs and the debugger, and not by programmers calling `debug'.
+
+     The special values are:
+
+    `lambda'
+          A first argument of `lambda' means `debug' was called because
+          of entry to a function when `debug-on-next-call' was
+          non-`nil'.  The debugger displays `Entering:' as a line of
+          text at the top of the buffer.
+
+    `debug'
+          `debug' as first argument indicates a call to `debug' because
+          of entry to a function that was set to debug on entry.  The
+          debugger displays `Entering:', just as in the `lambda' case.
+          It also marks the stack frame for that function so that it
+          will invoke the debugger when exited.
+
+    `t'
+          When the first argument is `t', this indicates a call to
+          `debug' due to evaluation of a list form when
+          `debug-on-next-call' is non-`nil'.  The debugger displays the
+          following as the top line in the buffer:
+
+               Beginning evaluation of function call form:
+
+    `exit'
+          When the first argument is `exit', it indicates the exit of a
+          stack frame previously marked to invoke the debugger on exit.
+          The second argument given to `debug' in this case is the
+          value being returned from the frame.  The debugger displays
+          `Return value:' on the top line of the buffer, followed by
+          the value being returned.
+
+    `error'
+          When the first argument is `error', the debugger indicates
+          that it is being entered because an error or `quit' was
+          signaled and not handled, by displaying `Signaling:' followed
+          by the error signaled and any arguments to `signal'.  For
+          example,
+
+               (let ((debug-on-error t))
+                 (/ 1 0))
+               
+               ------ Buffer: *Backtrace* ------
+               Signaling: (arith-error)
+                 /(1 0)
+               ...
+               ------ Buffer: *Backtrace* ------
+
+          If an error was signaled, presumably the variable
+          `debug-on-error' is non-`nil'.  If `quit' was signaled, then
+          presumably the variable `debug-on-quit' is non-`nil'.
+
+    `nil'
+          Use `nil' as the first of the DEBUGGER-ARGS when you want to
+          enter the debugger explicitly.  The rest of the DEBUGGER-ARGS
+          are printed on the top line of the buffer.  You can use this
+          feature to display messages--for example, to remind yourself
+          of the conditions under which `debug' is called.
+
+
+File: elisp,  Node: Internals of Debugger,  Prev: Invoking the Debugger,  Up: Debugger
+
+Internals of the Debugger
+-------------------------
+
+   This section describes functions and variables used internally by the
+debugger.
+
+ - Variable: debugger
+     The value of this variable is the function to call to invoke the
+     debugger.  Its value must be a function of any number of arguments
+     (or, more typically, the name of a function).  Presumably this
+     function will enter some kind of debugger.  The default value of
+     the variable is `debug'.
+
+     The first argument that Lisp hands to the function indicates why it
+     was called.  The convention for arguments is detailed in the
+     description of `debug'.
+
+ - Command: backtrace
+     This function prints a trace of Lisp function calls currently
+     active.  This is the function used by `debug' to fill up the
+     `*Backtrace*' buffer.  It is written in C, since it must have
+     access to the stack to determine which function calls are active.
+     The return value is always `nil'.
+
+     In the following example, a Lisp expression calls `backtrace'
+     explicitly.  This prints the backtrace to the stream
+     `standard-output': in this case, to the buffer `backtrace-output'.
+     Each line of the backtrace represents one function call.  The
+     line shows the values of the function's arguments if they are all
+     known.  If they are still being computed, the line says so.  The
+     arguments of special forms are elided.
+
+          (with-output-to-temp-buffer "backtrace-output"
+            (let ((var 1))
+              (save-excursion
+                (setq var (eval '(progn
+                                   (1+ var)
+                                   (list 'testing (backtrace))))))))
+          
+               => nil
+
+          ----------- Buffer: backtrace-output ------------
+            backtrace()
+            (list ...computing arguments...)
+            (progn ...)
+            eval((progn (1+ var) (list (quote testing) (backtrace))))
+            (setq ...)
+            (save-excursion ...)
+            (let ...)
+            (with-output-to-temp-buffer ...)
+            eval-region(1973 2142 #<buffer *scratch*>)
+            byte-code("...  for eval-print-last-sexp ...")
+            eval-print-last-sexp(nil)
+          * call-interactively(eval-print-last-sexp)
+          ----------- Buffer: backtrace-output ------------
+
+     The character `*' indicates a frame whose debug-on-exit flag is
+     set.
+
+ - Variable: debug-on-next-call
+     If this variable is non-`nil', it says to call the debugger before
+     the next `eval', `apply' or `funcall'.  Entering the debugger sets
+     `debug-on-next-call' to `nil'.
+
+     The `d' command in the debugger works by setting this variable.
+
+ - Function: backtrace-debug LEVEL FLAG
+     This function sets the debug-on-exit flag of the stack frame LEVEL
+     levels down the stack, giving it the value FLAG.  If FLAG is
+     non-`nil', this will cause the debugger to be entered when that
+     frame later exits.  Even a nonlocal exit through that frame will
+     enter the debugger.
+
+     This function is used only by the debugger.
+
+ - Variable: command-debug-status
+     This variable records the debugging status of the current
+     interactive command.  Each time a command is called interactively,
+     this variable is bound to `nil'.  The debugger can set this
+     variable to leave information for future debugger invocations
+     during the same command.
+
+     The advantage, for the debugger, of using this variable rather than
+     another global variable is that the data will never carry over to a
+     subsequent command invocation.
+
+ - Function: backtrace-frame FRAME-NUMBER
+     The function `backtrace-frame' is intended for use in Lisp
+     debuggers.  It returns information about what computation is
+     happening in the stack frame FRAME-NUMBER levels down.
+
+     If that frame has not evaluated the arguments yet (or is a special
+     form), the value is `(nil FUNCTION ARG-FORMS...)'.
+
+     If that frame has evaluated its arguments and called its function
+     already, the value is `(t FUNCTION ARG-VALUES...)'.
+
+     In the return value, FUNCTION is whatever was supplied as the CAR
+     of the evaluated list, or a `lambda' expression in the case of a
+     macro call.  If the function has a `&rest' argument, that is
+     represented as the tail of the list ARG-VALUES.
+
+     If FRAME-NUMBER is out of range, `backtrace-frame' returns `nil'.
+
+
+File: elisp,  Node: Syntax Errors,  Next: Compilation Errors,  Prev: Debugger,  Up: Debugging
+
+Debugging Invalid Lisp Syntax
+=============================
+
+   The Lisp reader reports invalid syntax, but cannot say where the real
+problem is.  For example, the error "End of file during parsing" in
+evaluating an expression indicates an excess of open parentheses (or
+square brackets).  The reader detects this imbalance at the end of the
+file, but it cannot figure out where the close parenthesis should have
+been.  Likewise, "Invalid read syntax: ")"" indicates an excess close
+parenthesis or missing open parenthesis, but does not say where the
+missing parenthesis belongs.  How, then, to find what to change?
+
+   If the problem is not simply an imbalance of parentheses, a useful
+technique is to try `C-M-e' at the beginning of each defun, and see if
+it goes to the place where that defun appears to end.  If it does not,
+there is a problem in that defun.
+
+   However, unmatched parentheses are the most common syntax errors in
+Lisp, and we can give further advice for those cases.
+
+* Menu:
+
+* Excess Open::     How to find a spurious open paren or missing close.
+* Excess Close::    How to find a spurious close paren or missing open.
+

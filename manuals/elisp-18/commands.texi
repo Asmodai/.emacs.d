@@ -1,0 +1,1218 @@
+@c -*-texinfo-*-
+@setfilename ../info/commands
+@node Command Loop, Keymaps, Minibuffers, Top
+@chapter Command Loop
+@cindex editor command loop
+@cindex command loop
+
+  When you run Emacs, it enters the @dfn{editor command loop} almost
+immediately.  This loop reads key sequences, executes their definitions,
+and displays the results.  In this chapter, we describe how these things
+are done, and the subroutines that allow Lisp programs to do them.  
+
+@menu
+* Command Overview::    How the command loop reads commands.
+* Defining Commands::   Specifying how a function should read arguments.
+* Interactive Call::    Calling a command, so that it will read arguments.
+* Command Loop Info::   Variables set by the command loop for you to examine.
+* Keyboard Input::      How your program can read characters from the keyboard.
+* Quitting::            How @kbd{C-g} works.  How to catch or defer quitting.
+* Prefix Command Arguments::    How the commands to set prefix args work.
+* Recursive Editing::   Entering a recursive edit,
+                          and why you usually shouldn't.
+* Disabling Commands::  How the command loop handles disabled commands.
+* Command History::     How the command history is set up, and how accessed.
+* Keyboard Macros::     How keyboard macros are implemented.
+@end menu
+
+@node Command Overview, Defining Commands, Command Loop, Command Loop
+@section Command Loop Overview
+
+  The first thing the command loop must do is read a key sequence, which
+is a sequence of characters that translates into a command.  It does
+this by calling the function @code{read-key-sequence}.  Your Lisp code
+can also call this function (@pxref{Keyboard Input}).  Lisp programs can
+also do input at a lower level with @code{read-char} or discard pending
+input with @code{discard-input}.  
+
+  The key sequence is translated into a command through the keymaps of
+the current buffer.  @xref{Keymaps}, for information on how this is
+done.  The result should be a keyboard macro or an interactively
+callable function.  If the key is @kbd{M-x}, then it reads the name of
+another command, which is used instead.  This is done by the command
+@code{execute-extended-command} (@pxref{Interactive Call}).
+
+  Once the command is read, it must be executed, which includes reading
+arguments to be given to it.  This is done by calling
+@code{command-execute} (@pxref{Interactive Call}).  For commands written
+in Lisp, the @code{interactive} specification says how to read the
+arguments.  This may use the prefix argument (@pxref{Prefix Command
+Arguments}) or may read with prompting in the minibuffer
+(@pxref{Minibuffers}).  For example, the command @code{find-file} has an
+@code{interactive} specification which says to read a file name using
+the minibuffer.  The command's function body does not use the
+minibuffer; if you call this command from Lisp code as a function, you
+must supply the file name string as an ordinary Lisp function argument.
+
+  If the command is a string (i.e., a keyboard macro) then the function
+@code{execute-kbd-macro} is used to execute it.  You can call this
+function yourself (@pxref{Keyboard Macros}).
+
+  If a command runs away, typing @kbd{C-g} will terminate its execution
+immediately.  This is called @dfn{quitting} (@pxref{Quitting}).  
+
+@node Defining Commands, Interactive Call, Command Overview, Command Loop
+@section Defining Commands
+@cindex defining commands
+@cindex commands, defining
+@cindex functions, making them interactive
+@cindex interactive function
+
+  A Lisp function becomes a command when its body contains, at top
+level, a form which calls the special form @code{interactive}.  This
+form does nothing when actually executed, but its presence serves as a
+flag to indicate that interactive calling is permitted.  Its argument
+controls the reading of arguments for an interactive call.
+
+@menu
+* Using Interactive::     General rules for @code{interactive}.
+* Interactive Codes::     The standard letter-codes for reading arguments
+                             in various ways.
+* Interactive Examples::  Examples of how to read interactive arguments.
+@end menu
+
+@node Using Interactive, Interactive Codes, Defining Commands, Defining Commands
+@subsection Using @code{interactive}
+
+  This section describes how to write the @code{interactive} form that
+makes a Lisp function an interactively-callable command.
+
+@defspec interactive arg-descriptor
+@cindex argument descriptors
+This special form declares that the function in which it appears is a
+command, and that it may therefore be called interactively (via
+@kbd{M-x} or by entering a key sequence bound to it).  The argument
+@var{arg-descriptor} declares the way the arguments to the command are
+to be computed when the command is called interactively.
+
+A command may be called from Lisp programs like any other function, but
+then the arguments are supplied by the caller and @var{arg-descriptor}
+has no effect.
+
+The @code{interactive} form has its effect because the command loop
+(actually, its subroutine @code{call-interactively}) scans through the
+function definition looking for it, before calling the function.  Once
+the function is called, all its body forms including the
+@code{interactive} form are executed, but at this time
+@code{interactive} simply returns @code{nil} without even evaluating its
+argument.
+@end defspec
+
+There are three possibilities for the argument @var{arg-descriptor}:
+
+@itemize @bullet
+@item
+It may be omitted or @code{nil}; then the command is called with no
+arguments.  This leads quickly to an error if the command requires one
+or more arguments.
+
+@item
+It may be a Lisp expression that is not a string; then it should be a
+form that is evaluated to get a list of arguments to pass to the
+command.
+@cindex argument evaluation form
+
+@item
+@cindex argument prompt
+It may be a string; then its contents should consist of a code character
+followed by a prompt (if required for that code character).  The prompt
+ends either with the end of the string or with a newline.  Here is a
+simple example:
+
+@example
+(interactive "bFrobnicate buffer: ")
+@end example
+
+@noindent
+The code letter @samp{b} says to read the name of an existing buffer,
+with completion.  The buffer name will be the sole argument passed to the
+command.  The rest of the string is a prompt.
+
+If there is a newline character in the string, it terminates the prompt.
+If the string does not end there, then the rest of the string should
+contain another code character and prompt, specifying another argument.
+Any number of arguments may be specified in this way.
+
+@cindex @samp{*} in interactive
+@kindex buffer-read-only
+If the first character in the string is @samp{*}, then an error is
+signaled if the buffer is read-only.  Otherwise, the following character
+is the first code character.
+@end itemize
+
+@node Interactive Codes, Interactive Examples, Using Interactive, Defining Commands
+@comment  node-name,  next,  previous,  up
+@subsection Code Characters for @code{interactive}
+@cindex interactive code description
+@cindex description for interactive codes
+@cindex codes, interactive, description of
+@cindex characters for interactive codes
+
+  The code character descriptions below contain a number of key words,
+defined here as follows:
+
+@table @b
+@item Completion
+@cindex interactive completion
+Provide completion.  @key{TAB}, @key{SPC}, and @key{RET} perform name
+completion because the argument is read using @code{completing-read}
+(@pxref{Completion}).  @kbd{?} displays a list of possible completions.
+
+@item Existing
+Require the name of an existing object.  An invalid name is not
+accepted; the commands to exit the minibuffer do not exit if the current
+input is not valid.
+
+@item Default
+@cindex default argument string
+A default value of some sort is used if the user enters no text in the
+minibuffer.  The default depends on the code character.
+
+@item Prompt
+A prompt immediately follows the code character.  The prompt ends either
+with the end of the string or with a newline.
+
+@item No I/O
+This code letter computes an argument without reading any input.
+Therefore, it does not use a prompt string, and any prompt string you
+supply is ignored.
+@end table
+
+@cindex reading interactive arguments
+  Here are the code character descriptions for use with @code{interactive}:
+
+@table @samp
+@item a
+A function name (i.e., a symbol which is @code{fboundp}).  Existing,
+Completion, Prompt.
+
+@item b
+The name of an existing buffer.  By default, uses the name of the
+current buffer (@pxref{Buffers}).  Existing, Completion, Default,
+Prompt.
+
+@item B
+A buffer name.  The buffer need not exist.  By default, uses the name of
+a recently used buffer other than the current buffer.  Completion,
+Prompt.
+
+@item c
+A character.  The cursor does not move into the echo area.  Prompt.
+
+@item C
+A command name (i.e., a symbol satisfying @code{commandp}).  Existing,
+Completion, Prompt.
+
+@item d
+@cindex position argument
+The position of point as a number (@pxref{Point}).  No I/O.
+
+@item D
+A directory name.  The default is the current default directory of the
+current buffer, @code{default-directory} (@pxref{System Environment}).
+Existing, Completion, Default, Prompt.
+
+@item f
+A file name of an existing file (@pxref{File Names}).  The default
+directory is @code{default-directory}.  Existing, Completion, Default,
+Prompt.
+
+@item F
+A file name.  The file need not exist.  Completion, Default, Prompt.
+
+@item k
+A key sequence (@pxref{Keymap Terms}).  This keeps reading characters
+until a command (or undefined command) is found in the current key maps.
+The key sequence argument is represented as a string.  The cursor does
+not move into the echo area.  Prompt.
+
+This kind of input is used by commands such as @code{describe-key} and
+@code{global-set-key}.
+
+@item m
+@cindex marker argument
+The position of the mark as a number.  No I/O.
+
+@item n
+A number read with the minibuffer.  If the input is not a number, the
+user is asked to try again.  The prefix argument, if any, is not used.
+Prompt.
+
+@item N
+@cindex raw prefix argument usage
+The raw prefix argument.  If the prefix argument is @code{nil}, then a
+number is read as with @kbd{n}.  Requires a number.  Prompt.
+
+@item p
+@cindex numeric prefix argument usage
+The numeric prefix argument.  (Note that this @samp{p} is lower case.)
+No I/O.@refill
+
+@item P
+The raw prefix argument.  (Note that this @samp{P} is upper case.)
+@xref{Prefix Command Arguments}.  No I/O.@refill
+
+@item r
+@cindex region argument
+Point and the mark, as two numeric arguments, smallest first.  This is
+the only code letter that specifies two successive arguments rather than
+one.  No I/O.
+
+@item s
+Arbitrary text, read in the minibuffer and returned as a string
+(@pxref{Text from Minibuffer}).  Terminate the input with either
+@key{LFD} or @key{RET}.  (@kbd{C-q} may be used to include either of
+these characters in the input.)  Prompt.
+
+@item S
+An interned symbol whose name is read in the minibuffer.  Any whitespace
+character terminates the input.  (Use @kbd{C-q} to include whitespace in
+the string.)  Other characters that normally terminate a symbol (e.g.,
+parentheses and brackets) do not do so here.  Prompt.
+
+@item v
+A variable declared to be a user option (i.e., satisfying
+@code{user-variable-p}).  @xref{High-Level Completion}.  Existing,
+Completion, Prompt.
+
+@item x
+A Lisp object specified in printed representation, terminated with a
+@key{LFD} or @key{RET}.  The object is not evaluated.  @xref{Object from
+Minibuffer}.  Prompt.
+
+@item X
+@cindex evaluated expression argument
+A Lisp form is read as with @kbd{x}, but then evaluated so that its
+value becomes the argument for the command.  Prompt.
+@end table
+
+@node Interactive Examples,  , Interactive Codes, Defining Commands
+@comment  node-name,  next,  previous,  up
+@subsection Examples of Using @code{interactive}
+@cindex examples of using @code{interactive}
+@cindex @code{interactive}, examples of using 
+
+  Here are some examples of @code{interactive}:
+
+@example
+(defun foo1 ()                ; @r{@code{foo1} takes no arguments,}
+    (interactive)             ; @r{just moves forward two words.}
+    (forward-word 2))
+     @result{} foo1
+
+(defun foo2 (n)               ; @r{@code{foo2} takes one argument,}
+    (interactive "p")         ; @r{which is the numeric prefix.}
+    (forward-word (* 2 n)))
+     @result{} foo2
+
+(defun foo3 (n)               ; @r{@code{foo3} takes one argument,}
+    (interactive "nCount:")   ; @r{which is read with the Minibuffer.}
+    (forward-word (* 2 n)))
+     @result{} foo3
+
+(defun three-b (b1 b2 b3)
+  "Select three existing buffers (prompting for them in
+the Minibuffer).  Put them into three windows, selecting the
+last one."
+    (interactive "bBuffer1:\nbBuffer2:\nbBuffer3:")
+    (delete-other-windows)
+    (split-window (selected-window) 8)
+    (switch-to-buffer b1)
+    (other-window 1)
+    (split-window (selected-window) 8)
+    (switch-to-buffer b2)
+    (other-window 1)
+    (switch-to-buffer b3))
+     @result{} three-b
+(three-b "*scratch*" "declarations.texi" "*mail*")
+     @result{} nil
+@end example
+
+@node Interactive Call, Command Loop Info, Defining Commands, Command Loop
+@section Interactive Call
+@cindex interactive call
+
+  After the command loop has translated a key sequence into a
+definition, it invokes that definition using the function
+@code{command-execute}.  If the definition is a function that is a
+command, @code{command-execute} calls @code{call-interactively}, which
+reads the arguments and calls the command.  You can also call these
+functions yourself.
+
+@defun commandp object
+Returns @code{t} if @var{object} is suitable for calling interactively;
+that is, if @var{object} is a command.  Otherwise, returns @code{nil}.  
+
+The interactively callable objects include strings (treated as keyboard
+macros), lambda expressions that contain a top-level call to
+@code{interactive}, autoload objects that are declared as interactive
+(non-@code{nil} fourth argument to @code{autoload}), and some of the
+primitive functions.
+
+A symbol is @code{commandp} if its function definition is
+@code{commandp}.
+
+Keys and keymaps are not commands.  Rather, they are used to look up
+commands (@pxref{Keymaps}).
+
+See @code{documentation} in @ref{Accessing Documentation}, for a
+realistic example of using @code{commandp}.
+@end defun
+
+@defun call-interactively command &optional record-flag
+This function calls the interactively callable function @var{command},
+reading arguments according to its interactive calling specifications.
+An error is signaled if @var{command} cannot be called interactively
+(i.e., it is not a command).  Note that strings are not accepted, 
+even though they are considered commands.
+
+@cindex record command history
+If @var{record-flag} is non-@code{nil}, then this command and its
+arguments are unconditionally added to the list @code{command-history}.
+Otherwise, the command is added only if it uses the minibuffer to read
+an argument.  @xref{Command History}.
+@end defun
+
+@defun command-execute command &optional record-flag
+@cindex keyboard macro execution
+This function executes @var{command} as an editing command.  The
+argument @var{command} must satisfy the @code{commandp} predicate; i.e.,
+it must be an interactively callable function or a string.
+
+A string as @var{command} is executed with @code{execute-kbd-macro}.  A
+function is passed to @code{call-interactively}, along with the optional
+@var{record-flag}.
+
+A symbol is handled by using its function definition in its place.  A
+symbol with an @code{autoload} definition counts as a command if it was
+declared to stand for an interactively callable function.  Such a
+definition is handled by loading the specified library and then
+rechecking the definition of the symbol.
+@end defun
+
+@deffn Command execute-extended-command prefix-argument
+@cindex read command name
+This primitive function reads a command name from the minibuffer using
+@code{completing-read} (@pxref{Completion}).  Then it uses
+@code{command-execute} to call the specified command.  Whatever that
+command returns becomes the value of @code{execute-extended-command}.
+
+@cindex execute with prefix argument
+If the command asks for a prefix argument, the value
+@var{prefix-argument} is supplied.  If @code{execute-extended-command}
+is called interactively, the current raw prefix argument is used for
+@var{prefix-argument}, and thus passed on to whatever command is run.
+
+@c !!! Should this be @kindex?
+@cindex @kbd{M-x}
+@code{execute-extended-command} is the normal definition of @kbd{M-x},
+so it uses the string @w{@samp{M-x }} as a prompt.  (It would be better
+to take the prompt from the characters used to invoke
+@code{execute-extended-command}, but that is painful to implement.)  A
+description of the value of the prefix argument, if any, also becomes
+part of the prompt.
+
+@example
+(execute-extended-command 1)
+---------- Buffer: Minibuffer ----------
+M-x forward-word RET
+---------- Buffer: Minibuffer ----------
+     @result{} t
+@end example
+@end deffn
+
+@defun interactive-p
+This function returns @code{t} if the containing function (the one that
+called @code{interactive-p}) was called interactively, with
+@code{call-interactively}.  (It makes no difference whether
+@code{call-interactively} was called from Lisp or directly from the
+editor command loop.)  Note that if the containing function was called
+by Lisp evaluation (or with @code{apply} or @code{funcall}), then it was
+not called interactively.
+
+The usual application of @code{interactive-p} is for deciding whether to
+print an informative message.  As a special exception,
+@code{interactive-p} returns @code{nil} whenever a keyboard macro is
+being run.  This is to suppress the informative messages and speed
+execution of the macro.
+
+For example:
+
+@example
+(defun foo ()
+  (interactive)
+  (and (interactive-p)
+       (message "foo")))
+     @result{} foo
+
+@group
+(defun bar ()
+  (interactive)
+  (setq foobar (list (foo) (interactive-p))))
+     @result{} bar
+@end group
+
+;; @r{Type @kbd{M-x foo}.}
+     @print{} foo
+
+;; @r{Type @kbd{M-x bar}.}
+;; @r{This does not print anything.}
+
+foobar
+     @result{} (nil t)
+@end example
+@end defun
+
+@node Command Loop Info, Keyboard Input, Interactive Call, Command Loop
+@comment  node-name,  next,  previous,  up
+@section Information from the Command Loop
+
+The editor command loop sets several Lisp variables to keep status
+records for itself and for commands that are run.  
+
+@defvar last-command
+This variable records the name of the previous command executed by the
+command loop (the one before the current command).  Normally the value
+is a symbol with a function definition, but this is not guaranteed.
+
+The value is set by copying the value of @code{this-command} when a
+command returns to the command loop, except when the command specifies a
+prefix argument for the following command.
+@end defvar
+
+@defvar this-command
+@cindex current command
+This variable records the name of the command now being executed by
+editor command loop.  Like @code{last-command}, it is normally a symbol
+with a function definition.
+
+This variable is set by the command loop just before the command is run,
+and its value is copied into @code{last-command} when the command
+finishes (unless the command specifies a prefix argument for the
+following command).
+
+@cindex kill command repetition
+Some commands change the value of this variable during their execution,
+simply as a flag for whatever command runs next.  In particular, the
+functions that kill text set @code{this-command} to @code{kill-region}
+so that any kill commands immediately following will know to append the
+killed text to the previous kill.
+@end defvar
+
+@defun this-command-keys
+This function returns a string containing the key sequence that invoked
+the present command, plus any previous commands that generated the
+prefix argument for this command.
+
+@example
+(this-command-keys) ;; @r{Now type @kbd{C-u C-x C-e}.}
+     @result{} "^U^X^E"
+@end example
+@end defun
+
+@defvar last-command-char
+This variable is set to the last character that was typed on the
+terminal and was part of a command.  The principal use of this variable
+is in @code{self-insert-command}, which uses it to decide which
+character to insert.
+
+@example
+last-command-char ;; @r{Now type @kbd{C-u C-x C-e}.}
+     @result{} 5
+@end example
+
+@noindent
+The value is 5 because that is the @sc{ASCII} code for @kbd{C-e}.
+@end defvar
+
+@defvar echo-keystrokes
+This variable determines how much time should elapse before command
+characters are echoed.  Its value must be an integer, which specifies
+the number of seconds to wait before echoing.  If the user types a
+prefix key (say @kbd{C-x}) and then delays this many seconds before
+continuing, the key @kbd{C-x} is echoed in the echo area.  Any
+subsequent characters in the same command will be echoed as well.
+
+If the value is zero, then command input is not echoed.
+@end defvar
+
+@node Keyboard Input, Quitting, Command Loop Info, Command Loop
+@section Keyboard Input
+
+  The editor command loop reads keyboard input using
+@code{read-key-sequence}, which uses @code{read-char}.  These and other
+functions for keyboard input are also available for use in Lisp
+programs.  See also @code{momentary-string-display} in @ref{Temporary
+Displays}, and @code{sit-for} in @ref{Waiting}.  @xref{Terminal Input},
+for functions and variables for controlling terminal input modes and
+debugging terminal input.
+
+@defun read-char
+This function reads a character from the command input (either from
+direct keyboard input or from an executing keyboard macro), and returns
+it.
+
+No message is displayed to indicate that keyboard input is expected.  If
+you want to display a message, call @code{message} first.  If
+@code{cursor-in-echo-area} is non-@code{nil}, then the cursor moves to
+the echo area, to the end of any message displayed there.  Otherwise the
+cursor does not move.  @xref{The Echo Area}.
+
+In the first example, the user types @kbd{1} (which is @sc{ASCII} code
+49).  The second example shows a keyboard macro definition that calls
+@code{read-char} from the minibuffer.  @code{read-char} reads the
+keyboard macro's very next character, which is @kbd{1}.  The value of
+this function is displayed in the echo area by the command
+@code{eval-expression}.
+
+@example
+(read-char)
+     @result{} 49
+
+(symbol-function 'foo)
+     @result{} "^[^[(read-char)^M1"
+(execute-kbd-macro foo)
+     @print{} 49
+     @result{} nil
+@end example
+@end defun
+
+@defun read-quoted-char &optional prompt
+@cindex octal character input
+@cindex control characters, reading
+@cindex nonprinting characters, reading
+This function is like @code{read-char}, except that if the first
+character read is an octal digit (0-7), it reads up to two more octal digits
+(but stopping if a non-octal digit is found) and returns the
+character represented by those digits as an octal number.
+
+Quitting is suppressed when the first character is read, so that the
+user can enter a @kbd{C-g}.  @xref{Quitting}.
+
+If @var{prompt} is supplied, it specifies a string for prompting the
+user.  The prompt string is always printed in the echo area and followed
+by a single @samp{-}.
+
+In the following example, the user types in the octal number 177 (which
+is 127 in decimal).
+
+@example
+(read-quoted-char "What character")
+
+---------- Echo Area ----------
+What character-@kbd{177}
+---------- Echo Area ----------
+
+     @result{} 127
+@end example
+@end defun
+
+@defun read-key-sequence prompt
+@cindex key sequence
+This function reads a key sequence and returns it as a string.  It keeps
+reading characters until it has accumulated a full key sequence; that
+is, enough characters to specify a non-prefix command using the current
+local and global keymaps.  @code{read-key-sequence} is used by the
+command loop to read command input.
+
+@cindex upper case key sequence
+@cindex downcasing in @code{lookup-key}
+If an input character is an upper case letter and has no definition, but
+the lower case equivalent is defined, then the character is converted to
+lower case.  Note that @code{lookup-key} does not perform case
+conversion in this way.
+
+Quitting is suppressed inside @code{read-key-sequence}.  In other words,
+a @kbd{C-g} typed while reading with this function is treated like any other
+character, and @code{quit-flag} is not set.  @xref{Quitting}.
+
+The argument @var{prompt} is either a string to be displayed in the echo
+area as a prompt, or @code{nil}, meaning that no prompt is displayed.
+
+In the example below, the prompt @samp{?} is displayed in the echo area,
+and the user types @kbd{C-x C-f}.
+
+@example
+(read-key-sequence "?")
+
+---------- Echo Area ----------
+?@kbd{C-x C-f}
+---------- Echo Area ----------
+
+     @result{} "^X^F"
+@end example
+@end defun
+
+@defvar unread-command-char
+@cindex next input
+@cindex peeking at input
+This variable holds a character waiting to be read as the next input
+from the command input stream, or to the integer @minus{}1 if no
+character is waiting.  The variable is used because in some cases an
+input function reads a character and then decides not to use it.
+Storing the character in this variable causes it to be processed
+normally by the command loop or when @code{read-char} is next called.
+
+@cindex prefix argument unreading
+For example, the function that governs prefix arguments reads any number
+of digits.  When it finds a non-digit character, it must unread the
+character so that it becomes input for the next command.  Likewise,
+incremental search uses this feature to unread a control character used
+to terminate the search.
+@end defvar
+
+@defun input-pending-p
+@cindex waiting for command key input
+This function determines whether command input is currently available.
+It returns immediately, with value @code{t} if there is input,
+@code{nil} otherwise.  On rare occasions it may return @code{t}
+when no input is available.
+@end defun
+
+@defvar last-input-char
+  This variable records the last terminal input character read, whether
+as part of a command or explicitly by a Lisp program.
+
+  In the example below, a character is read (the character @kbd{1},
+@sc{ASCII} code 49).  It becomes the value of @code{last-input-char},
+while @kbd{C-e} (from the @kbd{C-x C-e} command used to evaluate this
+expression) remains the value of @code{last-command-char}.
+
+@example
+(progn (print (read-char))
+       (print last-command-char)
+       last-input-char)
+     @print{} 49
+     @print{} 5
+     @result{} 49
+@end example
+@end defvar
+
+@defun discard-input
+@cindex flush input
+@cindex discard input
+@cindex terminate keyboard macro
+This function discards the contents of the terminal input buffer and
+cancels any keyboard macro that might be in the process of definition.
+It returns @code{nil}.
+
+In the following example, the user may type a number of characters right
+after starting the evaluation of the form.  After the @code{sleep-for}
+finishes sleeping, any characters that have been typed are discarded.
+
+@example
+(progn (sleep-for 2)
+  (discard-input))
+     @result{} nil
+@end example
+@end defun
+
+@node Quitting, Prefix Command Arguments, Keyboard Input, Command Loop
+@section Quitting
+@cindex @kbd{C-g}
+@cindex quitting
+
+  Typing @kbd{C-g} while the command loop has run a Lisp function causes
+Emacs to @dfn{quit} whatever it is doing.  This means that control
+returns to the innermost active command loop.  
+
+  Typing @kbd{C-g} while the command loop is waiting for keyboard input
+does not cause a quit; it acts as an ordinary input character.  In the
+simplest case, you cannot tell the difference, because @kbd{C-g}
+normally runs the command @code{keyboard-quit}, whose effect is to quit.
+However, when @kbd{C-g} follows a prefix key, the result is an undefined
+key.  The effect is to cancel the prefix key as well as any prefix
+argument.
+
+  In the minibuffer, @kbd{C-g} has a different definition: it aborts out
+of the minibuffer.  This means, in effect, that it exits the minibuffer
+and then quits.  (Simply quitting would return to the command loop
+@emph{within} the minibuffer.)  The reason why @kbd{C-g} does not quit
+directly when the command reader is reading input is so that its meaning
+can be redefined in the minibuffer in this way.  @kbd{C-g} following a
+prefix key is not redefined in the minibuffer, and it has its normal
+effect of canceling the prefix key and prefix argument.  This too
+would not be possible if @kbd{C-g} quit directly.
+
+  @kbd{C-g} causes a quit by setting the variable @code{quit-flag} to a
+non-@code{nil} value.  Emacs checks this variable at appropriate times
+and quits if it is not @code{nil}.  Setting @code{quit-flag}
+non-@code{nil} in any way thus causes a quit.
+
+  At the level of C code, quits cannot happen just anywhere; only at the
+special places which check @code{quit-flag}.  The reason for this is
+that quitting at other places might leave an inconsistency in Emacs's
+internal state.  Because quitting is delayed until a safe place, quitting 
+cannot make Emacs crash.
+
+  Certain functions such as @code{read-key-sequence} or
+@code{read-quoted-char} prevent quitting entirely even though they wait
+for input.  Instead of quitting, @kbd{C-g} serves as the requested
+input.  In the case of @code{read-key-sequence}, this serves to bring
+about the special behavior of @kbd{C-g} in the command loop.  In the
+case of @code{read-quoted-char}, this is so that @kbd{C-q} can be used
+to quote a @kbd{C-g}.  
+
+  You can prevent quitting for a portion of a Lisp function by binding
+the variable @code{inhibit-quit} to a non-@code{nil} value.  Then,
+although @kbd{C-g} still sets @code{quit-flag} to @code{t} as usual, the
+usual result of this---a quit---is prevented.  Eventually,
+@code{inhibit-quit} will become @code{nil} again, such as when its
+binding is unwound at the end of a @code{let} form.  At that time, if
+@code{quit-flag} is still non-@code{nil}, the requested quit happens
+immediately.  This behavior is ideal for a ``critical section'', where
+you wish to make sure that quitting does not happen within that part of
+the program.
+
+@cindex @code{isearch-forward} quitting
+  In some functions (such as @code{read-quoted-char}), @kbd{C-g} is
+handled in a special way which does not involve quitting.  This is done
+by reading the input with @code{inhibit-quit} bound to @code{t} and
+setting @code{quit-flag} to @code{nil} before @code{inhibit-quit}
+becomes @code{nil} again.  This excerpt from the definition of
+@code{read-quoted-char} shows how this is done; it also shows that
+normal quitting is permitted after the first character of input.
+
+@example
+(defun read-quoted-char (&optional prompt)
+  "@dots{}@var{documentation}@dots{}"
+  (let ((count 0) (code 0) char)
+    (while (< count 3)
+      (let ((inhibit-quit (zerop count))
+            (help-form nil))
+        (and prompt (message "%s-" prompt))
+        (setq char (read-char))
+        (if inhibit-quit (setq quit-flag nil)))
+      @dots{})
+    (logand 255 code)))
+@end example
+
+@defvar quit-flag
+If this variable is non-@code{nil}, then Emacs quits immediately,
+unless @code{inhibit-quit} is non-@code{nil}.  Typing @kbd{C-g} sets
+@code{quit-flag} non-@code{nil}, regardless of @code{inhibit-quit}.
+@end defvar
+
+@defvar inhibit-quit
+This variable determines whether Emacs should quit when @code{quit-flag}
+is set to a value other than @code{nil}.  If @code{inhibit-quit} is
+non-@code{nil}, then @code{quit-flag} has no special effect.
+@end defvar
+
+@deffn Command keyboard-quit
+This function signals the @code{quit} condition with @code{(signal 'quit
+nil)}.  This is the same thing that quitting does.  (See @code{signal}
+in @ref{Errors}.)
+@end deffn
+
+  You can specify a character other than @kbd{C-g} to use for quitting.
+See the function @code{set-input-mode} in @ref{Terminal Input}.
+ 
+@node Prefix Command Arguments, Recursive Editing, Quitting, Command Loop
+@section Prefix Command Arguments
+@cindex prefix argument
+@cindex raw prefix argument
+@cindex numeric prefix argument
+
+  Most Emacs commands can use a @dfn{prefix argument}, a number
+specified before the command itself.  (Don't confuse prefix arguments
+with prefix keys.)  The prefix argument is represented by a value that
+is always available (though it may be @code{nil}, meaning there is no
+prefix argument).  Each command may use the prefix argument or ignore
+it.
+
+  There are two representations of the prefix argument: @dfn{raw} and
+@dfn{numeric}.  The editor command loop uses the raw representation
+internally, and so do the Lisp variables that store the information, but
+commands can request either representation.
+
+  Here are the possible values of a raw prefix argument:
+
+@itemize @bullet
+@item
+@code{nil}, meaning there is no prefix argument.  Its numeric value is
+1, but numerous commands make a distinction between @code{nil} and the
+integer 1.
+
+@item
+An integer, which stands for itself.
+
+@item
+A list of one element, which is an integer.  This form of prefix
+argument results from one or a succession of @kbd{C-u}'s with no
+digits.  The numeric value is the integer in the list, but some
+commands make a distinction between such a list and an integer alone.
+
+@item
+The symbol @code{-}.  This indicates that @kbd{M--} or @kbd{C-u -} was
+typed, without following digits.  The equivalent numeric value is
+@minus{}1, but some commands make a distinction between the integer
+@minus{}1 and the symbol @code{-}.
+@end itemize
+
+The various possibilities may be illustrated by calling the following
+function with various prefixes:
+
+@group
+@example
+(defun print-prefix (arg)
+  "Print the value of the raw prefix arg at point."
+  (interactive "P")
+  (message "%s" arg))
+@end example
+@end group
+
+@noindent 
+Here are the results of calling @code{print-prefix} with various
+raw prefix arguments:
+
+@example
+        M-x print-prefix  @print{} nil
+
+C-u     M-x print-prefix  @print{} (4)
+
+C-u C-u M-x print-prefix  @print{} (16)
+
+C-u 3   M-x print-prefix  @print{} 3
+
+M-3     M-x print-prefix  @print{} 3      ; @r{(Same as @code{C-u 3}.)}
+
+C-u -   M-x print-prefix  @print{} -      
+
+M- -    M-x print-prefix  @print{} -      ; @r{(Same as @code{C-u -}.)}
+
+C-u -7  M-x print-prefix  @print{} -7     
+
+M- -7   M-x print-prefix  @print{} -7     ; @r{(Same as @code{C-u -7}.)}
+@end example
+
+  There are two variables used to store the prefix argument:
+@code{prefix-arg} and @code{current-prefix-arg}.  Commands such as
+@code{universal-argument} that set up prefix arguments for other
+commands store them in @code{prefix-arg}.  In contrast,
+@code{current-prefix-arg} conveys the prefix argument to the current
+command, so setting it has no effect on the prefix arguments for future
+commands.
+
+  Normally, commands specify which representation to use for the prefix
+argument, either numeric or raw, in the @code{interactive} declaration.
+(@xref{Interactive Call}.)  Alternatively, functions may look at the
+value of the prefix argument directly in the variable
+@code{current-prefix-arg}, but this is less clean.
+
+  Don't call @code{universal-argument}, @code{digit-argument}, or
+@code{negative-argument} unless you intend to let the user enter the
+prefix argument for the @emph{next} command.
+
+@deffn Command universal-argument
+This command reads input and specifies a prefix argument for the
+following command.  Don't call this command yourself unless you know
+what you are doing.
+@end deffn
+
+@deffn Command digit-argument arg
+This command adds to the prefix argument for the following command.  The
+argument @var{arg} is the raw prefix argument as it was before this
+command; it is used to compute the updated prefix argument.  Don't call
+this command yourself unless you know what you are doing.
+@end deffn
+
+@deffn Command negative-argument arg
+This command adds to the numeric argument for the next command.  The
+argument @var{arg} is the raw prefix argument as it was before this
+command; its value is negated to form the new prefix argument.  Don't
+call this command yourself unless you know what you are doing.
+@end deffn
+
+@defun prefix-numeric-value arg
+This function returns the numeric meaning of a valid raw prefix argument
+value, @var{arg}.  The argument may be a symbol, a number, or a list.
+If it is @code{nil}, the value 1 is returned; if it is any other symbol,
+the value @minus{}1 is returned.  If it is a number, that number is
+returned; if it is a list, the @sc{car} of that list (which should be a
+number) is returned.
+@end defun
+
+@defvar current-prefix-arg
+This variable is the value of the raw prefix argument for the
+@emph{current} command.  Commands may examine it directly, but the usual
+way to access it is with @code{(interactive "P")}.
+@end defvar
+
+@defvar prefix-arg
+The value of this variable is the raw prefix argument for the
+@emph{next} editing command.  Commands that specify prefix arguments for
+the following command work by setting this variable.
+@end defvar
+
+@node Recursive Editing, Disabling Commands, Prefix Command Arguments, Command Loop
+@section Recursive Editing
+@cindex recursive command loop
+@cindex recursive editing level
+@cindex command loop, recursive
+
+  The Emacs command loop is entered automatically when Emacs starts up. 
+This top-level invocation of the command loop is never exited until the
+Emacs is killed.  Lisp programs can also invoke the command loop.  Since
+this makes more than one activation of the command loop, we call it
+@dfn{recursive editing}.  A recursive editing level has the effect of
+suspending whatever command invoked it and permitting the user to do
+arbitrary editing before resuming that command.
+
+  The commands available during recursive editing are the same ones
+available in the top-level editing loop and defined in the keymaps.
+Only a few special commands exit the recursive editing level; the others
+return to the recursive editing level when finished.  (The special
+commands for exiting are always available, but do nothing when recursive
+editing is not in progress.)
+
+  All command loops, including recursive ones, set up all-purpose error
+handlers so that an error in a command run from the command loop will
+not exit the loop.
+
+@cindex minibuffer input
+  Minibuffer input is a special kind of recursive editing.  It has a few
+special wrinkles, such as enabling display of the minibuffer and the
+minibuffer window, but fewer than you might suppose.  Certain keys
+behave differently in the minibuffer, but that is only because of the
+minibuffer's local map; if you switch windows, you get the usual Emacs
+commands.
+
+@cindex @code{throw} example
+@kindex exit
+@cindex exit recursive editing
+@cindex aborting
+  To invoke a recursive editing level, call the function
+@code{recursive-edit}.  This function contains the command loop; it also
+contains a call to @code{catch} with tag @code{exit}, which makes it
+possible to exit the recursive editing level by throwing to @code{exit}
+(@pxref{Catch and Throw}).  If you throw a value other than @code{t},
+then @code{recursive-edit} returns normally to the function that called
+it.  The command @kbd{C-M-c} (@code{exit-recursive-edit}) does this.
+Throwing a @code{t} value causes @code{recursive-edit} to quit, so that
+control returns to the command loop one level up.  This is called
+@dfn{aborting}, and is done by @kbd{C-]} (@code{abort-recursive-edit}).
+
+  Most applications should not use recursive editing, except as part of
+using the minibuffer.  Usually it is more convenient for the user if you
+change the major mode of the current buffer temporarily to a special
+major mode, which has a command to go back to the previous mode.  (This
+technique is used by the @kbd{w} command in Rmail.)  Or, if you wish to
+give the user different text to edit ``recursively'', create and select
+a new buffer in a special mode.  In this mode, define a command to
+complete the processing and go back to the previous buffer.  (The
+@kbd{m} command in Rmail does this.)
+
+  Recursive edits are useful in debugging.  You can insert a call to
+@code{debug} into a function definition as a sort of breakpoint, so that
+you can look around when the function gets there.  @code{debug} invokes
+a recursive edit but also provides the other features of the debugger.
+
+  Recursive editing levels are also used when you type @kbd{C-r} in
+@code{query-replace} or use @kbd{C-x q} (@code{kbd-macro-query}).
+
+@defun recursive-edit
+@cindex suspend evaluation
+This function invokes the editor command loop.  It is called
+automatically by the initialization of Emacs, to let the user begin
+editing.  When called from a Lisp program, it enters a recursive editing
+level.
+
+  In the following example, the function @code{simple-rec} first
+advances point one word, then enters a recursive edit, printing out a
+message in the echo area.  The user can then do any editing desired, and
+then type @kbd{C-M-c} to exit and continue executing @code{simple-rec}.
+
+@example
+(defun simple-rec ()
+  (forward-word 1)
+  (message "Recursive edit in progress.")
+  (recursive-edit)
+  (forward-word 1))
+     @result{} simple-rec
+(simple-rec)
+     @result{} nil
+@end example
+@end defun
+
+@deffn Command exit-recursive-edit
+This function exits from the innermost recursive edit (including
+minibuffer input).  Its definition is effectively @code{(throw 'exit
+nil)}.  
+@end deffn
+
+@deffn Command abort-recursive-edit
+This function aborts the command that requested the innermost recursive
+edit (including minibuffer input), by signaling @code{quit} 
+after exiting the recursive edit.  Its definition is effectively
+@code{(throw 'exit t)}.  @xref{Quitting}.
+@end deffn
+
+@deffn Command top-level
+This function exits all recursive editing levels; it does not return a
+value, as it jumps completely out of any computation directly back to
+the main command loop.
+@end deffn
+
+@defun recursion-depth
+This function returns the current depth of recursive edits.  When no
+recursive edit is active, it returns 0.
+@end defun
+
+@node Disabling Commands, Command History, Recursive Editing, Command Loop
+@section Disabling Commands
+@cindex disabled command
+
+  @dfn{Disabling a command} marks the command as requiring user
+confirmation before it can be executed.  Disabling is used for commands
+which might be confusing to beginning users, to prevent them from using
+the commands by accident.
+
+@kindex disabled
+  The low-level mechanism for disabling a command is to put a
+non-@code{nil} @code{disabled} property on the Lisp symbol for the
+command.  These properties are normally set up by the user's
+@file{.emacs} file with Lisp expressions such as this:
+
+@example
+(put 'upcase-region 'disabled t)
+@end example
+
+@noindent
+For a few commands, these properties are present by default and may be
+removed by the @file{.emacs} file.
+
+  If the value of the @code{disabled} property is a string, that string
+is included in the message printed when the command is used:
+
+@example
+(put 'delete-region 'disabled
+     "Text deleted this way cannot be yanked back!\n")
+@end example
+
+  @xref{Disabling,,, emacs, The GNU Emacs Manual}, for the details on
+what happens when a disabled command is invoked interactively.
+Disabling a command has no effect on calling it as a function from Lisp
+programs.
+
+@deffn Command enable-command command
+Allow @var{command} to be executed without special confirmation from now
+on.  The user's @file{.emacs} file is optionally altered so that this
+will apply to future sessions.  
+@end deffn
+
+@deffn Command disable-command command
+Require special confirmation to execute @var{command} from now on.  The
+user's @file{.emacs} file is optionally altered so that this will apply
+to future sessions.  
+@end deffn
+
+@defvar disabled-command-hook
+The value of this variable is a function to be called instead of any
+command that is disabled (i.e., that has a non-@code{nil} disabled
+property).  By default, the value of @code{disabled-command-hook} is
+a function defined to ask the user whether to proceed.
+@end defvar
+
+@node Command History, Keyboard Macros, Disabling Commands, Command Loop
+@section Command History
+@cindex command history
+@cindex complex command
+@cindex history of commands
+
+  The command loop keeps a history of the complex commands that have
+been executed, to make it convenient to repeat these commands.  A
+@dfn{complex command} is one for which the interactive argument reading
+uses the minibuffer.  This includes any @kbd{M-x} command, any
+@kbd{M-ESC} command, and any command whose @code{interactive}
+specification reads an argument from the minibuffer.  Explicit use of
+the minibuffer during the execution of the command itself does not cause
+the command to be considered complex.
+
+@defvar command-history
+This variable's value is a list of recent complex commands, each
+represented as a form to evaluate.  It continues to accumulate all
+complex commands for the duration of the editing session, but all but
+the first (most recent) thirty elements are deleted when a garbage
+collection takes place (@pxref{Garbage Collection}).
+
+@example
+command-history
+@result{} ((switch-to-buffer "chistory.texi")
+    (describe-key "^X^[")
+    (visit-tags-table "~/emacs/src/")
+    (find-tag "repeat-complex-command"))
+@end example
+@end defvar
+
+  There are a number of commands and even two entire modes devoted to
+facilitating the editing and recall of previous commands.  The commands
+@code{repeat-complex-command}, and @code{list-command-history} are
+described in the user manual (@pxref{Repetition,,, emacs, The GNU
+Emacs Manual}).
+
+@defvar repeat-complex-command-map
+The value of this variable is a sparse keymap used by the minibuffer
+inside of @code{read-complex-command}.
+@end defvar
+
+@node Keyboard Macros,  , Command History, Command Loop
+@section Keyboard Macros
+@cindex keyboard macros
+
+  A @dfn{keyboard macro} is a canned sequence of keystrokes that can be
+considered a command and made the definition of a key.  Don't confuse
+keyboard macros with Lisp macros (@pxref{Macros}).
+
+@defun execute-kbd-macro macro &optional count
+This function executes @var{macro} as a string of editor commands.  If
+@var{macro} is a string, then the characters in that string are executed
+exactly as if they had been typed as command input.
+
+If @var{macro} is a symbol, then its function definition is used in
+place of @var{macro}.  If that is another symbol, this process repeats. 
+Eventually the result should be a string.  If the result is neither a symbol
+nor a string, an error is signaled.
+
+The argument @var{count} is a repeat count; @var{macro} is executed that
+many times.  If @var{count} is omitted or @code{nil}, @var{macro} is
+executed once.  If it is 0, @var{macro} is executed over and over until it
+encounters an error or a failing search.  
+@end defun
+
+@defvar last-kbd-macro
+This variable is the definition of the most recently defined keyboard
+macro.  Its value is a string or @code{nil}.
+@end defvar
+
+@defvar executing-macro
+This variable contains the string that defines the keyboard macro that
+is currently executing.  It is @code{nil} if no macro is currently
+executing.
+@end defvar
+
+@defvar defining-kbd-macro
+This variable indicates whether a keyboard macro is being defined.  It
+is set to @code{t} by @code{start-kbd-macro}, and @code{nil} by
+@code{end-kbd-macro}.  It is not hard to use this variable to make a
+command behave differently when run from a keyboard macro (perhaps
+indirectly by calling @code{interactive-p}).  However, do not set this
+variable yourself.
+@end defvar
+
+  The user-level commands for defining, running and editing keyboard
+macros include @code{call-last-kbd-macro}, @code{insert-kbd-macro},
+@code{start-kbd-macro}, @code{end-kbd-macro}, @code{kbd-macro-query},
+and @code{name-last-kbd-macro}.  They are described in the user's manual
+(@pxref{Keyboard Macros,,, emacs, The GNU Emacs Manual}).
+

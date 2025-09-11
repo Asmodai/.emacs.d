@@ -1,0 +1,1207 @@
+This is Info file elisp, produced by Makeinfo version 1.68 from the
+input file elisp.texi.
+
+INFO-DIR-SECTION Editors
+START-INFO-DIR-ENTRY
+* Elisp: (elisp).	The Emacs Lisp Reference Manual.
+END-INFO-DIR-ENTRY
+
+   This version is the edition 2.5 of the GNU Emacs Lisp Reference
+Manual.  It corresponds to Emacs Version 20.3
+
+   Published by the Free Software Foundation 59 Temple Place, Suite 330
+Boston, MA  02111-1307  USA
+
+   Copyright (C) 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1998 Free
+Software Foundation, Inc.
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be stated in a
+translation approved by the Foundation.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided also
+that the section entitled "GNU General Public License" is included
+exactly as in the original, and provided that the entire resulting
+derived work is distributed under the terms of a permission notice
+identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that the section entitled "GNU General Public License"
+may be included in a translation approved by the Free Software
+Foundation instead of in the original English.
+
+
+File: elisp,  Node: Refresh Screen,  Next: Truncation,  Up: Display
+
+Refreshing the Screen
+=====================
+
+   The function `redraw-frame' redisplays the entire contents of a
+given frame (*note Frames::.).
+
+ - Function: redraw-frame FRAME
+     This function clears and redisplays frame FRAME.
+
+   Even more powerful is `redraw-display':
+
+ - Command: redraw-display
+     This function clears and redisplays all visible frames.
+
+   Processing user input takes absolute priority over redisplay.  If you
+call these functions when input is available, they do nothing
+immediately, but a full redisplay does happen eventually--after all the
+input has been processed.
+
+   Normally, suspending and resuming Emacs also refreshes the screen.
+Some terminal emulators record separate contents for display-oriented
+programs such as Emacs and for ordinary sequential display.  If you are
+using such a terminal, you might want to inhibit the redisplay on
+resumption.
+
+ - Variable: no-redraw-on-reenter
+     This variable controls whether Emacs redraws the entire screen
+     after it has been suspended and resumed.  Non-`nil' means there is
+     no need to redraw, `nil' means redrawing is needed.  The default
+     is `nil'.
+
+
+File: elisp,  Node: Truncation,  Next: The Echo Area,  Prev: Refresh Screen,  Up: Display
+
+Truncation
+==========
+
+   When a line of text extends beyond the right edge of a window, the
+line can either be continued on the next screen line, or truncated to
+one screen line.  The additional screen lines used to display a long
+text line are called "continuation" lines.  Normally, a `$' in the
+rightmost column of the window indicates truncation; a `\' on the
+rightmost column indicates a line that "wraps" onto the next line,
+which is also called "continuing" the line.  (The display table can
+specify alternative indicators; see *Note Display Tables::.)
+
+   Note that continuation is different from filling; continuation
+happens on the screen only, not in the buffer contents, and it breaks a
+line precisely at the right margin, not at a word boundary.  *Note
+Filling::.
+
+ - User Option: truncate-lines
+     This buffer-local variable controls how Emacs displays lines that
+     extend beyond the right edge of the window.  The default is `nil',
+     which specifies continuation.  If the value is non-`nil', then
+     these lines are truncated.
+
+     If the variable `truncate-partial-width-windows' is non-`nil',
+     then truncation is always used for side-by-side windows (within one
+     frame) regardless of the value of `truncate-lines'.
+
+ - User Option: default-truncate-lines
+     This variable is the default value for `truncate-lines', for
+     buffers that do not have buffer-local values for it.
+
+ - User Option: truncate-partial-width-windows
+     This variable controls display of lines that extend beyond the
+     right edge of the window, in side-by-side windows (*note Splitting
+     Windows::.).  If it is non-`nil', these lines are truncated;
+     otherwise, `truncate-lines' says what to do with them.
+
+   When horizontal scrolling (*note Horizontal Scrolling::.) is in use
+in a window, that forces truncation.
+
+   You can override the glyphs that indicate continuation or truncation
+using the display table; see *Note Display Tables::.
+
+   If your buffer contains *very* long lines, and you use continuation
+to display them, just thinking about them can make Emacs redisplay
+slow.  The column computation and indentation functions also become
+slow.  Then you might find it advisable to set `cache-long-line-scans'
+to `t'.
+
+ - Variable: cache-long-line-scans
+     If this variable is non-`nil', various indentation and motion
+     functions, and Emacs redisplay, cache the results of scanning the
+     buffer, and consult the cache to avoid rescanning regions of the
+     buffer unless they are modified.
+
+     Turning on the cache slows down processing of short lines somewhat.
+
+     This variable is automatically buffer-local in every buffer.
+
+
+File: elisp,  Node: The Echo Area,  Next: Invisible Text,  Prev: Truncation,  Up: Display
+
+The Echo Area
+=============
+
+   The "echo area" is used for displaying messages made with the
+`message' primitive, and for echoing keystrokes.  It is not the same as
+the minibuffer, despite the fact that the minibuffer appears (when
+active) in the same place on the screen as the echo area.  The `GNU
+Emacs Manual' specifies the rules for resolving conflicts between the
+echo area and the minibuffer for use of that screen space (*note The
+Minibuffer: (emacs)Minibuffer.).  Error messages appear in the echo
+area; see *Note Errors::.
+
+   You can write output in the echo area by using the Lisp printing
+functions with `t' as the stream (*note Output Functions::.), or as
+follows:
+
+ - Function: message STRING &rest ARGUMENTS
+     This function displays a one-line message in the echo area.  The
+     argument STRING is similar to a C language `printf' control
+     string.  See `format' in *Note String Conversion::, for the details
+     on the conversion specifications.  `message' returns the
+     constructed string.
+
+     In batch mode, `message' prints the message text on the standard
+     error stream, followed by a newline.
+
+     If STRING is `nil', `message' clears the echo area.  If the
+     minibuffer is active, this brings the minibuffer contents back onto
+     the screen immediately.
+
+          (message "Minibuffer depth is %d."
+                   (minibuffer-depth))
+           -| Minibuffer depth is 0.
+          => "Minibuffer depth is 0."
+          
+          ---------- Echo Area ----------
+          Minibuffer depth is 0.
+          ---------- Echo Area ----------
+
+ - Function: message-or-box STRING &rest ARGUMENTS
+     This function displays a message like `message', but may display it
+     in a dialog box instead of the echo area.  If this function is
+     called in a command that was invoked using the mouse--more
+     precisely, if `last-nonmenu-event' (*note Command Loop Info::.) is
+     either `nil' or a list--then it uses a dialog box or pop-up menu to
+     display the message.  Otherwise, it uses the echo area.  (This is
+     the same criterion that `y-or-n-p' uses to make a similar
+     decision; see *Note Yes-or-No Queries::.)
+
+     You can force use of the mouse or of the echo area by binding
+     `last-nonmenu-event' to a suitable value around the call.
+
+ - Function: message-box STRING &rest ARGUMENTS
+     This function displays a message like `message', but uses a dialog
+     box (or a pop-up menu) whenever that is possible.  If it is
+     impossible to use a dialog box or pop-up menu, because the
+     terminal does not support them, then `message-box' uses the echo
+     area, like `message'.
+
+ - Function: current-message
+     This function returns the message currently being displayed in the
+     echo area, or `nil' if there is none.
+
+ - Variable: cursor-in-echo-area
+     This variable controls where the cursor appears when a message is
+     displayed in the echo area.  If it is non-`nil', then the cursor
+     appears at the end of the message.  Otherwise, the cursor appears
+     at point--not in the echo area at all.
+
+     The value is normally `nil'; Lisp programs bind it to `t' for
+     brief periods of time.
+
+ - Variable: echo-area-clear-hook
+     This normal hook is run whenever the echo area is cleared--either
+     by `(message nil)' or for any other reason.
+
+   Almost all the messages displayed in the echo area are also recorded
+in the `*Messages*' buffer.
+
+ - User Option: message-log-max
+     This variable specifies how many lines to keep in the `*Messages*'
+     buffer.  The value `t' means there is no limit on how many lines to
+     keep.  The value `nil' disables message logging entirely.  Here's
+     how to display a message and prevent it from being logged:
+
+          (let (message-log-max)
+            (message ...))
+
+ - Variable: echo-keystrokes
+     This variable determines how much time should elapse before command
+     characters echo.  Its value must be an integer, which specifies the
+     number of seconds to wait before echoing.  If the user types a
+     prefix key (such as `C-x') and then delays this many seconds before
+     continuing, the prefix key is echoed in the echo area.  (Once
+     echoing begins in a key sequence, all subsequent characters in the
+     same key sequence are echoed immediately.)
+
+     If the value is zero, then command input is not echoed.
+
+
+File: elisp,  Node: Invisible Text,  Next: Selective Display,  Prev: The Echo Area,  Up: Display
+
+Invisible Text
+==============
+
+   You can make characters "invisible", so that they do not appear on
+the screen, with the `invisible' property.  This can be either a text
+property (*note Text Properties::.) or a property of an overlay (*note
+Overlays::.).
+
+   In the simplest case, any non-`nil' `invisible' property makes a
+character invisible.  This is the default case--if you don't alter the
+default value of `buffer-invisibility-spec', this is how the
+`invisible' property works.
+
+   More generally, you can use the variable `buffer-invisibility-spec'
+to control which values of the `invisible' property make text
+invisible.  This permits you to classify the text into different subsets
+in advance, by giving them different `invisible' values, and
+subsequently make various subsets visible or invisible by changing the
+value of `buffer-invisibility-spec'.
+
+   Controlling visibility with `buffer-invisibility-spec' is especially
+useful in a program to display the list of entries in a data base.  It
+permits the implementation of convenient filtering commands to view
+just a part of the entries in the data base.  Setting this variable is
+very fast, much faster than scanning all the text in the buffer looking
+for properties to change.
+
+ - Variable: buffer-invisibility-spec
+     This variable specifies which kinds of `invisible' properties
+     actually make a character invisible.
+
+    `t'
+          A character is invisible if its `invisible' property is
+          non-`nil'.  This is the default.
+
+    a list
+          Each element of the list specifies a criterion for
+          invisibility; if a character's `invisible' property fits any
+          one of these criteria, the character is invisible.  The list
+          can have two kinds of elements:
+
+         `ATOM'
+               A character is invisible if its `invisible' property
+               value is ATOM or if it is a list with ATOM as a member.
+
+         `(ATOM . t)'
+               A character is invisible if its `invisible' property
+               value is ATOM or if it is a list with ATOM as a member.
+               Moreover, if this character is at the end of a line and
+               is followed by a visible newline, it displays an
+               ellipsis.
+
+   Two functions are specifically provided for adding elements to
+`buffer-invisibility-spec' and removing elements from it.
+
+ - Function: add-to-invisibility-spec ELEMENT
+     Add the element ELEMENT to `buffer-invisibility-spec' (if it is
+     not already present in that list).
+
+ - Function: remove-from-invisibility-spec ELEMENT
+     Remove the element ELEMENT from `buffer-invisibility-spec'.
+
+   One convention about the use of `buffer-invisibility-spec' is that a
+major mode should use the mode's own name as an element of
+`buffer-invisibility-spec' and as the value of the `invisible' property:
+
+     ;; If you want to display an ellipsis:
+     (add-to-invisibility-spec '(my-symbol . t))
+     ;; If you don't want ellipsis:
+     (add-to-invisibility-spec 'my-symbol)
+     
+     (overlay-put (make-overlay beginning end)
+                  'invisible 'my-symbol)
+     
+     ;; When done with the overlays:
+     (remove-from-invisibility-spec '(my-symbol . t))
+     ;; Or respectively:
+     (remove-from-invisibility-spec 'my-symbol)
+
+   Ordinarily, commands that operate on text or move point do not care
+whether the text is invisible.  The user-level line motion commands
+explicitly ignore invisible newlines if `line-move-ignore-invisible' is
+non-`nil', but only because they are explicitly programmed to do so.
+
+   Incremental search can make invisible overlays visible temporarily
+and/or permanently when a match includes invisible text.  To enable
+this, the overlay should have a non-`nil' `isearch-open-invisible'
+property.  The property value should be a function to be called with
+the overlay as an argument.  This function should make the overlay
+visible permanently; it is used when the match overlaps the overlay on
+exit from the search.
+
+   During the search, such overlays are made temporarily visible by
+temporarily modifying their invisible and intangible properties.  If you
+want this to be done differently for a certain overlay, give it an
+`isearch-open-invisible-temporary' property which is a function.  The
+function is called with two arguments: the first is the overlay, and
+the second is `t' to make the overlay visible, or `nil' to make it
+invisible again.
+
+
+File: elisp,  Node: Selective Display,  Next: Overlay Arrow,  Prev: Invisible Text,  Up: Display
+
+Selective Display
+=================
+
+   "Selective display" refers to a pair of related features for hiding
+certain lines on the screen.
+
+   The first variant, explicit selective display, is designed for use in
+a Lisp program: it controls which lines are hidden by altering the text.
+The invisible text feature (*note Invisible Text::.) has partially
+replaced this feature.
+
+   In the second variant, the choice of lines to hide is made
+automatically based on indentation.  This variant is designed to be a
+user-level feature.
+
+   The way you control explicit selective display is by replacing a
+newline (control-j) with a carriage return (control-m).  The text that
+was formerly a line following that newline is now invisible.  Strictly
+speaking, it is temporarily no longer a line at all, since only newlines
+can separate lines; it is now part of the previous line.
+
+   Selective display does not directly affect editing commands.  For
+example, `C-f' (`forward-char') moves point unhesitatingly into
+invisible text.  However, the replacement of newline characters with
+carriage return characters affects some editing commands.  For example,
+`next-line' skips invisible lines, since it searches only for newlines.
+Modes that use selective display can also define commands that take
+account of the newlines, or that make parts of the text visible or
+invisible.
+
+   When you write a selectively displayed buffer into a file, all the
+control-m's are output as newlines.  This means that when you next read
+in the file, it looks OK, with nothing invisible.  The selective display
+effect is seen only within Emacs.
+
+ - Variable: selective-display
+     This buffer-local variable enables selective display.  This means
+     that lines, or portions of lines, may be made invisible.
+
+        * If the value of `selective-display' is `t', then any portion
+          of a line that follows a control-m is not displayed.  This is
+          explicit selective display.
+
+        * If the value of `selective-display' is a positive integer,
+          then lines that start with more than that many columns of
+          indentation are not displayed.
+
+     When some portion of a buffer is invisible, the vertical movement
+     commands operate as if that portion did not exist, allowing a
+     single `next-line' command to skip any number of invisible lines.
+     However, character movement commands (such as `forward-char') do
+     not skip the invisible portion, and it is possible (if tricky) to
+     insert or delete text in an invisible portion.
+
+     In the examples below, we show the *display appearance* of the
+     buffer `foo', which changes with the value of `selective-display'.
+     The *contents* of the buffer do not change.
+
+          (setq selective-display nil)
+               => nil
+          
+          ---------- Buffer: foo ----------
+          1 on this column
+           2on this column
+            3n this column
+            3n this column
+           2on this column
+          1 on this column
+          ---------- Buffer: foo ----------
+          
+          (setq selective-display 2)
+               => 2
+          
+          ---------- Buffer: foo ----------
+          1 on this column
+           2on this column
+           2on this column
+          1 on this column
+          ---------- Buffer: foo ----------
+
+ - Variable: selective-display-ellipses
+     If this buffer-local variable is non-`nil', then Emacs displays
+     `...' at the end of a line that is followed by invisible text.
+     This example is a continuation of the previous one.
+
+          (setq selective-display-ellipses t)
+               => t
+          
+          ---------- Buffer: foo ----------
+          1 on this column
+           2on this column ...
+           2on this column
+          1 on this column
+          ---------- Buffer: foo ----------
+
+     You can use a display table to substitute other text for the
+     ellipsis (`...').  *Note Display Tables::.
+
+
+File: elisp,  Node: Overlay Arrow,  Next: Temporary Displays,  Prev: Selective Display,  Up: Display
+
+The Overlay Arrow
+=================
+
+   The "overlay arrow" is useful for directing the user's attention to
+a particular line in a buffer.  For example, in the modes used for
+interface to debuggers, the overlay arrow indicates the line of code
+about to be executed.
+
+ - Variable: overlay-arrow-string
+     This variable holds the string to display to call attention to a
+     particular line, or `nil' if the arrow feature is not in use.
+
+ - Variable: overlay-arrow-position
+     This variable holds a marker that indicates where to display the
+     overlay arrow.  It should point at the beginning of a line.  The
+     arrow text appears at the beginning of that line, overlaying any
+     text that would otherwise appear.  Since the arrow is usually
+     short, and the line usually begins with indentation, normally
+     nothing significant is overwritten.
+
+     The overlay string is displayed only in the buffer that this marker
+     points into.  Thus, only one buffer can have an overlay arrow at
+     any given time.
+
+   You can do a similar job by creating an overlay with a
+`before-string' property.  *Note Overlay Properties::.
+
+
+File: elisp,  Node: Temporary Displays,  Next: Overlays,  Prev: Overlay Arrow,  Up: Display
+
+Temporary Displays
+==================
+
+   Temporary displays are used by Lisp programs to put output into a
+buffer and then present it to the user for perusal rather than for
+editing.  Many help commands use this feature.
+
+ - Special Form: with-output-to-temp-buffer BUFFER-NAME FORMS...
+     This function executes FORMS while arranging to insert any output
+     they print into the buffer named BUFFER-NAME.  The buffer is then
+     shown in some window for viewing, displayed but not selected.
+
+     The string BUFFER-NAME specifies the temporary buffer, which need
+     not already exist.  The argument must be a string, not a buffer.
+     The buffer is erased initially (with no questions asked), and it is
+     marked as unmodified after `with-output-to-temp-buffer' exits.
+
+     `with-output-to-temp-buffer' binds `standard-output' to the
+     temporary buffer, then it evaluates the forms in FORMS.  Output
+     using the Lisp output functions within FORMS goes by default to
+     that buffer (but screen display and messages in the echo area,
+     although they are "output" in the general sense of the word, are
+     not affected).  *Note Output Functions::.
+
+     The value of the last form in FORMS is returned.
+
+          ---------- Buffer: foo ----------
+           This is the contents of foo.
+          ---------- Buffer: foo ----------
+          
+          (with-output-to-temp-buffer "foo"
+              (print 20)
+              (print standard-output))
+          => #<buffer foo>
+          
+          ---------- Buffer: foo ----------
+          20
+          
+          #<buffer foo>
+          
+          ---------- Buffer: foo ----------
+
+ - Variable: temp-buffer-show-function
+     If this variable is non-`nil', `with-output-to-temp-buffer' calls
+     it as a function to do the job of displaying a help buffer.  The
+     function gets one argument, which is the buffer it should display.
+
+     It is a good idea for this function to run `temp-buffer-show-hook'
+     just as `with-output-to-temp-buffer' normally would, inside of
+     `save-window-excursion' and with the chosen window and buffer
+     selected.
+
+ - Variable: temp-buffer-show-hook
+     This normal hook is run by `with-output-to-temp-buffer' after
+     displaying the help buffer.  When the hook runs, the help buffer is
+     current, and the window it was displayed in is selected.
+
+ - Function: momentary-string-display STRING POSITION &optional CHAR
+          MESSAGE
+     This function momentarily displays STRING in the current buffer at
+     POSITION.  It has no effect on the undo list or on the buffer's
+     modification status.
+
+     The momentary display remains until the next input event.  If the
+     next input event is CHAR, `momentary-string-display' ignores it
+     and returns.  Otherwise, that event remains buffered for
+     subsequent use as input.  Thus, typing CHAR will simply remove the
+     string from the display, while typing (say) `C-f' will remove the
+     string from the display and later (presumably) move point forward.
+     The argument CHAR is a space by default.
+
+     The return value of `momentary-string-display' is not meaningful.
+
+     If the string STRING does not contain control characters, you can
+     do the same job in a more general way by creating (and then
+     subsequently deleting) an overlay with a `before-string' property.
+     *Note Overlay Properties::.
+
+     If MESSAGE is non-`nil', it is displayed in the echo area while
+     STRING is displayed in the buffer.  If it is `nil', a default
+     message says to type CHAR to continue.
+
+     In this example, point is initially located at the beginning of the
+     second line:
+
+          ---------- Buffer: foo ----------
+          This is the contents of foo.
+          -!-Second line.
+          ---------- Buffer: foo ----------
+          
+          (momentary-string-display
+            "**** Important Message! ****"
+            (point) ?\r
+            "Type RET when done reading")
+          => t
+          
+          ---------- Buffer: foo ----------
+          This is the contents of foo.
+          **** Important Message! ****Second line.
+          ---------- Buffer: foo ----------
+          
+          ---------- Echo Area ----------
+          Type RET when done reading
+          ---------- Echo Area ----------
+
+
+File: elisp,  Node: Overlays,  Next: Width,  Prev: Temporary Displays,  Up: Display
+
+Overlays
+========
+
+   You can use "overlays" to alter the appearance of a buffer's text on
+the screen, for the sake of presentation features.  An overlay is an
+object that belongs to a particular buffer, and has a specified
+beginning and end.  It also has properties that you can examine and set;
+these affect the display of the text within the overlay.
+
+* Menu:
+
+* Overlay Properties::	How to read and set properties.
+			What properties do to the screen display.
+* Managing Overlays::   Creating, moving, finding overlays.
+
+
+File: elisp,  Node: Overlay Properties,  Next: Managing Overlays,  Up: Overlays
+
+Overlay Properties
+------------------
+
+   Overlay properties are like text properties in that the properties
+that alter how a character is displayed can come from either source.
+But in most respects they are different.  Text properties are
+considered a part of the text; overlays are specifically considered not
+to be part of the text.  Thus, copying text between various buffers and
+strings preserves text properties, but does not try to preserve
+overlays.  Changing a buffer's text properties marks the buffer as
+modified, while moving an overlay or changing its properties does not.
+Unlike text property changes, overlay changes are not recorded in the
+buffer's undo list.  *Note Text Properties::, for comparison.
+
+`priority'
+     This property's value (which should be a nonnegative number)
+     determines the priority of the overlay.  The priority matters when
+     two or more overlays cover the same character and both specify a
+     face for display; the one whose `priority' value is larger takes
+     priority over the other, and its face attributes override the face
+     attributes of the lower priority overlay.
+
+     Currently, all overlays take priority over text properties.  Please
+     avoid using negative priority values, as we have not yet decided
+     just what they should mean.
+
+`window'
+     If the `window' property is non-`nil', then the overlay applies
+     only on that window.
+
+`category'
+     If an overlay has a `category' property, we call it the "category"
+     of the overlay.  It should be a symbol.  The properties of the
+     symbol serve as defaults for the properties of the overlay.
+
+`face'
+     This property controls the way text is displayed--for example,
+     which font and which colors.  Its value is a face name or a list
+     of face names.  *Note Faces::, for more information.
+
+     If the property value is a list, elements may also have the form
+     `(foreground-color . COLOR-NAME)' or `(background-color .
+     COLOR-NAME)'.  These elements specify just the foreground color or
+     just the background color; therefore, there is no need to create a
+     face for each color that you want to use.
+
+`mouse-face'
+     This property is used instead of `face' when the mouse is within
+     the range of the overlay.
+
+`modification-hooks'
+     This property's value is a list of functions to be called if any
+     character within the overlay is changed or if text is inserted
+     strictly within the overlay.
+
+     The hook functions are called both before and after each change.
+     If the functions save the information they receive, and compare
+     notes between calls, they can determine exactly what change has
+     been made in the buffer text.
+
+     When called before a change, each function receives four
+     arguments: the overlay, `nil', and the beginning and end of the
+     text range to be modified.
+
+     When called after a change, each function receives five arguments:
+     the overlay, `t', the beginning and end of the text range just
+     modified, and the length of the pre-change text replaced by that
+     range.  (For an insertion, the pre-change length is zero; for a
+     deletion, that length is the number of characters deleted, and the
+     post-change beginning and end are equal.)
+
+`insert-in-front-hooks'
+     This property's value is a list of functions to be called before
+     and after inserting text right at the beginning of the overlay.
+     The calling conventions are the same as for the
+     `modification-hooks' functions.
+
+`insert-behind-hooks'
+     This property's value is a list of functions to be called before
+     and after inserting text right at the end of the overlay.  The
+     calling conventions are the same as for the `modification-hooks'
+     functions.
+
+`invisible'
+     The `invisible' property can make the text in the overlay
+     invisible, which means that it does not appear on the screen.
+     *Note Invisible Text::, for details.
+
+`intangible'
+     The `intangible' property on an overlay works just like the
+     `intangible' text property.  *Note Special Properties::, for
+     details.
+
+`isearch-open-invisible'
+     This property tells incremental search how to make an invisible
+     overlay visible, permanently, if the final match overlaps it.
+     *Note Invisible Text::.
+
+`isearch-open-invisible-temporary'
+     This property tells incremental search how to make an invisible
+     overlay visible, temporarily, during the search.  *Note Invisible
+     Text::.
+
+`before-string'
+     This property's value is a string to add to the display at the
+     beginning of the overlay.  The string does not appear in the
+     buffer in any sense--only on the screen.  The string should
+     contain only characters that display as a single column--control
+     characters, including tabs or newlines, will give strange results.
+
+`after-string'
+     This property's value is a string to add to the display at the end
+     of the overlay.  The string does not appear in the buffer in any
+     sense--only on the screen.  The string should contain only
+     characters that display as a single column--control characters,
+     including tabs or newlines, will give strange results.
+
+`evaporate'
+     If this property is non-`nil', the overlay is deleted automatically
+     if it ever becomes empty (i.e., if it spans no characters).
+
+`local-map'
+     If this property is non-`nil', it specifies a keymap for a portion
+     of the text.  The property's value replaces the buffer's local
+     map, when the character after point is within the overlay.  *Note
+     Active Keymaps::.
+
+   These are the functions for reading and writing the properties of an
+overlay.
+
+ - Function: overlay-get OVERLAY PROP
+     This function returns the value of property PROP recorded in
+     OVERLAY, if any.  If OVERLAY does not record any value for that
+     property, but it does have a `category' property which is a
+     symbol, that symbol's PROP property is used.  Otherwise, the value
+     is `nil'.
+
+ - Function: overlay-put OVERLAY PROP VALUE
+     This function sets the value of property PROP recorded in OVERLAY
+     to VALUE.  It returns VALUE.
+
+   See also the function `get-char-property' which checks both overlay
+properties and text properties for a given character.  *Note Examining
+Properties::.
+
+
+File: elisp,  Node: Managing Overlays,  Prev: Overlay Properties,  Up: Overlays
+
+Managing Overlays
+-----------------
+
+   This section describes the functions to create, delete and move
+overlays, and to examine their contents.
+
+ - Function: make-overlay START END &optional BUFFER FRONT-ADVANCE
+          REAR-ADVANCE
+     This function creates and returns an overlay that belongs to
+     BUFFER and ranges from START to END.  Both START and END must
+     specify buffer positions; they may be integers or markers.  If
+     BUFFER is omitted, the overlay is created in the current buffer.
+
+     The arguments FRONT-ADVANCE and REAR-ADVANCE specify the insertion
+     type for the start of the overlay and for the end of the overlay.
+     *Note Marker Insertion Types::.
+
+ - Function: overlay-start OVERLAY
+     This function returns the position at which OVERLAY starts, as an
+     integer.
+
+ - Function: overlay-end OVERLAY
+     This function returns the position at which OVERLAY ends, as an
+     integer.
+
+ - Function: overlay-buffer OVERLAY
+     This function returns the buffer that OVERLAY belongs to.
+
+ - Function: delete-overlay OVERLAY
+     This function deletes OVERLAY.  The overlay continues to exist as
+     a Lisp object, but ceases to be attached to the buffer it belonged
+     to, and ceases to have any effect on display.
+
+     A deleted overlay is not permanently useless.  You can give it a
+     new buffer position by calling `move-overlay'.
+
+ - Function: move-overlay OVERLAY START END &optional BUFFER
+     This function moves OVERLAY to BUFFER, and places its bounds at
+     START and END.  Both arguments START and END must specify buffer
+     positions; they may be integers or markers.  If BUFFER is omitted,
+     the overlay stays in the same buffer.
+
+     The return value is OVERLAY.
+
+     This is the only valid way to change the endpoints of an overlay.
+     Do not try modifying the markers in the overlay by hand, as that
+     fails to update other vital data structures and can cause some
+     overlays to be "lost".
+
+ - Function: overlays-at POS
+     This function returns a list of all the overlays that contain
+     position POS in the current buffer.  The list is in no particular
+     order.  An overlay contains position POS if it begins at or before
+     POS, and ends after POS.
+
+ - Function: overlays-in BEG END
+     This function returns a list of the overlays that overlap the
+     region BEG through END.  "Overlap" means that at least one
+     character is contained within the overlay and also contained
+     within the specified region; however, empty overlays are included
+     in the result if they are located at BEG or between BEG and END.
+
+ - Function: next-overlay-change POS
+     This function returns the buffer position of the next beginning or
+     end of an overlay, after POS.
+
+ - Function: previous-overlay-change POS
+     This function returns the buffer position of the previous
+     beginning or end of an overlay, before POS.
+
+
+File: elisp,  Node: Width,  Next: Faces,  Prev: Overlays,  Up: Display
+
+Width
+=====
+
+   Since not all characters have the same width, these functions let you
+check the width of a character.  *Note Primitive Indent::, and *Note
+Screen Lines::, for related functions.
+
+ - Function: char-width CHAR
+     This function returns the width in columns of the character CHAR,
+     if it were displayed in the current buffer and the selected window.
+
+ - Function: string-width STRING
+     This function returns the width in columns of the string STRING,
+     if it were displayed in the current buffer and the selected window.
+
+ - Function: truncate-string-to-width STRING WIDTH &optional
+          START-COLUMN PADDING
+     This function returns the part of STRING that fits within WIDTH
+     columns, as a new string.
+
+     If STRING does not reach WIDTH, then the result ends where STRING
+     ends.  If one multi-column character in STRING extends across the
+     column WIDTH, that character is not included in the result.  Thus,
+     the result can fall short of WIDTH but cannot go beyond it.
+
+     The optional argument START-COLUMN specifies the starting column.
+     If this is non-`nil', then the first START-COLUMN columns of the
+     string are omitted from the value.  If one multi-column character
+     in STRING extends across the column START-COLUMN, that character
+     is not included.
+
+     The optional argument PADDING, if non-`nil', is a padding
+     character added at the beginning and end of the result string, to
+     extend it to exactly WIDTH columns.  The padding character is used
+     at the end of the result if it falls short of WIDTH.  It is also
+     used at the beginning of the result if one multi-column character
+     in STRING extends across the column START-COLUMN.
+
+          (truncate-string-to-width "\tab\t" 12 4)
+               => "ab"
+          (truncate-string-to-width "\tab\t" 12 4 ?\ )
+               => "    ab  "
+
+
+File: elisp,  Node: Faces,  Next: Blinking,  Prev: Width,  Up: Display
+
+Faces
+=====
+
+   A "face" is a named collection of graphical attributes: font,
+foreground color, background color, and optional underlining.  Faces
+control the display of text on the screen.
+
+   Each face has its own "face number", which distinguishes faces at
+low levels within Emacs.  However, for most purposes, you can refer to
+faces in Lisp programs by their names.
+
+ - Function: facep OBJECT
+     This function returns `t' if OBJECT is a face name symbol (or if
+     it is a vector of the kind used internally to record face data).
+     It returns `nil' otherwise.
+
+   Each face name is meaningful for all frames, and by default it has
+the same meaning in all frames.  But you can arrange to give a
+particular face name a special meaning in one frame if you wish.
+
+* Menu:
+
+* Standard Faces::      The faces Emacs normally comes with.
+* Defining Faces::      How to define a face with `defface'.
+* Merging Faces::	How Emacs decides which face to use for a character.
+* Face Functions::	How to define and examine faces.
+
+
+File: elisp,  Node: Standard Faces,  Next: Defining Faces,  Up: Faces
+
+Standard Faces
+--------------
+
+   This table lists all the standard faces and their uses.
+
+`default'
+     This face is used for ordinary text.
+
+`modeline'
+     This face is used for mode lines and menu bars.
+
+`region'
+     This face is used for highlighting the region in Transient Mark
+     mode.
+
+`secondary-selection'
+     This face is used to show any secondary selection you have made.
+
+`highlight'
+     This face is meant to be used for highlighting for various
+     purposes.
+
+`underline'
+     This face underlines text.
+
+`bold'
+     This face uses a bold font, if possible.  It uses the bold variant
+     of the frame's font, if it has one.  It's up to you to choose a
+     default font that has a bold variant, if you want to use one.
+
+`italic'
+     This face uses the italic variant of the frame's font, if it has
+     one.
+
+`bold-italic'
+     This face uses the bold italic variant of the frame's font, if it
+     has one.
+
+
+File: elisp,  Node: Defining Faces,  Next: Merging Faces,  Prev: Standard Faces,  Up: Faces
+
+Defining Faces
+--------------
+
+   The way to define a new face is with `defface'.  This creates a kind
+of customization item (*note Customization::.) which the user can
+customize using the Customization buffer (*note Easy Customization:
+(emacs)Easy Customization.).
+
+ - Macro: defface FACE SPEC DOC [KEYWORD VALUE]...
+     Declare FACE as a customizable face that defaults according to
+     SPEC.  Do not quote the symbol FACE.  The argument DOC specifies
+     the face documentation.
+
+     When `defface' executes, it defines the face according to SPEC,
+     then uses any customizations that were read from the `.emacs' file
+     to override that specification.
+
+     The purpose of SPEC is to specify how the face should appear on
+     different kinds of terminals.  It should be an alist whose
+     elements have the form `(DISPLAY ATTS)'.  The element's CAR,
+     DISPLAY, specifies a class of terminals.  The CDR, ATTS, is a list
+     of face attributes and their values; it specifies what the face
+     should look like on that kind of terminal.  The possible
+     attributes are defined in the value of `custom-face-attributes'.
+
+     The DISPLAY part of an element of SPEC determines which frames the
+     element applies to.  If more than one element of SPEC matches a
+     given frame, the first matching element is the only one used for
+     that frame.  There are two possibilities for DISPLAY:
+
+    `t'
+          This element of SPEC matches all frames.  Therefore, any
+          subsequent elements of SPEC are never used.  Normally `t' is
+          used in the last (or only) element of SPEC.
+
+    a list
+          If DISPLAY is a list, each element should have the form
+          `(CHARACTERISTIC VALUE...)'.  Here CHARACTERISTIC specifies a
+          way of classifying frames, and the VALUEs are possible
+          classifications which DISPLAY should apply to.  Here are the
+          possible values of CHARACTERISTIC:
+
+         `type'
+               The kind of window system the frame uses--either `x',
+               `pc' (for the MS-DOS console), `w32' (for MS Windows
+               9X/NT), or `tty'.
+
+         `class'
+               What kinds of colors the frame supports--either `color',
+               `grayscale', or `mono'.
+
+         `background'
+               The kind of background--either `light' or `dark'.
+
+          If an element of DISPLAY specifies more than one VALUE for a
+          given CHARACTERISTIC, any of those values is acceptable.  If
+          DISPLAY has more than one element, each element should
+          specify a different CHARACTERISTIC; then *each*
+          characteristic of the frame must match one of the VALUEs
+          specified for it in DISPLAY.
+
+   Here's how the standard face `region' could be defined with
+`defface':
+
+     (defface region
+              ((((class color) (background dark))
+                (:background "blue"))
+               (t (:background "gray")))
+       "Used for displaying the region.")
+
+   Internally, `defface' uses the symbol property `face-defface-spec'
+to record the face attributes specified in `defface', `saved-face' for
+the attributes saved by the user with the customization buffer, and
+`face-documentation' for the documentation string.
+
+ - User Option: frame-background-mode
+     This option, if non-`nil', specifies the background type to use for
+     interpreting face definitions.  If it is `dark', then Emacs treats
+     all frames as if they had a dark background, regardless of their
+     actual background colors.  If it is `light', then Emacs treats all
+     frames as if they had a light background.
+
+
+File: elisp,  Node: Merging Faces,  Next: Face Functions,  Prev: Defining Faces,  Up: Faces
+
+Merging Faces for Display
+-------------------------
+
+   Here are all the ways to specify which face to use for display of
+text:
+
+   * With defaults.  Each frame has a "default face", which is used for
+     all text that doesn't somehow specify another face.  (We may
+     change this in a forthcoming Emacs version to serve as a default
+     for all text.)
+
+   * With text properties.  A character may have a `face' property; if
+     so, it is displayed with that face.  *Note Special Properties::.
+
+     If the character has a `mouse-face' property, that is used instead
+     of the `face' property when the mouse is "near enough" to the
+     character.
+
+   * With overlays.  An overlay may have `face' and `mouse-face'
+     properties too; they apply to all the text covered by the overlay.
+
+   * With a region that is active.  In Transient Mark mode, the region
+     is highlighted with a particular face (see `region-face', below).
+
+   * With special glyphs.  Each glyph can specify a particular face
+     number.  *Note Glyphs::.
+
+   If these various sources together specify more than one face for a
+particular character, Emacs merges the attributes of the various faces
+specified.  The attributes of the faces of special glyphs come first;
+then comes the face for region highlighting, if appropriate; then come
+attributes of faces from overlays, followed by those from text
+properties, and last the default face.
+
+   When multiple overlays cover one character, an overlay with higher
+priority overrides those with lower priority.  *Note Overlays::.
+
+   If an attribute such as the font or a color is not specified in any
+of the above ways, the frame's own font or color is used.
+
+
+File: elisp,  Node: Face Functions,  Prev: Merging Faces,  Up: Faces
+
+Functions for Working with Faces
+--------------------------------
+
+   The attributes a face can specify include the font, the foreground
+color, the background color, and underlining.  The face can also leave
+these unspecified by giving the value `nil' for them.
+
+   Here are the primitives for creating and changing faces.
+
+ - Function: make-face NAME
+     This function defines a new face named NAME, initially with all
+     attributes `nil'.  It does nothing if there is already a face named
+     NAME.
+
+ - Function: face-list
+     This function returns a list of all defined face names.
+
+ - Function: copy-face OLD-FACE NEW-NAME &optional FRAME NEW-FRAME
+     This function defines the face NEW-NAME as a copy of the existing
+     face named OLD-FACE.  It creates the face NEW-NAME if that doesn't
+     already exist.
+
+     If the optional argument FRAME is given, this function applies
+     only to that frame.  Otherwise it applies to each frame
+     individually, copying attributes from OLD-FACE in each frame to
+     NEW-FACE in the same frame.
+
+     If the optional argument NEW-FRAME is given, then `copy-face'
+     copies the attributes of OLD-FACE in FRAME to NEW-NAME in
+     NEW-FRAME.
+
+   You can modify the attributes of an existing face with the following
+functions.  If you specify FRAME, they affect just that frame;
+otherwise, they affect all frames as well as the defaults that apply to
+new frames.
+
+ - Function: set-face-foreground FACE COLOR &optional FRAME
+ - Function: set-face-background FACE COLOR &optional FRAME
+     These functions set the foreground (or background, respectively)
+     color of face FACE to COLOR.  The argument COLOR should be a
+     string, the name of a color.
+
+     Certain shades of gray are implemented by stipple patterns on
+     black-and-white screens.
+
+ - Function: set-face-stipple FACE PATTERN &optional FRAME
+     This function sets the background stipple pattern of face FACE to
+     PATTERN.  The argument PATTERN should be the name of a stipple
+     pattern defined by the X server, or `nil' meaning don't use
+     stipple.
+
+     Normally there is no need to pay attention to stipple patterns,
+     because they are used automatically to handle certain shades of
+     gray.
+
+ - Function: set-face-font FACE FONT &optional FRAME
+     This function sets the font of face FACE.  The argument FONT
+     should be a string, either a valid font name for your system or
+     the name of an Emacs fontset (*note Fontsets::.).  Note that if
+     you set the font explicitly, the bold and italic attributes cease
+     to have any effect, because the precise font that you specified is
+     always used.
+
+ - Function: set-face-bold-p FACE BOLD-P &optional FRAME
+     This function sets the bold attribute of face FACE.  Non-`nil'
+     means bold; `nil' means non-bold.
+
+ - Function: set-face-italic-p FACE ITALIC-P &optional FRAME
+     This function sets the italic attribute of face FACE.  Non-`nil'
+     means italic; `nil' means non-italic.
+
+ - Function: set-face-underline-p FACE UNDERLINE-P &optional FRAME
+     This function sets the underline attribute of face FACE.
+     Non-`nil' means do underline; `nil' means don't.
+
+ - Function: invert-face FACE &optional FRAME
+     Swap the foreground and background colors of face FACE.  If the
+     face doesn't specify both foreground and background, then its
+     foreground and background are set to the default background and
+     foreground, respectively.
+
+   These functions examine the attributes of a face.  If you don't
+specify FRAME, they refer to the default data for new frames.
+
+ - Function: face-foreground FACE &optional FRAME
+ - Function: face-background FACE &optional FRAME
+     These functions return the foreground color (or background color,
+     respectively) of face FACE, as a string.
+
+ - Function: face-stipple FACE &optional FRAME
+     This function returns the name of the background stipple pattern
+     of face FACE, or `nil' if it doesn't have one.
+
+ - Function: face-font FACE &optional FRAME
+     This function returns the name of the font of face FACE.
+
+ - Function: face-bold-p FACE &optional FRAME
+     This function returns the bold attribute of face FACE.
+
+ - Function: face-italic-p FACE &optional FRAME
+     This function returns the italic attribute of face FACE.
+
+ - Function: face-underline-p FACE &optional FRAME
+     This function returns the underline attribute of face FACE.
+
+ - Function: face-id FACE
+     This function returns the face number of face FACE.
+
+ - Function: face-documentation FACE
+     This function returns the documentation string of face FACE, or
+     `nil' if none was specified for it.
+
+ - Function: face-equal FACE1 FACE2 &optional FRAME
+     This returns `t' if the faces FACE1 and FACE2 have the same
+     attributes for display.
+
+ - Function: face-differs-from-default-p FACE &optional FRAME
+     This returns `t' if the face FACE displays differently from the
+     default face.  A face is considered to be "the same" as the normal
+     face if each attribute is either the same as that of the default
+     face or `nil' (meaning to inherit from the default).
+
+ - Variable: region-face
+     This variable's value specifies the face number to use to display
+     characters in the region when it is active (in Transient Mark mode
+     only).  The face thus specified takes precedence over all faces
+     that come from text properties and overlays, for characters in the
+     region.  *Note The Mark::, for more information about Transient
+     Mark mode.
+
+     Normally, the value is the face number of the face named `region'.
+
+ - Function: frame-update-face-colors FRAME
+     This function updates the way faces display on FRAME, for a change
+     in FRAME's foreground or background color.
+

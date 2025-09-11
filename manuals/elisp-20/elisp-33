@@ -1,0 +1,1067 @@
+This is Info file elisp, produced by Makeinfo version 1.68 from the
+input file elisp.texi.
+
+INFO-DIR-SECTION Editors
+START-INFO-DIR-ENTRY
+* Elisp: (elisp).	The Emacs Lisp Reference Manual.
+END-INFO-DIR-ENTRY
+
+   This version is the edition 2.5 of the GNU Emacs Lisp Reference
+Manual.  It corresponds to Emacs Version 20.3
+
+   Published by the Free Software Foundation 59 Temple Place, Suite 330
+Boston, MA  02111-1307  USA
+
+   Copyright (C) 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1998 Free
+Software Foundation, Inc.
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be stated in a
+translation approved by the Foundation.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided also
+that the section entitled "GNU General Public License" is included
+exactly as in the original, and provided that the entire resulting
+derived work is distributed under the terms of a permission notice
+identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that the section entitled "GNU General Public License"
+may be included in a translation approved by the Free Software
+Foundation instead of in the original English.
+
+
+File: elisp,  Node: Lisp and Coding Systems,  Next: User-Chosen Coding Systems,  Prev: Encoding and I/O,  Up: Coding Systems
+
+Coding Systems in Lisp
+----------------------
+
+   Here are Lisp facilities for working with coding systems;
+
+ - Function: coding-system-list &optional BASE-ONLY
+     This function returns a list of all coding system names (symbols).
+     If BASE-ONLY is non-`nil', the value includes only the base
+     coding systems.  Otherwise, it includes variant coding systems as
+     well.
+
+ - Function: coding-system-p OBJECT
+     This function returns `t' if OBJECT is a coding system name.
+
+ - Function: check-coding-system CODING-SYSTEM
+     This function checks the validity of CODING-SYSTEM.  If that is
+     valid, it returns CODING-SYSTEM.  Otherwise it signals an error
+     with condition `coding-system-error'.
+
+ - Function: coding-system-change-eol-conversion CODING-SYSTEM EOL-TYPE
+     This function returns a coding system which is like CODING-SYSTEM
+     except for its eol conversion, which is specified by `eol-type'.
+     EOL-TYPE should be `unix', `dos', `mac', or `nil'.  If it is
+     `nil', the returned coding system determines the end-of-line
+     conversion from the data.
+
+ - Function: coding-system-change-text-conversion EOL-CODING TEXT-CODING
+     This function returns a coding system which uses the end-of-line
+     conversion of EOL-CODING, and the text conversion of TEXT-CODING.
+     If TEXT-CODING is `nil', it returns `undecided', or one of its
+     variants according to EOL-CODING.
+
+ - Function: find-coding-systems-region FROM TO
+     This function returns a list of coding systems that could be used
+     to encode a text between FROM and TO.  All coding systems in the
+     list can safely encode any multibyte characters in that portion of
+     the text.
+
+     If the text contains no multibyte characters, the function returns
+     the list `(undecided)'.
+
+ - Function: find-coding-systems-string STRING
+     This function returns a list of coding systems that could be used
+     to encode the text of STRING.  All coding systems in the list can
+     safely encode any multibyte characters in STRING.  If the text
+     contains no multibyte characters, this returns the list
+     `(undecided)'.
+
+ - Function: find-coding-systems-for-charsets CHARSETS
+     This function returns a list of coding systems that could be used
+     to encode all the character sets in the list CHARSETS.
+
+ - Function: detect-coding-region START END &optional HIGHEST
+     This function chooses a plausible coding system for decoding the
+     text from START to END.  This text should be "raw bytes" (*note
+     Explicit Encoding::.).
+
+     Normally this function returns a list of coding systems that could
+     handle decoding the text that was scanned.  They are listed in
+     order of decreasing priority.  But if HIGHEST is non-`nil', then
+     the return value is just one coding system, the one that is
+     highest in priority.
+
+     If the region contains only ASCII characters, the value is
+     `undecided' or `(undecided)'.
+
+ - Function: detect-coding-string STRING HIGHEST
+     This function is like `detect-coding-region' except that it
+     operates on the contents of STRING instead of bytes in the buffer.
+
+   *Note Process Information::, for how to examine or set the coding
+systems used for I/O to a subprocess.
+
+
+File: elisp,  Node: User-Chosen Coding Systems,  Next: Default Coding Systems,  Prev: Lisp and Coding Systems,  Up: Coding Systems
+
+User-Chosen Coding Systems
+--------------------------
+
+ - Function: select-safe-coding-system FROM TO &optional
+          PREFERRED-CODING-SYSTEM
+     This function selects a coding system for encoding the text between
+     FROM and TO, asking the user to choose if necessary.
+
+     The optional argument PREFERRED-CODING-SYSTEM specifies a coding
+     system to try first.  If that one can handle the text in the
+     specified region, then it is used.  If this argument is omitted,
+     the current buffer's value of `buffer-file-coding-system' is tried
+     first.
+
+     If the region contains some multibyte characters that the preferred
+     coding system cannot encode, this function asks the user to choose
+     from a list of coding systems which can encode the text, and
+     returns the user's choice.
+
+     One other kludgy feature: if FROM is a string, the string is the
+     target text, and TO is ignored.
+
+   Here are two functions you can use to let the user specify a coding
+system, with completion.  *Note Completion::.
+
+ - Function: read-coding-system PROMPT &optional DEFAULT
+     This function reads a coding system using the minibuffer,
+     prompting with string PROMPT, and returns the coding system name
+     as a symbol.  If the user enters null input, DEFAULT specifies
+     which coding system to return.  It should be a symbol or a string.
+
+ - Function: read-non-nil-coding-system PROMPT
+     This function reads a coding system using the minibuffer,
+     prompting with string PROMPT, and returns the coding system name
+     as a symbol.  If the user tries to enter null input, it asks the
+     user to try again.  *Note Coding Systems::.
+
+
+File: elisp,  Node: Default Coding Systems,  Next: Specifying Coding Systems,  Prev: User-Chosen Coding Systems,  Up: Coding Systems
+
+Default Coding Systems
+----------------------
+
+   This section describes variables that specify the default coding
+system for certain files or when running certain subprograms, and the
+function that I/O operations use to access them.
+
+   The idea of these variables is that you set them once and for all to
+the defaults you want, and then do not change them again.  To specify a
+particular coding system for a particular operation in a Lisp program,
+don't change these variables; instead, override them using
+`coding-system-for-read' and `coding-system-for-write' (*note
+Specifying Coding Systems::.).
+
+ - Variable: file-coding-system-alist
+     This variable is an alist that specifies the coding systems to use
+     for reading and writing particular files.  Each element has the
+     form `(PATTERN . CODING)', where PATTERN is a regular expression
+     that matches certain file names.  The element applies to file
+     names that match PATTERN.
+
+     The CDR of the element, CODING, should be either a coding system,
+     a cons cell containing two coding systems, or a function symbol.
+     If VAL is a coding system, that coding system is used for both
+     reading the file and writing it.  If VAL is a cons cell containing
+     two coding systems, its CAR specifies the coding system for
+     decoding, and its CDR specifies the coding system for encoding.
+
+     If VAL is a function symbol, the function must return a coding
+     system or a cons cell containing two coding systems.  This value
+     is used as described above.
+
+ - Variable: process-coding-system-alist
+     This variable is an alist specifying which coding systems to use
+     for a subprocess, depending on which program is running in the
+     subprocess.  It works like `file-coding-system-alist', except that
+     PATTERN is matched against the program name used to start the
+     subprocess.  The coding system or systems specified in this alist
+     are used to initialize the coding systems used for I/O to the
+     subprocess, but you can specify other coding systems later using
+     `set-process-coding-system'.
+
+   *Warning:* Coding systems such as `undecided' which determine the
+coding system from the data do not work entirely reliably with
+asynchronous subprocess output.  This is because Emacs handles
+asynchronous subprocess output in batches, as it arrives.  If the coding
+system leaves the character code conversion unspecified, or leaves the
+end-of-line conversion unspecified, Emacs must try to detect the proper
+conversion from one batch at a time, and this does not always work.
+
+   Therefore, with an asynchronous subprocess, if at all possible, use a
+coding system which determines both the character code conversion and
+the end of line conversion--that is, one like `latin-1-unix', rather
+than `undecided' or `latin-1'.
+
+ - Variable: network-coding-system-alist
+     This variable is an alist that specifies the coding system to use
+     for network streams.  It works much like
+     `file-coding-system-alist', with the difference that the PATTERN
+     in an element may be either a port number or a regular expression.
+     If it is a regular expression, it is matched against the network
+     service name used to open the network stream.
+
+ - Variable: default-process-coding-system
+     This variable specifies the coding systems to use for subprocess
+     (and network stream) input and output, when nothing else specifies
+     what to do.
+
+     The value should be a cons cell of the form `(INPUT-CODING .
+     OUTPUT-CODING)'.  Here INPUT-CODING applies to input from the
+     subprocess, and OUTPUT-CODING applies to output to it.
+
+ - Function: find-operation-coding-system OPERATION &rest ARGUMENTS
+     This function returns the coding system to use (by default) for
+     performing OPERATION with ARGUMENTS.  The value has this form:
+
+          (DECODING-SYSTEM ENCODING-SYSTEM)
+
+     The first element, DECODING-SYSTEM, is the coding system to use
+     for decoding (in case OPERATION does decoding), and
+     ENCODING-SYSTEM is the coding system for encoding (in case
+     OPERATION does encoding).
+
+     The argument OPERATION should be an Emacs I/O primitive:
+     `insert-file-contents', `write-region', `call-process',
+     `call-process-region', `start-process', or `open-network-stream'.
+
+     The remaining arguments should be the same arguments that might be
+     given to that I/O primitive.  Depending on which primitive, one of
+     those arguments is selected as the "target".  For example, if
+     OPERATION does file I/O, whichever argument specifies the file
+     name is the target.  For subprocess primitives, the process name
+     is the target.  For `open-network-stream', the target is the
+     service name or port number.
+
+     This function looks up the target in `file-coding-system-alist',
+     `process-coding-system-alist', or `network-coding-system-alist',
+     depending on OPERATION.  *Note Default Coding Systems::.
+
+
+File: elisp,  Node: Specifying Coding Systems,  Next: Explicit Encoding,  Prev: Default Coding Systems,  Up: Coding Systems
+
+Specifying a Coding System for One Operation
+--------------------------------------------
+
+   You can specify the coding system for a specific operation by binding
+the variables `coding-system-for-read' and/or `coding-system-for-write'.
+
+ - Variable: coding-system-for-read
+     If this variable is non-`nil', it specifies the coding system to
+     use for reading a file, or for input from a synchronous subprocess.
+
+     It also applies to any asynchronous subprocess or network stream,
+     but in a different way: the value of `coding-system-for-read' when
+     you start the subprocess or open the network stream specifies the
+     input decoding method for that subprocess or network stream.  It
+     remains in use for that subprocess or network stream unless and
+     until overridden.
+
+     The right way to use this variable is to bind it with `let' for a
+     specific I/O operation.  Its global value is normally `nil', and
+     you should not globally set it to any other value.  Here is an
+     example of the right way to use the variable:
+
+          ;; Read the file with no character code conversion.
+          ;; Assume CRLF represents end-of-line.
+          (let ((coding-system-for-write 'emacs-mule-dos))
+            (insert-file-contents filename))
+
+     When its value is non-`nil', `coding-system-for-read' takes
+     precedence over all other methods of specifying a coding system to
+     use for input, including `file-coding-system-alist',
+     `process-coding-system-alist' and `network-coding-system-alist'.
+
+ - Variable: coding-system-for-write
+     This works much like `coding-system-for-read', except that it
+     applies to output rather than input.  It affects writing to files,
+     subprocesses, and net connections.
+
+     When a single operation does both input and output, as do
+     `call-process-region' and `start-process', both
+     `coding-system-for-read' and `coding-system-for-write' affect it.
+
+ - Variable: inhibit-eol-conversion
+     When this variable is non-`nil', no end-of-line conversion is done,
+     no matter which coding system is specified.  This applies to all
+     the Emacs I/O and subprocess primitives, and to the explicit
+     encoding and decoding functions (*note Explicit Encoding::.).
+
+
+File: elisp,  Node: Explicit Encoding,  Next: Terminal I/O Encoding,  Prev: Specifying Coding Systems,  Up: Coding Systems
+
+Explicit Encoding and Decoding
+------------------------------
+
+   All the operations that transfer text in and out of Emacs have the
+ability to use a coding system to encode or decode the text.  You can
+also explicitly encode and decode text using the functions in this
+section.
+
+   The result of encoding, and the input to decoding, are not ordinary
+text.  They are "raw bytes"--bytes that represent text in the same way
+that an external file would.  When a buffer contains raw bytes, it is
+most natural to mark that buffer as using unibyte representation, using
+`set-buffer-multibyte' (*note Selecting a Representation::.), but this
+is not required.  If the buffer's contents are only temporarily raw,
+leave the buffer multibyte, which will be correct after you decode them.
+
+   The usual way to get raw bytes in a buffer, for explicit decoding, is
+to read them from a file with `insert-file-contents-literally' (*note
+Reading from Files::.) or specify a non-`nil' RAWFILE argument when
+visiting a file with `find-file-noselect'.
+
+   The usual way to use the raw bytes that result from explicitly
+encoding text is to copy them to a file or process--for example, to
+write them with `write-region' (*note Writing to Files::.), and
+suppress encoding for that `write-region' call by binding
+`coding-system-for-write' to `no-conversion'.
+
+   Raw bytes sometimes contain overlong byte-sequences that look like a
+proper multibyte character plus extra bytes containing trailing codes.
+For most purposes, Emacs treats such a sequence in a buffer or string as
+a single character, and if you look at its character code, you get the
+value that corresponds to the multibyte character sequence--the extra
+bytes are disregarded.  This behavior is not quite clean, but raw bytes
+are used only in limited places in Emacs, so as a practical matter
+problems can be avoided.
+
+ - Function: encode-coding-region START END CODING-SYSTEM
+     This function encodes the text from START to END according to
+     coding system CODING-SYSTEM.  The encoded text replaces the
+     original text in the buffer.  The result of encoding is "raw
+     bytes," but the buffer remains multibyte if it was multibyte
+     before.
+
+ - Function: encode-coding-string STRING CODING-SYSTEM
+     This function encodes the text in STRING according to coding
+     system CODING-SYSTEM.  It returns a new string containing the
+     encoded text.  The result of encoding is a unibyte string of "raw
+     bytes."
+
+ - Function: decode-coding-region START END CODING-SYSTEM
+     This function decodes the text from START to END according to
+     coding system CODING-SYSTEM.  The decoded text replaces the
+     original text in the buffer.  To make explicit decoding useful,
+     the text before decoding ought to be "raw bytes."
+
+ - Function: decode-coding-string STRING CODING-SYSTEM
+     This function decodes the text in STRING according to coding
+     system CODING-SYSTEM.  It returns a new string containing the
+     decoded text.  To make explicit decoding useful, the contents of
+     STRING ought to be "raw bytes."
+
+
+File: elisp,  Node: Terminal I/O Encoding,  Next: MS-DOS File Types,  Prev: Explicit Encoding,  Up: Coding Systems
+
+Terminal I/O Encoding
+---------------------
+
+   Emacs can decode keyboard input using a coding system, and encode
+terminal output.  This is useful for terminals that transmit or display
+text using a particular encoding such as Latin-1.  Emacs does not set
+`last-coding-system-used' for encoding or decoding for the terminal.
+
+ - Function: keyboard-coding-system
+     This function returns the coding system that is in use for decoding
+     keyboard input--or `nil' if no coding system is to be used.
+
+ - Function: set-keyboard-coding-system CODING-SYSTEM
+     This function specifies CODING-SYSTEM as the coding system to use
+     for decoding keyboard input.  If CODING-SYSTEM is `nil', that
+     means do not decode keyboard input.
+
+ - Function: terminal-coding-system
+     This function returns the coding system that is in use for encoding
+     terminal output--or `nil' for no encoding.
+
+ - Function: set-terminal-coding-system CODING-SYSTEM
+     This function specifies CODING-SYSTEM as the coding system to use
+     for encoding terminal output.  If CODING-SYSTEM is `nil', that
+     means do not encode terminal output.
+
+
+File: elisp,  Node: MS-DOS File Types,  Prev: Terminal I/O Encoding,  Up: Coding Systems
+
+MS-DOS File Types
+-----------------
+
+   Emacs on MS-DOS and on MS-Windows recognizes certain file names as
+text files or binary files.  By "binary file" we mean a file of literal
+byte values that are not necessary meant to be characters.  Emacs does
+no end-of-line conversion and no character code conversion for a binary
+file.  Meanwhile, when you create a new file which is marked by its
+name as a "text file", Emacs uses DOS end-of-line conversion.
+
+ - Variable: buffer-file-type
+     This variable, automatically buffer-local in each buffer, records
+     the file type of the buffer's visited file.  When a buffer does
+     not specify a coding system with `buffer-file-coding-system', this
+     variable is used to determine which coding system to use when
+     writing the contents of the buffer.  It should be `nil' for text,
+     `t' for binary.  If it is `t', the coding system is
+     `no-conversion'.  Otherwise, `undecided-dos' is used.
+
+     Normally this variable is set by visiting a file; it is set to
+     `nil' if the file was visited without any actual conversion.
+
+ - User Option: file-name-buffer-file-type-alist
+     This variable holds an alist for recognizing text and binary files.
+     Each element has the form (REGEXP . TYPE), where REGEXP is matched
+     against the file name, and TYPE may be `nil' for text, `t' for
+     binary, or a function to call to compute which.  If it is a
+     function, then it is called with a single argument (the file name)
+     and should return `t' or `nil'.
+
+     Emacs when running on MS-DOS or MS-Windows checks this alist to
+     decide which coding system to use when reading a file.  For a text
+     file, `undecided-dos' is used.  For a binary file, `no-conversion'
+     is used.
+
+     If no element in this alist matches a given file name, then
+     `default-buffer-file-type' says how to treat the file.
+
+ - User Option: default-buffer-file-type
+     This variable says how to handle files for which
+     `file-name-buffer-file-type-alist' says nothing about the type.
+
+     If this variable is non-`nil', then these files are treated as
+     binary: the coding system `no-conversion' is used.  Otherwise,
+     nothing special is done for them--the coding system is deduced
+     solely from the file contents, in the usual Emacs fashion.
+
+
+File: elisp,  Node: Input Methods,  Prev: Coding Systems,  Up: Non-ASCII Characters
+
+Input Methods
+=============
+
+   "Input methods" provide convenient ways of entering non-ASCII
+characters from the keyboard.  Unlike coding systems, which translate
+non-ASCII characters to and from encodings meant to be read by
+programs, input methods provide human-friendly commands.  (*Note Input
+Methods: (emacs)Input Methods, for information on how users use input
+methods to enter text.)  How to define input methods is not yet
+documented in this manual, but here we describe how to use them.
+
+   Each input method has a name, which is currently a string; in the
+future, symbols may also be usable as input method names.
+
+ - Variable: current-input-method
+     This variable holds the name of the input method now active in the
+     current buffer.  (It automatically becomes local in each buffer
+     when set in any fashion.)  It is `nil' if no input method is
+     active in the buffer now.
+
+ - Variable: default-input-method
+     This variable holds the default input method for commands that
+     choose an input method.  Unlike `current-input-method', this
+     variable is normally global.
+
+ - Function: set-input-method INPUT-METHOD
+     This function activates input method INPUT-METHOD for the current
+     buffer.  It also sets `default-input-method' to INPUT-METHOD.  If
+     INPUT-METHOD is `nil', this function deactivates any input method
+     for the current buffer.
+
+ - Function: read-input-method-name PROMPT &optional DEFAULT
+          INHIBIT-NULL
+     This function reads an input method name with the minibuffer,
+     prompting with PROMPT.  If DEFAULT is non-`nil', that is returned
+     by default, if the user enters empty input.  However, if
+     INHIBIT-NULL is non-`nil', empty input signals an error.
+
+     The returned value is a string.
+
+ - Variable: input-method-alist
+     This variable defines all the supported input methods.  Each
+     element defines one input method, and should have the form:
+
+          (INPUT-METHOD LANGUAGE-ENV ACTIVATE-FUNC
+           TITLE DESCRIPTION ARGS...)
+
+     Here INPUT-METHOD is the input method name, a string; LANGUAGE-ENV
+     is another string, the name of the language environment this input
+     method is recommended for.  (That serves only for documentation
+     purposes.)
+
+     TITLE is a string to display in the mode line while this method is
+     active.  DESCRIPTION is a string describing this method and what
+     it is good for.
+
+     ACTIVATE-FUNC is a function to call to activate this method.  The
+     ARGS, if any, are passed as arguments to ACTIVATE-FUNC.  All told,
+     the arguments to ACTIVATE-FUNC are INPUT-METHOD and the ARGS.
+
+   The fundamental interface to input methods is through the variable
+`input-method-function'.  *Note Reading One Event::.
+
+
+File: elisp,  Node: Searching and Matching,  Next: Syntax Tables,  Prev: Non-ASCII Characters,  Up: Top
+
+Searching and Matching
+**********************
+
+   GNU Emacs provides two ways to search through a buffer for specified
+text: exact string searches and regular expression searches.  After a
+regular expression search, you can examine the "match data" to
+determine which text matched the whole regular expression or various
+portions of it.
+
+* Menu:
+
+* String Search::         Search for an exact match.
+* Regular Expressions::   Describing classes of strings.
+* Regexp Search::         Searching for a match for a regexp.
+* POSIX Regexps::         Searching POSIX-style for the longest match.
+* Search and Replace::	  Internals of `query-replace'.
+* Match Data::            Finding out which part of the text matched
+                            various parts of a regexp, after regexp search.
+* Searching and Case::    Case-independent or case-significant searching.
+* Standard Regexps::      Useful regexps for finding sentences, pages,...
+
+   The `skip-chars...' functions also perform a kind of searching.
+*Note Skipping Characters::.
+
+
+File: elisp,  Node: String Search,  Next: Regular Expressions,  Up: Searching and Matching
+
+Searching for Strings
+=====================
+
+   These are the primitive functions for searching through the text in a
+buffer.  They are meant for use in programs, but you may call them
+interactively.  If you do so, they prompt for the search string; LIMIT
+and NOERROR are set to `nil', and REPEAT is set to 1.
+
+   These search functions convert the search string to multibyte if the
+buffer is multibyte; they convert the search string to unibyte if the
+buffer is unibyte.  *Note Text Representations::.
+
+ - Command: search-forward STRING &optional LIMIT NOERROR REPEAT
+     This function searches forward from point for an exact match for
+     STRING.  If successful, it sets point to the end of the occurrence
+     found, and returns the new value of point.  If no match is found,
+     the value and side effects depend on NOERROR (see below).
+
+     In the following example, point is initially at the beginning of
+     the line.  Then `(search-forward "fox")' moves point after the last
+     letter of `fox':
+
+          ---------- Buffer: foo ----------
+          -!-The quick brown fox jumped over the lazy dog.
+          ---------- Buffer: foo ----------
+          
+          (search-forward "fox")
+               => 20
+          
+          ---------- Buffer: foo ----------
+          The quick brown fox-!- jumped over the lazy dog.
+          ---------- Buffer: foo ----------
+
+     The argument LIMIT specifies the upper bound to the search.  (It
+     must be a position in the current buffer.)  No match extending
+     after that position is accepted.  If LIMIT is omitted or `nil', it
+     defaults to the end of the accessible portion of the buffer.
+
+     What happens when the search fails depends on the value of
+     NOERROR.  If NOERROR is `nil', a `search-failed' error is
+     signaled.  If NOERROR is `t', `search-forward' returns `nil' and
+     does nothing.  If NOERROR is neither `nil' nor `t', then
+     `search-forward' moves point to the upper bound and returns `nil'.
+     (It would be more consistent now to return the new position of
+     point in that case, but some existing programs may depend on a
+     value of `nil'.)
+
+     If REPEAT is supplied (it must be a positive number), then the
+     search is repeated that many times (each time starting at the end
+     of the previous time's match).  If these successive searches
+     succeed, the function succeeds, moving point and returning its new
+     value.  Otherwise the search fails.
+
+ - Command: search-backward STRING &optional LIMIT NOERROR REPEAT
+     This function searches backward from point for STRING.  It is just
+     like `search-forward' except that it searches backwards and leaves
+     point at the beginning of the match.
+
+ - Command: word-search-forward STRING &optional LIMIT NOERROR REPEAT
+     This function searches forward from point for a "word" match for
+     STRING.  If it finds a match, it sets point to the end of the
+     match found, and returns the new value of point.
+
+     Word matching regards STRING as a sequence of words, disregarding
+     punctuation that separates them.  It searches the buffer for the
+     same sequence of words.  Each word must be distinct in the buffer
+     (searching for the word `ball' does not match the word `balls'),
+     but the details of punctuation and spacing are ignored (searching
+     for `ball boy' does match `ball.  Boy!').
+
+     In this example, point is initially at the beginning of the
+     buffer; the search leaves it between the `y' and the `!'.
+
+          ---------- Buffer: foo ----------
+          -!-He said "Please!  Find
+          the ball boy!"
+          ---------- Buffer: foo ----------
+          
+          (word-search-forward "Please find the ball, boy.")
+               => 35
+          
+          ---------- Buffer: foo ----------
+          He said "Please!  Find
+          the ball boy-!-!"
+          ---------- Buffer: foo ----------
+
+     If LIMIT is non-`nil' (it must be a position in the current
+     buffer), then it is the upper bound to the search.  The match
+     found must not extend after that position.
+
+     If NOERROR is `nil', then `word-search-forward' signals an error
+     if the search fails.  If NOERROR is `t', then it returns `nil'
+     instead of signaling an error.  If NOERROR is neither `nil' nor
+     `t', it moves point to LIMIT (or the end of the buffer) and
+     returns `nil'.
+
+     If REPEAT is non-`nil', then the search is repeated that many
+     times.  Point is positioned at the end of the last match.
+
+ - Command: word-search-backward STRING &optional LIMIT NOERROR REPEAT
+     This function searches backward from point for a word match to
+     STRING.  This function is just like `word-search-forward' except
+     that it searches backward and normally leaves point at the
+     beginning of the match.
+
+
+File: elisp,  Node: Regular Expressions,  Next: Regexp Search,  Prev: String Search,  Up: Searching and Matching
+
+Regular Expressions
+===================
+
+   A "regular expression" ("regexp", for short) is a pattern that
+denotes a (possibly infinite) set of strings.  Searching for matches for
+a regexp is a very powerful operation.  This section explains how to
+write regexps; the following section says how to search for them.
+
+* Menu:
+
+* Syntax of Regexps::       Rules for writing regular expressions.
+* Regexp Example::          Illustrates regular expression syntax.
+
+
+File: elisp,  Node: Syntax of Regexps,  Next: Regexp Example,  Up: Regular Expressions
+
+Syntax of Regular Expressions
+-----------------------------
+
+   Regular expressions have a syntax in which a few characters are
+special constructs and the rest are "ordinary".  An ordinary character
+is a simple regular expression that matches that character and nothing
+else.  The special characters are `.', `*', `+', `?', `[', `]', `^',
+`$', and `\'; no new special characters will be defined in the future.
+Any other character appearing in a regular expression is ordinary,
+unless a `\' precedes it.
+
+   For example, `f' is not a special character, so it is ordinary, and
+therefore `f' is a regular expression that matches the string `f' and
+no other string.  (It does *not* match the string `ff'.)  Likewise, `o'
+is a regular expression that matches only `o'.
+
+   Any two regular expressions A and B can be concatenated.  The result
+is a regular expression that matches a string if A matches some amount
+of the beginning of that string and B matches the rest of the string.
+
+   As a simple example, we can concatenate the regular expressions `f'
+and `o' to get the regular expression `fo', which matches only the
+string `fo'.  Still trivial.  To do something more powerful, you need
+to use one of the special characters.  Here is a list of them:
+
+`.' (Period)
+     is a special character that matches any single character except a
+     newline.  Using concatenation, we can make regular expressions
+     like `a.b', which matches any three-character string that begins
+     with `a' and ends with `b'.
+
+`*'
+     is not a construct by itself; it is a postfix operator that means
+     to match the preceding regular expression repetitively as many
+     times as possible.  Thus, `o*' matches any number of `o's
+     (including no `o's).
+
+     `*' always applies to the *smallest* possible preceding
+     expression.  Thus, `fo*' has a repeating `o', not a repeating
+     `fo'.  It matches `f', `fo', `foo', and so on.
+
+     The matcher processes a `*' construct by matching, immediately, as
+     many repetitions as can be found.  Then it continues with the rest
+     of the pattern.  If that fails, backtracking occurs, discarding
+     some of the matches of the `*'-modified construct in the hope that
+     that will make it possible to match the rest of the pattern.  For
+     example, in matching `ca*ar' against the string `caaar', the `a*'
+     first tries to match all three `a's; but the rest of the pattern is
+     `ar' and there is only `r' left to match, so this try fails.  The
+     next alternative is for `a*' to match only two `a's.  With this
+     choice, the rest of the regexp matches successfully.
+
+     Nested repetition operators can be extremely slow if they specify
+     backtracking loops.  For example, it could take hours for the
+     regular expression `\(x+y*\)*a' to try to match the sequence
+     `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxz', before it ultimately fails.
+     The slowness is because Emacs must try each imaginable way of
+     grouping the 35 `x's before concluding that none of them can work.
+     To make sure your regular expressions run fast, check nested
+     repetitions carefully.
+
+`+'
+     is a postfix operator, similar to `*' except that it must match
+     the preceding expression at least once.  So, for example, `ca+r'
+     matches the strings `car' and `caaaar' but not the string `cr',
+     whereas `ca*r' matches all three strings.
+
+`?'
+     is a postfix operator, similar to `*' except that it must match the
+     preceding expression either once or not at all.  For example,
+     `ca?r' matches `car' or `cr'; nothing else.
+
+`[ ... ]'
+     is a "character alternative", which begins with `[' and is
+     terminated by `]'.  In the simplest case, the characters between
+     the two brackets are what this character alternative can match.
+
+     Thus, `[ad]' matches either one `a' or one `d', and `[ad]*'
+     matches any string composed of just `a's and `d's (including the
+     empty string), from which it follows that `c[ad]*r' matches `cr',
+     `car', `cdr', `caddaar', etc.
+
+     You can also include character ranges in a character alternative,
+     by writing the starting and ending characters with a `-' between
+     them.  Thus, `[a-z]' matches any lower-case ASCII letter.  Ranges
+     may be intermixed freely with individual characters, as in
+     `[a-z$%.]', which matches any lower case ASCII letter or `$', `%'
+     or period.
+
+     You cannot always match all non-ASCII characters with the regular
+     expression `[\200-\377]'.  This works when searching a unibyte
+     buffer or string (*note Text Representations::.), but not in a
+     multibyte buffer or string, because many non-ASCII characters have
+     codes above octal 0377.  However, the regular expression
+     `[^\000-\177]' does match all non-ASCII characters, in both
+     multibyte and unibyte representations, because only the ASCII
+     characters are excluded.
+
+     The beginning and end of a range must be in the same character set
+     (*note Character Sets::.).  Thus, `[a-\x8e0]' is invalid because
+     `a' is in the ASCII character set but the character 0x8e0 (`a'
+     with grave accent) is in the Emacs character set for Latin-1.
+
+     Note that the usual regexp special characters are not special
+     inside a character alternative.  A completely different set of
+     characters are special inside character alternatives: `]', `-' and
+     `^'.
+
+     To include a `]' in a character alternative, you must make it the
+     first character.  For example, `[]a]' matches `]' or `a'.  To
+     include a `-', write `-' as the first or last character of the
+     character alternative, or put it after a range.  Thus, `[]-]'
+     matches both `]' and `-'.
+
+     To include `^' in a character alternative, put it anywhere but at
+     the beginning.
+
+`[^ ... ]'
+     `[^' begins a "complemented character alternative", which matches
+     any character except the ones specified.  Thus, `[^a-z0-9A-Z]'
+     matches all characters *except* letters and digits.
+
+     `^' is not special in a character alternative unless it is the
+     first character.  The character following the `^' is treated as if
+     it were first (in other words, `-' and `]' are not special there).
+
+     A complemented character alternative can match a newline, unless
+     newline is mentioned as one of the characters not to match.  This
+     is in contrast to the handling of regexps in programs such as
+     `grep'.
+
+`^'
+     is a special character that matches the empty string, but only at
+     the beginning of a line in the text being matched.  Otherwise it
+     fails to match anything.  Thus, `^foo' matches a `foo' that occurs
+     at the beginning of a line.
+
+     When matching a string instead of a buffer, `^' matches at the
+     beginning of the string or after a newline character `\n'.
+
+`$'
+     is similar to `^' but matches only at the end of a line.  Thus,
+     `x+$' matches a string of one `x' or more at the end of a line.
+
+     When matching a string instead of a buffer, `$' matches at the end
+     of the string or before a newline character `\n'.
+
+`\'
+     has two functions: it quotes the special characters (including
+     `\'), and it introduces additional special constructs.
+
+     Because `\' quotes special characters, `\$' is a regular
+     expression that matches only `$', and `\[' is a regular expression
+     that matches only `[', and so on.
+
+     Note that `\' also has special meaning in the read syntax of Lisp
+     strings (*note String Type::.), and must be quoted with `\'.  For
+     example, the regular expression that matches the `\' character is
+     `\\'.  To write a Lisp string that contains the characters `\\',
+     Lisp syntax requires you to quote each `\' with another `\'.
+     Therefore, the read syntax for a regular expression matching `\'
+     is `"\\\\"'.
+
+   *Please note:* For historical compatibility, special characters are
+treated as ordinary ones if they are in contexts where their special
+meanings make no sense.  For example, `*foo' treats `*' as ordinary
+since there is no preceding expression on which the `*' can act.  It is
+poor practice to depend on this behavior; quote the special character
+anyway, regardless of where it appears.
+
+   For the most part, `\' followed by any character matches only that
+character.  However, there are several exceptions: two-character
+sequences starting with `\' which have special meanings.  (The second
+character in such a sequence is always ordinary when used on its own.)
+Here is a table of `\' constructs.
+
+`\|'
+     specifies an alternative.  Two regular expressions A and B with
+     `\|' in between form an expression that matches anything that
+     either A or B matches.
+
+     Thus, `foo\|bar' matches either `foo' or `bar' but no other string.
+
+     `\|' applies to the largest possible surrounding expressions.
+     Only a surrounding `\( ... \)' grouping can limit the grouping
+     power of `\|'.
+
+     Full backtracking capability exists to handle multiple uses of
+     `\|'.
+
+`\( ... \)'
+     is a grouping construct that serves three purposes:
+
+       1. To enclose a set of `\|' alternatives for other operations.
+          Thus, the regular expression `\(foo\|bar\)x' matches either
+          `foox' or `barx'.
+
+       2. To enclose a complicated expression for the postfix operators
+          `*', `+' and `?' to operate on.  Thus, `ba\(na\)*' matches
+          `ba', `bana', `banana', `bananana', etc., with any number
+          (zero or more) of `na' strings.
+
+       3. To record a matched substring for future reference.
+
+     This last application is not a consequence of the idea of a
+     parenthetical grouping; it is a separate feature that happens to be
+     assigned as a second meaning to the same `\( ... \)' construct
+     because there is no conflict in practice between the two meanings.
+     Here is an explanation of this feature:
+
+`\DIGIT'
+     matches the same text that matched the DIGITth occurrence of a `\(
+     ... \)' construct.
+
+     In other words, after the end of a `\( ... \)' construct, the
+     matcher remembers the beginning and end of the text matched by that
+     construct.  Then, later on in the regular expression, you can use
+     `\' followed by DIGIT to match that same text, whatever it may
+     have been.
+
+     The strings matching the first nine `\( ... \)' constructs
+     appearing in a regular expression are assigned numbers 1 through 9
+     in the order that the open parentheses appear in the regular
+     expression.  So you can use `\1' through `\9' to refer to the text
+     matched by the corresponding `\( ... \)' constructs.
+
+     For example, `\(.*\)\1' matches any newline-free string that is
+     composed of two identical halves.  The `\(.*\)' matches the first
+     half, which may be anything, but the `\1' that follows must match
+     the same exact text.
+
+`\w'
+     matches any word-constituent character.  The editor syntax table
+     determines which characters these are.  *Note Syntax Tables::.
+
+`\W'
+     matches any character that is not a word constituent.
+
+`\sCODE'
+     matches any character whose syntax is CODE.  Here CODE is a
+     character that represents a syntax code: thus, `w' for word
+     constituent, `-' for whitespace, `(' for open parenthesis, etc.
+     To represent whitespace syntax, use either `-' or a space
+     character.  *Note Syntax Class Table::, for a list of syntax codes
+     and the characters that stand for them.
+
+`\SCODE'
+     matches any character whose syntax is not CODE.
+
+   The following regular expression constructs match the empty
+string--that is, they don't use up any characters--but whether they
+match depends on the context.
+
+`\`'
+     matches the empty string, but only at the beginning of the buffer
+     or string being matched against.
+
+`\''
+     matches the empty string, but only at the end of the buffer or
+     string being matched against.
+
+`\='
+     matches the empty string, but only at point.  (This construct is
+     not defined when matching against a string.)
+
+`\b'
+     matches the empty string, but only at the beginning or end of a
+     word.  Thus, `\bfoo\b' matches any occurrence of `foo' as a
+     separate word.  `\bballs?\b' matches `ball' or `balls' as a
+     separate word.
+
+     `\b' matches at the beginning or end of the buffer regardless of
+     what text appears next to it.
+
+`\B'
+     matches the empty string, but *not* at the beginning or end of a
+     word.
+
+`\<'
+     matches the empty string, but only at the beginning of a word.
+     `\<' matches at the beginning of the buffer only if a
+     word-constituent character follows.
+
+`\>'
+     matches the empty string, but only at the end of a word.  `\>'
+     matches at the end of the buffer only if the contents end with a
+     word-constituent character.
+
+   Not every string is a valid regular expression.  For example, a
+string with unbalanced square brackets is invalid (with a few
+exceptions, such as `[]]'), and so is a string that ends with a single
+`\'.  If an invalid regular expression is passed to any of the search
+functions, an `invalid-regexp' error is signaled.
+
+ - Function: regexp-quote STRING
+     This function returns a regular expression string that matches
+     exactly STRING and nothing else.  This allows you to request an
+     exact string match when calling a function that wants a regular
+     expression.
+
+          (regexp-quote "^The cat$")
+               => "\\^The cat\\$"
+
+     One use of `regexp-quote' is to combine an exact string match with
+     context described as a regular expression.  For example, this
+     searches for the string that is the value of STRING, surrounded by
+     whitespace:
+
+          (re-search-forward
+           (concat "\\s-" (regexp-quote string) "\\s-"))
+
+ - Function: regexp-opt STRINGS &optional PAREN
+     This function returns an efficient regular expression that will
+     match any of the strings STRINGS.  This is useful when you need to
+     make matching or searching as fast as possible--for example, for
+     Font Lock mode.
+
+     If the optional argument PAREN is non-`nil', then the returned
+     regular expression is always enclosed by at least one
+     parentheses-grouping construct.
+
+     This simplified definition of `regexp-opt' produces a regular
+     expression which is equivalent to the actual value (but not as
+     efficient):
+
+          (defun regexp-opt (strings paren)
+            (let ((open-paren (if paren "\\(" ""))
+                  (close-paren (if paren "\\)" "")))
+              (concat open-paren
+                      (mapconcat 'regexp-quote strings "\\|")
+                      close-paren)))
+
+ - Function: regexp-opt-depth REGEXP
+     This function returns the total number of grouping constructs
+     (parenthesized expressions) in REGEXP.
+
+
+File: elisp,  Node: Regexp Example,  Prev: Syntax of Regexps,  Up: Regular Expressions
+
+Complex Regexp Example
+----------------------
+
+   Here is a complicated regexp, used by Emacs to recognize the end of a
+sentence together with any whitespace that follows.  It is the value of
+the variable `sentence-end'.
+
+   First, we show the regexp as a string in Lisp syntax to distinguish
+spaces from tab characters.  The string constant begins and ends with a
+double-quote.  `\"' stands for a double-quote as part of the string,
+`\\' for a backslash as part of the string, `\t' for a tab and `\n' for
+a newline.
+
+     "[.?!][]\"')}]*\\($\\| $\\|\t\\|  \\)[ \t\n]*"
+
+In contrast, if you evaluate the variable `sentence-end', you will see
+the following:
+
+     sentence-end
+          => "[.?!][]\"')}]*\\($\\| $\\|  \\|  \\)[
+     ]*"
+
+In this output, tab and newline appear as themselves.
+
+   This regular expression contains four parts in succession and can be
+deciphered as follows:
+
+`[.?!]'
+     The first part of the pattern is a character alternative that
+     matches any one of three characters: period, question mark, and
+     exclamation mark.  The match must begin with one of these three
+     characters.
+
+`[]\"')}]*'
+     The second part of the pattern matches any closing braces and
+     quotation marks, zero or more of them, that may follow the period,
+     question mark or exclamation mark.  The `\"' is Lisp syntax for a
+     double-quote in a string.  The `*' at the end indicates that the
+     immediately preceding regular expression (a character alternative,
+     in this case) may be repeated zero or more times.
+
+`\\($\\| $\\|\t\\|  \\)'
+     The third part of the pattern matches the whitespace that follows
+     the end of a sentence: the end of a line (optionally with a
+     space), or a tab, or two spaces.  The double backslashes mark the
+     parentheses and vertical bars as regular expression syntax; the
+     parentheses delimit a group and the vertical bars separate
+     alternatives.  The dollar sign is used to match the end of a line.
+
+`[ \t\n]*'
+     Finally, the last part of the pattern matches any additional
+     whitespace beyond the minimum needed to end a sentence.
+

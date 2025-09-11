@@ -1,0 +1,240 @@
+\input texinfo.tex  @c -*-texinfo-*-
+@c %**start of header
+@setfilename elisp-reference
+@settitle The GNU Emacs Lisp Reference Manual
+@c %**end of header
+
+@c ================================================================
+@c THIS file is for running `texinfo-format-buffer' with 
+@c `/gp/gnu/elisp/texinfmt.el'
+
+@c It uses `@@input' files instead of `@@include' files;
+@c and has the old style title page commands.
+@c ================================================================
+
+@c @smallbook
+
+@c tex
+@c \overfullrule=0pt
+@c @end tex
+
+@c
+@c Combine indices.
+@synindex vr fn
+@synindex cp fn
+@synindex ky fn
+@synindex pg fn
+@synindex tp fn
+@c oops: texinfo-format-buffer ignores synindex
+@c
+
+@ifinfo
+This info file documents GNU Emacs Lisp.
+
+This is Edition 0.1 Beta of the GNU Emacs Lisp Reference Manual,  
+for Emacs Version 18, with some references to Emacs Version 19.
+
+Please read this document for review purposes.
+
+Published by the Free Software Foundation,
+675 Massachusetts Avenue, 
+Cambridge, MA 02139 USA
+
+Copyright (C) 1989 Free Software Foundation, Inc. 
+
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+@ignore
+Permission is granted to process this file through TeX and print the
+results, provided the printed document carries copying permission
+notice identical to this one except for the removal of this paragraph
+(this paragraph not being relevant to the printed manual).
+
+@end ignore
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the entire
+resulting derived work is distributed under the terms of a permission
+notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be stated in a translation approved
+by the Foundation.
+@end ifinfo
+@c
+
+@c
+@setchapternewpage odd
+
+@titlepage
+@sp 11
+@center @titlefont{The}
+@sp 2
+@center @titlefont{GNU Emacs}
+@sp 2
+@center @titlefont{Lisp Reference Manual}
+@sp 2
+@center by Bil Lewis, Dan LaLiberte, and the GNU Manual Group
+@sp 2
+@center June 1989
+@sp 2
+@center Edition 0.1 beta
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} 1989 Free Software Foundation, Inc. 
+
+@sp 2
+This is Edition 0.1 Beta of the @cite{GNU Emacs Lisp Reference Manual},  @*
+for Emacs Version 18, with some references to Emacs Version 19.
+
+@sp 2
+Published by the Free Software Foundation, @*
+675 Massachusetts Avenue, @*
+Cambridge, MA 02139 USA @*
+
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the entire
+resulting derived work is distributed under the terms of a permission
+notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be stated in a translation approved
+by the Foundation.
+@end titlepage
+@page
+
+@node Top, Introduction, (dir), (dir)
+
+@ifinfo
+This Info file documents GNU Emacs Lisp.
+@end ifinfo
+
+@menu
+* Introduction::	
+* Types of Lisp Object::	
+* Numbers::	
+* Strings and Characters::	
+
+* Lists::	
+* Sequences Arrays Vectors::   
+* Symbols::	
+* Variables::	
+
+* Functions::	
+* Macros::	
+* Control Structures::	
+* Evaluation::	
+
+* Loading::	
+* Byte Compilation::	
+* Debugging::	
+* Streams::	
+
+* Minibuffers::	
+* Command Loop::	
+* Keymaps::	
+* Major and Minor Modes::	
+
+* Documentation::	
+* Files::	
+* Backups and Auto Saving::	
+* Buffers::	
+
+* Windows::	
+* Positions::	
+* Markers::	
+* Text::	
+
+* Searching and Matching::	
+* Syntax Tables::	
+* Lisp Expressions::	
+* Abbreviations::
+
+* Processes::	
+* Operating System Interface::	
+* Emacs Display::	
+
+Appendices
+* GNU Emacs Internals::	
+* Standard Errors::	
+* Standard Buffer Local Variables::	
+* Standard Keymaps::	
+* Hooks::	
+
+* Index::
+@end menu
+
+@input intro.texinfo
+@input objects.texinfo
+@input numbers.texinfo
+@input strings.texinfo
+
+@input lists.texinfo
+@input sequences.texinfo
+@input symbols.texinfo
+@input variables.texinfo
+
+@input functions.texinfo
+@input macros.texinfo
+@input control.texinfo
+@input eval.texinfo
+
+@input loading.texinfo
+@input compilation.texinfo
+@input debugging.texinfo
+@input streams.texinfo
+
+@input minibuffer.texinfo
+@input command-loop.texinfo
+@input keymaps.texinfo
+@input modes.texinfo
+
+@input help.texinfo
+@input files.texinfo
+@input backups.texinfo
+@input buffers.texinfo
+
+@input windows.texinfo
+@input positions.texinfo
+@input markers.texinfo
+@input text.texinfo
+
+@input searching.texinfo
+@input syntax.texinfo
+@input sexps.texinfo
+@input abbrevs.texinfo
+
+@input processes.texinfo
+@input os-interface.texinfo
+@input display.texinfo
+
+@c MOVE to Emacs Manual:  input misc-modes.texinfo
+
+@c appendices
+
+@c  REMOVE this:  input non-hacker.texinfo
+
+@input internals.texinfo
+@input errors.texinfo
+@input buffer-local.texinfo
+@input maps.texinfo
+@input hooks.texinfo
+
+@input index.texinfo
+
+@c Print the tables of contents
+@summarycontents
+@contents
+
+@c That's all
+@bye
+
+
+These words prevent "local variables" above from confusing Emacs.

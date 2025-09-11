@@ -1,0 +1,643 @@
+@c -*-texinfo-*-
+@setfilename ../info/buffers
+@node Buffers, Windows, Backups and Auto-Saving, Top
+@chapter Buffers
+@cindex buffer
+
+  A @dfn{buffer} is a Lisp object containing text to be edited.  Buffers
+are used to hold the contents of files that are being visited; there may
+also be buffers which are not visiting files.  While several buffers may
+exist at one time, exactly one buffer is designated the @dfn{current
+buffer} at any time.  Most editing commands act on the contents of the
+current buffer.  Each buffer, including the current buffer, may or may
+not be displayed in any windows.
+
+@menu
+* Buffer Basics::       What is a buffer?
+* Buffer Names::        Accessing and changing buffer names.
+* Buffer File Name::    The buffer file name indicates which file is visited.
+* Buffer Modification:: A buffer is @dfn{modified} if it needs to be saved.
+* Modification Time::   Determining whether the visited file was changed
+                         ``behind Emacs's back''.
+* Read Only Buffers::   Modifying text is not allowed in a read-only buffer.
+* The Buffer List::     How to look at all the existing buffers.
+* Creating Buffers::    Functions that create buffers.
+* Killing Buffers::     Buffers exist until explicitly killed.
+* Current Buffer::      Designating a buffer as current
+                          so primitives will access its contents.
+@end menu
+
+@node Buffer Basics, Buffer Names, Buffers, Buffers
+@comment  node-name,  next,  previous,  up
+@section Buffer Basics
+
+@ifinfo
+  A @dfn{buffer} is a Lisp object containing text to be edited.  Buffers
+are used to hold the contents of files that are being visited; there may
+also be buffers which are not visiting files.  While several buffers may
+exist at one time, exactly one buffer is designated the @dfn{current
+buffer} at any time.  Most editing commands act on the contents of the
+current buffer.  Each buffer, including the current buffer, may or may
+not be displayed in any windows.
+@end ifinfo
+
+  Buffers in Emacs editing are objects which have distinct names and
+hold text that can be edited.  Buffers appear to Lisp programs as a
+special data type.  The contents of a buffer may be viewed as an
+extendible string; insertions and deletions may occur in any part of the
+buffer.  @xref{Text}.
+
+  A Lisp buffer object contains numerous pieces of information.  Some of
+this information is directly accessible to the programmer through
+variables, while other information is only accessible through
+special-purpose functions.  For example, the width of a tab character is
+directly accessible through a variable, while the value of point is
+accessible only through a primitive function.
+
+  Buffer-specific information that is directly accessible is stored in
+@dfn{buffer-local} variable bindings, which are variable values that are
+effective only in a particular buffer.  This feature allows each buffer
+to override the values of certain variables.  Most major modes override
+variables such as @code{fill-column} or @code{comment-column} in this
+way.  For more information about buffer-local variables and functions
+related to them, see @ref{Buffer-Local Variables}.
+
+  For functions and variables related to visiting files in buffers, see
+@ref{Visiting Files} and @ref{Saving Buffers}.  For functions and
+variables related to the display of buffers in windows, see
+@ref{Buffers and Windows}.
+
+@defun bufferp object
+  This function returns @code{t} if @var{object} is a buffer,
+@code{nil} otherwise.
+@end defun
+
+@node Buffer Names, Buffer File Name, Buffer Basics , Buffers
+@section Buffer Names
+@cindex buffer names
+
+  Each buffer has a unique name, which is a string.  The buffer name may
+be used in place of the buffer object in many functions that operate on
+buffers.  Buffers that are generally ephemeral and uninteresting to the
+user have names starting with a space, which prevents them from being
+listed by the @code{list-buffers} or @code{buffer-menu} commands.
+
+  Many of the following functions accept either a buffer or a buffer
+name (a string) as an argument.  Any argument called
+@var{buffer-or-name} is of this sort, and an error is signaled if it is
+neither a string nor a buffer.  Any argument called @var{buffer} is
+required to be an actual buffer object, not a name.
+
+@defun buffer-name &optional buffer
+  This function returns the name of @var{buffer} as a string.  If
+@var{buffer} is not supplied, it defaults to the current buffer.
+
+  If @code{buffer-name} returns @code{nil}, it means that @var{buffer}
+has been killed.  @xref{Killing Buffers}.
+
+@example
+(buffer-name)
+     @result{} "buffers.texi"
+
+(setq foo (get-buffer "temp"))
+     @result{} #<buffer temp>
+(kill-buffer foo)
+     @result{} nil
+(buffer-name foo)
+     @result{} nil
+foo
+     @result{} #<killed buffer>
+@end example
+@end defun
+
+@deffn Command rename-buffer newname
+  This function renames the current buffer to @var{newname}.  An error
+is signaled if @var{newname} is not a string, or if there is already a
+buffer with that name.  The function returns @code{nil}.
+
+  One application of this command is to rename the @samp{*shell*} buffer
+to some other name, thus making it possible to create a second shell
+buffer under the name @samp{*shell*}.
+@end deffn
+
+@defun get-buffer buffer-or-name
+  This function returns the buffer specified by @var{buffer-or-name}.
+If @var{buffer-or-name} is a string and there is no buffer with that
+name, the value is @code{nil}.  If @var{buffer-or-name} is a buffer, it
+is returned as given.  (That is not very useful, so the argument is usually 
+a name.)  For example:
+
+@example
+(setq b (get-buffer "lewis"))
+     @result{} #<buffer lewis>
+(get-buffer b)
+     @result{} #<buffer lewis>
+(get-buffer "Frazzle-nots")
+     @result{} nil
+@end example
+@end defun
+
+@node Buffer File Name, Buffer Modification, Buffer Names, Buffers
+@section Buffer File Name
+@cindex visited file
+@cindex buffer file name
+@cindex file name of buffer
+
+  The @dfn{buffer file name} is the name of the file that is visited in
+that buffer.  When a buffer is not visiting a file, its buffer file name
+is @code{nil}.  Most of the time, the buffer name is the same as the
+nondirectory part of the buffer file name, but the buffer file name and
+the buffer name are distinct and can be set independently.
+@xref{Visiting Files}.
+
+@defun buffer-file-name &optional buffer
+  This function returns the absolute file name of the file that
+@var{buffer} is visiting.  If @var{buffer} is not visiting any file,
+@code{buffer-file-name} returns @code{nil}.  If @var{buffer} is not
+supplied, it defaults to the current buffer.
+
+@example
+(buffer-file-name (other-buffer))
+     @result{} "/usr/user/lewis/manual/files.texi"
+@end example
+@end defun
+
+@defvar buffer-file-name
+  This buffer-local variable contains the name of the file being
+visited in the current buffer, or @code{nil} if it is not visiting a file.
+
+@example
+buffer-file-name
+     @result{} "/usr/user/lewis/manual/buffers.texi"
+@end example
+
+  It is risky to change this variable's value without doing various
+other things.  See the definition of @code{set-visited-file-name} in
+@file{files.el}; some of the things done there, such as changing the
+buffer name, are not necessary, but others are essential to avoid
+confusing Emacs.
+@end defvar
+
+@defun get-file-buffer filename
+  This function returns the buffer visiting file @var{filename}.  If
+there is no such buffer, it returns @code{nil}.  The argument
+@var{filename}, which must be a string, is expanded (@pxref{File Name
+Expansion}), then compared against the visited file names of all live
+buffers.
+
+@example
+(get-file-buffer "buffers.texi")
+@result{} #<buffer buffers.texi>
+@end example
+
+  In unusual circumstances, there can be more than one buffer visiting
+the same file name.  In such cases, this function returns the first
+such buffer in the buffer list.
+@end defun
+
+@deffn Command set-visited-file-name filename
+  If @var{filename} is a non-empty string, this function changes the
+name of the file visited in current buffer to @var{filename}.  (If the
+buffer had no visited file, this gives it one.)  The @emph{next time}
+the buffer is saved it will go in the newly-specified file.  The buffer
+is always marked as modified, since it does not (as far as Emacs knows)
+match the contents of @var{filename}, even if it matched the former
+visited file.
+
+  If @var{filename} is @code{nil} or the empty string, that stands for
+``no visited file''.  In this case, @code{set-visited-file-name} marks
+the buffer as having no visited file.
+
+  When @code{set-visited-file-name} is called interactively, it
+prompts for @var{filename} in the minibuffer.
+
+  See also @code{clear-visited-file-modtime} and
+@code{verify-visited-file-modtime} in @ref{Buffer Modification}.
+@end deffn
+
+@node Buffer Modification, Modification Time, Buffer File Name, Buffers
+@section Buffer Modification
+@cindex buffer modification
+@cindex modification flag (of buffer)
+
+  Emacs keeps a flag called the @dfn{modified flag} for each buffer, to
+record whether you have changed the text of the buffer.  This flag is
+set to @code{t} whenever you alter the contents of the buffer, and
+cleared to @code{nil} when you save it.  Thus, the flag shows whether
+there are unsaved changes.  The flag value is normally shown in the mode
+line (@pxref{Mode Line Variables}), and controls saving (@pxref{Saving
+Buffers}) and auto-saving (@pxref{Auto-Saving}).
+
+  Some Lisp programs set the flag explicitly.  For example, the Lisp
+function @code{set-visited-file-name} sets the flag to @code{t}, because
+the text does not match the newly-visited file, even if it is unchanged
+from the file formerly visited.
+
+  The functions that modify the contents of buffers are described in
+@ref{Text}.
+
+@defun buffer-modified-p &optional buffer
+  This function returns @code{t} if the buffer @var{buffer} has been modified
+since it was last read in from a file or saved, or @code{nil}
+otherwise.  If @var{buffer} is not supplied, the current buffer
+is tested.
+@end defun
+
+@defun set-buffer-modified-p flag
+  This function marks the current buffer as modified if @var{flag} is
+non-@code{nil}, or as unmodified if the flag is @code{nil}.
+
+  Another effect of calling this function is to cause unconditional
+redisplay of the mode line for the current buffer.  In fact, the standard
+way to force redisplay of the mode line is as follows:
+
+@example
+(set-buffer-modified-p (buffer-modified-p))
+@end example
+@end defun
+
+@deffn Command not-modified
+  This command marks the current buffer as unmodified, and not needing
+to be saved.  Don't use this function in programs, since it prints a
+message; use @code{set-buffer-modified-p} (above) instead.
+@end deffn
+
+@node Modification Time, Read Only Buffers, Buffer Modification, Buffers
+@comment  node-name,  next,  previous,  up
+@section Comparison of Modification Time
+@cindex comparison of modification time
+@cindex modification time, comparison of 
+
+  Suppose that you visit a file and make changes in its buffer, and
+meanwhile the file itself is changed on disk.  At this point, saving the
+buffer would overwrite the changes in the file.  Occasionally this may
+be what you want, but usually it would lose valuable information.  Emacs
+therefore checks the file's modification time using the functions
+described below before saving the file.
+
+@defun verify-visited-file-modtime buffer
+  This function compares Emacs's record of the modification time for the
+file that the buffer is visiting against the actual modification time of
+the file as recorded by the operating system.  The two will be the same
+unless some other process has written the file since Emacs visited or
+saved it.
+
+  The function returns @code{t} if the last actual modification time and
+Emacs's recorded modification time are the same, @code{nil} otherwise.
+@end defun
+
+@defun clear-visited-file-modtime
+  This function clears out the record of the last modification time of
+the file being visited by the current buffer.  As a result, the next
+attempt to save this buffer will not complain of a discrepancy in
+file modification times.
+
+  This function is called in @code{set-visited-file-name} and other
+exceptional places where the usual test to avoid overwriting a changed
+file should not be done.
+@end defun
+
+@defun ask-user-about-supersession-threat fn
+@cindex obsolete buffer
+  This function is used to ask a user how to proceed after an attempt to
+modify an obsolete buffer.  An @dfn{obsolete buffer} is an unmodified
+buffer for which the associated file on disk is newer than the last
+save-time of the buffer.  This means some other program has probably
+altered the file.
+
+  This function is called automatically by Emacs on the proper
+occasions.  It exists so you can customize Emacs by redefining it.
+See the file @file{userlock.el} for the standard definition.
+
+@kindex file-supersession
+  Depending on the user's answer, the function may return normally, in
+which case the modification of the buffer proceeds, or it may signal a
+@code{file-supersession} error with data @code{(@var{fn})}, in which
+case the proposed buffer modification is not allowed.  
+
+  See also the file locking mechanism in @ref{File Locks}.
+@end defun
+
+@node Read Only Buffers, The Buffer List, Modification Time, Buffers
+@section Read-Only Buffers
+@cindex read-only buffer
+@cindex buffer, read-only
+
+  A buffer may be designated as @dfn{read-only}.  This means that the
+buffer's contents may not be modified, although you may change your view
+of the contents by scrolling, narrowing, or widening, etc.
+
+  Read-only buffers are used in two kinds of situations:
+
+@itemize @bullet
+@item
+A buffer visiting a file is made read-only if the file is
+write-protected.
+
+Here, the purpose is to show the user that editing the buffer with the
+aim of saving it in the file may be futile or undesirable.  The user who
+wants to change the buffer text despite this can do so after clearing
+the read-only flag with the function @code{toggle-read-only}.
+
+@item
+Modes such as Dired and Rmail make buffers read-only when altering the
+contents with the usual editing commands is probably a mistake.
+
+The special commands of the mode in question bind
+@code{buffer-read-only} to @code{nil} (with @code{let}) around the
+places where they change the text.
+@end itemize
+
+@defvar buffer-read-only
+  This buffer-local variable specifies whether the buffer is read-only.
+The buffer is read-only if this variable is non-@code{nil}.
+@end defvar
+
+@deffn Command toggle-read-only
+  This command changes whether the current buffer is read-only.  It is
+intended for interactive use; don't use it in programs.  At any given
+point in a program, you should know whether you want the read-only flag
+on or off; so you can set @code{buffer-read-only} explicitly to the
+proper value, @code{t} or @code{nil}.
+@end deffn
+
+@defun barf-if-buffer-read-only
+@kindex buffer-read-only
+  This function signals a @code{buffer-read-only} error if the current
+buffer is read-only.  @xref{Interactive Call}, for another way to
+signal an error if the current buffer is read-only.
+@end defun
+
+@node The Buffer List, Creating Buffers, Read Only Buffers, Buffers
+@section The Buffer List
+@cindex buffer list
+
+  The @dfn{buffer list} is a list of all buffers that have not been
+killed.  The order of the buffers in the list is based primarily on how
+recently each buffer has been displayed in the selected window.  Several
+functions, notably @code{other-buffer}, make use of this ordering.
+
+@defun buffer-list
+  This function returns a list of all buffers, including those whose names
+begin with a space.  The elements are actual buffers, not their names.
+
+@example
+(buffer-list)
+     @result{} (#<buffer buffers.texi> #<buffer  *Minibuf-1*>
+         #<buffer buffer.c>  #<buffer *Help*> #<buffer TAGS>)
+
+;; @r{Note that the name of the minibuffer begins with a space!}
+
+(mapcar (function buffer-name) (buffer-list))
+@result{} ("buffers.texi" " *Minibuf-1*" "buffer.c" "*Help*" "TAGS")
+@end example
+
+  This list is a copy of a list used inside Emacs; modifying it has no
+effect on the buffers.
+@end defun
+
+@defun other-buffer &optional buffer-or-name
+  This function returns the first buffer in the buffer list other than
+@var{buffer-or-name}.  Usually this is the buffer most recently shown in
+the selected window, aside from @var{buffer-or-name}.  Buffers are moved
+to the front of the list when they are selected and to the end when they
+are buried.  Buffers whose names start with a space are not even
+considered.
+
+  If @var{buffer-or-name} is not supplied (or if it is not a buffer),
+then @code{other-buffer} returns the first buffer on the buffer list
+that is not visible in any window.
+
+  If no suitable buffer exists, the buffer @samp{*scratch*} is returned
+(and created, if necessary).
+@end defun
+
+@deffn Command list-buffers &optional files-only
+  This function displays a listing of the names of existing buffers.  It
+clears the buffer @samp{*Buffer List*}, then inserts the listing into
+that buffer and displays it in a window.  @code{list-buffers} is
+intended for interactive use, and is described fully in @cite{The GNU
+Emacs Manual}.  It returns @code{nil}.
+@end deffn
+
+@deffn Command bury-buffer &optional buffer-or-name
+  This function puts @var{buffer-or-name} at the end of the buffer list
+without changing the order of any of the other buffers on the list.
+This buffer therefore becomes the least desirable candidate for
+@code{other-buffer} to return, and appears last in the list displayed by
+@code{list-buffers}.
+
+  If @var{buffer-or-name} is the current buffer, then it is replaced in
+the selected window by the buffer chosen using @code{other-buffer}.  If
+the buffer is displayed in a window other than the selected one, it
+remains there.
+
+  If @var{buffer-or-name} is not supplied, it defaults to the current
+buffer.  This is what happens in an interactive call.
+@end deffn
+
+@node Creating Buffers, Killing Buffers, The Buffer List, Buffers
+@section Creating Buffers
+@cindex creating buffers
+@cindex buffers, creating
+
+  This section describes the two primitives for creating buffers.
+@code{get-buffer-create} creates a buffer if it finds no existing
+buffer; @code{generate-new-buffer} always creates a new buffer, and
+gives it a unique name.
+
+  Two other functions to create buffers are
+@code{with-output-to-temp-buffer} (@pxref{Temporary Displays}) and
+@code{create-file-buffer} (@pxref{Visiting Files}).
+
+@defun get-buffer-create name
+  This function returns a buffer named @var{name}.  If such a buffer
+already exists, it is returned.  If such a buffer does not exist,
+one is created and returned.  The buffer does not become the current
+buffer---this function does not change which buffer is current.
+
+  An error is signaled if @var{name} is not a string.
+
+@example
+(get-buffer-create "foo")
+     @result{} #<buffer foo>
+@end example
+
+  The major mode for the new buffer is chosen according to the value of
+@code{default-major-mode}.  @xref{Auto Major Mode}.
+@end defun
+
+@defun generate-new-buffer name
+  This function returns a newly created, empty buffer.  If there is no
+buffer named @var{name}, then that is the name of the new buffer.  If
+there is a buffer with that name, then suffixes of the form
+@samp{<@var{n}>} are added to @var{name}, where @var{n} stands for
+successive integers starting with 2.  New suffixes are tried until an
+unused name is found.
+
+  An error is signaled if @var{name} is not a string.
+
+@example
+(generate-new-buffer "bar")
+     @result{} #<buffer bar>
+(generate-new-buffer "bar")
+     @result{} #<buffer bar<2>>
+(generate-new-buffer "bar")
+     @result{} #<buffer bar<3>>
+@end example
+
+  The major mode for the new buffer is chosen according to the value of
+@code{default-major-mode}.  @xref{Auto Major Mode}.
+@end defun
+
+@node Killing Buffers, Current Buffer, Creating Buffers, Buffers
+@section Killing Buffers
+@cindex killing buffers
+@cindex buffers, killing
+
+  @dfn{Killing a buffer} makes its name unknown to Emacs and makes its
+space available for other use.
+
+  The buffer object for the buffer which has been killed remains in
+existence as long as anything refers to it, but it is specially marked
+so that you cannot make it current or display it.  Killed buffers retain
+their identity, however; two distinct buffers, when killed, remain
+distinct according to @code{eq}.
+
+  The @code{buffer-name} of a killed buffer is @code{nil}.  You can use
+this feature to test whether a buffer has been killed:
+
+@example
+(defun killed-buffer-p (buffer)
+  "Return t if BUFFER is killed."
+  (not (buffer-name buffer)))
+@end example
+
+@deffn Command kill-buffer buffer-or-name
+  This function kills the buffer @var{buffer-or-name}, freeing all its
+memory for use as space for other buffers.  (In Emacs version 18, the
+memory is not returned to the operating system.)  It returns @code{nil}.
+
+  Any processes that have this buffer as the @code{process-buffer} are
+sent the @code{SIGHUP} signal, which normally causes them to terminate.
+(The usual meaning of @code{SIGHUP} is that a dialup line has been
+disconnected.)  @xref{Deleting Processes}.
+
+  If the buffer is visiting a file when @code{kill-buffer} is called and
+the buffer has not been saved since it was last modified, the user is
+asked to confirm before the buffer is killed.  This is done even if
+@code{kill-buffer} is not called interactively.  To prevent the request
+for confirmation, clear the modified flag before calling
+@code{kill-buffer}.  @xref{Buffer Modification}.
+
+@example
+(kill-buffer "foo.unchanged")
+     @result{} nil
+(kill-buffer "foo.changed")
+
+---------- Buffer: Minibuffer ----------
+Buffer foo.changed modified; kill anyway? (yes or no) @kbd{yes}
+---------- Buffer: Minibuffer ----------
+
+     @result{} nil
+@end example
+@end deffn
+
+@ignore
+@deffn Command kill-some-buffers
+  This command asks you which buffers you want to kill.  It scans
+through the list of displayed buffers; and for each buffer, it asks the
+user whether to delete the buffer.  The question indicates whether the
+buffer has unsaved changes.  If the user answers @samp{yes}, the buffer
+is killed immediately.
+
+  The user is asked @emph{twice} whether to kill a buffer that has been
+modified and is visiting a file.
+
+  This function is for interactive use.  It does not ask about buffers
+whose names begin with a space, such as minibuffers.
+@end deffn
+@end ignore
+
+@node Current Buffer,  , Killing Buffers, Buffers
+@section The Current Buffer
+@cindex selecting a buffer
+@cindex changing to another buffer
+@cindex current buffer
+
+  There are in general many buffers in an Emacs session.  At any time,
+one of them is designated as the @dfn{current buffer}.  This is the
+buffer in which most editing takes place, because most of the primitives
+for examining or changing text in a buffer operate implicitly on the
+current buffer (@pxref{Text}).  Normally the buffer that is displayed on
+the screen in the selected window is the current buffer, but this is not
+always so: a Lisp program can designate any buffer as current
+temporarily in order to operate on its contents, without changing what
+is displayed on the screen.
+
+  The way to designate a current buffer in a Lisp program is by calling
+@code{set-buffer}.  The specified buffer remains current until a new one
+is designated.
+
+  When an editing command returns to the editor command loop, the
+command loop designates the buffer displayed in the selected window as
+current, to prevent confusion: the buffer that the cursor is in, when
+Emacs reads a command, is the one to which the command will apply.
+(@xref{Command Loop}.)  Therefore, @code{set-buffer} is not usable for
+switching visibly to a different buffer so that the user can edit it.
+For this, you must use the functions described in @ref{Displaying
+Buffers}.
+
+  However, Lisp functions that change to a different current buffer
+should not rely on the command loop to set it back afterwards.  Editing
+commands written in Emacs Lisp can be called from other programs as well
+as from the command loop.  It is convenient for the caller if the
+subroutine does not change which buffer is current (unless, of course,
+that is the subroutine's purpose).  Therefore, you should normally use
+@code{set-buffer} within a @code{save-excursion} that will restore the
+current buffer when your program is done (@pxref{Excursions}).  Here is
+an example, the code for the command @code{append-to-buffer} (with the
+documentation string abridged):
+
+@example
+(defun append-to-buffer (buffer start end)
+  "Append to specified buffer the text of the region..."
+  (interactive "BAppend to buffer: \nr")
+  (let ((oldbuf (current-buffer)))
+    (save-excursion
+      (set-buffer (get-buffer-create buffer))
+      (insert-buffer-substring oldbuf start end))))
+@end example
+
+@noindent
+In this function, a local variable is bound to the current buffer, and
+then @code{save-excursion} records the values of point, the mark, and the
+original buffer.  Next, @code{set-buffer} makes another buffer current.
+Finally, @code{insert-buffer-substring} copies the string from the
+original current buffer to the new current buffer.
+
+  If the buffer appended to happens to be displayed in some window, then
+the next redisplay will show how its text has changed.  Otherwise, you
+will not see the change immediately on the screen.  The buffer becomes
+current temporarily during the execution of the command, but this does
+not cause it to be displayed.
+
+@defun current-buffer
+  This function returns the current buffer.
+
+@example
+(current-buffer)
+     @result{} #<buffer buffers.texi>
+@end example
+@end defun
+
+@defun set-buffer buffer-or-name
+  This function makes @var{buffer-or-name} the current buffer.  However,
+it does not display the buffer in the currently selected window or in
+any other window.  This means that the user cannot necessarily see the
+buffer, but Lisp programs can in any case work on it.
+
+   This function returns the buffer identified by @var{buffer-or-name}.
+An error is signaled if @var{buffer-or-name} does not identify an
+existing buffer.
+@end defun

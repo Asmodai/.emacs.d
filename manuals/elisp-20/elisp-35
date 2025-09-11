@@ -1,0 +1,1132 @@
+This is Info file elisp, produced by Makeinfo version 1.68 from the
+input file elisp.texi.
+
+INFO-DIR-SECTION Editors
+START-INFO-DIR-ENTRY
+* Elisp: (elisp).	The Emacs Lisp Reference Manual.
+END-INFO-DIR-ENTRY
+
+   This version is the edition 2.5 of the GNU Emacs Lisp Reference
+Manual.  It corresponds to Emacs Version 20.3
+
+   Published by the Free Software Foundation 59 Temple Place, Suite 330
+Boston, MA  02111-1307  USA
+
+   Copyright (C) 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1998 Free
+Software Foundation, Inc.
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be stated in a
+translation approved by the Foundation.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided also
+that the section entitled "GNU General Public License" is included
+exactly as in the original, and provided that the entire resulting
+derived work is distributed under the terms of a permission notice
+identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that the section entitled "GNU General Public License"
+may be included in a translation approved by the Free Software
+Foundation instead of in the original English.
+
+
+File: elisp,  Node: Parsing Expressions,  Next: Standard Syntax Tables,  Prev: Motion and Syntax,  Up: Syntax Tables
+
+Parsing Balanced Expressions
+============================
+
+   Here are several functions for parsing and scanning balanced
+expressions, also known as "sexps", in which parentheses match in
+pairs.  The syntax table controls the interpretation of characters, so
+these functions can be used for Lisp expressions when in Lisp mode and
+for C expressions when in C mode.  *Note List Motion::, for convenient
+higher-level functions for moving over balanced expressions.
+
+ - Function: parse-partial-sexp START LIMIT &optional TARGET-DEPTH
+          STOP-BEFORE STATE STOP-COMMENT
+     This function parses a sexp in the current buffer starting at
+     START, not scanning past LIMIT.  It stops at position LIMIT or
+     when certain criteria described below are met, and sets point to
+     the location where parsing stops.  It returns a value describing
+     the status of the parse at the point where it stops.
+
+     If STATE is `nil', START is assumed to be at the top level of
+     parenthesis structure, such as the beginning of a function
+     definition.  Alternatively, you might wish to resume parsing in the
+     middle of the structure.  To do this, you must provide a STATE
+     argument that describes the initial status of parsing.
+
+     If the third argument TARGET-DEPTH is non-`nil', parsing stops if
+     the depth in parentheses becomes equal to TARGET-DEPTH.  The depth
+     starts at 0, or at whatever is given in STATE.
+
+     If the fourth argument STOP-BEFORE is non-`nil', parsing stops
+     when it comes to any character that starts a sexp.  If
+     STOP-COMMENT is non-`nil', parsing stops when it comes to the
+     start of a comment.  If STOP-COMMENT is the symbol `syntax-table',
+     parsing stops after the start of a comment or a string, or the end
+     of a comment or a string, whichever comes first.
+
+     The fifth argument STATE is a nine-element list of the same form
+     as the value of this function, described below.  (It is OK to omit
+     the last element of the nine.)  The return value of one call may
+     be used to initialize the state of the parse on another call to
+     `parse-partial-sexp'.
+
+     The result is a list of nine elements describing the final state of
+     the parse:
+
+       0. The depth in parentheses, counting from 0.
+
+       1. The character position of the start of the innermost
+          parenthetical grouping containing the stopping point; `nil'
+          if none.
+
+       2. The character position of the start of the last complete
+          subexpression terminated; `nil' if none.
+
+       3. Non-`nil' if inside a string.  More precisely, this is the
+          character that will terminate the string, or `t' if a generic
+          string delimiter character should terminate it.
+
+       4. `t' if inside a comment (of either style).
+
+       5. `t' if point is just after a quote character.
+
+       6. The minimum parenthesis depth encountered during this scan.
+
+       7. What kind of comment is active: `nil' for a comment of style
+          "a", `t' for a comment of style "b", and `syntax-table' for a
+          comment that should be ended by a generic comment delimiter
+          character.
+
+       8. The string or comment start position.  While inside a
+          comment, this is the position where the comment began; while
+          inside a string, this is the position where the string began.
+          When outside of strings and comments, this element is `nil'.
+
+     Elements 0, 3, 4, 5 and 7 are significant in the argument STATE.
+
+     This function is most often used to compute indentation for
+     languages that have nested parentheses.
+
+ - Function: scan-lists FROM COUNT DEPTH
+     This function scans forward COUNT balanced parenthetical groupings
+     from position FROM.  It returns the position where the scan stops.
+     If COUNT is negative, the scan moves backwards.
+
+     If DEPTH is nonzero, parenthesis depth counting begins from that
+     value.  The only candidates for stopping are places where the
+     depth in parentheses becomes zero; `scan-lists' counts COUNT such
+     places and then stops.  Thus, a positive value for DEPTH means go
+     out DEPTH levels of parenthesis.
+
+     Scanning ignores comments if `parse-sexp-ignore-comments' is
+     non-`nil'.
+
+     If the scan reaches the beginning or end of the buffer (or its
+     accessible portion), and the depth is not zero, an error is
+     signaled.  If the depth is zero but the count is not used up,
+     `nil' is returned.
+
+ - Function: scan-sexps FROM COUNT
+     This function scans forward COUNT sexps from position FROM.  It
+     returns the position where the scan stops.  If COUNT is negative,
+     the scan moves backwards.
+
+     Scanning ignores comments if `parse-sexp-ignore-comments' is
+     non-`nil'.
+
+     If the scan reaches the beginning or end of (the accessible part
+     of) the buffer while in the middle of a parenthetical grouping, an
+     error is signaled.  If it reaches the beginning or end between
+     groupings but before count is used up, `nil' is returned.
+
+ - Variable: parse-sexp-ignore-comments
+     If the value is non-`nil', then comments are treated as whitespace
+     by the functions in this section and by `forward-sexp'.
+
+     In older Emacs versions, this feature worked only when the comment
+     terminator is something like `*/', and appears only to end a
+     comment.  In languages where newlines terminate comments, it was
+     necessary make this variable `nil', since not every newline is the
+     end of a comment.  This limitation no longer exists.
+
+   You can use `forward-comment' to move forward or backward over one
+comment or several comments.
+
+ - Function: forward-comment COUNT
+     This function moves point forward across COUNT comments (backward,
+     if COUNT is negative).  If it finds anything other than a comment
+     or whitespace, it stops, leaving point at the place where it
+     stopped.  It also stops after satisfying COUNT.
+
+   To move forward over all comments and whitespace following point, use
+`(forward-comment (buffer-size))'.  `(buffer-size)' is a good argument
+to use, because the number of comments in the buffer cannot exceed that
+many.
+
+
+File: elisp,  Node: Standard Syntax Tables,  Next: Syntax Table Internals,  Prev: Parsing Expressions,  Up: Syntax Tables
+
+Some Standard Syntax Tables
+===========================
+
+   Most of the major modes in Emacs have their own syntax tables.  Here
+are several of them:
+
+ - Function: standard-syntax-table
+     This function returns the standard syntax table, which is the
+     syntax table used in Fundamental mode.
+
+ - Variable: text-mode-syntax-table
+     The value of this variable is the syntax table used in Text mode.
+
+ - Variable: c-mode-syntax-table
+     The value of this variable is the syntax table for C-mode buffers.
+
+ - Variable: emacs-lisp-mode-syntax-table
+     The value of this variable is the syntax table used in Emacs Lisp
+     mode by editing commands.  (It has no effect on the Lisp `read'
+     function.)
+
+
+File: elisp,  Node: Syntax Table Internals,  Next: Categories,  Prev: Standard Syntax Tables,  Up: Syntax Tables
+
+Syntax Table Internals
+======================
+
+   Lisp programs don't usually work with the elements directly; the
+Lisp-level syntax table functions usually work with syntax descriptors
+(*note Syntax Descriptors::.).  Nonetheless, here we document the
+internal format.
+
+   Each element of a syntax table is a cons cell of the form
+`(SYNTAX-CODE . MATCHING-CHAR)'.  The CAR, SYNTAX-CODE, is an integer
+that encodes the syntax class, and any flags.  The CDR, MATCHING-CHAR,
+is non-`nil' if a character to match was specified.
+
+   This table gives the value of SYNTAX-CODE which corresponds to each
+syntactic type.
+
+     Integer Class          Integer Class          Integer Class          
+     0    whitespace        5    close parenthesis 10    character quote  
+     1    punctuation       6    expression prefix 11    comment-start    
+     2    word              7    string quote      12    comment-end      
+     3    symbol            8    paired delimiter  13    inherit          
+     4    open parenthesis  9    escape            14    comment-fence    
+     15   string-fence                                                    
+
+   For example, the usual syntax value for `(' is `(4 . 41)'.  (41 is
+the character code for `)'.)
+
+   The flags are encoded in higher order bits, starting 16 bits from the
+least significant bit.  This table gives the power of two which
+corresponds to each syntax flag.
+
+     Prefix Flag            Prefix Flag            Prefix Flag            
+     `1'    `(lsh 1 16)'    `3'    `(lsh 1 18)'    `p'    `(lsh 1 20)'    
+     `2'    `(lsh 1 17)'    `4'    `(lsh 1 19)'    `b'    `(lsh 1 21)'    
+
+
+File: elisp,  Node: Categories,  Prev: Syntax Table Internals,  Up: Syntax Tables
+
+Categories
+==========
+
+   "Categories" provide an alternate way of classifying characters
+syntactically.  You can define several categories as needed, then
+independently assign each character to one or more categories.  Unlike
+syntax classes, categories are not mutually exclusive; it is normal for
+one character to belong to several categories.
+
+   Each buffer has a "category table" which records which categories
+are defined and also which characters belong to each category.  Each
+category table defines its own categories, but normally these are
+initialized by copying from the standard categories table, so that the
+standard categories are available in all modes.
+
+   Each category has a name, which is an ASCII printing character in
+the range ` ' to `~'.  You specify the name of a category when you
+define it with `define-category'.
+
+   The category table is actually a char-table (*note Char-Tables::.).
+The element of the category table at index C is a "category set"--a
+bool-vector--that indicates which categories character C belongs to.
+In this category set, if the element at index CAT is `t', that means
+category CAT is a member of the set, and that character C belongs to
+category CAT.
+
+ - Function: define-category CHAR DOCSTRING &optional TABLE
+     This function defines a new category, with name CHAR and
+     documentation DOCSTRING.
+
+     The new category is defined for category table TABLE, which
+     defaults to the current buffer's category table.
+
+ - Function: category-docstring CATEGORY &optional TABLE
+     This function returns the documentation string of category CATEGORY
+     in category table TABLE.
+
+          (category-docstring ?a)
+               => "ASCII"
+          (category-docstring ?l)
+               => "Latin"
+
+ - Function: get-unused-category TABLE
+     This function returns a category name (a character) which is not
+     currently defined in TABLE.  If all possible categories are in use
+     in TABLE, it returns `nil'.
+
+ - Function: category-table
+     This function returns the current buffer's category table.
+
+ - Function: category-table-p OBJECT
+     This function returns `t' if OBJECT is a category table, otherwise
+     `nil'.
+
+ - Function: standard-category-table
+     This function returns the standard category table.
+
+ - Function: copy-category-table &optional TABLE
+     This function constructs a copy of TABLE and returns it.  If TABLE
+     is not supplied (or is `nil'), it returns a copy of the current
+     category table.  Otherwise, an error is signaled if TABLE is not a
+     category table.
+
+ - Function: set-category-table TABLE
+     This function makes TABLE the category table for the current
+     buffer.  It returns TABLE.
+
+ - Function: make-category-set CATEGORIES
+     This function returns a new category set--a bool-vector--whose
+     initial contents are the categories listed in the string
+     CATEGORIES.  The elements of CATEGORIES should be category names;
+     the new category set has `t' for each of those categories, and
+     `nil' for all other categories.
+
+          (make-category-set "al")
+               => #&128"\0\0\0\0\0\0\0\0\0\0\0\0\2\20\0\0"
+
+ - Function: char-category-set CHAR
+     This function returns the category set for character CHAR.  This
+     is the bool-vector which records which categories the character
+     CHAR belongs to.  The function `char-category-set' does not
+     allocate storage, because it returns the same bool-vector that
+     exists in the category table.
+
+          (char-category-set ?a)
+               => #&128"\0\0\0\0\0\0\0\0\0\0\0\0\2\20\0\0"
+
+ - Function: category-set-mnemonics CATEGORY-SET
+     This function converts the category set CATEGORY-SET into a string
+     containing the names of all the categories that are members of the
+     set.
+
+          (category-set-mnemonics (char-category-set ?a))
+               => "al"
+
+ - Function: modify-category-entry CHARACTER CATEGORY &optional TABLE
+          RESET
+     This function modifies the category set of CHARACTER in category
+     table TABLE (which defaults to the current buffer's category
+     table).
+
+     Normally, it modifies the category set by adding CATEGORY to it.
+     But if RESET is non-`nil', then it deletes CATEGORY instead.
+
+
+File: elisp,  Node: Abbrevs,  Next: Processes,  Prev: Syntax Tables,  Up: Top
+
+Abbrevs And Abbrev Expansion
+****************************
+
+   An abbreviation or "abbrev" is a string of characters that may be
+expanded to a longer string.  The user can insert the abbrev string and
+find it replaced automatically with the expansion of the abbrev.  This
+saves typing.
+
+   The set of abbrevs currently in effect is recorded in an "abbrev
+table".  Each buffer has a local abbrev table, but normally all buffers
+in the same major mode share one abbrev table.  There is also a global
+abbrev table.  Normally both are used.
+
+   An abbrev table is represented as an obarray containing a symbol for
+each abbreviation.  The symbol's name is the abbreviation; its value is
+the expansion; its function definition is the hook function to do the
+expansion (*note Defining Abbrevs::.); its property list cell contains
+the use count, the number of times the abbreviation has been expanded.
+Because these symbols are not interned in the usual obarray, they will
+never appear as the result of reading a Lisp expression; in fact,
+normally they are never used except by the code that handles abbrevs.
+Therefore, it is safe to use them in an extremely nonstandard way.
+*Note Creating Symbols::.
+
+   For the user-level commands for abbrevs, see *Note Abbrev Mode:
+(emacs)Abbrevs.
+
+* Menu:
+
+* Abbrev Mode::                 Setting up Emacs for abbreviation.
+* Tables: Abbrev Tables.        Creating and working with abbrev tables.
+* Defining Abbrevs::            Specifying abbreviations and their expansions.
+* Files: Abbrev Files.          Saving abbrevs in files.
+* Expansion: Abbrev Expansion.  Controlling expansion; expansion subroutines.
+* Standard Abbrev Tables::      Abbrev tables used by various major modes.
+
+
+File: elisp,  Node: Abbrev Mode,  Next: Abbrev Tables,  Prev: Abbrevs,  Up: Abbrevs
+
+Setting Up Abbrev Mode
+======================
+
+   Abbrev mode is a minor mode controlled by the value of the variable
+`abbrev-mode'.
+
+ - Variable: abbrev-mode
+     A non-`nil' value of this variable turns on the automatic expansion
+     of abbrevs when their abbreviations are inserted into a buffer.
+     If the value is `nil', abbrevs may be defined, but they are not
+     expanded automatically.
+
+     This variable automatically becomes buffer-local when set in any
+     fashion.
+
+ - Variable: default-abbrev-mode
+     This is the value of `abbrev-mode' for buffers that do not
+     override it.  This is the same as `(default-value 'abbrev-mode)'.
+
+
+File: elisp,  Node: Abbrev Tables,  Next: Defining Abbrevs,  Prev: Abbrev Mode,  Up: Abbrevs
+
+Abbrev Tables
+=============
+
+   This section describes how to create and manipulate abbrev tables.
+
+ - Function: make-abbrev-table
+     This function creates and returns a new, empty abbrev table--an
+     obarray containing no symbols.  It is a vector filled with zeros.
+
+ - Function: clear-abbrev-table TABLE
+     This function undefines all the abbrevs in abbrev table TABLE,
+     leaving it empty.  The function returns `nil'.
+
+ - Function: define-abbrev-table TABNAME DEFINITIONS
+     This function defines TABNAME (a symbol) as an abbrev table name,
+     i.e., as a variable whose value is an abbrev table.  It defines
+     abbrevs in the table according to DEFINITIONS, a list of elements
+     of the form `(ABBREVNAME EXPANSION HOOK USECOUNT)'.  The return
+     value is always `nil'.
+
+ - Variable: abbrev-table-name-list
+     This is a list of symbols whose values are abbrev tables.
+     `define-abbrev-table' adds the new abbrev table name to this list.
+
+ - Function: insert-abbrev-table-description NAME &optional HUMAN
+     This function inserts before point a description of the abbrev
+     table named NAME.  The argument NAME is a symbol whose value is an
+     abbrev table.  The return value is always `nil'.
+
+     If HUMAN is non-`nil', the description is human-oriented.
+     Otherwise the description is a Lisp expression--a call to
+     `define-abbrev-table' that would define NAME exactly as it is
+     currently defined.
+
+
+File: elisp,  Node: Defining Abbrevs,  Next: Abbrev Files,  Prev: Abbrev Tables,  Up: Abbrevs
+
+Defining Abbrevs
+================
+
+   These functions define an abbrev in a specified abbrev table.
+`define-abbrev' is the low-level basic function, while `add-abbrev' is
+used by commands that ask for information from the user.
+
+ - Function: add-abbrev TABLE TYPE ARG
+     This function adds an abbreviation to abbrev table TABLE based on
+     information from the user.  The argument TYPE is a string
+     describing in English the kind of abbrev this will be (typically,
+     `"global"' or `"mode-specific"'); this is used in prompting the
+     user.  The argument ARG is the number of words in the expansion.
+
+     The return value is the symbol that internally represents the new
+     abbrev, or `nil' if the user declines to confirm redefining an
+     existing abbrev.
+
+ - Function: define-abbrev TABLE NAME EXPANSION HOOK
+     This function defines an abbrev named NAME, in TABLE, to expand to
+     EXPANSION and call HOOK.  The return value is a symbol that
+     represents the abbrev inside Emacs; its name is NAME.
+
+     The argument NAME should be a string.  The argument EXPANSION is
+     normally the desired expansion (a string), or `nil' to undefine
+     the abbrev.  If it is anything but a string or `nil', then the
+     abbreviation "expands" solely by running HOOK.
+
+     The argument HOOK is a function or `nil'.  If HOOK is non-`nil',
+     then it is called with no arguments after the abbrev is replaced
+     with EXPANSION; point is located at the end of EXPANSION when HOOK
+     is called.
+
+     The use count of the abbrev is initialized to zero.
+
+ - User Option: only-global-abbrevs
+     If this variable is non-`nil', it means that the user plans to use
+     global abbrevs only.  This tells the commands that define
+     mode-specific abbrevs to define global ones instead.  This
+     variable does not alter the behavior of the functions in this
+     section; it is examined by their callers.
+
+
+File: elisp,  Node: Abbrev Files,  Next: Abbrev Expansion,  Prev: Defining Abbrevs,  Up: Abbrevs
+
+Saving Abbrevs in Files
+=======================
+
+   A file of saved abbrev definitions is actually a file of Lisp code.
+The abbrevs are saved in the form of a Lisp program to define the same
+abbrev tables with the same contents.  Therefore, you can load the file
+with `load' (*note How Programs Do Loading::.).  However, the function
+`quietly-read-abbrev-file' is provided as a more convenient interface.
+
+   User-level facilities such as `save-some-buffers' can save abbrevs
+in a file automatically, under the control of variables described here.
+
+ - User Option: abbrev-file-name
+     This is the default file name for reading and saving abbrevs.
+
+ - Function: quietly-read-abbrev-file FILENAME
+     This function reads abbrev definitions from a file named FILENAME,
+     previously written with `write-abbrev-file'.  If FILENAME is
+     `nil', the file specified in `abbrev-file-name' is used.
+     `save-abbrevs' is set to `t' so that changes will be saved.
+
+     This function does not display any messages.  It returns `nil'.
+
+ - User Option: save-abbrevs
+     A non-`nil' value for `save-abbrev' means that Emacs should save
+     abbrevs when files are saved.  `abbrev-file-name' specifies the
+     file to save the abbrevs in.
+
+ - Variable: abbrevs-changed
+     This variable is set non-`nil' by defining or altering any
+     abbrevs.  This serves as a flag for various Emacs commands to
+     offer to save your abbrevs.
+
+ - Command: write-abbrev-file FILENAME
+     Save all abbrev definitions, in all abbrev tables, in the file
+     FILENAME, in the form of a Lisp program that when loaded will
+     define the same abbrevs.  This function returns `nil'.
+
+
+File: elisp,  Node: Abbrev Expansion,  Next: Standard Abbrev Tables,  Prev: Abbrev Files,  Up: Abbrevs
+
+Looking Up and Expanding Abbreviations
+======================================
+
+   Abbrevs are usually expanded by certain interactive commands,
+including `self-insert-command'.  This section describes the
+subroutines used in writing such commands, as well as the variables they
+use for communication.
+
+ - Function: abbrev-symbol ABBREV &optional TABLE
+     This function returns the symbol representing the abbrev named
+     ABBREV.  The value returned is `nil' if that abbrev is not
+     defined.  The optional second argument TABLE is the abbrev table
+     to look it up in.  If TABLE is `nil', this function tries first
+     the current buffer's local abbrev table, and second the global
+     abbrev table.
+
+ - Function: abbrev-expansion ABBREV &optional TABLE
+     This function returns the string that ABBREV would expand into (as
+     defined by the abbrev tables used for the current buffer).  The
+     optional argument TABLE specifies the abbrev table to use, as in
+     `abbrev-symbol'.
+
+ - Command: expand-abbrev
+     This command expands the abbrev before point, if any.  If point
+     does not follow an abbrev, this command does nothing.  The command
+     returns `t' if it did expansion, `nil' otherwise.
+
+ - Command: abbrev-prefix-mark &optional ARG
+     Mark current point as the beginning of an abbrev.  The next call to
+     `expand-abbrev' will use the text from here to point (where it is
+     then) as the abbrev to expand, rather than using the previous word
+     as usual.
+
+ - User Option: abbrev-all-caps
+     When this is set non-`nil', an abbrev entered entirely in upper
+     case is expanded using all upper case.  Otherwise, an abbrev
+     entered entirely in upper case is expanded by capitalizing each
+     word of the expansion.
+
+ - Variable: abbrev-start-location
+     This is the buffer position for `expand-abbrev' to use as the start
+     of the next abbrev to be expanded.  (`nil' means use the word
+     before point instead.)  `abbrev-start-location' is set to `nil'
+     each time `expand-abbrev' is called.  This variable is also set by
+     `abbrev-prefix-mark'.
+
+ - Variable: abbrev-start-location-buffer
+     The value of this variable is the buffer for which
+     `abbrev-start-location' has been set.  Trying to expand an abbrev
+     in any other buffer clears `abbrev-start-location'.  This variable
+     is set by `abbrev-prefix-mark'.
+
+ - Variable: last-abbrev
+     This is the `abbrev-symbol' of the most recent abbrev expanded.
+     This information is left by `expand-abbrev' for the sake of the
+     `unexpand-abbrev' command (*note Expanding Abbrevs:
+     (emacs)Expanding Abbrevs.).
+
+ - Variable: last-abbrev-location
+     This is the location of the most recent abbrev expanded.  This
+     contains information left by `expand-abbrev' for the sake of the
+     `unexpand-abbrev' command.
+
+ - Variable: last-abbrev-text
+     This is the exact expansion text of the most recent abbrev
+     expanded, after case conversion (if any).  Its value is `nil' if
+     the abbrev has already been unexpanded.  This contains information
+     left by `expand-abbrev' for the sake of the `unexpand-abbrev'
+     command.
+
+ - Variable: pre-abbrev-expand-hook
+     This is a normal hook whose functions are executed, in sequence,
+     just before any expansion of an abbrev.  *Note Hooks::.  Since it
+     is a normal hook, the hook functions receive no arguments.
+     However, they can find the abbrev to be expanded by looking in the
+     buffer before point.
+
+   The following sample code shows a simple use of
+`pre-abbrev-expand-hook'.  If the user terminates an abbrev with a
+punctuation character, the hook function asks for confirmation.  Thus,
+this hook allows the user to decide whether to expand the abbrev, and
+aborts expansion if it is not confirmed.
+
+     (add-hook 'pre-abbrev-expand-hook 'query-if-not-space)
+     
+     ;; This is the function invoked by `pre-abbrev-expand-hook'.
+     
+     ;; If the user terminated the abbrev with a space, the function does
+     ;; nothing (that is, it returns so that the abbrev can expand).  If the
+     ;; user entered some other character, this function asks whether
+     ;; expansion should continue.
+     
+     ;; If the user answers the prompt with `y', the function returns
+     ;; `nil' (because of the `not' function), but that is
+     ;; acceptable; the return value has no effect on expansion.
+     
+     (defun query-if-not-space ()
+       (if (/= ?\  (preceding-char))
+           (if (not (y-or-n-p "Do you want to expand this abbrev? "))
+               (error "Not expanding this abbrev"))))
+
+
+File: elisp,  Node: Standard Abbrev Tables,  Prev: Abbrev Expansion,  Up: Abbrevs
+
+Standard Abbrev Tables
+======================
+
+   Here we list the variables that hold the abbrev tables for the
+preloaded major modes of Emacs.
+
+ - Variable: global-abbrev-table
+     This is the abbrev table for mode-independent abbrevs.  The abbrevs
+     defined in it apply to all buffers.  Each buffer may also have a
+     local abbrev table, whose abbrev definitions take precedence over
+     those in the global table.
+
+ - Variable: local-abbrev-table
+     The value of this buffer-local variable is the (mode-specific)
+     abbreviation table of the current buffer.
+
+ - Variable: fundamental-mode-abbrev-table
+     This is the local abbrev table used in Fundamental mode; in other
+     words, it is the local abbrev table in all buffers in Fundamental
+     mode.
+
+ - Variable: text-mode-abbrev-table
+     This is the local abbrev table used in Text mode.
+
+ - Variable: lisp-mode-abbrev-table
+     This is the local abbrev table used in Lisp mode and Emacs Lisp
+     mode.
+
+
+File: elisp,  Node: Processes,  Next: Display,  Prev: Abbrevs,  Up: Top
+
+Processes
+*********
+
+   In the terminology of operating systems, a "process" is a space in
+which a program can execute.  Emacs runs in a process.  Emacs Lisp
+programs can invoke other programs in processes of their own.  These are
+called "subprocesses" or "child processes" of the Emacs process, which
+is their "parent process".
+
+   A subprocess of Emacs may be "synchronous" or "asynchronous",
+depending on how it is created.  When you create a synchronous
+subprocess, the Lisp program waits for the subprocess to terminate
+before continuing execution.  When you create an asynchronous
+subprocess, it can run in parallel with the Lisp program.  This kind of
+subprocess is represented within Emacs by a Lisp object which is also
+called a "process".  Lisp programs can use this object to communicate
+with the subprocess or to control it.  For example, you can send
+signals, obtain status information, receive output from the process, or
+send input to it.
+
+ - Function: processp OBJECT
+     This function returns `t' if OBJECT is a process, `nil' otherwise.
+
+* Menu:
+
+* Subprocess Creation::      Functions that start subprocesses.
+* Shell Arguments::          Quoting an argument to pass it to a shell.
+* Synchronous Processes::    Details of using synchronous subprocesses.
+* Asynchronous Processes::   Starting up an asynchronous subprocess.
+* Deleting Processes::       Eliminating an asynchronous subprocess.
+* Process Information::      Accessing run-status and other attributes.
+* Input to Processes::       Sending input to an asynchronous subprocess.
+* Signals to Processes::     Stopping, continuing or interrupting
+                               an asynchronous subprocess.
+* Output from Processes::    Collecting output from an asynchronous subprocess.
+* Sentinels::                Sentinels run when process run-status changes.
+* Transaction Queues::	     Transaction-based communication with subprocesses.
+* Network::                  Opening network connections.
+
+
+File: elisp,  Node: Subprocess Creation,  Next: Shell Arguments,  Up: Processes
+
+Functions that Create Subprocesses
+==================================
+
+   There are three functions that create a new subprocess in which to
+run a program.  One of them, `start-process', creates an asynchronous
+process and returns a process object (*note Asynchronous Processes::.).
+The other two, `call-process' and `call-process-region', create a
+synchronous process and do not return a process object (*note
+Synchronous Processes::.).
+
+   Synchronous and asynchronous processes are explained in following
+sections.  Since the three functions are all called in a similar
+fashion, their common arguments are described here.
+
+   In all cases, the function's PROGRAM argument specifies the program
+to be run.  An error is signaled if the file is not found or cannot be
+executed.  If the file name is relative, the variable `exec-path'
+contains a list of directories to search.  Emacs initializes
+`exec-path' when it starts up, based on the value of the environment
+variable `PATH'.  The standard file name constructs, `~', `.', and
+`..', are interpreted as usual in `exec-path', but environment variable
+substitutions (`$HOME', etc.) are not recognized; use
+`substitute-in-file-name' to perform them (*note File Name
+Expansion::.).
+
+   Each of the subprocess-creating functions has a BUFFER-OR-NAME
+argument which specifies where the standard output from the program will
+go.  It should be a buffer or a buffer name; if it is a buffer name,
+that will create the buffer if it does not already exist.  It can also
+be `nil', which says to discard the output unless a filter function
+handles it.  (*Note Filter Functions::, and *Note Read and Print::.)
+Normally, you should avoid having multiple processes send output to the
+same buffer because their output would be intermixed randomly.
+
+   All three of the subprocess-creating functions have a `&rest'
+argument, ARGS.  The ARGS must all be strings, and they are supplied to
+PROGRAM as separate command line arguments.  Wildcard characters and
+other shell constructs have no special meanings in these strings, since
+the whole strings are passed directly to the specified program.
+
+   *Please note:* The argument PROGRAM contains only the name of the
+program; it may not contain any command-line arguments.  You must use
+ARGS to provide those.
+
+   The subprocess gets its current directory from the value of
+`default-directory' (*note File Name Expansion::.).
+
+   The subprocess inherits its environment from Emacs, but you can
+specify overrides for it with `process-environment'.  *Note System
+Environment::.
+
+ - Variable: exec-directory
+     The value of this variable is the name of a directory (a string)
+     that contains programs that come with GNU Emacs, programs intended
+     for Emacs to invoke.  The program `movemail' is an example of such
+     a program; Rmail uses it to fetch new mail from an inbox.
+
+ - User Option: exec-path
+     The value of this variable is a list of directories to search for
+     programs to run in subprocesses.  Each element is either the name
+     of a directory (i.e., a string), or `nil', which stands for the
+     default directory (which is the value of `default-directory').
+
+     The value of `exec-path' is used by `call-process' and
+     `start-process' when the PROGRAM argument is not an absolute file
+     name.
+
+
+File: elisp,  Node: Shell Arguments,  Next: Synchronous Processes,  Prev: Subprocess Creation,  Up: Processes
+
+Shell Arguments
+===============
+
+   Lisp programs sometimes need to run a shell and give it a command
+which contains file names that were specified by the user.  These
+programs ought to be able to support any valid file name.  But the shell
+gives special treatment to certain characters, and if these characters
+occur in the file name, they will confuse the shell.  To handle these
+characters, use the function `shell-quote-argument':
+
+ - Function: shell-quote-argument ARGUMENT
+     This function returns a string which represents, in shell syntax,
+     an argument whose actual contents are ARGUMENT.  It should work
+     reliably to concatenate the return value into a shell command and
+     then pass it to a shell for execution.
+
+     Precisely what this function does depends on your operating
+     system.  The function is designed to work with the usual shell
+     syntax; if you use an unusual shell, you will need to redefine
+     this function.  On MS-DOS, the function returns ARGUMENT
+     unchanged; while this is not really correct, it is the best one
+     can do, since the MS-DOS shell has no quoting features.
+
+          ;; This example shows the behavior on GNU and Unix systems.
+          (shell-quote-argument "foo > bar")
+               => "foo\\ \\>\\ bar"
+
+     Here's an example of using `shell-quote-argument' to construct a
+     shell command:
+
+          (concat "diff -c "
+                  (shell-quote-argument oldfile)
+                  " "
+                  (shell-quote-argument newfile))
+
+
+File: elisp,  Node: Synchronous Processes,  Next: Asynchronous Processes,  Prev: Shell Arguments,  Up: Processes
+
+Creating a Synchronous Process
+==============================
+
+   After a "synchronous process" is created, Emacs waits for the
+process to terminate before continuing.  Starting Dired is an example of
+this: it runs `ls' in a synchronous process, then modifies the output
+slightly.  Because the process is synchronous, the entire directory
+listing arrives in the buffer before Emacs tries to do anything with it.
+
+   While Emacs waits for the synchronous subprocess to terminate, the
+user can quit by typing `C-g'.  The first `C-g' tries to kill the
+subprocess with a `SIGINT' signal; but it waits until the subprocess
+actually terminates before quitting.  If during that time the user
+types another `C-g', that kills the subprocess instantly with `SIGKILL'
+and quits immediately.  *Note Quitting::.
+
+   The synchronous subprocess functions return an indication of how the
+process terminated.
+
+   The output from a synchronous subprocess is generally decoded using a
+coding system, much like text read from a file.  The input sent to a
+subprocess by `call-process-region' is encoded using a coding system,
+much like text written into a file.  *Note Coding Systems::.
+
+ - Function: call-process PROGRAM &optional INFILE DESTINATION DISPLAY
+          &rest ARGS
+     This function calls PROGRAM in a separate process and waits for it
+     to finish.
+
+     The standard input for the process comes from file INFILE if
+     INFILE is not `nil', and from `/dev/null' otherwise.  The argument
+     DESTINATION says where to put the process output.  Here are the
+     possibilities:
+
+    a buffer
+          Insert the output in that buffer, before point.  This
+          includes both the standard output stream and the standard
+          error stream of the process.
+
+    a string
+          Insert the output in a buffer with that name, before point.
+
+    `t'
+          Insert the output in the current buffer, before point.
+
+    `nil'
+          Discard the output.
+
+    0
+          Discard the output, and return immediately without waiting
+          for the subprocess to finish.
+
+          In this case, the process is not truly synchronous, since it
+          can run in parallel with Emacs; but you can think of it as
+          synchronous in that Emacs is essentially finished with the
+          subprocess as soon as this function returns.
+
+    `(REAL-DESTINATION ERROR-DESTINATION)'
+          Keep the standard output stream separate from the standard
+          error stream; deal with the ordinary output as specified by
+          REAL-DESTINATION, and dispose of the error output according
+          to ERROR-DESTINATION.  If ERROR-DESTINATION is `nil', that
+          means to discard the error output, `t' means mix it with the
+          ordinary output, and a string specifies a file name to
+          redirect error output into.
+
+          You can't directly specify a buffer to put the error output
+          in; that is too difficult to implement.  But you can achieve
+          this result by sending the error output to a temporary file
+          and then inserting the file into a buffer.
+
+     If DISPLAY is non-`nil', then `call-process' redisplays the buffer
+     as output is inserted.  (However, if the coding system chosen for
+     decoding output is `undecided', meaning deduce the encoding from
+     the actual data, then redisplay sometimes cannot continue once
+     non-ASCII characters are encountered.  There are fundamental
+     reasons why it is hard to fix this.)  Otherwise the function
+     `call-process' does no redisplay, and the results become visible on
+     the screen only when Emacs redisplays that buffer in the normal
+     course of events.
+
+     The remaining arguments, ARGS, are strings that specify command
+     line arguments for the program.
+
+     The value returned by `call-process' (unless you told it not to
+     wait) indicates the reason for process termination.  A number
+     gives the exit status of the subprocess; 0 means success, and any
+     other value means failure.  If the process terminated with a
+     signal, `call-process' returns a string describing the signal.
+
+     In the examples below, the buffer `foo' is current.
+
+          (call-process "pwd" nil t)
+               => nil
+          
+          ---------- Buffer: foo ----------
+          /usr/user/lewis/manual
+          ---------- Buffer: foo ----------
+
+          (call-process "grep" nil "bar" nil "lewis" "/etc/passwd")
+               => nil
+          
+          ---------- Buffer: bar ----------
+          lewis:5LTsHm66CSWKg:398:21:Bil Lewis:/user/lewis:/bin/csh
+          
+          ---------- Buffer: bar ----------
+
+     Here is a good example of the use of `call-process', which used to
+     be found in the definition of `insert-directory':
+
+          (call-process insert-directory-program nil t nil SWITCHES
+                        (if full-directory-p
+                            (concat (file-name-as-directory file) ".")
+                          file))
+
+ - Function: call-process-region START END PROGRAM &optional DELETE
+          DESTINATION DISPLAY &rest ARGS
+     This function sends the text between START to END as standard
+     input to a process running PROGRAM.  It deletes the text sent if
+     DELETE is non-`nil'; this is useful when DESTINATION is `t', to
+     insert the output in the current buffer in place of the input.
+
+     The arguments DESTINATION and DISPLAY control what to do with the
+     output from the subprocess, and whether to update the display as
+     it comes in.  For details, see the description of `call-process',
+     above.  If DESTINATION is the integer 0, `call-process-region'
+     discards the output and returns `nil' immediately, without waiting
+     for the subprocess to finish.
+
+     The remaining arguments, ARGS, are strings that specify command
+     line arguments for the program.
+
+     The return value of `call-process-region' is just like that of
+     `call-process': `nil' if you told it to return without waiting;
+     otherwise, a number or string which indicates how the subprocess
+     terminated.
+
+     In the following example, we use `call-process-region' to run the
+     `cat' utility, with standard input being the first five characters
+     in buffer `foo' (the word `input').  `cat' copies its standard
+     input into its standard output.  Since the argument DESTINATION is
+     `t', this output is inserted in the current buffer.
+
+          ---------- Buffer: foo ----------
+          input-!-
+          ---------- Buffer: foo ----------
+
+          (call-process-region 1 6 "cat" nil t)
+               => nil
+          
+          ---------- Buffer: foo ----------
+          inputinput-!-
+          ---------- Buffer: foo ----------
+
+     The `shell-command-on-region' command uses `call-process-region'
+     like this:
+
+          (call-process-region
+           start end
+           shell-file-name      ; Name of program.
+           nil                  ; Do not delete region.
+           buffer               ; Send output to `buffer'.
+           nil                  ; No redisplay during output.
+           "-c" command)        ; Arguments for the shell.
+
+ - Function: shell-command-to-string COMMAND
+     This function executes COMMAND (a string) as a shell command, then
+     returns the command's output as a string.
+
+
+File: elisp,  Node: Asynchronous Processes,  Next: Deleting Processes,  Prev: Synchronous Processes,  Up: Processes
+
+Creating an Asynchronous Process
+================================
+
+   After an "asynchronous process" is created, Emacs and the subprocess
+both continue running immediately.  The process thereafter runs in
+parallel with Emacs, and the two can communicate with each other using
+the functions described in following sections.  However, communication
+is only partially asynchronous: Emacs sends data to the process only
+when certain functions are called, and Emacs accepts data from the
+process only when Emacs is waiting for input or for a time delay.
+
+   Here we describe how to create an asynchronous process.
+
+ - Function: start-process NAME BUFFER-OR-NAME PROGRAM &rest ARGS
+     This function creates a new asynchronous subprocess and starts the
+     program PROGRAM running in it.  It returns a process object that
+     stands for the new subprocess in Lisp.  The argument NAME
+     specifies the name for the process object; if a process with this
+     name already exists, then NAME is modified (by appending `<1>',
+     etc.) to be unique.  The buffer BUFFER-OR-NAME is the buffer to
+     associate with the process.
+
+     The remaining arguments, ARGS, are strings that specify command
+     line arguments for the program.
+
+     In the example below, the first process is started and runs
+     (rather, sleeps) for 100 seconds.  Meanwhile, the second process
+     is started, and given the name `my-process<1>' for the sake of
+     uniqueness.  It inserts the directory listing at the end of the
+     buffer `foo', before the first process finishes.  Then it
+     finishes, and a message to that effect is inserted in the buffer.
+     Much later, the first process finishes, and another message is
+     inserted in the buffer for it.
+
+          (start-process "my-process" "foo" "sleep" "100")
+               => #<process my-process>
+
+          (start-process "my-process" "foo" "ls" "-l" "/user/lewis/bin")
+               => #<process my-process<1>>
+          
+          ---------- Buffer: foo ----------
+          total 2
+          lrwxrwxrwx  1 lewis     14 Jul 22 10:12 gnuemacs --> /emacs
+          -rwxrwxrwx  1 lewis     19 Jul 30 21:02 lemon
+          
+          Process my-process<1> finished
+          
+          Process my-process finished
+          ---------- Buffer: foo ----------
+
+ - Function: start-process-shell-command NAME BUFFER-OR-NAME COMMAND
+          &rest COMMAND-ARGS
+     This function is like `start-process' except that it uses a shell
+     to execute the specified command.  The argument COMMAND is a shell
+     command name, and COMMAND-ARGS are the arguments for the shell
+     command.  The variable `shell-file-name' specifies which shell to
+     use.
+
+     The point of running a program through the shell, rather than
+     directly with `start-process', is so that you can employ shell
+     features such as wildcards in the arguments.  It follows that if
+     you include an arbitrary user-specified filename in the command,
+     you should quote it with `shell-quote-argument' first, so that any
+     special shell characters in the file name do *not* have their
+     special shell meanings.  *Note Shell Arguments::.
+
+ - Variable: process-connection-type
+     This variable controls the type of device used to communicate with
+     asynchronous subprocesses.  If it is non-`nil', then PTYs are
+     used, when available.  Otherwise, pipes are used.
+
+     PTYs are usually preferable for processes visible to the user, as
+     in Shell mode, because they allow job control (`C-c', `C-z', etc.)
+     to work between the process and its children, whereas pipes do
+     not.  For subprocesses used for internal purposes by programs, it
+     is often better to use a pipe, because they are more efficient.  In
+     addition, the total number of PTYs is limited on many systems and
+     it is good not to waste them.
+
+     The value `process-connection-type' is used when `start-process'
+     is called.  So you can specify how to communicate with one
+     subprocess by binding the variable around the call to
+     `start-process'.
+
+          (let ((process-connection-type nil))  ; Use a pipe.
+            (start-process ...))
+
+     To determine whether a given subprocess actually got a pipe or a
+     PTY, use the function `process-tty-name' (*note Process
+     Information::.).
+
+
+File: elisp,  Node: Deleting Processes,  Next: Process Information,  Prev: Asynchronous Processes,  Up: Processes
+
+Deleting Processes
+==================
+
+   "Deleting a process" disconnects Emacs immediately from the
+subprocess, and removes it from the list of active processes.  It sends
+a signal to the subprocess to make the subprocess terminate, but this is
+not guaranteed to happen immediately.  The process object itself
+continues to exist as long as other Lisp objects point to it.  The
+process mark continues to point to the same place as before (usually
+into a buffer where output from the process was being inserted).
+
+   You can delete a process explicitly at any time.  Processes are
+deleted automatically after they terminate, but not necessarily right
+away.  If you delete a terminated process explicitly before it is
+deleted automatically, no harm results.
+
+ - User Option: delete-exited-processes
+     This variable controls automatic deletion of processes that have
+     terminated (due to calling `exit' or to a signal).  If it is
+     `nil', then they continue to exist until the user runs
+     `list-processes'.  Otherwise, they are deleted immediately after
+     they exit.
+
+ - Function: delete-process NAME
+     This function deletes the process associated with NAME, killing it
+     with a `SIGHUP' signal.  The argument NAME may be a process, the
+     name of a process, a buffer, or the name of a buffer.
+
+          (delete-process "*shell*")
+               => nil
+
+ - Function: process-kill-without-query PROCESS &optional DO-QUERY
+     This function specifies whether Emacs should query the user if
+     PROCESS is still running when Emacs is exited.  If DO-QUERY is
+     `nil', the process will be deleted silently.  Otherwise, Emacs
+     will query about killing it.
+
+     The value is `t' if the process was formerly set up to require
+     query, `nil' otherwise.  A newly-created process always requires
+     query.
+
+          (process-kill-without-query (get-process "shell"))
+               => t
+

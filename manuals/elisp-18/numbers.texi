@@ -1,0 +1,679 @@
+@c -*-texinfo-*-
+@setfilename ../info/numbers
+@node Numbers, Strings and Characters, Types of Lisp Object, Top
+@chapter Numbers
+@cindex integers
+@cindex numbers
+
+  Integers are the only kind of number in version 18 Emacs Lisp.  These
+are whole numbers such as @minus{}3, 0, 7, 13, and 511.
+
+  In version 19, there is a compile time option to support floating point
+numbers, which are represented internally as the C type @code{double}.
+A floating point number is a number with a fractional part, such as
+@minus{}4.5, 0.0, or 2.71828.  A floating point number can be expressed in
+an exponential notation as well: thus, 1.5e2 equals 150; in this example,
+@samp{e2} stands for ten to the second power, and is multiplied by 1.5.
+
+@menu
+* Number Basics::             Representation and range of numbers.
+* Predicates on Numbers::     Testing for numbers.
+* Comparison of Numbers::     Equality and inequality predicates.
+* Arithmetic Operations::     How to add, subtract, multiply and divide.
+* Bitwise Operations::        Logical and, or, not, shifting.
+* Random Numbers::            Obtaining random integers, predictable or not.
+@end menu
+
+@node Number Basics, Predicates on Numbers, Numbers, Numbers
+@comment  node-name,  next,  previous,  up
+@section Number Basics
+
+  The range of values for an integer depends on the machine.  The
+range is @minus{}8388608 to 8388607 (24 bits; i.e.,
+@ifinfo 
+-2**23
+@end ifinfo
+@tex 
+$-2^{23}$ 
+@end tex
+to 
+@ifinfo 
+2**23 - 1
+@end ifinfo
+@tex 
+$2^{23}-1$
+@end tex
+) on most
+machines, but on others it is @minus{}16777216 to 16777215
+(25 bits), or @minus{}33554432 to 33554431 (26 bits).  All
+of the examples shown below assume an integer has 24 bits.@refill
+@cindex overflow
+
+  The Lisp reader reads numbers as a sequence of digits with an optional
+sign.
+
+@example
+1                ; @r{The integer 1.}
++1               ; @r{Also the integer 1.}
+-1               ; @r{The integer @minus{}1.}
+16777217         ; @r{Also the integer 1, due to overflow.}
+0                ; @r{The number 0.}
+-0               ; @r{The number 0.}
+1.               ; @r{Invalid syntax.}
+@end example
+
+  To understand how various functions work on integers, especially the
+bitwise operators (@pxref{Bitwise Operations}), it is often helpful to
+view the numbers in their binary form.
+
+  In 24 bit binary, the decimal integer 5 looks like this:
+
+@example
+0000 0000  0000 0000  0000 0101
+@end example
+
+@noindent
+(We have inserted spaces between groups of 4 bits, and two spaces
+between groups of 8 bits, to make the binary integer easier to read.)
+
+  The integer @minus{}1 looks like this:
+
+@example
+1111 1111  1111 1111  1111 1111
+@end example
+
+@noindent
+@cindex two's complement
+@minus{}1 is represented as 24 ones.  (This is called @dfn{two's
+complement} notation.)
+
+  The negative integer, @minus{}5, is creating by subtracting 4 from
+@minus{}1.  In binary, the decimal integer 4 is 100.  Consequently,
+@minus{}5 looks like this:
+
+@example
+1111 1111  1111 1111  1111 1011
+@end example
+
+  In this implementation, the largest 24 bit binary integer is the decimal
+integer 8,388,607.  In binary, this number looks like this:
+
+@example
+0111 1111  1111 1111  1111 1111
+@end example
+
+  Since the arithmetic functions do not check whether integers go
+outside their range, when you add 1 to 8,388,607, the value is negative
+integer @minus{}8,388,608:
+
+@example
+(+ 1 8388607)
+     @result{} -8388608
+     @result{} 1000 0000  0000 0000  0000 0000
+@end example
+
+  Many of the following functions accept markers for arguments as well
+as integers.  (@xref{Markers}.)  More precisely, the actual parameters
+to such functions may be either integers or markers, which is why we
+often give these parameters the name @var{marker-or-int}.  When the
+actual parameter is a marker, the position value of the marker is used
+and the buffer of the marker is ignored.
+
+@ignore
+  In version 19, except where @emph{integer} is specified as an
+argument, all of the functions for markers and integers also work for
+floating point numbers.
+@end ignore
+
+@node Predicates on Numbers, Comparison of Numbers, Number Basics, Numbers
+@section Type Predicates for Numbers
+
+  The functions in this section test whether the argument is a number or
+whether it is a certain sort of number.  @code{integerp} and
+@code{natnump} can take any type of Lisp object as argument (the
+predicates would not be of much use otherwise); but the @code{zerop}
+predicate requires an integer as its argument.
+@ignore
+
+@defun floatp object
+This predicate tests whether its argument is a floating point
+number and returns @code{t} if so, @code{nil} otherwise.
+
+@code{floatp} is part of version 19 Emacs, not version 18.
+@end defun
+@end ignore
+
+@defun integerp object
+This predicate tests whether its argument is an integer (a whole number)
+and returns @code{t} if so, @code{nil} otherwise.
+@end defun
+
+@defun natnump object
+@cindex natural numbers
+The @code{natnump} predicate (whose name comes from the phrase
+``natural-number-p'') tests to see whether its argument is a nonnegative
+integer, and returns @code{t} if so, @code{nil} otherwise.  0 is
+considered non-negative.
+
+Markers are not converted to integers, hence @code{natnump} of a marker
+is always @code{nil}.
+
+People have pointed out that this function is misnamed, because the term
+``natural number'' is usually understood as excluding zero.  We are open
+to suggestions for a better name to use in version 19.
+@end defun
+
+@defun zerop integer
+This predicate tests whether its argument is zero, and returns @code{t}
+if so, @code{nil} otherwise.  These two forms are equivalent: @code{(zerop x)
+@equiv{} (= x 0)}.
+@end defun
+
+@node Comparison of Numbers, Arithmetic Operations, Predicates on Numbers, Numbers
+@section Comparison of Numbers
+@cindex number equality
+
+  The integer type is implemented by storing the value in the ``pointer
+part'' of a Lisp object (which, on typical target machines, has 24
+bits of pointer, 7 bits of type and 1 bit for the garbage collector).
+Because of this, the function @code{eq} will return @code{t} for
+two integers with the same value.  @xref{Equality Predicates}.
+
+@quotation
+@b{Common Lisp note:} because of the way numbers are implemented in
+Common Lisp, you generally need to use @samp{@code{=}} to test for
+equality between numbers.  However, GNU Emacs Lisp does not need very
+large integers; as a consequence, it is possible to restrict them to the
+size of a single word, allowing @code{eq} to be used.
+@end quotation
+
+@defun = marker-or-int1 marker-or-int2
+This function tests whether its arguments are the same number, and
+returns @code{t} if so, @code{nil} otherwise.
+@end defun
+
+@defun /= marker-or-int1 marker-or-int2
+This function tests whether its arguments are not the same number, and
+returns @code{t} if so, @code{nil} otherwise.
+@end defun
+
+@defun <  marker-or-int1 marker-or-int2
+This function tests whether its first argument is strictly less than
+its second argument.  It returns @code{t} if so, @code{nil} otherwise.
+@end defun
+
+@defun <=  marker-or-int1 marker-or-int2
+This function tests whether its first argument is less than or equal
+to its second argument.  It returns @code{t} if so, @code{nil}
+otherwise.
+@end defun
+
+@defun >  marker-or-int1 marker-or-int2
+This function tests whether its first argument is strictly greater
+than its second argument.  It returns @code{t} if so, @code{nil}
+otherwise.
+@end defun
+
+@defun >=  marker-or-int1 marker-or-int2
+This function tests whether its first argument is greater than or
+equal to its second argument.  It returns @code{t} if so, @code{nil}
+otherwise.
+@end defun
+
+@defun max marker-or-int &rest markers-or-ints
+This function returns the largest of its arguments.
+
+@example
+(max 20)
+     @result{} 20
+(max 1 2)
+     @result{} 2
+(max 1 3 2)
+     @result{} 3
+@end example
+@end defun
+
+@defun min marker-or-int &rest markers-or-ints
+This function returns the smallest of its arguments.
+@end defun
+
+@node Arithmetic Operations, Bitwise Operations, Comparison of Numbers, Numbers
+@section Arithmetic Operations
+
+  Emacs Lisp provides the traditional four arithmetic operations:
+addition, subtraction, multiplication, and division.  A remainder
+function supplements the (integer) division function.  In addition, as
+a convenience, incrementing and decrementing functions are provided.
+
+  It is important to note that in GNU Emacs Lisp, arithmetic functions
+do not check for overflow.  Thus @code{(1+ 8388607)} may equal
+@minus{}8388608, depending on your hardware.
+
+@defun 1+ marker-or-int
+This function adds one to @var{marker-or-int}.
+@end defun
+
+@defun 1- marker-or-int
+This function subtracts one from @var{marker-or-int}.
+@end defun
+
+@defun + &rest markers-or-ints
+This function adds its arguments together.  When given no arguments,
+@code{+} returns 0.  It does not check for overflow.
+
+@example
+(+)
+     @result{} 0
+(+ 1)
+     @result{} 1
+(+ 1 2 3 4)
+     @result{} 10
+@end example
+@end defun
+
+@defun - &optional marker-or-int &rest other-markers-or-ints
+The @code{-} function serves two purposes: negation and subtraction.
+When @code{-} has a single argument, the value is the negative of the
+argument.  When there are multiple arguments, each of the
+@var{other-markers-or-ints} is subtracted from @var{marker-or-int},
+cumulatively.  If there are no arguments, the result is 0.  This
+function does not check for overflow.
+
+@example
+(- 10 1 2 3 4)
+     @result{} 0
+(- 10)
+     @result{} -10
+(-)
+     @result{} 0
+@end example
+@end defun
+
+@defun * &rest markers-or-integers
+This function multiplies its arguments together, and returns the
+product.  When given no arguments, @code{*} returns 1.  It does
+not check for overflow.
+
+@example
+(*)
+     @result{} 1
+(* 1)
+     @result{} 1
+(* 1 2 3 4)
+     @result{} 24
+@end example
+@end defun
+
+@defun / dividend divisor &rest divisors
+This function divides @var{dividend} by @var{divisors} and returns the
+quotient.  If there are additional arguments @var{divisors}, then
+@var{dividend} is divided by each divisor in turn.    Each argument may be an
+integer or a marker.
+
+The result is normally rounded towars zero after each division, but some
+machines may round differently with negative arguments.  This is because
+the Lisp function @code{/} is implemented using the C division operator,
+which has the same possibility for machine-dependent rounding.
+In practice, all known machines round in the standard fashion.
+
+@cindex @code{arith-error} in division
+If you divide by 0, an @code{arith-error} error is signaled.
+(@xref{Errors}.)
+
+@example
+(/ 6 2)
+     @result{} 3
+(/ 5 2)
+     @result{} 2
+(/ 25 3 2)
+     @result{} 4
+(/ -17 6)
+     @result{} -2          ; @r{(Could be @minus{}3 on some machines.)}
+@end example
+@end defun
+
+@defun % dividend divisor
+@cindex modulus
+This function returns the value of @var{dividend} modulo @var{divisor};
+in other words, the integer remainder after division of @var{dividend}
+by @var{divisor}.  The sign of the result is the sign of @var{dividend}.
+The sign of @var{divisor} is ignored.  The arguments must be integers.
+
+For negative arguments, the value is in principle machine-dependent
+since the quotient is; but in practice, all known machines behave alike.
+
+An @code{arith-error} results if @var{divisor} is 0.
+
+@example
+(% 9 4)
+     @result{} 1
+(% -9 4)
+     @result{} -1
+(% 9 -4)
+     @result{} 1
+(% -9 -4)
+     @result{} -1
+@end example
+
+For any two numbers @var{dividend} and @var{divisor},
+
+@example
+(+ (% @var{dividend} @var{divisor})
+   (* (/ @var{dividend} @var{divisor}) @var{divisor}))
+@end example
+
+@noindent
+always equals @var{dividend}.
+@end defun
+
+@node Bitwise Operations, Random Numbers, Arithmetic Operations, Numbers
+@section Bitwise Operations on Integers
+
+  In a computer, an integer is represented as a binary number, a
+sequence of @dfn{bits} (digits which are either zero or one).  A bitwise
+operation acts on the individual bits of such a sequence.  For example,
+@dfn{shifting} moves the whole sequence left or right one or more places,
+reproducing the same pattern ``moved over''.
+
+  The bitwise operations in Emacs Lisp apply only to integers.
+
+@defun lsh integer1 count
+@cindex logical shift
+@code{lsh}, which is an abbreviation for @dfn{logical shift}, shifts the
+bits in @var{integer1} to the left @var{count} places, or to the
+right if @var{count} is negative.  If @var{count} is negative,
+@code{lsh} shifts zeros into the most-significant bit, producing a
+positive result even if @var{integer1} is negative.  Contrast this with
+@code{ash}, below.
+
+Thus, the decimal number 5 is the binary number 00000101.  Shifted once
+to the left, with a zero put in the one's place, the number becomes
+00001010, decimal 10.
+
+Here are two examples of shifting the pattern of bits one place to the
+left.  Since the contents of the rightmost place has been moved one
+place to the left, a value has to be inserted into the rightmost place.
+With @code{lsh}, a zero is placed into the rightmost place.  (These
+examples show only the low-order eight bits of the binary pattern; the
+rest are all zero.)
+
+@group
+@example
+(lsh 5 1)
+     @result{} 10
+
+00000101 @result{} 00001010     ; @r{Decimal 5 becomes decimal 10.}
+
+(lsh 7 1)
+     @result{} 14
+
+00000111 @result{} 00001110     ; @r{Decimal 7 becomes decimal 14.}
+@end example
+@end group
+
+@noindent
+As the examples illustrate, shifting the pattern of bits one place to
+the left produces a number that is twice the value of the previous
+number.
+
+Note, however that functions do not check for overflow, and a returned
+value may be negative (and in any case, no more than a 24 bit value)
+when an integer is sufficiently left shifted.  For example:
+
+@example
+(lsh 8388607 1)          ; @r{left shift}
+     @result{} -2
+@end example
+
+In binary, in the 24 bit implementation, 
+
+@example
+0111 1111  1111 1111  1111 1111         ; @r{Decimal 8,388,607}
+@end example
+
+@noindent
+becomes
+
+@example
+1111 1111  1111 1111  1111 1110         ; @r{Decimal @minus{}2}
+@end example
+
+Shifting the pattern of bits two places to the left produces results
+like this (with 8-bit binary numbers):
+
+@group
+@example
+(lsh 3 2)
+     @result{} 12
+
+00000011 @result{} 00001100       ; @r{Decimal 3 becomes decimal 12.}
+@end example
+@end group
+
+On the other hand, shifting the pattern of bits one place to the right
+looks like this:
+
+@group
+@example
+(lsh 6 -1)
+     @result{} 3
+
+00000110 @result{} 00000011       ; @r{Decimal 6 becomes decimal 3.}
+
+(lsh 5 -1)
+     @result{} 2
+
+00000101 @result{} 00000010       ; @r{Decimal 5 becomes decimal 2.}
+@end example
+@end group
+
+@noindent
+As the example illustrates, shifting the pattern of bits one place to
+the right divides the value of the binary number by two, rounding downward.
+@end defun
+
+@defun ash integer1 count
+@cindex arithmetic shift
+@code{ash} (@dfn{arithmetic shift}) shifts the bits in @var{integer1}
+to the left @var{count} places, or to the right if @var{count}
+is negative.
+
+@code{ash} gives the same results as @code{lsh} except when
+@var{integer1} and @var{count} are both negative.  In that case,
+@code{ash} puts a one in the leftmost position, while @code{lsh} puts
+a zero in the leftmost position.
+
+Thus, with @code{ash}, shifting the pattern of bits one place to the right
+looks like this:
+
+@group
+@example
+(ash -6 -1)
+     @result{} -3            ; @r{Decimal @minus{}6 becomes decimal @minus{}3.}
+
+1111 1111  1111 1111  1111 1010
+     @result{} 
+1111 1111  1111 1111  1111 1101
+@end example
+@end group
+
+In contrast, shifting the pattern of bits one place to the right with
+@code{lsh} looks like this:
+
+@group
+@example
+(lsh -6 -1)
+     @result{} 8388605       ; @r{Decimal @minus{}6 becomes decimal 8,388,605.}
+
+1111 1111  1111 1111  1111 1010
+     @result{} 
+0111 1111  1111 1111  1111 1101
+@end example
+@end group
+
+@noindent
+In this case, the 1 in the leftmost position is shifted one place to the
+right, and a zero is shifted into the leftmost position.
+
+Here are other examples:
+
+@example
+                       ;  @r{             24-bit binary values}
+
+(lsh 5 2)              ;   5  =  @r{0000 0000  0000 0000  0000 0101}
+     @result{} 20             ;  20  =  @r{0000 0000  0000 0000  0001 0100}
+(ash 5 2)
+     @result{} 20
+(lsh -5 2)             ;  -5  =  @r{1111 1111  1111 1111  1111 1011}
+     @result{} -20            ; -20  =  @r{1111 1111  1111 1111  1110 1100}
+(ash -5 2)
+     @result{} -20
+
+(lsh 5 -2)             ;   5  =  @r{0000 0000  0000 0000  0000 0101}
+     @result{} 1              ;   1  =  @r{0000 0000  0000 0000  0000 0001}
+(ash 5 -2)
+     @result{} 1
+(lsh -5 -2)            ;  -5  =  @r{1111 1111  1111 1111  1111 1011}
+     @result{} 4194302        ;         @r{0011 1111  1111 1111  1111 1110}
+(ash -5 -2)            ;  -5  =  @r{1111 1111  1111 1111  1111 1011}
+     @result{} -2             ;  -2  =  @r{1111 1111  1111 1111  1111 1110}
+@end example
+@end defun
+
+@defun logand &rest markers-or-ints
+@cindex logical and
+@cindex bitwise and
+This function returns the ``logical and'' of the arguments: the
+@var{n}th bit is set in the result if, and only if, the @var{n}th bit is
+set in all the arguments.  (``Set'' means that the value of the bit is 1
+rather than 0.)
+
+For example, using 4-bit binary numbers, the ``logical and'' of 13 and
+12 is 12: 1101 combined with 1100 produces 1100.
+
+In both the binary numbers, the leftmost two bits are set (i.e., they
+are 1's), so the leftmost two bits of the returned value are set.
+However, for the rightmost two bits, each is zero in at least one of
+the arguments, so the rightmost two bits of the returned value are 0's.
+
+@noindent
+Therefore,
+
+@group
+@example
+(logand 13 12)
+     @result{} 12
+@end example
+@end group
+
+If @code{logand} is not passed any argument, it returns a value of
+@minus{}1.  This number is an identity element for @code{logand}
+because its binary representation consists entirely of ones.  If
+@code{logand} is passed just one argument, it returns that argument.
+
+@example
+                       ; @r{               24-bit binary values}
+
+(logand 14 13)         ; 14  =  @r{0000 0000  0000 0000  0000 1110}
+                       ; 13  =  @r{0000 0000  0000 0000  0000 1101}
+     @result{} 12             ; 12  =  @r{0000 0000  0000 0000  0000 1100}
+
+(logand 14 13 4)       ; 14  =  @r{0000 0000  0000 0000  0000 1110}
+                       ; 13  =  @r{0000 0000  0000 0000  0000 1101}
+                       ;  4  =  @r{0000 0000  0000 0000  0000 0100}
+     @result{} 4              ;  4  =  @r{0000 0000  0000 0000  0000 0100}
+
+(logand)
+     @result{} -1             ; -1  =  @r{1111 1111  1111 1111  1111 1111}
+@end example
+@end defun
+
+@defun logior &rest markers-or-ints
+@cindex logical inclusive or
+@cindex bitwise or
+This function returns the ``inclusive or'' of its arguments: the @var{n}th bit
+is set in the result if, and only if, the @var{n}th bit is set in at least
+one of the arguments.  If there are no arguments, the result is zero,
+which is an identity element for this operation.  If @code{logior} is
+passed just one argument, it returns that argument.
+
+@example
+                       ; @r{              24-bit binary values}
+
+(logior 12 5)          ; 12  =  @r{0000 0000  0000 0000  0000 1100}
+                       ;  5  =  @r{0000 0000  0000 0000  0000 0101}
+     @result{} 13             ; 13  =  @r{0000 0000  0000 0000  0000 1101}
+
+(logior 12 5 7)        ; 12  =  @r{0000 0000  0000 0000  0000 1100}
+                       ;  5  =  @r{0000 0000  0000 0000  0000 0101}
+                       ;  7  =  @r{0000 0000  0000 0000  0000 0111}
+     @result{} 15             ; 15  =  @r{0000 0000  0000 0000  0000 1111}
+@end example
+@end defun
+
+@defun logxor &rest markers-or-ints
+@cindex bitwise exclusive or
+@cindex logical exclusive or
+This function returns the ``exclusive or'' of its arguments: the
+@var{n}th bit is set in the result if, and only if, the @var{n}th bit
+is set in an odd number of the arguments.  If there are no arguments,
+the result is 0.  If @code{logxor} is passed just one argument, it returns
+that argument.
+
+@example
+                       ; @r{              24-bit binary values}
+
+(logxor 12 5)          ; 12  =  @r{0000 0000  0000 0000  0000 1100}
+                       ;  5  =  @r{0000 0000  0000 0000  0000 0101}
+     @result{} 9              ;  9  =  @r{0000 0000  0000 0000  0000 1001}
+
+(logxor 12 5 7)        ; 12  =  @r{0000 0000  0000 0000  0000 1100}
+                       ;  5  =  @r{0000 0000  0000 0000  0000 0101}
+                       ;  7  =  @r{0000 0000  0000 0000  0000 0111}
+     @result{} 14             ; 14  =  @r{0000 0000  0000 0000  0000 1110}
+@end example
+@end defun
+
+@defun lognot integer
+@cindex logical not
+@cindex bitwise not
+This function returns the logical complement of its argument: the @var{n}th
+bit is one in the result if, and only if, the @var{n}th bit is zero in
+@var{integer}, and vice-versa.
+
+@example
+(lognot 5)             ;  5  =  @r{0000 0000  0000 0000  0000 0101}
+     @result{} -6             ; -6  =  @r{1111 1111  1111 1111  1111 1010}
+@end example
+@end defun
+
+@node Random Numbers,, Bitwise Operations, Numbers
+@section Random Numbers
+@cindex random numbers
+
+@defun random &optional flag
+This function returns a pseudo-random number of type integer.  When
+called more than once, this function returns a series of
+pseudo-random numbers.
+
+In a computer, a series of a pseudo-random numbers is generated in a
+deterministic fashion.  The numbers are not truly random, but they have
+certain properties that mimic a random series.  For example, all
+possible values occur equally often in a pseudo-random series.
+
+In Emacs, pseudo-random numbers are generated from a ``seed'' number.
+If the @code{random} function starts with the same seed, it generates
+the same sequence of numbers.  Emacs always starts with the same seed
+value, so the sequence of values of @code{random} is actually the same
+in each Emacs run!  For example, in one operating system, the first call
+to @code{(random)} after you start Emacs always returns -1457731, and
+the second one always returns -7692030.  This is helpful for debugging.
+
+If you want different random numbers, execute @code{(random t)}.  This
+chooses a new seed based on the current time of day and on Emacs'
+process @sc{id} number.
+
+On some machines, any integer representable in Lisp may be the result
+of @code{random}.  On other machines, the result can never be larger
+than a certain maximum or less than a certain (negative) minimum.
+@end defun

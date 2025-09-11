@@ -1,0 +1,316 @@
+@c -*-texinfo-*-
+@setfilename ../info/tips
+@node Tips, GNU Emacs Internals, Emacs Display, Top
+@appendix Tips and Standards
+
+  This chapter describes no additional features of Emacs Lisp.
+Instead it gives advice on making effective use of the features described
+in the previous chapters.
+
+@menu
+* Style Tips::                Writing clean and robust programs.
+* Compilation Tips::          Making compiled code run fast.
+* Documentation Tips::        Writing readable documentation strings.
+@end menu
+
+@node Style Tips, Compilation Tips, Tips, Tips
+@section Writing Clean Lisp Programs
+
+  Here are some tips for avoiding common errors in writing Lisp code
+intended for widespread use:
+
+@itemize @bullet
+@item
+Since all global variables share the same name space, and all functions
+share another name space, you should choose a short word to distinguish
+your program from other Lisp programs.  Then take care to begin the
+names of all global variables, constants, and functions with the chosen
+prefix.  This helps avoid name conflicts.
+
+This recommendation applies even to names for traditional Lisp
+primitives that are not primitives in Emacs Lisp---even to @code{cadr}.
+Believe it or not, there is more than one plausible way to define
+@code{cadr}.  Play it safe; append your name prefix to produce a name
+like @code{foo-cadr} or @code{mylib-cadr} instead.
+
+If one prefix is insufficient, your package may use two or three
+alternative common prefixes, so long as they make sense.
+
+@item
+It is often useful to put a call to @code{provide} in each separate
+library program, at least if there is more than one entry point to the
+program.
+
+@item
+If one file @var{foo} uses a macro defined in another file @var{bar},
+@var{foo} should contain @code{(require '@var{bar})} before the first
+use of the macro.  (And @var{bar} should contain @code{(provide
+'@var{bar})}, to make the @code{require} work.)  This will cause
+@var{bar} to be loaded when you byte-compile @var{foo}.  Otherwise, you
+risk compiling @var{foo} without the necessary macro loaded, and that
+would produce compiled code that won't work right.  @xref{Compiling
+Macros}.
+
+@item
+If you define a major mode, make sure to run a hook variable using
+@code{run-hooks}, just as the existing major modes do.  @xref{Hooks}.
+
+@item
+Please do not define @kbd{C-c @var{letter}} as a key.  These sequences
+are reserved for users; they are the @strong{only} sequences reserved
+for users, so we cannot do without them.
+
+Everything in Emacs that used to define such sequences has been changed,
+which was a lot of work.  Abandoning this convention would waste that
+work and inconvenience the users.
+
+@item
+It is a bad idea to define aliases for the Emacs primitives.
+Use the standard names instead.
+
+@item
+Redefining an Emacs primitive is an even worse idea.
+It may do the right thing for a particular program, but 
+there is no telling what other programs might break as a result.
+
+@item
+If a file does replace any of the functions or library programs of
+standard Emacs, prominent comments at the beginning of the file should
+say which functions are replaced, and how the behavior of the
+replacements differs from that of the originals.
+
+@item
+If a file requires certain standard library programs to be loaded
+beforehand, then the comments at the beginning of the file should say
+so.
+
+@item
+Don't use @code{next-line} or @code{previous-line} in programs; nearly
+always, @code{forward-line} is more convenient as well as more
+predictable and robust.  @xref{Text Lines}.
+
+@item
+Don't use functions that set the mark in your Lisp code (unless you are
+writing a command to set the mark).  The mark is a user-level feature,
+so it is incorrect to change the mark except to supply a value for the
+user's benefit.  @xref{The Mark}.
+
+In particular, don't use these functions:
+
+@itemize @bullet
+@item
+@code{beginning-of-buffer}, @code{end-of-buffer}
+@item
+@code{replace-string}, @code{replace-regexp}
+@end itemize
+
+If you just want to move point, or replace a certain string, without any
+of the other features intended for interactive users, you can replace
+these functions with one or two lines of simple Lisp code.
+
+@item
+The recommended way to print a message in the echo area is with
+the @code{message} function, not @code{princ}.  @xref{The Echo Area}.
+
+@item
+When you encounter an error condition, call the function @code{error}
+(or @code{signal}).  The function @code{error} does not return.
+@xref{Signaling Errors}.
+
+Do not use @code{message}, @code{throw}, @code{sleep-for},
+or @code{beep} to report errors.
+
+@item
+Avoid using recursive edits.  Instead, do what the Rmail @kbd{w} command
+does: use a new local keymap that contains one command defined to
+switch back to the old local keymap.  Or do what the @code{edit-options}
+command does: switch to another buffer and let the user switch back at
+will.  @xref{Recursive Editing}.
+
+@item
+In some other systems there is a convention of choosing variable names
+that begin and end with @samp{*}.  We don't use that convention in Emacs
+Lisp, so please don't use it in your library.  The users will find Emacs
+more coherent if all libraries use the same conventions.
+
+@item
+Indent each function with @kbd{C-M-q} (@code{indent-sexp}) using the
+default indentation parameters.
+
+@item
+Don't make a habit of putting close-parentheses on lines by themselves;
+Lisp programmers find this disconcerting.  Once in a while, when there
+is a sequence of many consecutive close-parentheses, it may make sense
+to split them in one or two significant places.
+
+@item
+Please put a copyright notice on the file if you give copies to anyone.
+Use the same lines that appear at the top of the Lisp files in Emacs
+itself.  If you have not signed papers to assign the copyright to the
+Foundation, then place your name in the copyright notice in place of the
+Foundation's name.
+@end itemize
+
+@node Compilation Tips, Documentation Tips, Style Tips, Tips
+@section Tips for Making Compiled Code Fast
+
+  Here are ways of improving the execution speed of byte-compiled
+lisp programs.
+
+@itemize @bullet
+@item
+Use iteration rather than recursion whenever possible.
+Function calls are slow in Emacs Lisp even when a compiled function
+is calling another compiled function.
+
+@item
+Using the primitive list-searching functions @code{memq}, @code{assq} or
+@code{assoc} is even faster than explicit iteration.  It may be worth
+rearranging a data structure so that one of these primitive search
+functions can be used.
+
+For example, if you want to search a list of strings for a string equal
+to a given one, you can use an explicit loop:
+
+@example
+(let ((tail list))
+  (while (and tail (not (string= string (car tail))))
+    (setq tail (cdr tail))))
+@end example
+
+@noindent
+However, if you use a list of elements of the form @code{(@var{string})}, 
+such as @code{(("foo") ("#&") ("bar"))}, then you can search it with
+@code{assoc}:
+
+@example
+(assoc string list)
+@end example
+
+@noindent
+The latter runs entirely in C code, so it is much faster.
+
+@item
+Certain built-in functions are handled specially by the byte compiler
+avoiding the need for an ordinary function call.  It is a good idea to
+use these functions rather than alternatives.  To see whether a function
+is handled specially by the compiler, examine its @code{byte-compile}
+property.  If the property is non-@code{nil}, then the function is
+handled specially.
+
+For example, the following input will show you that @code{aref} is
+compiled specially (@pxref{Array Functions}) while @code{elt} is not
+(@pxref{Sequence Functions}):
+
+@example
+(get 'aref 'byte-compile)
+     @result{} byte-compile-two-args
+
+(get 'elt 'byte-compile)
+     @result{} nil
+@end example
+
+@item
+Often macros result in faster execution than functions.  For example,
+the following macro and the following function have the same effect when
+called, but code using the macro runs faster because it avoids an extra
+call to a user-defined function:
+
+@example
+(defmacro fast-cadr (x) (list 'car (list 'cdr x)))
+
+(defun slow-cadr (x) (car (cdr x)))
+@end example
+@end itemize
+
+@node Documentation Tips,, Compilation Tips, Tips
+@section Tips for Documentation Strings
+
+  Here are some tips for the writing of documentation strings.
+
+@itemize @bullet
+@item
+Every command, function or variable intended for users to know about
+should have a documentation string.
+
+@item
+An internal subroutine of a Lisp program need not have a documentation
+string, and you can save space by using a comment instead.
+
+@item
+The first line of the documentation string should consist of one or two
+complete sentences which stand on their own as a summary.  In particular,
+start the line with a capital letter and end with a period.
+
+The documentation string can have additional lines which expand on the
+details of how to use the function or variable.  The additional lines
+should be made up of complete sentences also, but they may be filled if
+that looks good.
+
+@item
+Do not start or end a documentation string with whitespace.
+
+@item
+Format the documentation string so that it fits in an Emacs window on an
+80 column screen.  It is a good idea for most lines to be no wider than
+60 characters.  The first line can be wider if necessary to fit the 
+information that ought to be there.
+
+However, rather than simply filling the entire documentation string, you
+can make it much more readable by choosing line breaks with care.
+Use blank lines between topics if the documentation string is long.
+ 
+@item
+@strong{Do not} indent subsequent lines of a documentation string so
+that the text is lined up in the source code with the text of the first
+line.  This looks nice in the source code, but looks bizarre when users
+view the documentation.  Remember that the indentation before the
+starting double-quote is not part of the string!
+
+@item
+A variable's documentation string should start with @samp{*} if the
+variable is one that users would want to set interactively often.  If
+the value is a long list, or a function, or if the variable would only
+be set in init files, then don't start the documentation string with
+@samp{*}.  @xref{Defining Variables}.
+
+@item
+The documentation string for a variable that is a yes-or-no flag should
+start with words such as ``Non-nil means@dots{}'', to make it clear both
+that the variable only has two meaningfully distinct values and which value
+means ``yes''.
+
+@item
+When a function's documentation string mentions the value of an argument
+of the function, use the argument name in capital letters as if it were
+a name for that value.  Thus, the documentation string of the function
+@code{/} refers to its second argument as @samp{DIVISOR}.
+
+Also use all caps for meta-syntactic variables, such as when you show
+the decomposition of a list or vector into subunits, some of which may
+be variable.
+
+@item
+When a documentation string refers to a Lisp symbol, write it as it
+would be printed (which usually means in lower case), with single-quotes
+around it.  For example: @samp{`lambda'}.  There are two exceptions:
+write @code{t} and @code{nil} without single-quotes.
+
+@item
+Don't write key sequences directly in documentation strings.  Instead,
+use the @samp{\\[@dots{}]} construct to stand for them.  For example,
+instead of writing @samp{C-f}, write @samp{\\[forward-char]}.  When the
+documentation string is printed, Emacs will substitute whatever key is
+currently bound to @code{forward-char}.  This will usually be
+@samp{C-f}, but if the user has moved key bindings, it will be the
+correct key for that user.  @xref{Keys in Documentation}.
+
+@item
+In documentation strings for a major mode, you will want to refer to the
+key bindings of that mode's local map, rather than global ones.
+Therefore, use the construct @samp{\\<@dots{}>} once in the
+documentation string to specify which key map to use.  Do this before
+the first use of @samp{\\[@dots{}]}.  The text inside the
+@samp{\\<@dots{}>} should be the name of the variable containing the
+local keymap for the major mode.
+@end itemize
