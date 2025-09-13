@@ -118,7 +118,7 @@
 ;;;; Better Info:
 
 (use-package info-colors
-  :hook (Info-selection . info-colors.fontify-node))
+  :hook (Info-selection . info-colors-fontify-node))
 
 ;;;; Help transient:
 
