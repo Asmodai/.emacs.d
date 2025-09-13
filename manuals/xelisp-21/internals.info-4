@@ -1,0 +1,1182 @@
+This is ../info/internals.info, produced by makeinfo version 4.3 from
+internals/internals.texi.
+
+INFO-DIR-SECTION XEmacs Editor
+START-INFO-DIR-ENTRY
+* Internals: (internals).       XEmacs Internals Manual.
+END-INFO-DIR-ENTRY
+
+   Copyright (C) 1992 - 1996 Ben Wing.  Copyright (C) 1996, 1997 Sun
+Microsystems.  Copyright (C) 1994 - 1998 Free Software Foundation.
+Copyright (C) 1994, 1995 Board of Trustees, University of Illinois.
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be stated in a
+translation approved by the Foundation.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided also
+that the section entitled "GNU General Public License" is included
+exactly as in the original, and provided that the entire resulting
+derived work is distributed under the terms of a permission notice
+identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that the section entitled "GNU General Public License"
+may be included in a translation approved by the Free Software
+Foundation instead of in the original English.
+
+
+File: internals.info,  Node: Modules for Standard Editing Operations,  Next: Editor-Level Control Flow Modules,  Prev: Basic Lisp Modules,  Up: A Summary of the Various XEmacs Modules
+
+Modules for Standard Editing Operations
+=======================================
+
+     buffer.c
+     buffer.h
+     bufslots.h
+
+   `buffer.c' implements the "buffer" Lisp object type.  This includes
+functions that create and destroy buffers; retrieve buffers by name or
+by other properties; manipulate lists of buffers (remember that buffers
+are permanent objects and stored in various ordered lists); retrieve or
+change buffer properties; etc.  It also contains the definitions of all
+the built-in buffer-local variables (which can be viewed as buffer
+properties).  It does _not_ contain code to manipulate buffer-local
+variables (that's in `symbols.c', described above); or code to
+manipulate the text in a buffer.
+
+   `buffer.h' defines the structures associated with a buffer and the
+various macros for retrieving text from a buffer and special buffer
+positions (e.g. `point', the default location for text insertion).  It
+also contains macros for working with buffer positions and converting
+between their representations as character offsets and as byte offsets
+(under MULE, they are different, because characters can be multi-byte).
+It is one of the largest header files.
+
+   `bufslots.h' defines the fields in the buffer structure that
+correspond to the built-in buffer-local variables.  It is its own
+header file because it is included many times in `buffer.c', as a way
+of iterating over all the built-in buffer-local variables.
+
+     insdel.c
+     insdel.h
+
+   `insdel.c' contains low-level functions for inserting and deleting
+text in a buffer, keeping track of changed regions for use by
+redisplay, and calling any before-change and after-change functions
+that may have been registered for the buffer.  It also contains the
+actual functions that convert between byte offsets and character
+offsets.
+
+   `insdel.h' contains associated headers.
+
+     marker.c
+
+   This module implements the "marker" Lisp object type, which
+conceptually is a pointer to a text position in a buffer that moves
+around as text is inserted and deleted, so as to remain in the same
+relative position.  This module doesn't actually move the markers around
+- that's handled in `insdel.c'.  This module just creates them and
+implements the primitives for working with them.  As markers are simple
+objects, this does not entail much.
+
+   Note that the standard arithmetic primitives (e.g. `+') accept
+markers in place of integers and automatically substitute the value of
+`marker-position' for the marker, i.e. an integer describing the
+current buffer position of the marker.
+
+     extents.c
+     extents.h
+
+   This module implements the "extent" Lisp object type, which is like
+a marker that works over a range of text rather than a single position.
+Extents are also much more complex and powerful than markers and have a
+more efficient (and more algorithmically complex) implementation.  The
+implementation is described in detail in comments in `extents.c'.
+
+   The code in `extents.c' works closely with `insdel.c' so that
+extents are properly moved around as text is inserted and deleted.
+There is also code in `extents.c' that provides information needed by
+the redisplay mechanism for efficient operation. (Remember that extents
+can have display properties that affect [sometimes drastically, as in
+the `invisible' property] the display of the text they cover.)
+
+     editfns.c
+
+   `editfns.c' contains the standard Lisp primitives for working with a
+buffer's text, and calls the low-level functions in `insdel.c'.  It
+also contains primitives for working with `point' (the default buffer
+insertion location).
+
+   `editfns.c' also contains functions for retrieving various
+characteristics from the external environment: the current time, the
+process ID of the running XEmacs process, the name of the user who ran
+this XEmacs process, etc.  It's not clear why this code is in
+`editfns.c'.
+
+     callint.c
+     cmds.c
+     commands.h
+
+   These modules implement the basic "interactive" commands, i.e.
+user-callable functions.  Commands, as opposed to other functions, have
+special ways of getting their parameters interactively (by querying the
+user), as opposed to having them passed in a normal function
+invocation.  Many commands are not really meant to be called from other
+Lisp functions, because they modify global state in a way that's often
+undesired as part of other Lisp functions.
+
+   `callint.c' implements the mechanism for querying the user for
+parameters and calling interactive commands.  The bulk of this module is
+code that parses the interactive spec that is supplied with an
+interactive command.
+
+   `cmds.c' implements the basic, most commonly used editing commands:
+commands to move around the current buffer and insert and delete
+characters.  These commands are implemented using the Lisp primitives
+defined in `editfns.c'.
+
+   `commands.h' contains associated structure definitions and
+prototypes.
+
+     regex.c
+     regex.h
+     search.c
+
+   `search.c' implements the Lisp primitives for searching for text in
+a buffer, and some of the low-level algorithms for doing this.  In
+particular, the fast fixed-string Boyer-Moore search algorithm is
+implemented in `search.c'.  The low-level algorithms for doing
+regular-expression searching, however, are implemented in `regex.c' and
+`regex.h'.  These two modules are largely independent of XEmacs, and
+are similar to (and based upon) the regular-expression routines used in
+`grep' and other GNU utilities.
+
+     doprnt.c
+
+   `doprnt.c' implements formatted-string processing, similar to
+`printf()' command in C.
+
+     undo.c
+
+   This module implements the undo mechanism for tracking buffer
+changes.  Most of this could be implemented in Lisp.
+
+
+File: internals.info,  Node: Editor-Level Control Flow Modules,  Next: Modules for the Basic Displayable Lisp Objects,  Prev: Modules for Standard Editing Operations,  Up: A Summary of the Various XEmacs Modules
+
+Editor-Level Control Flow Modules
+=================================
+
+     event-Xt.c
+     event-msw.c
+     event-stream.c
+     event-tty.c
+     events-mod.h
+     gpmevent.c
+     gpmevent.h
+     events.c
+     events.h
+
+   These implement the handling of events (user input and other system
+notifications).
+
+   `events.c' and `events.h' define the "event" Lisp object type and
+primitives for manipulating it.
+
+   `event-stream.c' implements the basic functions for working with
+event queues, dispatching an event by looking it up in relevant keymaps
+and such, and handling timeouts; this includes the primitives
+`next-event' and `dispatch-event', as well as related primitives such
+as `sit-for', `sleep-for', and `accept-process-output'.
+(`event-stream.c' is one of the hairiest and trickiest modules in
+XEmacs.  Beware!  You can easily mess things up here.)
+
+   `event-Xt.c' and `event-tty.c' implement the low-level interfaces
+onto retrieving events from Xt (the X toolkit) and from TTY's (using
+`read()' and `select()'), respectively.  The event interface enforces a
+clean separation between the specific code for interfacing with the
+operating system and the generic code for working with events, by
+defining an API of basic, low-level event methods; `event-Xt.c' and
+`event-tty.c' are two different implementations of this API.  To add
+support for a new operating system (e.g. NeXTstep), one merely needs to
+provide another implementation of those API functions.
+
+   Note that the choice of whether to use `event-Xt.c' or `event-tty.c'
+is made at compile time!  Or at the very latest, it is made at startup
+time.  `event-Xt.c' handles events for _both_ X and TTY frames;
+`event-tty.c' is only used when X support is not compiled into XEmacs.
+The reason for this is that there is only one event loop in XEmacs:
+thus, it needs to be able to receive events from all different kinds of
+frames.
+
+     keymap.c
+     keymap.h
+
+   `keymap.c' and `keymap.h' define the "keymap" Lisp object type and
+associated methods and primitives. (Remember that keymaps are objects
+that associate event descriptions with functions to be called to
+"execute" those events; `dispatch-event' looks up events in the
+relevant keymaps.)
+
+     cmdloop.c
+
+   `cmdloop.c' contains functions that implement the actual editor
+command loop--i.e. the event loop that cyclically retrieves and
+dispatches events.  This code is also rather tricky, just like
+`event-stream.c'.
+
+     macros.c
+     macros.h
+
+   These two modules contain the basic code for defining keyboard
+macros.  These functions don't actually do much; most of the code that
+handles keyboard macros is mixed in with the event-handling code in
+`event-stream.c'.
+
+     minibuf.c
+
+   This contains some miscellaneous code related to the minibuffer
+(most of the minibuffer code was moved into Lisp by Richard Mlynarik).
+This includes the primitives for completion (although filename
+completion is in `dired.c'), the lowest-level interface to the
+minibuffer (if the command loop were cleaned up, this too could be in
+Lisp), and code for dealing with the echo area (this, too, was mostly
+moved into Lisp, and the only code remaining is code to call out to
+Lisp or provide simple bootstrapping implementations early in temacs,
+before the echo-area Lisp code is loaded).
+
+
+File: internals.info,  Node: Modules for the Basic Displayable Lisp Objects,  Next: Modules for other Display-Related Lisp Objects,  Prev: Editor-Level Control Flow Modules,  Up: A Summary of the Various XEmacs Modules
+
+Modules for the Basic Displayable Lisp Objects
+==============================================
+
+     console-msw.c
+     console-msw.h
+     console-stream.c
+     console-stream.h
+     console-tty.c
+     console-tty.h
+     console-x.c
+     console-x.h
+     console.c
+     console.h
+
+   These modules implement the "console" Lisp object type.  A console
+contains multiple display devices, but only one keyboard and mouse.
+Most of the time, a console will contain exactly one device.
+
+   Consoles are the top of a lisp object inclusion hierarchy.  Consoles
+contain devices, which contain frames, which contain windows.
+
+     device-msw.c
+     device-tty.c
+     device-x.c
+     device.c
+     device.h
+
+   These modules implement the "device" Lisp object type.  This
+abstracts a particular screen or connection on which frames are
+displayed.  As with Lisp objects, event interfaces, and other
+subsystems, the device code is separated into a generic component that
+contains a standardized interface (in the form of a set of methods) onto
+particular device types.
+
+   The device subsystem defines all the methods and provides method
+services for not only device operations but also for the frame, window,
+menubar, scrollbar, toolbar, and other displayable-object subsystems.
+The reason for this is that all of these subsystems have the same
+subtypes (X, TTY, NeXTstep, Microsoft Windows, etc.) as devices do.
+
+     frame-msw.c
+     frame-tty.c
+     frame-x.c
+     frame.c
+     frame.h
+
+   Each device contains one or more frames in which objects (e.g. text)
+are displayed.  A frame corresponds to a window in the window system;
+usually this is a top-level window but it could potentially be one of a
+number of overlapping child windows within a top-level window, using the
+MDI (Multiple Document Interface) protocol in Microsoft Windows or a
+similar scheme.
+
+   The `frame-*' files implement the "frame" Lisp object type and
+provide the generic and device-type-specific operations on frames (e.g.
+raising, lowering, resizing, moving, etc.).
+
+     window.c
+     window.h
+
+   Each frame consists of one or more non-overlapping "windows" (better
+known as "panes" in standard window-system terminology) in which a
+buffer's text can be displayed.  Windows can also have scrollbars
+displayed around their edges.
+
+   `window.c' and `window.h' implement the "window" Lisp object type
+and provide code to manage windows.  Since windows have no associated
+resources in the window system (the window system knows only about the
+frame; no child windows or anything are used for XEmacs windows), there
+is no device-type-specific code here; all of that code is part of the
+redisplay mechanism or the code for particular object types such as
+scrollbars.
+
+
+File: internals.info,  Node: Modules for other Display-Related Lisp Objects,  Next: Modules for the Redisplay Mechanism,  Prev: Modules for the Basic Displayable Lisp Objects,  Up: A Summary of the Various XEmacs Modules
+
+Modules for other Display-Related Lisp Objects
+==============================================
+
+     faces.c
+     faces.h
+
+     bitmaps.h
+     glyphs-eimage.c
+     glyphs-msw.c
+     glyphs-msw.h
+     glyphs-widget.c
+     glyphs-x.c
+     glyphs-x.h
+     glyphs.c
+     glyphs.h
+
+     objects-msw.c
+     objects-msw.h
+     objects-tty.c
+     objects-tty.h
+     objects-x.c
+     objects-x.h
+     objects.c
+     objects.h
+
+     menubar-msw.c
+     menubar-msw.h
+     menubar-x.c
+     menubar.c
+     menubar.h
+
+     scrollbar-msw.c
+     scrollbar-msw.h
+     scrollbar-x.c
+     scrollbar-x.h
+     scrollbar.c
+     scrollbar.h
+
+     toolbar-msw.c
+     toolbar-x.c
+     toolbar.c
+     toolbar.h
+
+     font-lock.c
+
+   This file provides C support for syntax highlighting--i.e.
+highlighting different syntactic constructs of a source file in
+different colors, for easy reading.  The C support is provided so that
+this is fast.
+
+   As of 21.4.10, bugs introduced at the very end of the 21.2 series in
+the "syntax properties" code were fixed, and highlighting is acceptably
+quick again.  However, presumably more improvements are possible, and
+the places to look are probably here, in the defun-traversing code, and
+in `syntax.c', in the comment-traversing code.
+
+     dgif_lib.c
+     gif_err.c
+     gif_lib.h
+     gifalloc.c
+
+   These modules decode GIF-format image files, for use with glyphs.
+These files were removed due to Unisys patent infringement concerns.
+
+
+File: internals.info,  Node: Modules for the Redisplay Mechanism,  Next: Modules for Interfacing with the File System,  Prev: Modules for other Display-Related Lisp Objects,  Up: A Summary of the Various XEmacs Modules
+
+Modules for the Redisplay Mechanism
+===================================
+
+     redisplay-output.c
+     redisplay-msw.c
+     redisplay-tty.c
+     redisplay-x.c
+     redisplay.c
+     redisplay.h
+
+   These files provide the redisplay mechanism.  As with many other
+subsystems in XEmacs, there is a clean separation between the general
+and device-specific support.
+
+   `redisplay.c' contains the bulk of the redisplay engine.  These
+functions update the redisplay structures (which describe how the screen
+is to appear) to reflect any changes made to the state of any
+displayable objects (buffer, frame, window, etc.) since the last time
+that redisplay was called.  These functions are highly optimized to
+avoid doing more work than necessary (since redisplay is called
+extremely often and is potentially a huge time sink), and depend heavily
+on notifications from the objects themselves that changes have occurred,
+so that redisplay doesn't explicitly have to check each possible object.
+The redisplay mechanism also contains a great deal of caching to further
+speed things up; some of this caching is contained within the various
+displayable objects.
+
+   `redisplay-output.c' goes through the redisplay structures and
+converts them into calls to device-specific methods to actually output
+the screen changes.
+
+   `redisplay-x.c' and `redisplay-tty.c' are two implementations of
+these redisplay output methods, for X frames and TTY frames,
+respectively.
+
+     indent.c
+
+   This module contains various functions and Lisp primitives for
+converting between buffer positions and screen positions.  These
+functions call the redisplay mechanism to do most of the work, and then
+examine the redisplay structures to get the necessary information.  This
+module needs work.
+
+     termcap.c
+     terminfo.c
+     tparam.c
+
+   These files contain functions for working with the termcap
+(BSD-style) and terminfo (System V style) databases of terminal
+capabilities and escape sequences, used when XEmacs is displaying in a
+TTY.
+
+     cm.c
+     cm.h
+
+   These files provide some miscellaneous TTY-output functions and
+should probably be merged into `redisplay-tty.c'.
+
+
+File: internals.info,  Node: Modules for Interfacing with the File System,  Next: Modules for Other Aspects of the Lisp Interpreter and Object System,  Prev: Modules for the Redisplay Mechanism,  Up: A Summary of the Various XEmacs Modules
+
+Modules for Interfacing with the File System
+============================================
+
+     lstream.c
+     lstream.h
+
+   These modules implement the "stream" Lisp object type.  This is an
+internal-only Lisp object that implements a generic buffering stream.
+The idea is to provide a uniform interface onto all sources and sinks of
+data, including file descriptors, stdio streams, chunks of memory, Lisp
+buffers, Lisp strings, etc.  That way, I/O functions can be written to
+the stream interface and can transparently handle all possible sources
+and sinks.  (For example, the `read' function can read data from a
+file, a string, a buffer, or even a function that is called repeatedly
+to return data, without worrying about where the data is coming from or
+what-size chunks it is returned in.)
+
+   Note that in the C code, streams are called "lstreams" (for "Lisp
+streams") to distinguish them from other kinds of streams, e.g. stdio
+streams and C++ I/O streams.
+
+   Similar to other subsystems in XEmacs, lstreams are separated into
+generic functions and a set of methods for the different types of
+lstreams.  `lstream.c' provides implementations of many different types
+of streams; others are provided, e.g., in `file-coding.c'.
+
+     fileio.c
+
+   This implements the basic primitives for interfacing with the file
+system.  This includes primitives for reading files into buffers,
+writing buffers into files, checking for the presence or accessibility
+of files, canonicalizing file names, etc.  Note that these primitives
+are usually not invoked directly by the user: There is a great deal of
+higher-level Lisp code that implements the user commands such as
+`find-file' and `save-buffer'.  This is similar to the distinction
+between the lower-level primitives in `editfns.c' and the higher-level
+user commands in `commands.c' and `simple.el'.
+
+     filelock.c
+
+   This file provides functions for detecting clashes between different
+processes (e.g. XEmacs and some external process, or two different
+XEmacs processes) modifying the same file.  (XEmacs can optionally use
+the `lock/' subdirectory to provide a form of "locking" between
+different XEmacs processes.)  This module is also used by the low-level
+functions in `insdel.c' to ensure that, if the first modification is
+being made to a buffer whose corresponding file has been externally
+modified, the user is made aware of this so that the buffer can be
+synched up with the external changes if necessary.
+
+     filemode.c
+
+   This file provides some miscellaneous functions that construct a
+`rwxr-xr-x'-type permissions string (as might appear in an `ls'-style
+directory listing) given the information returned by the `stat()'
+system call.
+
+     dired.c
+     ndir.h
+
+   These files implement the XEmacs interface to directory searching.
+This includes a number of primitives for determining the files in a
+directory and for doing filename completion. (Remember that generic
+completion is handled by a different mechanism, in `minibuf.c'.)
+
+   `ndir.h' is a header file used for the directory-searching emulation
+functions provided in `sysdep.c' (see section J below), for systems
+that don't provide any directory-searching functions. (On those
+systems, directories can be read directly as files, and parsed.)
+
+     realpath.c
+
+   This file provides an implementation of the `realpath()' function
+for expanding symbolic links, on systems that don't implement it or have
+a broken implementation.
+
+
+File: internals.info,  Node: Modules for Other Aspects of the Lisp Interpreter and Object System,  Next: Modules for Interfacing with the Operating System,  Prev: Modules for Interfacing with the File System,  Up: A Summary of the Various XEmacs Modules
+
+Modules for Other Aspects of the Lisp Interpreter and Object System
+===================================================================
+
+     elhash.c
+     elhash.h
+     hash.c
+     hash.h
+
+   These files provide two implementations of hash tables.  Files
+`hash.c' and `hash.h' provide a generic C implementation of hash tables
+which can stand independently of XEmacs.  Files `elhash.c' and
+`elhash.h' provide a separate implementation of hash tables that can
+store only Lisp objects, and knows about Lispy things like garbage
+collection, and implement the "hash-table" Lisp object type.
+
+     specifier.c
+     specifier.h
+
+   This module implements the "specifier" Lisp object type.  This is
+primarily used for displayable properties, and allows for values that
+are specific to a particular buffer, window, frame, device, or device
+class, as well as a default value existing.  This is used, for example,
+to control the height of the horizontal scrollbar or the appearance of
+the `default', `bold', or other faces.  The specifier object consists
+of a number of specifications, each of which maps from a buffer,
+window, etc. to a value.  The function `specifier-instance' looks up a
+value given a window (from which a buffer, frame, and device can be
+derived).
+
+     chartab.c
+     chartab.h
+     casetab.c
+
+   `chartab.c' and `chartab.h' implement the "char table" Lisp object
+type, which maps from characters or certain sorts of character ranges
+to Lisp objects.  The implementation of this object type is optimized
+for the internal representation of characters.  Char tables come in
+different types, which affect the allowed object types to which a
+character can be mapped and also dictate certain other properties of
+the char table.
+
+   `casetab.c' implements one sort of char table, the "case table",
+which maps characters to other characters of possibly different case.
+These are used by XEmacs to implement case-changing primitives and to
+do case-insensitive searching.
+
+     syntax.c
+     syntax.h
+
+   This module implements "syntax tables", another sort of char table
+that maps characters into syntax classes that define the syntax of these
+characters (e.g. a parenthesis belongs to a class of `open' characters
+that have corresponding `close' characters and can be nested).  This
+module also implements the Lisp "scanner", a set of primitives for
+scanning over text based on syntax tables.  This is used, for example,
+to find the matching parenthesis in a command such as `forward-sexp',
+and by `font-lock.c' to locate quoted strings, comments, etc.
+
+   Syntax codes are implemented as bitfields in an int.  Bits 0-6
+contain the syntax code itself, bit 7 is a special prefix flag used for
+Lisp, and bits 16-23 contain comment syntax flags.  From the Lisp
+programmer's point of view, there are 11 flags: 2 styles X 2 characters
+X {start, end} flags for two-character comment delimiters, 2 style
+flags for one-character comment delimiters, and the prefix flag.
+
+   Internally, however, the characters used in multi-character
+delimiters will have non-comment-character syntax classes (_e.g._, the
+`/' in C's `/*' comment-start delimiter has "punctuation" (here meaning
+"operator-like") class in C modes).  Thus in a mixed comment style,
+such as C++'s `//' to end of line, is represented by giving `/' the
+"punctuation" class and the "style b first character of start sequence"
+and "style b second character of start sequence" flags.  The fact that
+class is _not_ punctuation allows the syntax scanner to recognize that
+this is a multi-character delimiter.  The `newline' character is given
+(single-character) "comment-end" _class_ and the "style b first
+character of end sequence" _flag_.  The "comment-end" class allows the
+scanner to determine that no second character is needed to terminate
+the comment.
+
+     casefiddle.c
+
+   This module implements various Lisp primitives for upcasing,
+downcasing and capitalizing strings or regions of buffers.
+
+     rangetab.c
+
+   This module implements the "range table" Lisp object type, which
+provides for a mapping from ranges of integers to arbitrary Lisp
+objects.
+
+     opaque.c
+     opaque.h
+
+   This module implements the "opaque" Lisp object type, an
+internal-only Lisp object that encapsulates an arbitrary block of memory
+so that it can be managed by the Lisp allocation system.  To create an
+opaque object, you call `make_opaque()', passing a pointer to a block
+of memory.  An object is created that is big enough to hold the memory,
+which is copied into the object's storage.  The object will then stick
+around as long as you keep pointers to it, after which it will be
+automatically reclaimed.
+
+   Opaque objects can also have an arbitrary "mark method" associated
+with them, in case the block of memory contains other Lisp objects that
+need to be marked for garbage-collection purposes. (If you need other
+object methods, such as a finalize method, you should just go ahead and
+create a new Lisp object type--it's not hard.)
+
+     abbrev.c
+
+   This function provides a few primitives for doing dynamic
+abbreviation expansion.  In XEmacs, most of the code for this has been
+moved into Lisp.  Some C code remains for speed and because the
+primitive `self-insert-command' (which is executed for all
+self-inserting characters) hooks into the abbrev mechanism.
+(`self-insert-command' is itself in C only for speed.)
+
+     doc.c
+
+   This function provides primitives for retrieving the documentation
+strings of functions and variables.  These documentation strings contain
+certain special markers that get dynamically expanded (e.g. a
+reverse-lookup is performed on some named functions to retrieve their
+current key bindings).  Some documentation strings (in particular, for
+the built-in primitives and pre-loaded Lisp functions) are stored
+externally in a file `DOC' in the `lib-src/' directory and need to be
+fetched from that file. (Part of the build stage involves building this
+file, and another part involves constructing an index for this file and
+embedding it into the executable, so that the functions in `doc.c' do
+not have to search the entire `DOC' file to find the appropriate
+documentation string.)
+
+     md5.c
+
+   This function provides a Lisp primitive that implements the MD5
+secure hashing scheme, used to create a large hash value of a string of
+data such that the data cannot be derived from the hash value.  This is
+used for various security applications on the Internet.
+
+
+File: internals.info,  Node: Modules for Interfacing with the Operating System,  Next: Modules for Interfacing with X Windows,  Prev: Modules for Other Aspects of the Lisp Interpreter and Object System,  Up: A Summary of the Various XEmacs Modules
+
+Modules for Interfacing with the Operating System
+=================================================
+
+     callproc.c
+     process.c
+     process.h
+
+   These modules allow XEmacs to spawn and communicate with subprocesses
+and network connections.
+
+   `callproc.c' implements (through the `call-process' primitive) what
+are called "synchronous subprocesses".  This means that XEmacs runs a
+program, waits till it's done, and retrieves its output.  A typical
+example might be calling the `ls' program to get a directory listing.
+
+   `process.c' and `process.h' implement "asynchronous subprocesses".
+This means that XEmacs starts a program and then continues normally,
+not waiting for the process to finish.  Data can be sent to the process
+or retrieved from it as it's running.  This is used for the `shell'
+command (which provides a front end onto a shell program such as
+`csh'), the mail and news readers implemented in XEmacs, etc.  The
+result of calling `start-process' to start a subprocess is a process
+object, a particular kind of object used to communicate with the
+subprocess.  You can send data to the process by passing the process
+object and the data to `send-process', and you can specify what happens
+to data retrieved from the process by setting properties of the process
+object. (When the process sends data, XEmacs receives a process event,
+which says that there is data ready.  When `dispatch-event' is called
+on this event, it reads the data from the process and does something
+with it, as specified by the process object's properties.  Typically,
+this means inserting the data into a buffer or calling a function.)
+Another property of the process object is called the "sentinel", which
+is a function that is called when the process terminates.
+
+   Process objects are also used for network connections (connections
+to a process running on another machine).  Network connections are
+started with `open-network-stream' but otherwise work just like
+subprocesses.
+
+     sysdep.c
+     sysdep.h
+
+   These modules implement most of the low-level, messy operating-system
+interface code.  This includes various device control (ioctl) operations
+for file descriptors, TTY's, pseudo-terminals, etc. (usually this stuff
+is fairly system-dependent; thus the name of this module), and emulation
+of standard library functions and system calls on systems that don't
+provide them or have broken versions.
+
+     sysdir.h
+     sysfile.h
+     sysfloat.h
+     sysproc.h
+     syspwd.h
+     syssignal.h
+     systime.h
+     systty.h
+     syswait.h
+
+   These header files provide consistent interfaces onto
+system-dependent header files and system calls.  The idea is that,
+instead of including a standard header file like `<sys/param.h>' (which
+may or may not exist on various systems) or having to worry about
+whether all system provide a particular preprocessor constant, or
+having to deal with the four different paradigms for manipulating
+signals, you just include the appropriate `sys*.h' header file, which
+includes all the right system header files, defines and missing
+preprocessor constants, provides a uniform interface onto system calls,
+etc.
+
+   `sysdir.h' provides a uniform interface onto directory-querying
+functions. (In some cases, this is in conjunction with emulation
+functions in `sysdep.c'.)
+
+   `sysfile.h' includes all the necessary header files for standard
+system calls (e.g. `read()'), ensures that all necessary `open()' and
+`stat()' preprocessor constants are defined, and possibly (usually)
+substitutes sugared versions of `read()', `write()', etc. that
+automatically restart interrupted I/O operations.
+
+   `sysfloat.h' includes the necessary header files for floating-point
+operations.
+
+   `sysproc.h' includes the necessary header files for calling
+`select()', `fork()', `execve()', socket operations, and the like, and
+ensures that the `FD_*()' macros for descriptor-set manipulations are
+available.
+
+   `syspwd.h' includes the necessary header files for obtaining
+information from `/etc/passwd' (the functions are emulated under VMS).
+
+   `syssignal.h' includes the necessary header files for
+signal-handling and provides a uniform interface onto the different
+signal-handling and signal-blocking paradigms.
+
+   `systime.h' includes the necessary header files and provides uniform
+interfaces for retrieving the time of day, setting file
+access/modification times, getting the amount of time used by the XEmacs
+process, etc.
+
+   `systty.h' buffers against the infinitude of different ways of
+controlling TTY's.
+
+   `syswait.h' provides a uniform way of retrieving the exit status
+from a `wait()'ed-on process (some systems use a union, others use an
+int).
+
+     hpplay.c
+     libsst.c
+     libsst.h
+     libst.h
+     linuxplay.c
+     nas.c
+     sgiplay.c
+     sound.c
+     sunplay.c
+
+   These files implement the ability to play various sounds on some
+types of computers.  You have to configure your XEmacs with sound
+support in order to get this capability.
+
+   `sound.c' provides the generic interface.  It implements various
+Lisp primitives and variables that let you specify which sounds should
+be played in certain conditions. (The conditions are identified by
+symbols, which are passed to `ding' to make a sound.  Various standard
+functions call this function at certain times; if sound support does
+not exist, a simple beep results.
+
+   `sgiplay.c', `sunplay.c', `hpplay.c', and `linuxplay.c' interface to
+the machine's speaker for various different kind of machines.  This is
+called "native" sound.
+
+   `nas.c' interfaces to a computer somewhere else on the network using
+the NAS (Network Audio Server) protocol, playing sounds on that
+machine.  This allows you to run XEmacs on a remote machine, with its
+display set to your local machine, and have the sounds be made on your
+local machine, provided that you have a NAS server running on your local
+machine.
+
+   `libsst.c', `libsst.h', and `libst.h' provide some additional
+functions for playing sound on a Sun SPARC but are not currently in use.
+
+     tooltalk.c
+     tooltalk.h
+
+   These two modules implement an interface to the ToolTalk protocol,
+which is an interprocess communication protocol implemented on some
+versions of Unix.  ToolTalk is a high-level protocol that allows
+processes to register themselves as providers of particular services;
+other processes can then request a service without knowing or caring
+exactly who is providing the service.  It is similar in spirit to the
+DDE protocol provided under Microsoft Windows.  ToolTalk is a part of
+the new CDE (Common Desktop Environment) specification and is used to
+connect the parts of the SPARCWorks development environment.
+
+     getloadavg.c
+
+   This module provides the ability to retrieve the system's current
+load average. (The way to do this is highly system-specific,
+unfortunately, and requires a lot of special-case code.)
+
+     sunpro.c
+
+   This module provides a small amount of code used internally at Sun to
+keep statistics on the usage of XEmacs.
+
+     broken-sun.h
+     strcmp.c
+     strcpy.c
+     sunOS-fix.c
+
+   These files provide replacement functions and prototypes to fix
+numerous bugs in early releases of SunOS 4.1.
+
+     hftctl.c
+
+   This module provides some terminal-control code necessary on
+versions of AIX prior to 4.1.
+
+
+File: internals.info,  Node: Modules for Interfacing with X Windows,  Next: Modules for Internationalization,  Prev: Modules for Interfacing with the Operating System,  Up: A Summary of the Various XEmacs Modules
+
+Modules for Interfacing with X Windows
+======================================
+
+     Emacs.ad.h
+
+   A file generated from `Emacs.ad', which contains XEmacs-supplied
+fallback resources (so that XEmacs has pretty defaults).
+
+     EmacsFrame.c
+     EmacsFrame.h
+     EmacsFrameP.h
+
+   These modules implement an Xt widget class that encapsulates a frame.
+This is for ease in integrating with Xt.  The EmacsFrame widget covers
+the entire X window except for the menubar; the scrollbars are
+positioned on top of the EmacsFrame widget.
+
+   *Warning:* Abandon hope, all ye who enter here.  This code took an
+ungodly amount of time to get right, and is likely to fall apart
+mercilessly at the slightest change.  Such is life under Xt.
+
+     EmacsManager.c
+     EmacsManager.h
+     EmacsManagerP.h
+
+   These modules implement a simple Xt manager (i.e. composite) widget
+class that simply lets its children set whatever geometry they want.
+It's amazing that Xt doesn't provide this standardly, but on second
+thought, it makes sense, considering how amazingly broken Xt is.
+
+     EmacsShell-sub.c
+     EmacsShell.c
+     EmacsShell.h
+     EmacsShellP.h
+
+   These modules implement two Xt widget classes that are subclasses of
+the TopLevelShell and TransientShell classes.  This is necessary to deal
+with more brokenness that Xt has sadistically thrust onto the backs of
+developers.
+
+     xgccache.c
+     xgccache.h
+
+   These modules provide functions for maintenance and caching of GC's
+(graphics contexts) under the X Window System.  This code is junky and
+needs to be rewritten.
+
+     select-msw.c
+     select-x.c
+     select.c
+     select.h
+
+   This module provides an interface to the X Window System's concept of
+"selections", the standard way for X applications to communicate with
+each other.
+
+     xintrinsic.h
+     xintrinsicp.h
+     xmmanagerp.h
+     xmprimitivep.h
+
+   These header files are similar in spirit to the `sys*.h' files and
+buffer against different implementations of Xt and Motif.
+
+   * `xintrinsic.h' should be included in place of `<Intrinsic.h>'.
+
+   * `xintrinsicp.h' should be included in place of `<IntrinsicP.h>'.
+
+   * `xmmanagerp.h' should be included in place of `<XmManagerP.h>'.
+
+   * `xmprimitivep.h' should be included in place of `<XmPrimitiveP.h>'.
+
+     xmu.c
+     xmu.h
+
+   These files provide an emulation of the Xmu library for those systems
+(i.e. HPUX) that don't provide it as a standard part of X.
+
+     ExternalClient-Xlib.c
+     ExternalClient.c
+     ExternalClient.h
+     ExternalClientP.h
+     ExternalShell.c
+     ExternalShell.h
+     ExternalShellP.h
+     extw-Xlib.c
+     extw-Xlib.h
+     extw-Xt.c
+     extw-Xt.h
+
+   These files provide the "external widget" interface, which allows an
+XEmacs frame to appear as a widget in another application.  To do this,
+you have to configure with `--external-widget'.
+
+   `ExternalShell*' provides the server (XEmacs) side of the connection.
+
+   `ExternalClient*' provides the client (other application) side of
+the connection.  These files are not compiled into XEmacs but are
+compiled into libraries that are then linked into your application.
+
+   `extw-*' is common code that is used for both the client and server.
+
+   Don't touch this code; something is liable to break if you do.
+
+
+File: internals.info,  Node: Modules for Internationalization,  Next: Modules for Regression Testing,  Prev: Modules for Interfacing with X Windows,  Up: A Summary of the Various XEmacs Modules
+
+Modules for Internationalization
+================================
+
+     mule-canna.c
+     mule-ccl.c
+     mule-charset.c
+     mule-charset.h
+     file-coding.c
+     file-coding.h
+     mule-mcpath.c
+     mule-mcpath.h
+     mule-wnnfns.c
+     mule.c
+
+   These files implement the MULE (Asian-language) support.  Note that
+MULE actually provides a general interface for all sorts of languages,
+not just Asian languages (although they are generally the most
+complicated to support).  This code is still in beta.
+
+   `mule-charset.*' and `file-coding.*' provide the heart of the XEmacs
+MULE support.  `mule-charset.*' implements the "charset" Lisp object
+type, which encapsulates a character set (an ordered one- or
+two-dimensional set of characters, such as US ASCII or JISX0208 Japanese
+Kanji).
+
+   `file-coding.*' implements the "coding-system" Lisp object type,
+which encapsulates a method of converting between different encodings.
+An encoding is a representation of a stream of characters, possibly
+from multiple character sets, using a stream of bytes or words, and
+defines (e.g.) which escape sequences are used to specify particular
+character sets, how the indices for a character are converted into bytes
+(sometimes this involves setting the high bit; sometimes complicated
+rearranging of the values takes place, as in the Shift-JIS encoding),
+etc.
+
+   `mule-ccl.c' provides the CCL (Code Conversion Language)
+interpreter.  CCL is similar in spirit to Lisp byte code and is used to
+implement converters for custom encodings.
+
+   `mule-canna.c' and `mule-wnnfns.c' implement interfaces to external
+programs used to implement the Canna and WNN input methods,
+respectively.  This is currently in beta.
+
+   `mule-mcpath.c' provides some functions to allow for pathnames
+containing extended characters.  This code is fragmentary, obsolete, and
+completely non-working.  Instead, PATHNAME-CODING-SYSTEM is used to
+specify conversions of names of files and directories.  The standard C
+I/O functions like `open()' are wrapped so that conversion occurs
+automatically.
+
+   `mule.c' provides a few miscellaneous things that should probably be
+elsewhere.
+
+     intl.c
+
+   This provides some miscellaneous internationalization code for
+implementing message translation and interfacing to the Ximp input
+method.  None of this code is currently working.
+
+     iso-wide.h
+
+   This contains leftover code from an earlier implementation of
+Asian-language support, and is not currently used.
+
+
+File: internals.info,  Node: Modules for Regression Testing,  Prev: Modules for Internationalization,  Up: A Summary of the Various XEmacs Modules
+
+Modules for Regression Testing
+==============================
+
+     test-harness.el
+     base64-tests.el
+     byte-compiler-tests.el
+     case-tests.el
+     ccl-tests.el
+     c-tests.el
+     database-tests.el
+     extent-tests.el
+     hash-table-tests.el
+     lisp-tests.el
+     md5-tests.el
+     mule-tests.el
+     regexp-tests.el
+     symbol-tests.el
+     syntax-tests.el
+
+   `test-harness.el' defines the macros `Assert', `Check-Error',
+`Check-Error-Message', and `Check-Message'.  The other files are test
+files, testing various XEmacs modules.
+
+
+File: internals.info,  Node: Allocation of Objects in XEmacs Lisp,  Next: Dumping,  Prev: A Summary of the Various XEmacs Modules,  Up: Top
+
+Allocation of Objects in XEmacs Lisp
+************************************
+
+* Menu:
+
+* Introduction to Allocation::
+* Garbage Collection::
+* GCPROing::
+* Garbage Collection - Step by Step::
+* Integers and Characters::
+* Allocation from Frob Blocks::
+* lrecords::
+* Low-level allocation::
+* Cons::
+* Vector::
+* Bit Vector::
+* Symbol::
+* Marker::
+* String::
+* Compiled Function::
+
+
+File: internals.info,  Node: Introduction to Allocation,  Next: Garbage Collection,  Up: Allocation of Objects in XEmacs Lisp
+
+Introduction to Allocation
+==========================
+
+   Emacs Lisp, like all Lisps, has garbage collection.  This means that
+the programmer never has to explicitly free (destroy) an object; it
+happens automatically when the object becomes inaccessible.  Most
+experts agree that garbage collection is a necessity in a modern,
+high-level language.  Its omission from C stems from the fact that C was
+originally designed to be a nice abstract layer on top of assembly
+language, for writing kernels and basic system utilities rather than
+large applications.
+
+   Lisp objects can be created by any of a number of Lisp primitives.
+Most object types have one or a small number of basic primitives for
+creating objects.  For conses, the basic primitive is `cons'; for
+vectors, the primitives are `make-vector' and `vector'; for symbols,
+the primitives are `make-symbol' and `intern'; etc.  Some Lisp objects,
+especially those that are primarily used internally, have no
+corresponding Lisp primitives.  Every Lisp object, though, has at least
+one C primitive for creating it.
+
+   Recall from section (VII) that a Lisp object, as stored in a 32-bit
+or 64-bit word, has a few tag bits, and a "value" that occupies the
+remainder of the bits.  We can separate the different Lisp object types
+into three broad categories:
+
+   * (a) Those for whom the value directly represents the contents of
+     the Lisp object.  Only two types are in this category: integers and
+     characters.  No special allocation or garbage collection is
+     necessary for such objects.  Lisp objects of these types do not
+     need to be `GCPRO'ed.
+
+   In the remaining two categories, the type is stored in the object
+itself.  The tag for all such objects is the generic "lrecord"
+(Lisp_Type_Record) tag.  The first bytes of the object's structure are
+an integer (actually a char) characterising the object's type and some
+flags, in particular the mark bit used for garbage collection.  A
+structure describing the type is accessible thru the
+lrecord_implementation_table indexed with said integer.  This structure
+includes the method pointers and a pointer to a string naming the type.
+
+   * (b) Those lrecords that are allocated in frob blocks (see above).
+     This includes the objects that are most common and relatively
+     small, and includes conses, strings, subrs, floats, compiled
+     functions, symbols, extents, events, and markers.  With the
+     cleanup of frob blocks done in 19.12, it's not terribly hard to
+     add more objects to this category, but it's a bit trickier than
+     adding an object type to type (c) (esp. if the object needs a
+     finalization method), and is not likely to save much space unless
+     the object is small and there are many of them. (In fact, if there
+     are very few of them, it might actually waste space.)
+
+   * (c) Those lrecords that are individually `malloc()'ed.  These are
+     called "lcrecords".  All other types are in this category.  Adding
+     a new type to this category is comparatively easy, and all types
+     added since 19.8 (when the current allocation scheme was devised,
+     by Richard Mlynarik), with the exception of the character type,
+     have been in this category.
+
+   Note that bit vectors are a bit of a special case.  They are simple
+lrecords as in category (b), but are individually `malloc()'ed like
+vectors.  You can basically view them as exactly like vectors except
+that their type is stored in lrecord fashion rather than in
+directly-tagged fashion.
+
+
+File: internals.info,  Node: Garbage Collection,  Next: GCPROing,  Prev: Introduction to Allocation,  Up: Allocation of Objects in XEmacs Lisp
+
+Garbage Collection
+==================
+
+   Garbage collection is simple in theory but tricky to implement.
+Emacs Lisp uses the oldest garbage collection method, called "mark and
+sweep".  Garbage collection begins by starting with all accessible
+locations (i.e. all variables and other slots where Lisp objects might
+occur) and recursively traversing all objects accessible from those
+slots, marking each one that is found.  We then go through all of
+memory and free each object that is not marked, and unmarking each
+object that is marked.  Note that "all of memory" means all currently
+allocated objects.  Traversing all these objects means traversing all
+frob blocks, all vectors (which are chained in one big list), and all
+lcrecords (which are likewise chained).
+
+   Garbage collection can be invoked explicitly by calling
+`garbage-collect' but is also called automatically by `eval', once a
+certain amount of memory has been allocated since the last garbage
+collection (according to `gc-cons-threshold').
+

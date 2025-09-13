@@ -1,0 +1,1297 @@
+This is ../info/lispref.info, produced by makeinfo version 4.3 from
+lispref/lispref.texi.
+
+INFO-DIR-SECTION XEmacs Editor
+START-INFO-DIR-ENTRY
+* Lispref: (lispref).		XEmacs Lisp Reference Manual.
+END-INFO-DIR-ENTRY
+
+   Edition History:
+
+   GNU Emacs Lisp Reference Manual Second Edition (v2.01), May 1993 GNU
+Emacs Lisp Reference Manual Further Revised (v2.02), August 1993 Lucid
+Emacs Lisp Reference Manual (for 19.10) First Edition, March 1994
+XEmacs Lisp Programmer's Manual (for 19.12) Second Edition, April 1995
+GNU Emacs Lisp Reference Manual v2.4, June 1995 XEmacs Lisp
+Programmer's Manual (for 19.13) Third Edition, July 1995 XEmacs Lisp
+Reference Manual (for 19.14 and 20.0) v3.1, March 1996 XEmacs Lisp
+Reference Manual (for 19.15 and 20.1, 20.2, 20.3) v3.2, April, May,
+November 1997 XEmacs Lisp Reference Manual (for 21.0) v3.3, April 1998
+
+   Copyright (C) 1990, 1991, 1992, 1993, 1994, 1995 Free Software
+Foundation, Inc.  Copyright (C) 1994, 1995 Sun Microsystems, Inc.
+Copyright (C) 1995, 1996 Ben Wing.
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be stated in a
+translation approved by the Foundation.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided also
+that the section entitled "GNU General Public License" is included
+exactly as in the original, and provided that the entire resulting
+derived work is distributed under the terms of a permission notice
+identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that the section entitled "GNU General Public License"
+may be included in a translation approved by the Free Software
+Foundation instead of in the original English.
+
+
+File: lispref.info,  Node: Infrastructure,  Next: Control Files,  Up: The Library Maintainer's View
+
+Infrastructure
+--------------
+
+   In order to get the greatest benefit from the XEmacs Packaging
+System, a library maintainer should place the package sources in an
+appropriate place in the XEmacs source package hierarchy, and arrange
+to have the source package imported into the XEmacs CVS repository.
+(We realize that the latter requirement can be quite burdensome.  We
+are working on ways to remove this requirement, but for the present it
+remains necessary.)  The library maintainer must also keep sources for
+any packages his/her package requires.  This requirement is somewhat
+burdensome, but unlikely to be relaxed because of the implementation of
+compilation of macros in Emacs Lisp.  Macros cannot be called by
+compiled Lisp (the macro expansion, which is always known at compile
+time, is inlined), so the source of the macro must be loaded before
+compiling the called function.
+
+   The source package hierarchy may be rooted anywhere.  The CVS module
+is called "packages," so we will refer to the top directory of the
+source package hierarchy as "the `packages' directory."  The `packages'
+directory contains two source subdirectories, `xemacs-packages' and
+`mule-packages' (for convenience in segregating the packages which
+depend on Mule, as they will cause load-time errors in a non-Mule
+XEmacs).  Each subdirectory contains many package source directories,
+whose internal structure is not specified.  That structure is left up
+to the convenience of the library maintainers.  The requirements on the
+top directory of an individual package source tree are given below,
+*Note Control Files::.
+
+   The `packages' directory contains some auxiliary Lisp libraries used
+in the compilation and packaging process.  The content of these
+libraries is of interest primarily to the packaging engineers, *Note
+The Package Release Engineer's View::.
+
+   Finally, the `packages', `packages/xemacs-packages', and
+`packages/mule-packages' directories contain `Makefile's and include
+files to control the package creation process.  The `Makefile's in
+`packages/xemacs-packages' and `packages/mule-packages' simply define
+the default sets of known packages and include `../iterate.rules',
+which implements recursive building of all target packages.
+
+   The `make' infrastructure in `packages' includes
+
+`Makefile'
+     controls building of individual packages, local installation, and
+     bundling of "sumo" tarballs
+
+`iterate.rules'
+     controls recursive builds of multiple packages
+
+`XEmacs.rules'
+     provides the rules for building and packaging.  Included by all
+     package `Makefile's.
+
+`Local.rules'
+     provides local configuration, such as installation targets and
+     staging directories, as well as a number of kludges (many now
+     obsolete) required for building packages on the Windows platform.
+
+`Local.rules.template'
+     a template for Local.rules, liberally commented
+
+`Local.rules.mk'
+     consistency checking for `Local.rules', included by both the
+     top-level `Makefile' and by `XEmacs.rules'.
+
+`package-compile.el'
+     compile environment (_e.g._, load-path) setup.  It is very bogus
+     that this is here, an alternative mechanism is likely to be
+     provided.
+
+   Of these, only `Local.rules' and `package-compile.el' need to be
+modified by the library maintainer.  The changes to Local.rules affect
+only your environment.  This should need to be done only once when
+first preparing the source environment.  The necessary modifications to
+`package-compile.el' need to be done for each package and are discussed
+in the next section, *Note Control Files::.
+
+
+File: lispref.info,  Node: Control Files,  Next: Obtaining,  Prev: Infrastructure,  Up: The Library Maintainer's View
+
+Control Files
+-------------
+
+   Each package source must contain a number of control files in the
+top-level directory.  These files in general can be created and then
+ignored, except for a few variables that need to be updated when new
+versions are released.  In most cases even adding, renaming, and
+removing library source files can be handled by generic rules.
+
+   The package control files include
+
+`Makefile'
+     Must set a few `make' variables used by the administrative
+     utilities, and defines a couple of package-building targets to
+     depend on appropriate targets defined generically in
+     `XEmacs.rules'.  It may also provide various variables and rules
+     to transform the source tree structure into that expected by the
+     run-time system.
+
+`package-info.in'
+     Provides a template for package information to be provided to the
+     administrative utilities.  Static variables that are rarely changed
+     (such as the package's name) are entered as literals.  Some
+     variables are generated by the build process (build dates and MD5
+     checksums) and are automatically filled in.  Finally, some
+     variables that change irregularly (dependences and even version
+     numbers) are set as `make' variables in the `Makefile'.
+
+`ChangeLog'
+     Not strictly required, but normally a ChangeLog will be added by
+     the XEmacs package maintainer if different from the upstream
+     maintainer.
+
+`package-compile.el'
+     compile environment (_e.g._, load-path) setup.  It is very bogus
+     that this is here, an alternative mechanism is likely to be
+     provided.
+
+`_pkg.el'
+     Generated.  Simply does a `package-provide' for the package.
+
+`_auto-autoloads.el'
+     Generated.  Read when XEmacs is initialized, and provides
+     autoloads for all defuns and other specially-marked forms in the
+     sources.
+
+`custom-loads.el'
+     Generated.  Read when XEmacs is initialized, and informs the
+     Customize subsystem how to find the defcustom forms needed to
+     create Customization forms for the usre configuration variables of
+     the package.
+
+
+File: lispref.info,  Node: Obtaining,  Prev: Control Files,  Up: The Library Maintainer's View
+
+Obtaining the XEmacs Packaging System and Required Utilities
+------------------------------------------------------------
+
+   Currently both the infrastructure for creating XEmacs packages and
+the package sources themselves are available only by CVS.  See
+`http://www.xemacs.org/Develop/cvsaccess.html' for more intformation.
+
+   The XEmacs Packaging System currently requires GNU `make', and
+probably XEmacs, to build packages.
+
+
+File: lispref.info,  Node: The Package Release Engineer's View,  Prev: The Library Maintainer's View,  Up: Package Overview
+
+The Package Release Engineer's View
+-----------------------------------
+
+   The XEmacs Package Release Engineer is responsible for keeping the
+system coherent.  The changes to `packages/package-compile.el' and
+`packages/xemacs-packages/Makefile' required to make the package
+available to others, and for building SUMO tarballs, _etc_, are done by
+the Package Release Engineer, not individual library maintainers.
+
+   The Package Release Engineer also maintains assorted infrastructure
+for actually making releases.  These are generally available for
+inspection in the `xemacs-builds' module in the CVS repository.
+
+
+File: lispref.info,  Node: Package Terminology,  Next: Building Packages,  Prev: Package Overview,  Up: Packaging
+
+Package Terminology:
+====================
+
+Libraries and Packages
+----------------------
+
+   A Lisp "library" is a single loadable file containing Lisp code.  It
+may be in source or byte-compiled form.  A Lisp "package" is a set of
+one or more libraries, usually related to each other in some way,
+bundled with administrative information for convenient distribution.
+
+Package Flavors
+---------------
+
+   There are two main flavors of packages.
+
+*Regular Packages*
+     A regular package is a set of Lisp libraries design to cooperate
+     with one another.  A very complex example is Gnus.  One may not in
+     general safely remove any of the component libraries.
+
+*Single-File Packages*
+     A single-file package is a collection of thematically related but
+     otherwise independent Lisp libraries.  These libraries are bundled
+     together for convenience of the maintainers.  Usually individual
+     libraries may be deleted at will without any loss of functionality
+     of other libraries in the package.  However, we would recommend
+     that you follow this rule of thumb: "When in doubt, don't delete".
+     If it's really that big a deal, request that the maintainers
+     split the package into smaller aggregations.
+
+Package Distributions
+---------------------
+
+   XEmacs Lisp packages are distributed in two ways.  "Binary packages"
+are used by system administrators and end users.  They are packaged in a
+form convenient for direct installation into an XEmacs package
+hierarchy.  "Source packages" are for developers and include all files
+necessary for rebuilding byte-compiled lisp and creating tarballs for
+distribution or installation.  This is all of the package author's
+source code plus all of the files necessary to build distribution
+tarballs (Unix Tar format files, gzipped for space savings).
+(Occasionally sources that are not relevant to XEmacs are removed.)
+
+   Currently, source packages are only available via CVS.  See
+<http://www.xemacs.org/Develop/cvsaccess.html> for details.
+
+   The package distributions are also split according to major features
+required in XEmacs to support them.  At present there are "generic"
+packages, which can be loaded by _any_ XEmacs, and "Mule" packages,
+which _require_ Mule support or they will cause errors when loaded.
+Note that there is no guarantee that a generic package will have any
+useful functionality in a minimally configured XEmacs.  As long as any
+XEmacs can successfully load the package's libraries (perhaps given
+other required Lisp libraries), it will be classified as generic.  At
+the present time only Mule packages need be treated specially, and even
+those only if they contain multibyte characters.
+
+
+File: lispref.info,  Node: Building Packages,  Next: Local.rules File,  Prev: Package Terminology,  Up: Packaging
+
+Building Packages:
+==================
+
+   Currently, source packages are only available via anonymous CVS.  See
+<http://www.xemacs.org/Develop/cvsaccess.html> for details of checking
+out the `packages' module.
+
+Prerequisites for Building Source Packages
+------------------------------------------
+
+`GNU cp'
+
+`GNU install'
+     (or a BSD compatible install program).
+
+`GNU make'
+     (3.75 or later preferred).
+
+`makeinfo'
+     (1.68 from texinfo-3.11 or later required, 1.69 from Texinfo 4
+     preferred).
+
+`GNU tar'
+     (or equivalent).
+
+`GNU gzip'
+     (or equivalent).
+
+`A properly configured `Local.rules' file.'
+     *Note Local.rules File::.
+
+   And of course, XEmacs, 21.0 or higher.
+
+What You Can Do With Source Packages
+------------------------------------
+
+   The packages CVS sources are most useful for creating XEmacs package
+tarballs for installation into your own XEmacs installations or for
+distributing to others.
+
+   The supported `make' targets are:
+
+`all'
+     Bytecompile all files, build and bytecompile byproduct files like
+     `auto-autoloads.el' and `custom-load.el'.  Create info version of
+     TeXinfo documentation if present.
+
+`bindist'
+     Does a `make all' as well as create a binary package tarball in the
+     staging directory.
+
+`install'
+     Bytecompile all files, build and bytecompile byproduct files like
+     `auto-autoloads.el' and `custom-load.el'.  Create info version of
+     TeXinfo documentation if present.  And install everything into the
+     staging directory.
+
+`srckit'
+     Usually simply depends on `srckit-std', with no actions.  This does
+     a `make distclean' and creates a package source tarball in the
+     staging directory.  This is generally only of use for package
+     maintainers.
+
+`binkit'
+     May depend on `binkit-sourceonly', `binkit-sourceinfo',
+     `binkit-sourcedata', or `binkit-sourcedatainfo', with no actions.
+     `sourceonly' indicates there is nothing to install in a data
+     directory or info directory.  `sourceinfo' indicates that source
+     and info files are to be installed.  `sourcedata' indicates that
+     source and etc (data) files are to be installed.  `sourcedatainfo'
+     indicates source, etc (data), and info files are to be installed.
+     A few packages have needs beyond the basic templates so this is
+     not yet complete.
+
+`dist'
+     Runs the rules `srckit' followed by `binkit'.  This is primarily
+     of use by XEmacs maintainers producing files for distribution.
+
+`clean'
+     Remove all built files except `auto-autoloads.el' and
+     `custom-load.el'.
+
+`distclean'
+     Remove all created files.
+
+
+File: lispref.info,  Node: Local.rules File,  Next: Creating Packages,  Prev: Building Packages,  Up: Packaging
+
+The Local.rules File:
+=====================
+
+   This file in `packages' provides the XEmacs Packaging System with
+information about the local configuration and environment.  To create
+`Local.rules', simply copy `Local.rules.template' from that directory to
+`Local.rules' and edit it to suit your needs.
+
+   These are the variables in `Local.rules' that you will need to
+provide values for.  The following variables control which packages will
+be built:
+
+XEMACS_PACKAGES
+     The default is `xemacs-packages', which results in the set in the
+     `xemacs-packages/Makefile' `PACKAGES' variable.
+
+     Otherwise, it should be a list of package source directories
+     prefixed by `xemacs-packages':
+
+          XEMACS_PACKAGES = xemacs-packages/xemacs-base xemacs-packages/bbdb
+
+BUILD_WITHOUT_MULE
+     The default is the empty value.
+
+     Building from CVS defaults to building the Mule packages.  Set
+     this to 't' if you don't want/have Mule.
+
+MULE_PACKAGES
+     The default is `mule-packages', which results in the set in the
+     `mule-packages/Makefile' `PACKAGES' variable.
+
+     Otherwise, it should be a list of package source directories
+     prefixed by `mule-packages':
+
+          MULE_PACKAGES = mule-packages/mule-base mule-packages/skk
+
+PACKAGE_INDEX
+     The default is `package-index'.
+
+     If you want the package index file to have a different name, change
+     this.  This is probably a bad idea unless you are a packages
+     release engineer, as it will confuse the package administration
+     tools.
+
+   The following variables determine where files are installed and how
+they are installed.  Several of the defaults use the variable
+XEMACS_PACKAGES_BASE.  Never set this variable in `Local.rules'; it is
+automatically set in `XEmacs.rules'.
+
+XEMACS_STAGING
+     The default is `${XEMACS_PACKAGES_BASE}/../xemacs-packages'.
+
+     Generic packages will be installed here.  This can be the final
+     destination for files or symlinks (if the packages are being
+     installed locally), or a clean staging area for building tarballs.
+
+     *N.B.*  `make bindist' ignores this variable.  It should be
+     handled by the administration utilities, but currently isn't.
+
+MULE_STAGING
+     The default is `${XEMACS_PACKAGES_BASE}/../mule-packages'.
+
+     Packages requiring Mule to load correctly will be installed here.
+     This can be the final destination for files or symlinks (if the
+     packages are being installed locally), or a clean staging area for
+     building tarballs.
+
+     *N.B.*  `make bindist' ignores this variable.  It should be
+     handled by the administration utilities, but currently isn't.
+
+symlink
+     The default is the empty value.
+
+     Set this to 't' if you want to simulate "running in place."  It is
+     currently not possible to ask XEmacs to use any package source
+     tree as an automatically configured member of `load-path', and it
+     is unlikely that complex trees such as that of the Gnus package
+     will ever be able to "run in place."  This variable, when set to
+     `t', causes the build process to create a symlink farm otherwise
+     identical to an installed tree of binary packages.  Thus it is
+     purely a space optimization.
+
+     Setting this is incompatible with `make bindist'.
+
+   The following variables determine how packages are made.
+
+XEMACS
+     The default is `xemacs'.
+
+     The path to the XEmacs executable you wish to use to compile the
+     packages and execute Lisp build scripts.
+
+XEMACS_NATIVE_NT
+     The default is the empty value.
+
+     Set this to 't' if you are building on WinNT.  It controls hairy
+     shell quoting in the `Makefile's.
+
+INSTALL
+     The default is `install -c'.
+
+     The path to your BSD compatible install program.
+
+TAR
+     The default is `tar'.
+
+     The path to your tar program.
+
+BZIP2
+     The default is the empty value.
+
+     If unset, bzipped tarballs will not be built.  If this is set to
+     something that resolves to a `bzip2' executable, bzip2 tarballs
+     will be built _in addition to_ `gzip' tarballs.
+
+MAKEINFO
+     The default is `makeinfo'.
+
+     The path to your `makeinfo' program
+
+
+File: lispref.info,  Node: Creating Packages,  Next: Issues,  Prev: Local.rules File,  Up: Packaging
+
+Creating Packages:
+==================
+
+   Creating a package from an existing Lisp library is not very
+difficult.
+
+   In addition to the Lisp libraries themselves, you need a
+`package-info.in' file and a simple `Makefile'.  The rest is done by
+`XEmacs.rules', part of the packaging system infrastructure.
+
+   `package-info.in' contains a single Lisp form like this:
+
+     (NAME                               ; your package's name
+       (standards-version 1.1
+        version VERSION                  ; Makefile
+        author-version AUTHOR_VERSION    ; Makefile
+        date DATE                        ; Makefile
+        build-date BUILD_DATE            ; generated
+        maintainer MAINTAINER            ; Makefile
+        distribution DISTRIBUTION        ; "mule" if MULE is needed,
+                                         ; else "xemacs"
+        priority high
+        category CATEGORY                ; Makefile
+        dump nil
+        description "description"        ; a one-line description string
+        filename FILENAME                ; obsolete
+        md5sum MD5SUM                    ; generated
+        size SIZE                        ; generated
+        provides (FEATURE ...)           ; one for every `provides' form
+        requires (REQUIRES)              ; Makefile
+                                         ; NOT run-time dependencies!  These
+                                         ; are files that provide macros or
+                                         ; defsubsts that must be inlined.
+        type regular
+     ))
+
+   You should replace NAME, DISTRIBUTION, DESCRIPTION, and FEATURE ...
+with appropriate values, according to the comments.  Fields marked as
+`obsolete' can be ignored.  Fields marked as `generated' are generated
+by the package construction process, and will be filled in
+automatically.  Fields marked as `Makefile' should be set as variables
+in the `Makefile'.
+
+   The `provides' can be done automatically, but currently aren't.  It
+would probably be a good idea to set them in the `Makefile' (they do
+change, fairly often, but at present they aren't.
+
+   The `Makefile' is quite stylized.  The idea is similar to an
+`Imakefile' or an `automake' file: the complexity is hidden in generic
+rules files, in this case the `XEmacs.rules' include file in the top
+directory of the packages hierarchy.
+
+   An XEmacs Packaging System `Makefile' has three components.  First,
+there is a variable definition section.  The standard XEmacs Packaging
+System `make' variables must be defined here for use by the
+`XEmacs.rules' include file.  Second, the file `../../XEmacs.rules' is
+included.  Finally, the `make' rules are defined, possibly including
+additional variable definitions for use by the `Makefile'.  These
+always include rules for the targets `all', `binkit', and `srckit'.
+
+   Although a number of facilities are available for complex libraries,
+most simple packages' `Makefile's contain a copyright notice, the
+variable definitions mentioned above, and some boilerplate.
+
+     # Makefile for apackage's lisp code
+     
+     # This file is part of XEmacs.
+     
+     # XEmacs is free software; you can redistribute it and/or modify it
+     # under the terms of the GNU General Public License as published by the
+     # Free Software Foundation; either version 2, or (at your option) any
+     # later version.
+     
+     # XEmacs is distributed in the hope that it will be useful, but WITHOUT
+     # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+     # FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+     # for more details.
+     
+     # You should have received a copy of the GNU General Public License
+     # along with XEmacs; see the file COPYING.  If not, write to
+     # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+     # Boston, MA 02111-1307, USA.
+     
+     VERSION = 0.00
+     AUTHOR_VERSION = 0.00
+     MAINTAINER = A. M. Aintainer <ama@not.a.doc>
+     PACKAGE = apackage
+     PKG_TYPE = regular
+     REQUIRES = xemacs-base
+     CATEGORY = standard
+     
+     # All .els should be compiled and packaged.
+     ELS = $(wildcard *.el)
+     ELCS = $(ELS:.el=.elc)
+     
+     include ../../XEmacs.rules
+     
+     all:: $(ELCS) auto-autoloads.elc custom-load.elc
+     
+     srckit: srckit-std
+     
+     binkit: binkit-common
+
+* Menu:
+
+* package-compile.el::
+* package-info.in Fields::
+* Makefile Variables::
+* Makefile Targets::
+
+
+File: lispref.info,  Node: package-compile.el,  Next: package-info.in Fields,  Up: Creating Packages
+
+   The XEmacs Packaging System does not automatically become aware of
+your package simply because there is a new subtree.  If any package,
+including your own, requires any of your files, it must be explicitly
+added to the compile environment or loads/requires that search
+load-path will fail.  The changes that need to be made are
+
+*an entry in `package-directory-map'*
+     This tells the XEmacs Packaging System which distribution
+     (currently `xemacs-packages' or `mule-packages') your package is
+     found in.  It then looks in the distribution subdirectory whose
+     name is the same as the package's.
+
+*an entry in the `cond' in `package-name-to-directory'*
+     This is optional; it is necessary only if you keep your Lisp code
+     somewhere other than the top-level directory of the package's
+     source tree, eg, in `packages/xemacs-packages/PACKAGE/lisp'.
+
+   This only needs to be done once, when the package is first added to
+the XEmacs Packaging System.  (Well, when you randomly change the
+subdirectory layout, too.)  Your changes to `package-compile.el' must
+be cleared and checked in by the XEmacs Package Release Engineer before
+your package will build correctly from a fresh checkout.
+
+   This is unfortunate; it works pretty well once set up, but can cause
+confusion when first building a package in the XEmacs Packaging System
+context.  In particular, if the `package-directory-map' entry for a
+required package is not found, the necessary requires will not be
+executed by `package-compile.el'.  If required functions are executed
+(under `eval-when-compile'), they won't be found and the compile will
+fail.  If required function is actually a macro, the byte compiler will
+not recognize that, compile a function call to the macro.  This will
+cause a run-time error because the byte-code interpreter does not know
+how to execute macros.  (Macros can always be expanded at compile-time,
+and this is more efficient.)
+
+   If your package keeps some or all Lisp code somewhere other than the
+top directory, then an entry in `package-name-to-directory' is also
+necessary, or requires will fail, leading to the problems just
+described.
+
+
+File: lispref.info,  Node: package-info.in Fields,  Next: Makefile Variables,  Prev: package-compile.el,  Up: Creating Packages
+
+   The `package-info.in' structure is simply Lisp data, to be read by a
+Lisp script, have values substituted for variables, and then written
+out (appropriately quoted) into a loadable Lisp file, to be consed into
+the `package-index.el' list at the FTP archives.  That list is
+structured as an alist with package names as keys.  The package data is
+a plist.  Do not rely on this, as it may change.  If you have a good
+reason for relying on it, let the maintainers know and we may
+incorporate it in a future revision of the XEmacs Packaging System
+standard.
+
+   There are several kinds of fields, distinguished by how they get
+their values.  There are literals written into `package-info.in' by the
+package maintainer.  There are variables substituted in by the build
+process, some computed, and others written as values of `make'
+variables in the `Makefile' by the package maintainer.  There are a few
+implementation constants, some of which are simply the default value
+for obsolete fields.
+
+   The `package-info.in' literals provided by the maintainer generally
+should not change over the life of the package.  (The exception is the
+`provides' field, which should be generated, but isn't yet.)  Values
+described as "literal" below are unquoted literal text.  These are
+normally interpreted as symbols by the package build process.  The
+maintainer literals are
+
+PACKAGE_NAME
+     A literal.  The only unnamed "field," the name of the package.
+
+distribution
+     A literal, either `xemacs' (for generic packages) or `mule' (for
+     packages requiring Mule).  *Note Package Terminology::.
+
+description
+     A Lisp string containing a one-line text description for use in
+     package listings.
+
+provides
+     A (Lisp) list of features provided by the libraries in the
+     package.  All of the features provided by libraries in your
+     package should be elements of this list.
+
+type
+     A literal, either `regular' or `single-file'.  For practical
+     purposes, `regular' should be considered an implementation
+     constant.
+
+   Values which are expected to change regularly as the package is
+enhanced are implemented as `make' variables.  You should not change
+them in the `package-info.in' file; they are automatically filled in by
+the build process.
+
+   The corresponding field name is given in parentheses.  These include
+
+`VERSION'
+     (version) The version of the XEmacs package, a numeric literal (a
+     decimal fixed-point number with two-places of precision).
+
+`AUTHOR_VERSION'
+     (author-version) The upstream author's version, an unintepreted
+     literal.
+
+`DATE'
+     (date) Date of release of the upstream version.
+
+`MAINTAINER'
+     (maintainer) A literal containing the XEmacs package's maintainer
+     and his/her email address.
+
+`CATEGORY'
+     (category) A literal, either `standard' or `mule'.  Probably
+     redundant.
+
+`REQUIRES'
+     (requires) A list of packages required to correctly build this
+     package.
+
+     Note that the usual form in `package-info.in' already has the
+     parentheses, so the `make' variable should be set to a
+     space-separated list of package names _not_ enclosed in
+     parentheses.
+
+     The list is of _packages_, not _libraries_, as would ordinarily be
+     provided to the Lisp `require' function.
+
+     `REQUIRES' cannot be correctly computed from the calls to
+     `require' in the package's library sources.  `REQUIRES' is used to
+     ensure that all macro and defstruct definitions used by the
+     package are available at build time.  This is not merely a matter
+     of efficiency, to get the expansions inlined.  In fact, it is
+     _impossible_ to call a macro by name in byte-compiled Emacs Lisp
+     code.  Thus, if the macro expansion is not inlined, the call will
+     result in an error at run-time!  Thus, packages providing
+     libraries that would be loaded because of autoload definitions
+     must also be included.
+
+     On the other hand, if a package provides no macros to this
+     package, it is preferable _not_ to include it in `REQUIRES',
+     because it is not uncommon that if the developer doesn't normally
+     use the required package, he will never use the functionality in
+     the package being built, either.  In that case it would be
+     preferable to not require the developer to have source for the
+     dependencies.  That said, of course it is safe to put too many
+     packages in `REQUIRES'.
+
+   Values for the following fields are automatically generated by the
+build process.
+
+build-date
+     The date the package tarball was generated.
+
+md5sum
+     An MD5 checksum for the package tarball, as gzipped.
+
+size
+     The size of the package tarball, as gzipped.
+
+   It is not clear that either md5sum or size works correctly if the
+`BZIP2' variable in `Local.rules' is set.
+
+   The implementation constants are
+
+standards-version
+     Currently 1.1.  Defines the format of the `package-info.in' file
+     and the `Makefile'.  A true implementation constant.
+
+priority
+     An unimplemented and underspecified feature.  Suggestions for
+     specification and implementation welcome.
+
+dump
+     An obsolete feature, superseded by the `site-load.el' mechanism.
+     The value should always be nil.
+
+filename
+     An obsolete feature, completely ignored.  Don't even think about
+     doing anything useful with it.
+
+
+File: lispref.info,  Node: Makefile Variables,  Next: Makefile Targets,  Prev: package-info.in Fields,  Up: Creating Packages
+
+   A number of `make' variables are defined by the XEmacs Packaging
+System.  Some are required, others are optional.  Of course your
+`Makefile' may define other variables for private use, but you should
+be careful not to choose names that conflict with variables defined and
+used by the XEmacs Packaging System.
+
+   The required variables are described in the table below.  The
+corresponding field names for `package-info.in', where relevant, are
+given in parentheses.
+
+`VERSION'
+     (version) The version of the XEmacs package, a numeric literal (a
+     decimal fixed-point number with two-places of precision).
+
+`AUTHOR_VERSION'
+     (author-version) The upstream author's version, an unintepreted
+     literal.
+
+`DATE'
+     (date) Date of release of the upstream version.
+
+`MAINTAINER'
+     (maintainer) A literal containing the XEmacs package's maintainer
+     and his/her email address.
+
+`CATEGORY'
+     (category) A literal, either `standard' or `mule'.  Probably
+     redundant.
+
+`REQUIRES'
+     (requires) A list of packages required to correctly build this
+     package.
+
+     Note that the usual form in `package-info.in' already has the
+     parentheses, so the `make' variable should be set to a
+     space-separated list of package names _not_ enclosed in
+     parentheses.
+
+     The list is of _packages_, not _libraries_, as would ordinarily be
+     provided to the Lisp `require' function.
+
+     `REQUIRES' cannot be correctly computed from the calls to
+     `require' in the package's library sources.  `REQUIRES' is used to
+     ensure that all macro and defstruct definitions used by the
+     package are available at build time.  This is not merely a matter
+     of efficiency, to get the expansions inlined.  In fact, it is
+     _impossible_ to call a macro by name in byte-compiled Emacs Lisp
+     code.  Thus, if the macro expansion is not inlined, the call will
+     result in an error at run-time!  Thus, packages providing
+     libraries that would be loaded because of autoload definitions
+     must also be included.
+
+     On the other hand, if a package provides no macros to this
+     package, it is preferable _not_ to include it in `REQUIRES',
+     because it is not uncommon that if the developer doesn't normally
+     use the required package, he will never use the functionality in
+     the package being built, either.  In that case it would be
+     preferable to not require the developer to have source for the
+     dependencies.  That said, of course it is safe to put too many
+     packages in `REQUIRES'.
+
+`ELCS'
+     The list of the byte-compiled Lisp files used by the package.
+     These files and their `.el' versions will be included in the binary
+     package.  This variable determines which libraries will be
+     byte-compiled.  These libraries are also deleted by `make clean'.
+
+     Note there is no sanity-checking done on this variable.  If you put
+     `.el' files in here, they will not be compiled and they _will_ be
+     deleted by `make clean'.  You would surely be very distressed if
+     that happened, so be very careful.  If this variable is left
+     empty, none of your Lisp code will be compiled or packaged.  This
+     would be a less than amusing surprise, too.
+
+     We don't consider this a feature, of course.  Please do submit
+     code to do sanity checking to <xemacs-patches@xemacs.org>.
+
+   Optional, but very commonly used variables include:
+
+     item EXTRA_SOURCES Other files (such as extra Lisp sources or an
+     upstream `Makefile') that are normally placed in the installed
+     Lisp directory, but not byte-compiled.  These files are
+     _preserved_ by the `clean' targets.
+
+`EXTRA_OBJS'
+     Other files (such as compiled autoload or concatenated `.elc'
+     libraries) which are normally placed in the installed Lisp
+     directory, but do _not_ have corresponding source files and
+     _should_ be deleted by the `clean' targets.  Some of these (such as
+     package-specific autoload setups) can and probably should be
+     replaced by XEmacs Packaging System solutions such as
+     `auto-autoloads.el', but many cannot.
+
+`PRELOADS'
+     A specification for loading libraries containing macros before
+     compiling the Lisp in the package.  This is spliced directly into
+     the invocation of XEmacs for byte-compilation, so it must contain
+     the `-l' flag for XEmacs:
+
+          PRELOADS=-l ./apackage-macros.el -l ../bpackage/lisp/bpackage-macros.el
+
+`INFO_FILES'
+     Any Info file(s) generated by the package.  These must be paths
+     relative to the root of the package's source tree.
+
+`TEXI_FILES'
+     The Texinfo source file(s).  These must be paths relative to the
+     root of the package's source tree.
+
+`MANUAL'
+     The name to be used for Info files and man pages.
+
+`DATA_FILES'
+     Any data files, such as pixmaps, READMEs, and ChangeLogs.  These
+     must be paths relative to the root of the package's source tree.
+
+`DATA_DEST'
+     The installation location for data files, relative to the `etc/'
+     directory of the package hierarchy.  The normal value is simply
+     $(PACKAGE).  Leaving it empty (_i.e._, put it directly under
+     `etc/') will probably work, but is subject to name conflicts with
+     other packages.
+
+   Rarely used variables.
+
+
+File: lispref.info,  Node: Makefile Targets,  Prev: Makefile Variables,  Up: Creating Packages
+
+   The standard targets that need to be defined in your `Makefile'
+follow.  These normally should _not_ have an action.  All of the work
+should be done by dependent targets, usually having standard
+definitions in the XEmacs Packaging System.
+
+`all'
+     A list of generated files, usually byte-compiled Lisp libraries,
+     to be bundled in the package.  The typical dependencies are
+
+          $(ELCS) auto-autoloads.elc custom-load.elc
+
+     Other targets (such as Info files) may need to be added as
+     dependencies for the `all' target.
+
+`srckit'
+     The target for generating a source package.  Not implemented.  If
+     it were, the normal dependency would be `srckit-std'.
+
+`binkit'
+     The target for creating a "master" installation.  Binary packages
+     are actually generated by the `bindist' target.  *Note Building
+     Packages::.
+
+   Standard dependencies for `srckit' and `binkit' are defined in
+`XEmacs.rules'.  The most useful of these values are given in the
+following table.
+
+`srckit-std'
+     Build a standard source kit.  Not fully implemented.
+
+`binkit-sourceonly'
+     The `binkit' target need only install source and compiled Lisp in
+     the staging area.  There is nothing to install in a data directory
+     or info directory.
+
+`binkit-sourceinfo'
+     Both source and info files are to be installed in the staging area.
+
+`binkit-sourcedata'
+     Both source and etc (data) files are to be installed in the staging
+     area.
+
+`binkit-sourcedatainfo'
+     Source, etc (data), and info files all are present and need to be
+     installed in the staging area.
+
+`binkit-common'
+     A dependency for all the above.  (In fact in the current
+     implementation `binkit-common' does all the work for all of the
+     `binkit' targets.)
+
+   Data files include things like pixmaps for a package-specific
+toolbar, and are normally installed in `etc/PACKAGE_NAME'.  A few
+packages have needs beyond the basic templates.  See `XEmacs.rules' or
+a future revision of this manual for details.
+
+
+File: lispref.info,  Node: Issues,  Prev: Creating Packages,  Up: Packaging
+
+Issues
+======
+
+   To be completed.
+
+
+File: lispref.info,  Node: Lisp Data Types,  Next: Numbers,  Prev: Packaging,  Up: Top
+
+Lisp Data Types
+***************
+
+   A Lisp "object" is a piece of data used and manipulated by Lisp
+programs.  For our purposes, a "type" or "data type" is a set of
+possible objects.
+
+   Every object belongs to at least one type.  Objects of the same type
+have similar structures and may usually be used in the same contexts.
+Types can overlap, and objects can belong to two or more types.
+Consequently, we can ask whether an object belongs to a particular type,
+but not for "the" type of an object.
+
+   A few fundamental object types are built into XEmacs.  These, from
+which all other types are constructed, are called "primitive types".
+Each object belongs to one and only one primitive type.  These types
+include "integer", "character" (starting with XEmacs 20.0), "float",
+"cons", "symbol", "string", "vector", "bit-vector", "subr",
+"compiled-function", "hash-table", "range-table", "char-table",
+"weak-list", and several special types, such as "buffer", that are
+related to editing.  (*Note Editing Types::.)
+
+   Each primitive type has a corresponding Lisp function that checks
+whether an object is a member of that type.
+
+   Note that Lisp is unlike many other languages in that Lisp objects
+are "self-typing": the primitive type of the object is implicit in the
+object itself.  For example, if an object is a vector, nothing can treat
+it as a number; Lisp knows it is a vector, not a number.
+
+   In most languages, the programmer must declare the data type of each
+variable, and the type is known by the compiler but not represented in
+the data.  Such type declarations do not exist in XEmacs Lisp.  A Lisp
+variable can have any type of value, and it remembers whatever value
+you store in it, type and all.
+
+   This chapter describes the purpose, printed representation, and read
+syntax of each of the standard types in Emacs Lisp.  Details on how to
+use these types can be found in later chapters.
+
+* Menu:
+
+* Printed Representation::      How Lisp objects are represented as text.
+* Comments::                    Comments and their formatting conventions.
+* Primitive Types::             List of all primitive types in XEmacs.
+* Programming Types::           Types found in all Lisp systems.
+* Editing Types::               Types specific to XEmacs.
+* Window-System Types::         Types specific to windowing systems.
+* Type Predicates::             Tests related to types.
+* Equality Predicates::         Tests of equality between any two objects.
+
+
+File: lispref.info,  Node: Printed Representation,  Next: Comments,  Up: Lisp Data Types
+
+Printed Representation and Read Syntax
+======================================
+
+   The "printed representation" of an object is the format of the
+output generated by the Lisp printer (the function `prin1') for that
+object.  The "read syntax" of an object is the format of the input
+accepted by the Lisp reader (the function `read') for that object.
+Most objects have more than one possible read syntax.  Some types of
+object have no read syntax; except for these cases, the printed
+representation of an object is also a read syntax for it.
+
+   In other languages, an expression is text; it has no other form.  In
+Lisp, an expression is primarily a Lisp object and only secondarily the
+text that is the object's read syntax.  Often there is no need to
+emphasize this distinction, but you must keep it in the back of your
+mind, or you will occasionally be very confused.
+
+   Every type has a printed representation.  Some types have no read
+syntax, since it may not make sense to enter objects of these types
+directly in a Lisp program.  For example, the buffer type does not have
+a read syntax.  Objects of these types are printed in "hash notation":
+the characters `#<' followed by a descriptive string (typically the
+type name followed by the name of the object), and closed with a
+matching `>'.  Hash notation cannot be read at all, so the Lisp reader
+signals the error `invalid-read-syntax' whenever it encounters `#<'.
+
+     (current-buffer)
+          => #<buffer "objects.texi">
+
+   When you evaluate an expression interactively, the Lisp interpreter
+first reads the textual representation of it, producing a Lisp object,
+and then evaluates that object (*note Evaluation::).  However,
+evaluation and reading are separate activities.  Reading returns the
+Lisp object represented by the text that is read; the object may or may
+not be evaluated later.  *Note Input Functions::, for a description of
+`read', the basic function for reading objects.
+
+
+File: lispref.info,  Node: Comments,  Next: Primitive Types,  Prev: Printed Representation,  Up: Lisp Data Types
+
+Comments
+========
+
+   A "comment" is text that is written in a program only for the sake
+of humans that read the program, and that has no effect on the meaning
+of the program.  In Lisp, a semicolon (`;') starts a comment if it is
+not within a string or character constant.  The comment continues to
+the end of line.  The Lisp reader discards comments; they do not become
+part of the Lisp objects which represent the program within the Lisp
+system.
+
+   The `#@COUNT' construct, which skips the next COUNT characters, is
+useful for program-generated comments containing binary data.  The
+XEmacs Lisp byte compiler uses this in its output files (*note Byte
+Compilation::).  It isn't meant for source files, however.
+
+   *Note Comment Tips::, for conventions for formatting comments.
+
+
+File: lispref.info,  Node: Primitive Types,  Next: Programming Types,  Prev: Comments,  Up: Lisp Data Types
+
+Primitive Types
+===============
+
+   For reference, here is a list of all the primitive types that may
+exist in XEmacs.  Note that some of these types may not exist in some
+XEmacs executables; that depends on the options that XEmacs was
+configured with.
+
+   * bit-vector
+
+   * buffer
+
+   * char-table
+
+   * character
+
+   * charset
+
+   * coding-system
+
+   * cons
+
+   * color-instance
+
+   * compiled-function
+
+   * console
+
+   * database
+
+   * device
+
+   * event
+
+   * extent
+
+   * face
+
+   * float
+
+   * font-instance
+
+   * frame
+
+   * glyph
+
+   * hash-table
+
+   * image-instance
+
+   * integer
+
+   * keymap
+
+   * marker
+
+   * process
+
+   * range-table
+
+   * specifier
+
+   * string
+
+   * subr
+
+   * subwindow
+
+   * symbol
+
+   * toolbar-button
+
+   * tooltalk-message
+
+   * tooltalk-pattern
+
+   * vector
+
+   * weak-list
+
+   * window
+
+   * window-configuration
+
+   * x-resource
+
+   In addition, the following special types are created internally but
+will never be seen by Lisp code.  You may encounter them, however, if
+you are debugging XEmacs.  The printed representation of these objects
+begins `#<INTERNAL EMACS BUG', which indicates to the Lisp programmer
+that he has found an internal bug in XEmacs if he ever encounters any
+of these objects.
+
+   * char-table-entry
+
+   * command-builder
+
+   * extent-auxiliary
+
+   * extent-info
+
+   * lcrecord-list
+
+   * lstream
+
+   * opaque
+
+   * opaque-list
+
+   * popup-data
+
+   * symbol-value-buffer-local
+
+   * symbol-value-forward
+
+   * symbol-value-lisp-magic
+
+   * symbol-value-varalias
+
+   * toolbar-data
+
+
+File: lispref.info,  Node: Programming Types,  Next: Editing Types,  Prev: Primitive Types,  Up: Lisp Data Types
+
+Programming Types
+=================
+
+   There are two general categories of types in XEmacs Lisp: those
+having to do with Lisp programming, and those having to do with
+editing.  The former exist in many Lisp implementations, in one form or
+another.  The latter are unique to XEmacs Lisp.
+
+* Menu:
+
+* Integer Type::        Numbers without fractional parts.
+* Floating Point Type:: Numbers with fractional parts and with a large range.
+* Character Type::      The representation of letters, numbers and
+                        control characters.
+* Symbol Type::         A multi-use object that refers to a function,
+                        variable, or property list, and has a unique identity.
+* Sequence Type::       Both lists and arrays are classified as sequences.
+* Cons Cell Type::      Cons cells, and lists (which are made from cons cells).
+* Array Type::          Arrays include strings and vectors.
+* String Type::         An (efficient) array of characters.
+* Vector Type::         One-dimensional arrays.
+* Bit Vector Type::     An (efficient) array of bits.
+* Function Type::       A piece of executable code you can call from elsewhere.
+* Macro Type::          A method of expanding an expression into another
+                          expression, more fundamental but less pretty.
+* Primitive Function Type::     A function written in C, callable from Lisp.
+* Compiled-Function Type::      A function written in Lisp, then compiled.
+* Autoload Type::       A type used for automatically loading seldom-used
+                        functions.
+* Char Table Type::     A mapping from characters to Lisp objects.
+* Hash Table Type::     A fast mapping between Lisp objects.
+* Range Table Type::    A mapping from ranges of integers to Lisp objects.
+* Weak List Type::      A list with special garbage-collection properties.
+
+
+File: lispref.info,  Node: Integer Type,  Next: Floating Point Type,  Up: Programming Types
+
+Integer Type
+------------
+
+   The range of values for integers in XEmacs Lisp is -134217728 to
+134217727 (28 bits; i.e., -2**27 to 2**27 - 1) on most machines.  (Some
+machines, in particular 64-bit machines such as the DEC Alpha, may
+provide a wider range.)  It is important to note that the XEmacs Lisp
+arithmetic functions do not check for overflow.  Thus `(1+ 134217727)'
+is -134217728 on most machines. (However, you _will_ get an error if
+you attempt to read an out-of-range number using the Lisp reader.)
+
+   The read syntax for integers is a sequence of (base ten) digits with
+an optional sign at the beginning. (The printed representation produced
+by the Lisp interpreter never has a leading `+'.)
+
+     -1               ; The integer -1.
+     1                ; The integer 1.
+     +1               ; Also the integer 1.
+     268435457        ; Causes an error on a 28-bit implementation.
+
+   *Note Numbers::, for more information.
+
+
+File: lispref.info,  Node: Floating Point Type,  Next: Character Type,  Prev: Integer Type,  Up: Programming Types
+
+Floating Point Type
+-------------------
+
+   XEmacs supports floating point numbers.  The precise range of
+floating point numbers is machine-specific.
+
+   The printed representation for floating point numbers requires either
+a decimal point (with at least one digit following), an exponent, or
+both.  For example, `1500.0', `15e2', `15.0e2', `1.5e3', and `.15e4'
+are five ways of writing a floating point number whose value is 1500.
+They are all equivalent.
+
+   *Note Numbers::, for more information.
+

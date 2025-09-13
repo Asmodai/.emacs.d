@@ -1,0 +1,1106 @@
+This is ../info/internals.info, produced by makeinfo version 4.3 from
+internals/internals.texi.
+
+INFO-DIR-SECTION XEmacs Editor
+START-INFO-DIR-ENTRY
+* Internals: (internals).       XEmacs Internals Manual.
+END-INFO-DIR-ENTRY
+
+   Copyright (C) 1992 - 1996 Ben Wing.  Copyright (C) 1996, 1997 Sun
+Microsystems.  Copyright (C) 1994 - 1998 Free Software Foundation.
+Copyright (C) 1994, 1995 Board of Trustees, University of Illinois.
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be stated in a
+translation approved by the Foundation.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided also
+that the section entitled "GNU General Public License" is included
+exactly as in the original, and provided that the entire resulting
+derived work is distributed under the terms of a permission notice
+identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that the section entitled "GNU General Public License"
+may be included in a translation approved by the Free Software
+Foundation instead of in the original English.
+
+
+File: internals.info,  Node: Character-Related Data Types,  Next: Working With Character and Byte Positions,  Up: Coding for Mule
+
+Character-Related Data Types
+----------------------------
+
+   First, let's review the basic character-related datatypes used by
+XEmacs.  Note that the separate `typedef's are not mandatory in the
+current implementation (all of them boil down to `unsigned char' or
+`int'), but they improve clarity of code a great deal, because one
+glance at the declaration can tell the intended use of the variable.
+
+`Emchar'
+     An `Emchar' holds a single Emacs character.
+
+     Obviously, the equality between characters and bytes is lost in
+     the Mule world.  Characters can be represented by one or more
+     bytes in the buffer, and `Emchar' is the C type large enough to
+     hold any character.
+
+     Without Mule support, an `Emchar' is equivalent to an `unsigned
+     char'.
+
+`Bufbyte'
+     The data representing the text in a buffer or string is logically
+     a set of `Bufbyte's.
+
+     XEmacs does not work with the same character formats all the time;
+     when reading characters from the outside, it decodes them to an
+     internal format, and likewise encodes them when writing.
+     `Bufbyte' (in fact `unsigned char') is the basic unit of XEmacs
+     internal buffers and strings format.  A `Bufbyte *' is the type
+     that points at text encoded in the variable-width internal
+     encoding.
+
+     One character can correspond to one or more `Bufbyte's.  In the
+     current Mule implementation, an ASCII character is represented by
+     the same `Bufbyte', and other characters are represented by a
+     sequence of two or more `Bufbyte's.
+
+     Without Mule support, there are exactly 256 characters, implicitly
+     Latin-1, and each character is represented using one `Bufbyte', and
+     there is a one-to-one correspondence between `Bufbyte's and
+     `Emchar's.
+
+`Bufpos'
+`Charcount'
+     A `Bufpos' represents a character position in a buffer or string.
+     A `Charcount' represents a number (count) of characters.
+     Logically, subtracting two `Bufpos' values yields a `Charcount'
+     value.  Although all of these are `typedef'ed to `EMACS_INT', we
+     use them in preference to `EMACS_INT' to make it clear what sort
+     of position is being used.
+
+     `Bufpos' and `Charcount' values are the only ones that are ever
+     visible to Lisp.
+
+`Bytind'
+`Bytecount'
+     A `Bytind' represents a byte position in a buffer or string.  A
+     `Bytecount' represents the distance between two positions, in
+     bytes.  The relationship between `Bytind' and `Bytecount' is the
+     same as the relationship between `Bufpos' and `Charcount'.
+
+`Extbyte'
+`Extcount'
+     When dealing with the outside world, XEmacs works with `Extbyte's,
+     which are equivalent to `unsigned char'.  Obviously, an `Extcount'
+     is the distance between two `Extbyte's.  Extbytes and Extcounts
+     are not all that frequent in XEmacs code.
+
+
+File: internals.info,  Node: Working With Character and Byte Positions,  Next: Conversion to and from External Data,  Prev: Character-Related Data Types,  Up: Coding for Mule
+
+Working With Character and Byte Positions
+-----------------------------------------
+
+   Now that we have defined the basic character-related types, we can
+look at the macros and functions designed for work with them and for
+conversion between them.  Most of these macros are defined in
+`buffer.h', and we don't discuss all of them here, but only the most
+important ones.  Examining the existing code is the best way to learn
+about them.
+
+`MAX_EMCHAR_LEN'
+     This preprocessor constant is the maximum number of buffer bytes to
+     represent an Emacs character in the variable width internal
+     encoding.  It is useful when allocating temporary strings to keep
+     a known number of characters.  For instance:
+
+          {
+            Charcount cclen;
+            ...
+            {
+              /* Allocate place for CCLEN characters. */
+              Bufbyte *buf = (Bufbyte *)alloca (cclen * MAX_EMCHAR_LEN);
+          ...
+
+     If you followed the previous section, you can guess that,
+     logically, multiplying a `Charcount' value with `MAX_EMCHAR_LEN'
+     produces a `Bytecount' value.
+
+     In the current Mule implementation, `MAX_EMCHAR_LEN' equals 4.
+     Without Mule, it is 1.
+
+`charptr_emchar'
+`set_charptr_emchar'
+     The `charptr_emchar' macro takes a `Bufbyte' pointer and returns
+     the `Emchar' stored at that position.  If it were a function, its
+     prototype would be:
+
+          Emchar charptr_emchar (Bufbyte *p);
+
+     `set_charptr_emchar' stores an `Emchar' to the specified byte
+     position.  It returns the number of bytes stored:
+
+          Bytecount set_charptr_emchar (Bufbyte *p, Emchar c);
+
+     It is important to note that `set_charptr_emchar' is safe only for
+     appending a character at the end of a buffer, not for overwriting a
+     character in the middle.  This is because the width of characters
+     varies, and `set_charptr_emchar' cannot resize the string if it
+     writes, say, a two-byte character where a single-byte character
+     used to reside.
+
+     A typical use of `set_charptr_emchar' can be demonstrated by this
+     example, which copies characters from buffer BUF to a temporary
+     string of Bufbytes.
+
+          {
+            Bufpos pos;
+            for (pos = beg; pos < end; pos++)
+              {
+                Emchar c = BUF_FETCH_CHAR (buf, pos);
+                p += set_charptr_emchar (buf, c);
+              }
+          }
+
+     Note how `set_charptr_emchar' is used to store the `Emchar' and
+     increment the counter, at the same time.
+
+`INC_CHARPTR'
+`DEC_CHARPTR'
+     These two macros increment and decrement a `Bufbyte' pointer,
+     respectively.  They will adjust the pointer by the appropriate
+     number of bytes according to the byte length of the character
+     stored there.  Both macros assume that the memory address is
+     located at the beginning of a valid character.
+
+     Without Mule support, `INC_CHARPTR (p)' and `DEC_CHARPTR (p)'
+     simply expand to `p++' and `p--', respectively.
+
+`bytecount_to_charcount'
+     Given a pointer to a text string and a length in bytes, return the
+     equivalent length in characters.
+
+          Charcount bytecount_to_charcount (Bufbyte *p, Bytecount bc);
+
+`charcount_to_bytecount'
+     Given a pointer to a text string and a length in characters,
+     return the equivalent length in bytes.
+
+          Bytecount charcount_to_bytecount (Bufbyte *p, Charcount cc);
+
+`charptr_n_addr'
+     Return a pointer to the beginning of the character offset CC (in
+     characters) from P.
+
+          Bufbyte *charptr_n_addr (Bufbyte *p, Charcount cc);
+
+
+File: internals.info,  Node: Conversion to and from External Data,  Next: General Guidelines for Writing Mule-Aware Code,  Prev: Working With Character and Byte Positions,  Up: Coding for Mule
+
+Conversion to and from External Data
+------------------------------------
+
+   When an external function, such as a C library function, returns a
+`char' pointer, you should almost never treat it as `Bufbyte'.  This is
+because these returned strings may contain 8bit characters which can be
+misinterpreted by XEmacs, and cause a crash.  Likewise, when exporting
+a piece of internal text to the outside world, you should always
+convert it to an appropriate external encoding, lest the internal stuff
+(such as the infamous \201 characters) leak out.
+
+   The interface to conversion between the internal and external
+representations of text are the numerous conversion macros defined in
+`buffer.h'.  There used to be a fixed set of external formats supported
+by these macros, but now any coding system can be used with these
+macros.  The coding system alias mechanism is used to create the
+following logical coding systems, which replace the fixed external
+formats.  The (dontusethis-set-symbol-value-handler) mechanism was
+enhanced to make this possible (more work on that is needed - like
+remove the `dontusethis-' prefix).
+
+`Qbinary'
+     This is the simplest format and is what we use in the absence of a
+     more appropriate format.  This converts according to the `binary'
+     coding system:
+
+       a. On input, bytes 0-255 are converted into (implicitly Latin-1)
+          characters 0-255.  A non-Mule xemacs doesn't really know about
+          different character sets and the fonts to display them, so
+          the bytes can be treated as text in different 1-byte
+          encodings by simply setting the appropriate fonts.  So in a
+          sense, non-Mule xemacs is a multi-lingual editor if, for
+          example, different fonts are used to display text in
+          different buffers, faces, or windows.  The specifier
+          mechanism gives the user complete control over this kind of
+          behavior.
+
+       b. On output, characters 0-255 are converted into bytes 0-255
+          and other characters are converted into `~'.
+
+`Qfile_name'
+     Format used for filenames.  This is user-definable via either the
+     `file-name-coding-system' or `pathname-coding-system' (now
+     obsolete) variables.
+
+`Qnative'
+     Format used for the external Unix environment--`argv[]', stuff
+     from `getenv()', stuff from the `/etc/passwd' file, etc.
+     Currently this is the same as Qfile_name.  The two should be
+     distinguished for clarity and possible future separation.
+
+`Qctext'
+     Compound-text format.  This is the standard X11 format used for
+     data stored in properties, selections, and the like.  This is an
+     8-bit no-lock-shift ISO2022 coding system.  This is a real coding
+     system, unlike Qfile_name, which is user-definable.
+
+   There are two fundamental macros to convert between external and
+internal format.
+
+   `TO_INTERNAL_FORMAT' converts external data to internal format, and
+`TO_EXTERNAL_FORMAT' converts the other way around.  The arguments each
+of these receives are a source type, a source, a sink type, a sink, and
+a coding system (or a symbol naming a coding system).
+
+   A typical call looks like
+     TO_EXTERNAL_FORMAT (LISP_STRING, str, C_STRING_MALLOC, ptr, Qfile_name);
+
+   which means that the contents of the lisp string `str' are written
+to a malloc'ed memory area which will be pointed to by `ptr', after the
+function returns.  The conversion will be done using the `file-name'
+coding system, which will be controlled by the user indirectly by
+setting or binding the variable `file-name-coding-system'.
+
+   Some sources and sinks require two C variables to specify.  We use
+some preprocessor magic to allow different source and sink types, and
+even different numbers of arguments to specify different types of
+sources and sinks.
+
+   So we can have a call that looks like
+     TO_INTERNAL_FORMAT (DATA, (ptr, len),
+                         MALLOC, (ptr, len),
+                         coding_system);
+
+   The parenthesized argument pairs are required to make the
+preprocessor magic work.
+
+   Here are the different source and sink types:
+
+``DATA, (ptr, len),''
+     input data is a fixed buffer of size LEN at address PTR
+
+``ALLOCA, (ptr, len),''
+     output data is placed in an alloca()ed buffer of size LEN pointed
+     to by PTR
+
+``MALLOC, (ptr, len),''
+     output data is in a malloc()ed buffer of size LEN pointed to by PTR
+
+``C_STRING_ALLOCA, ptr,''
+     equivalent to `ALLOCA (ptr, len_ignored)' on output.
+
+``C_STRING_MALLOC, ptr,''
+     equivalent to `MALLOC (ptr, len_ignored)' on output
+
+``C_STRING, ptr,''
+     equivalent to `DATA, (ptr, strlen (ptr) + 1)' on input
+
+``LISP_STRING, string,''
+     input or output is a Lisp_Object of type string
+
+``LISP_BUFFER, buffer,''
+     output is written to `(point)' in lisp buffer BUFFER
+
+``LISP_LSTREAM, lstream,''
+     input or output is a Lisp_Object of type lstream
+
+``LISP_OPAQUE, object,''
+     input or output is a Lisp_Object of type opaque
+
+   Often, the data is being converted to a '\0'-byte-terminated string,
+which is the format required by many external system C APIs.  For these
+purposes, a source type of `C_STRING' or a sink type of
+`C_STRING_ALLOCA' or `C_STRING_MALLOC' is appropriate.  Otherwise, we
+should try to keep XEmacs '\0'-byte-clean, which means using (ptr, len)
+pairs.
+
+   The sinks to be specified must be lvalues, unless they are the lisp
+object types `LISP_LSTREAM' or `LISP_BUFFER'.
+
+   For the sink types `ALLOCA' and `C_STRING_ALLOCA', the resulting
+text is stored in a stack-allocated buffer, which is automatically
+freed on returning from the function.  However, the sink types `MALLOC'
+and `C_STRING_MALLOC' return `xmalloc()'ed memory.  The caller is
+responsible for freeing this memory using `xfree()'.
+
+   Note that it doesn't make sense for `LISP_STRING' to be a source for
+`TO_INTERNAL_FORMAT' or a sink for `TO_EXTERNAL_FORMAT'.  You'll get an
+assertion failure if you try.
+
+
+File: internals.info,  Node: General Guidelines for Writing Mule-Aware Code,  Next: An Example of Mule-Aware Code,  Prev: Conversion to and from External Data,  Up: Coding for Mule
+
+General Guidelines for Writing Mule-Aware Code
+----------------------------------------------
+
+   This section contains some general guidance on how to write
+Mule-aware code, as well as some pitfalls you should avoid.
+
+_Never use `char' and `char *'._
+     In XEmacs, the use of `char' and `char *' is almost always a
+     mistake.  If you want to manipulate an Emacs character from "C",
+     use `Emchar'.  If you want to examine a specific octet in the
+     internal format, use `Bufbyte'.  If you want a Lisp-visible
+     character, use a `Lisp_Object' and `make_char'.  If you want a
+     pointer to move through the internal text, use `Bufbyte *'.  Also
+     note that you almost certainly do not need `Emchar *'.
+
+_Be careful not to confuse `Charcount', `Bytecount', and `Bufpos'._
+     The whole point of using different types is to avoid confusion
+     about the use of certain variables.  Lest this effect be
+     nullified, you need to be careful about using the right types.
+
+_Always convert external data_
+     It is extremely important to always convert external data, because
+     XEmacs can crash if unexpected 8bit sequences are copied to its
+     internal buffers literally.
+
+     This means that when a system function, such as `readdir', returns
+     a string, you may need to convert it using one of the conversion
+     macros described in the previous chapter, before passing it
+     further to Lisp.
+
+     Actually, most of the basic system functions that accept
+     '\0'-terminated string arguments, like `stat()' and `open()', have
+     been *encapsulated* so that they are they `always' do internal to
+     external conversion themselves.  This means you must pass
+     internally encoded data, typically the `XSTRING_DATA' of a
+     Lisp_String to these functions.  This is actually a design bug,
+     since it unexpectedly changes the semantics of the system
+     functions.  A better design would be to provide separate versions
+     of these system functions that accepted Lisp_Objects which were
+     lisp strings in place of their current `char *' arguments.
+
+          int stat_lisp (Lisp_Object path, struct stat *buf); /* Implement me */
+
+     Also note that many internal functions, such as `make_string',
+     accept Bufbytes, which removes the need for them to convert the
+     data they receive.  This increases efficiency because that way
+     external data needs to be decoded only once, when it is read.
+     After that, it is passed around in internal format.
+
+
+File: internals.info,  Node: An Example of Mule-Aware Code,  Prev: General Guidelines for Writing Mule-Aware Code,  Up: Coding for Mule
+
+An Example of Mule-Aware Code
+-----------------------------
+
+   As an example of Mule-aware code, we will analyze the `string'
+function, which conses up a Lisp string from the character arguments it
+receives.  Here is the definition, pasted from `alloc.c':
+
+     DEFUN ("string", Fstring, 0, MANY, 0, /*
+     Concatenate all the argument characters and make the result a string.
+     */
+            (int nargs, Lisp_Object *args))
+     {
+       Bufbyte *storage = alloca_array (Bufbyte, nargs * MAX_EMCHAR_LEN);
+       Bufbyte *p = storage;
+     
+       for (; nargs; nargs--, args++)
+         {
+           Lisp_Object lisp_char = *args;
+           CHECK_CHAR_COERCE_INT (lisp_char);
+           p += set_charptr_emchar (p, XCHAR (lisp_char));
+         }
+       return make_string (storage, p - storage);
+     }
+
+   Now we can analyze the source line by line.
+
+   Obviously, string will be as long as there are arguments to the
+function.  This is why we allocate `MAX_EMCHAR_LEN' * NARGS bytes on
+the stack, i.e. the worst-case number of bytes for NARGS `Emchar's to
+fit in the string.
+
+   Then, the loop checks that each element is a character, converting
+integers in the process.  Like many other functions in XEmacs, this
+function silently accepts integers where characters are expected, for
+historical and compatibility reasons.  Unless you know what you are
+doing, `CHECK_CHAR' will also suffice.  `XCHAR (lisp_char)' extracts
+the `Emchar' from the `Lisp_Object', and `set_charptr_emchar' stores it
+to storage, increasing `p' in the process.
+
+   Other instructive examples of correct coding under Mule can be found
+all over the XEmacs code.  For starters, I recommend
+`Fnormalize_menu_item_name' in `menubar.c'.  After you have understood
+this section of the manual and studied the examples, you can proceed
+writing new Mule-aware code.
+
+
+File: internals.info,  Node: Techniques for XEmacs Developers,  Prev: Coding for Mule,  Up: Rules When Writing New C Code
+
+Techniques for XEmacs Developers
+================================
+
+   To make a purified XEmacs, do: `make puremacs'.  To make a
+quantified XEmacs, do: `make quantmacs'.
+
+   You simply can't dump Quantified and Purified images (unless using
+the portable dumper).  Purify gets confused when xemacs frees memory in
+one process that was allocated in a _different_ process on a different
+machine!.  Run it like so:
+     temacs -batch -l loadup.el run-temacs XEMACS-ARGS...
+
+   Before you go through the trouble, are you compiling with all
+debugging and error-checking off?  If not, try that first.  Be warned
+that while Quantify is directly responsible for quite a few
+optimizations which have been made to XEmacs, doing a run which
+generates results which can be acted upon is not necessarily a trivial
+task.
+
+   Also, if you're still willing to do some runs make sure you configure
+with the `--quantify' flag.  That will keep Quantify from starting to
+record data until after the loadup is completed and will shut off
+recording right before it shuts down (which generates enough bogus data
+to throw most results off).  It also enables three additional elisp
+commands: `quantify-start-recording-data',
+`quantify-stop-recording-data' and `quantify-clear-data'.
+
+   If you want to make XEmacs faster, target your favorite slow
+benchmark, run a profiler like Quantify, `gprof', or `tcov', and figure
+out where the cycles are going.  In many cases you can localize the
+problem (because a particular new feature or even a single patch
+elicited it).  Don't hesitate to use brute force techniques like a
+global counter incremented at strategic places, especially in
+combination with other performance indications (_e.g._, degree of
+buffer fragmentation into extents).
+
+   Specific projects:
+
+   * Make the garbage collector faster.  Figure out how to write an
+     incremental garbage collector.
+
+   * Write a compiler that takes bytecode and spits out C code.
+     Unfortunately, you will then need a C compiler and a more fully
+     developed module system.
+
+   * Speed up redisplay.
+
+   * Speed up syntax highlighting.  It was suggested that "maybe moving
+     some of the syntax highlighting capabilities into C would make a
+     difference."  Wrong idea, I think.  When processing one large file
+     a particular low-level routine was being called 40 _million_ times
+     simply for _one_ call to `newline-and-indent'.  Syntax
+     highlighting needs to be rewritten to use a reliable, fast parser,
+     then to trust the pre-parsed structure, and only do
+     re-highlighting locally to a text change.  Modern machines are
+     fast enough to implement such parsers in Lisp; but no machine will
+     ever be fast enough to deal with quadratic (or worse) algorithms!
+
+   * Implement tail recursion in Emacs Lisp (hard!).
+
+   Unfortunately, Emacs Lisp is slow, and is going to stay slow.
+Function calls in elisp are especially expensive.  Iterating over a
+long list is going to be 30 times faster implemented in C than in Elisp.
+
+   Heavily used small code fragments need to be fast.  The traditional
+way to implement such code fragments in C is with macros.  But macros
+in C are known to be broken.
+
+   Macro arguments that are repeatedly evaluated may suffer from
+repeated side effects or suboptimal performance.
+
+   Variable names used in macros may collide with caller's variables,
+causing (at least) unwanted compiler warnings.
+
+   In order to solve these problems, and maintain statement semantics,
+one should use the `do { ... } while (0)' trick while trying to
+reference macro arguments exactly once using local variables.
+
+   Let's take a look at this poor macro definition:
+
+     #define MARK_OBJECT(obj) \
+       if (!marked_p (obj)) mark_object (obj), did_mark = 1
+
+   This macro evaluates its argument twice, and also fails if used like
+this:
+       if (flag) MARK_OBJECT (obj); else do_something();
+
+   A much better definition is
+
+     #define MARK_OBJECT(obj) do { \
+       Lisp_Object mo_obj = (obj); \
+       if (!marked_p (mo_obj))     \
+         {                         \
+           mark_object (mo_obj);   \
+           did_mark = 1;           \
+         }                         \
+     } while (0)
+
+   Notice the elimination of double evaluation by using the local
+variable with the obscure name.  Writing safe and efficient macros
+requires great care.  The one problem with macros that cannot be
+portably worked around is, since a C block has no value, a macro used
+as an expression rather than a statement cannot use the techniques just
+described to avoid multiple evaluation.
+
+   In most cases where a macro has function semantics, an inline
+function is a better implementation technique.  Modern compiler
+optimizers tend to inline functions even if they have no `inline'
+keyword, and configure magic ensures that the `inline' keyword can be
+safely used as an additional compiler hint.  Inline functions used in a
+single .c files are easy.  The function must already be defined to be
+`static'.  Just add another `inline' keyword to the definition.
+
+     inline static int
+     heavily_used_small_function (int arg)
+     {
+       ...
+     }
+
+   Inline functions in header files are trickier, because we would like
+to make the following optimization if the function is _not_ inlined
+(for example, because we're compiling for debugging).  We would like the
+function to be defined externally exactly once, and each calling
+translation unit would create an external reference to the function,
+instead of including a definition of the inline function in the object
+code of every translation unit that uses it.  This optimization is
+currently only available for gcc.  But you don't have to worry about the
+trickiness; just define your inline functions in header files using this
+pattern:
+
+     INLINE_HEADER int
+     i_used_to_be_a_crufty_macro_but_look_at_me_now (int arg);
+     INLINE_HEADER int
+     i_used_to_be_a_crufty_macro_but_look_at_me_now (int arg)
+     {
+       ...
+     }
+
+   The declaration right before the definition is to prevent warnings
+when compiling with `gcc -Wmissing-declarations'.  I consider issuing
+this warning for inline functions a gcc bug, but the gcc maintainers
+disagree.
+
+   Every header which contains inline functions, either directly by
+using `INLINE_HEADER' or indirectly by using `DECLARE_LRECORD' must be
+added to `inline.c''s includes to make the optimization described above
+work.  (Optimization note: if all INLINE_HEADER functions are in fact
+inlined in all translation units, then the linker can just discard
+`inline.o', since it contains only unreferenced code).
+
+   To get started debugging XEmacs, take a look at the `.gdbinit' and
+`.dbxrc' files in the `src' directory.  See the section in the XEmacs
+FAQ on How to Debug an XEmacs problem with a debugger.
+
+   After making source code changes, run `make check' to ensure that
+you haven't introduced any regressions.  If you want to make xemacs more
+reliable, please improve the test suite in `tests/automated'.
+
+   Did you make sure you didn't introduce any new compiler warnings?
+
+   Before submitting a patch, please try compiling at least once with
+
+     configure --with-mule --use-union-type --error-checking=all
+
+   Here are things to know when you create a new source file:
+
+   * All `.c' files should `#include <config.h>' first.  Almost all
+     `.c' files should `#include "lisp.h"' second.
+
+   * Generated header files should be included using the `#include
+     <...>' syntax, not the `#include "..."' syntax.  The generated
+     headers are:
+
+     `config.h sheap-adjust.h paths.h Emacs.ad.h'
+
+     The basic rule is that you should assume builds using `--srcdir'
+     and the `#include <...>' syntax needs to be used when the
+     to-be-included generated file is in a potentially different
+     directory _at compile time_.  The non-obvious C rule is that
+     `#include "..."' means to search for the included file in the same
+     directory as the including file, _not_ in the current directory.
+
+   * Header files should _not_ include `<config.h>' and `"lisp.h"'.  It
+     is the responsibility of the `.c' files that use it to do so.
+
+
+   Here is a checklist of things to do when creating a new lisp object
+type named FOO:
+
+  1. create FOO.h
+
+  2. create FOO.c
+
+  3. add definitions of `syms_of_FOO', etc. to `FOO.c'
+
+  4. add declarations of `syms_of_FOO', etc. to `symsinit.h'
+
+  5. add calls to `syms_of_FOO', etc. to `emacs.c'
+
+  6. add definitions of macros like `CHECK_FOO' and `FOOP' to `FOO.h'
+
+  7. add the new type index to `enum lrecord_type'
+
+  8. add a DEFINE_LRECORD_IMPLEMENTATION call to `FOO.c'
+
+  9. add an INIT_LRECORD_IMPLEMENTATION call to `syms_of_FOO.c'
+
+
+File: internals.info,  Node: Regression Testing XEmacs,  Next: A Summary of the Various XEmacs Modules,  Prev: Rules When Writing New C Code,  Up: Top
+
+Regression Testing XEmacs
+*************************
+
+   The source directory `tests/automated' contains XEmacs' automated
+test suite.  The usual way of running all the tests is running `make
+check' from the top-level source directory.
+
+   The test suite is unfinished and it's still lacking some essential
+features.  It is nevertheless recommended that you run the tests to
+confirm that XEmacs behaves correctly.
+
+   If you want to run a specific test case, you can do it from the
+command-line like this:
+
+     $ xemacs -batch -l test-harness.elc -f batch-test-emacs TEST-FILE
+
+   If something goes wrong, you can run the test suite interactively by
+loading `test-harness.el' into a running XEmacs and typing `M-x
+test-emacs-test-file RET <filename> RET'.  You will see a log of passed
+and failed tests, which should allow you to investigate the source of
+the error and ultimately fix the bug.
+
+   Adding a new test file is trivial: just create a new file here and it
+will be run.  There is no need to byte-compile any of the files in this
+directory--the test-harness will take care of any necessary
+byte-compilation.
+
+   Look at the existing test cases for the examples of coding test
+cases.  It all boils down to your imagination and judicious use of the
+macros `Assert', `Check-Error', `Check-Error-Message', and
+`Check-Message'.
+
+   Here's a simple example checking case-sensitive and case-insensitive
+comparisons from `case-tests.el'.
+
+     (with-temp-buffer
+       (insert "Test Buffer")
+       (let ((case-fold-search t))
+         (goto-char (point-min))
+         (Assert (eq (search-forward "test buffer" nil t) 12))
+         (goto-char (point-min))
+         (Assert (eq (search-forward "Test buffer" nil t) 12))
+         (goto-char (point-min))
+         (Assert (eq (search-forward "Test Buffer" nil t) 12))
+     
+         (setq case-fold-search nil)
+         (goto-char (point-min))
+         (Assert (not (search-forward "test buffer" nil t)))
+         (goto-char (point-min))
+         (Assert (not (search-forward "Test buffer" nil t)))
+         (goto-char (point-min))
+         (Assert (eq (search-forward "Test Buffer" nil t) 12))))
+
+   This example could be inserted in a file in `tests/automated', and
+it would be a complete test, automatically executed when you run `make
+check' after building XEmacs.  More complex tests may require
+substantial temporary scaffolding to create the environment that elicits
+the bugs, but the top-level Makefile and `test-harness.el' handle the
+running and collection of results from the `Assert', `Check-Error',
+`Check-Error-Message', and `Check-Message' macros.
+
+   In general, you should avoid using functionality from packages in
+your tests, because you can't be sure that everyone will have the
+required package.  However, if you've got a test that works, by all
+means add it.  Simply wrap the test in an appropriate test, add a
+notice that the test was skipped, and update the `skipped-test-reasons'
+hashtable.  Here's an example from `syntax-tests.el':
+
+     ;; Test forward-comment at buffer boundaries
+     (with-temp-buffer
+     
+       ;; try to use exactly what you need: featurep, boundp, fboundp
+       (if (not (fboundp 'c-mode))
+     
+           ;; We should provide a standard function for this boilerplate,
+           ;; probably called `Skip-Test' -- check for that API with C-h f
+           (let* ((reason "c-mode unavailable")
+     	     (count (gethash reason skipped-test-reasons)))
+     	(puthash reason (if (null count) 1 (1+ count))
+     		 skipped-test-reasons)
+     	(Print-Skip "comment and parse-partial-sexp tests" reason))
+     
+         ;; and here's the test code
+         (c-mode)
+         (insert "// comment\n")
+         (forward-comment -2)
+         (Assert (eq (point) (point-min)))
+         (let ((point (point)))
+           (insert "/* comment */")
+           (goto-char point)
+           (forward-comment 2)
+           (Assert (eq (point) (point-max)))
+           (parse-partial-sexp point (point-max)))))
+
+   `Skip-Test' is intended for use with features that are normally
+present in typical configurations.  For truly optional features, or
+tests that apply to one of several alternative implementations (eg, to
+GTK widgets, but not Athena, Motif, MS Windows, or Carbon), simply
+silently omit the test.
+
+
+File: internals.info,  Node: A Summary of the Various XEmacs Modules,  Next: Allocation of Objects in XEmacs Lisp,  Prev: Regression Testing XEmacs,  Up: Top
+
+A Summary of the Various XEmacs Modules
+***************************************
+
+   This is accurate as of XEmacs 20.0.
+
+* Menu:
+
+* Low-Level Modules::
+* Basic Lisp Modules::
+* Modules for Standard Editing Operations::
+* Editor-Level Control Flow Modules::
+* Modules for the Basic Displayable Lisp Objects::
+* Modules for other Display-Related Lisp Objects::
+* Modules for the Redisplay Mechanism::
+* Modules for Interfacing with the File System::
+* Modules for Other Aspects of the Lisp Interpreter and Object System::
+* Modules for Interfacing with the Operating System::
+* Modules for Interfacing with X Windows::
+* Modules for Internationalization::
+* Modules for Regression Testing::
+
+
+File: internals.info,  Node: Low-Level Modules,  Next: Basic Lisp Modules,  Up: A Summary of the Various XEmacs Modules
+
+Low-Level Modules
+=================
+
+     config.h
+
+   This is automatically generated from `config.h.in' based on the
+results of configure tests and user-selected optional features and
+contains preprocessor definitions specifying the nature of the
+environment in which XEmacs is being compiled.
+
+     paths.h
+
+   This is automatically generated from `paths.h.in' based on supplied
+configure values, and allows for non-standard installed configurations
+of the XEmacs directories.  It's currently broken, though.
+
+     emacs.c
+     signal.c
+
+   `emacs.c' contains `main()' and other code that performs the most
+basic environment initializations and handles shutting down the XEmacs
+process (this includes `kill-emacs', the normal way that XEmacs is
+exited; `dump-emacs', which is used during the build process to write
+out the XEmacs executable; `run-emacs-from-temacs', which can be used
+to start XEmacs directly when temacs has finished loading all the Lisp
+code; and emergency code to handle crashes [XEmacs tries to auto-save
+all files before it crashes]).
+
+   Low-level code that directly interacts with the Unix signal
+mechanism, however, is in `signal.c'.  Note that this code does not
+handle system dependencies in interfacing to signals; that is handled
+using the `syssignal.h' header file, described in section J below.
+
+     unexaix.c
+     unexalpha.c
+     unexapollo.c
+     unexconvex.c
+     unexec.c
+     unexelf.c
+     unexelfsgi.c
+     unexencap.c
+     unexenix.c
+     unexfreebsd.c
+     unexfx2800.c
+     unexhp9k3.c
+     unexhp9k800.c
+     unexmips.c
+     unexnext.c
+     unexsol2.c
+     unexsunos4.c
+
+   These modules contain code dumping out the XEmacs executable on
+various different systems. (This process is highly machine-specific and
+requires intimate knowledge of the executable format and the memory map
+of the process.) Only one of these modules is actually used; this is
+chosen by `configure'.
+
+     ecrt0.c
+     lastfile.c
+     pre-crt0.c
+
+   These modules are used in conjunction with the dump mechanism.  On
+some systems, an alternative version of the C startup code (the actual
+code that receives control from the operating system when the process is
+started, and which calls `main()') is required so that the dumping
+process works properly; `crt0.c' provides this.
+
+   `pre-crt0.c' and `lastfile.c' should be the very first and very last
+file linked, respectively. (Actually, this is not really true.
+`lastfile.c' should be after all Emacs modules whose initialized data
+should be made constant, and before all other Emacs files and all
+libraries.  In particular, the allocation modules `gmalloc.c',
+`alloca.c', etc. are normally placed past `lastfile.c', and all of the
+files that implement Xt widget classes _must_ be placed after
+`lastfile.c' because they contain various structures that must be
+statically initialized and into which Xt writes at various times.)
+`pre-crt0.c' and `lastfile.c' contain exported symbols that are used to
+determine the start and end of XEmacs' initialized data space when
+dumping.
+
+     alloca.c
+     free-hook.c
+     getpagesize.h
+     gmalloc.c
+     malloc.c
+     mem-limits.h
+     ralloc.c
+     vm-limit.c
+
+   These handle basic C allocation of memory.  `alloca.c' is an
+emulation of the stack allocation function `alloca()' on machines that
+lack this. (XEmacs makes extensive use of `alloca()' in its code.)
+
+   `gmalloc.c' and `malloc.c' are two implementations of the standard C
+functions `malloc()', `realloc()' and `free()'.  They are often used in
+place of the standard system-provided `malloc()' because they usually
+provide a much faster implementation, at the expense of additional
+memory use.  `gmalloc.c' is a newer implementation that is much more
+memory-efficient for large allocations than `malloc.c', and should
+always be preferred if it works. (At one point, `gmalloc.c' didn't work
+on some systems where `malloc.c' worked; but this should be fixed now.)
+
+   `ralloc.c' is the "relocating allocator".  It provides functions
+similar to `malloc()', `realloc()' and `free()' that allocate memory
+that can be dynamically relocated in memory.  The advantage of this is
+that allocated memory can be shuffled around to place all the free
+memory at the end of the heap, and the heap can then be shrunk,
+releasing the memory back to the operating system.  The use of this can
+be controlled with the configure option `--rel-alloc'; if enabled,
+memory allocated for buffers will be relocatable, so that if a very
+large file is visited and the buffer is later killed, the memory can be
+released to the operating system.  (The disadvantage of this mechanism
+is that it can be very slow.  On systems with the `mmap()' system call,
+the XEmacs version of `ralloc.c' uses this to move memory around
+without actually having to block-copy it, which can speed things up;
+but it can still cause noticeable performance degradation.)
+
+   `free-hook.c' contains some debugging functions for checking for
+invalid arguments to `free()'.
+
+   `vm-limit.c' contains some functions that warn the user when memory
+is getting low.  These are callback functions that are called by
+`gmalloc.c' and `malloc.c' at appropriate times.
+
+   `getpagesize.h' provides a uniform interface for retrieving the size
+of a page in virtual memory.  `mem-limits.h' provides a uniform
+interface for retrieving the total amount of available virtual memory.
+Both are similar in spirit to the `sys*.h' files described in section
+J, below.
+
+     blocktype.c
+     blocktype.h
+     dynarr.c
+
+   These implement a couple of basic C data types to facilitate memory
+allocation.  The `Blocktype' type efficiently manages the allocation of
+fixed-size blocks by minimizing the number of times that `malloc()' and
+`free()' are called.  It allocates memory in large chunks, subdivides
+the chunks into blocks of the proper size, and returns the blocks as
+requested.  When blocks are freed, they are placed onto a linked list,
+so they can be efficiently reused.  This data type is not much used in
+XEmacs currently, because it's a fairly new addition.
+
+   The `Dynarr' type implements a "dynamic array", which is similar to
+a standard C array but has no fixed limit on the number of elements it
+can contain.  Dynamic arrays can hold elements of any type, and when
+you add a new element, the array automatically resizes itself if it
+isn't big enough.  Dynarrs are extensively used in the redisplay
+mechanism.
+
+     inline.c
+
+   This module is used in connection with inline functions (available in
+some compilers).  Often, inline functions need to have a corresponding
+non-inline function that does the same thing.  This module is where they
+reside.  It contains no actual code, but defines some special flags that
+cause inline functions defined in header files to be rendered as actual
+functions.  It then includes all header files that contain any inline
+function definitions, so that each one gets a real function equivalent.
+
+     debug.c
+     debug.h
+
+   These functions provide a system for doing internal consistency
+checks during code development.  This system is not currently used;
+instead the simpler `assert()' macro is used along with the various
+checks provided by the `--error-check-*' configuration options.
+
+     universe.h
+
+   This is not currently used.
+
+
+File: internals.info,  Node: Basic Lisp Modules,  Next: Modules for Standard Editing Operations,  Prev: Low-Level Modules,  Up: A Summary of the Various XEmacs Modules
+
+Basic Lisp Modules
+==================
+
+     lisp-disunion.h
+     lisp-union.h
+     lisp.h
+     lrecord.h
+     symsinit.h
+
+   These are the basic header files for all XEmacs modules.  Each module
+includes `lisp.h', which brings the other header files in.  `lisp.h'
+contains the definitions of the structures and extractor and
+constructor macros for the basic Lisp objects and various other basic
+definitions for the Lisp environment, as well as some general-purpose
+definitions (e.g. `min()' and `max()').  `lisp.h' includes either
+`lisp-disunion.h' or `lisp-union.h', depending on whether
+`USE_UNION_TYPE' is defined.  These files define the typedef of the
+Lisp object itself (as described above) and the low-level macros that
+hide the actual implementation of the Lisp object.  All extractor and
+constructor macros for particular types of Lisp objects are defined in
+terms of these low-level macros.
+
+   As a general rule, all typedefs should go into the typedefs section
+of `lisp.h' rather than into a module-specific header file even if the
+structure is defined elsewhere.  This allows function prototypes that
+use the typedef to be placed into other header files.  Forward structure
+declarations (i.e. a simple declaration like `struct foo;' where the
+structure itself is defined elsewhere) should be placed into the
+typedefs section as necessary.
+
+   `lrecord.h' contains the basic structures and macros that implement
+all record-type Lisp objects--i.e. all objects whose type is a field in
+their C structure, which includes all objects except the few most basic
+ones.
+
+   `lisp.h' contains prototypes for most of the exported functions in
+the various modules.  Lisp primitives defined using `DEFUN' that need
+to be called by C code should be declared using `EXFUN'.  Other
+function prototypes should be placed either into the appropriate
+section of `lisp.h', or into a module-specific header file, depending
+on how general-purpose the function is and whether it has
+special-purpose argument types requiring definitions not in `lisp.h'.)
+All initialization functions are prototyped in `symsinit.h'.
+
+     alloc.c
+
+   The large module `alloc.c' implements all of the basic allocation and
+garbage collection for Lisp objects.  The most commonly used Lisp
+objects are allocated in chunks, similar to the Blocktype data type
+described above; others are allocated in individually `malloc()'ed
+blocks.  This module provides the foundation on which all other aspects
+of the Lisp environment sit, and is the first module initialized at
+startup.
+
+   Note that `alloc.c' provides a series of generic functions that are
+not dependent on any particular object type, and interfaces to
+particular types of objects using a standardized interface of
+type-specific methods.  This scheme is a fundamental principle of
+object-oriented programming and is heavily used throughout XEmacs.  The
+great advantage of this is that it allows for a clean separation of
+functionality into different modules--new classes of Lisp objects, new
+event interfaces, new device types, new stream interfaces, etc. can be
+added transparently without affecting code anywhere else in XEmacs.
+Because the different subsystems are divided into general and specific
+code, adding a new subtype within a subsystem will in general not
+require changes to the generic subsystem code or affect any of the other
+subtypes in the subsystem; this provides a great deal of robustness to
+the XEmacs code.
+
+     eval.c
+     backtrace.h
+
+   This module contains all of the functions to handle the flow of
+control.  This includes the mechanisms of defining functions, calling
+functions, traversing stack frames, and binding variables; the control
+primitives and other special forms such as `while', `if', `eval',
+`let', `and', `or', `progn', etc.; handling of non-local exits,
+unwind-protects, and exception handlers; entering the debugger; methods
+for the subr Lisp object type; etc.  It does _not_ include the `read'
+function, the `print' function, or the handling of symbols and obarrays.
+
+   `backtrace.h' contains some structures related to stack frames and
+the flow of control.
+
+     lread.c
+
+   This module implements the Lisp reader and the `read' function,
+which converts text into Lisp objects, according to the read syntax of
+the objects, as described above.  This is similar to the parser that is
+a part of all compilers.
+
+     print.c
+
+   This module implements the Lisp print mechanism and the `print'
+function and related functions.  This is the inverse of the Lisp reader
+- it converts Lisp objects to a printed, textual representation.
+(Hopefully something that can be read back in using `read' to get an
+equivalent object.)
+
+     general.c
+     symbols.c
+     symeval.h
+
+   `symbols.c' implements the handling of symbols, obarrays, and
+retrieving the values of symbols.  Much of the code is devoted to
+handling the special "symbol-value-magic" objects that define special
+types of variables--this includes buffer-local variables, variable
+aliases, variables that forward into C variables, etc.  This module is
+initialized extremely early (right after `alloc.c'), because it is here
+that the basic symbols `t' and `nil' are created, and those symbols are
+used everywhere throughout XEmacs.
+
+   `symeval.h' contains the definitions of symbol structures and the
+`DEFVAR_LISP()' and related macros for declaring variables.
+
+     data.c
+     floatfns.c
+     fns.c
+
+   These modules implement the methods and standard Lisp primitives for
+all the basic Lisp object types other than symbols (which are described
+above).  `data.c' contains all the predicates (primitives that return
+whether an object is of a particular type); the integer arithmetic
+functions; and the basic accessor and mutator primitives for the various
+object types.  `fns.c' contains all the standard predicates for working
+with sequences (where, abstractly speaking, a sequence is an ordered set
+of objects, and can be represented by a list, string, vector, or
+bit-vector); it also contains `equal', perhaps on the grounds that bulk
+of the operation of `equal' is comparing sequences.  `floatfns.c'
+contains methods and primitives for floats and floating-point
+arithmetic.
+
+     bytecode.c
+     bytecode.h
+
+   `bytecode.c' implements the byte-code interpreter and
+compiled-function objects, and `bytecode.h' contains associated
+structures.  Note that the byte-code _compiler_ is written in Lisp.
+

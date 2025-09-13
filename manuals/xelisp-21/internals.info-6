@@ -1,0 +1,1050 @@
+This is ../info/internals.info, produced by makeinfo version 4.3 from
+internals/internals.texi.
+
+INFO-DIR-SECTION XEmacs Editor
+START-INFO-DIR-ENTRY
+* Internals: (internals).       XEmacs Internals Manual.
+END-INFO-DIR-ENTRY
+
+   Copyright (C) 1992 - 1996 Ben Wing.  Copyright (C) 1996, 1997 Sun
+Microsystems.  Copyright (C) 1994 - 1998 Free Software Foundation.
+Copyright (C) 1994, 1995 Board of Trustees, University of Illinois.
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be stated in a
+translation approved by the Foundation.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided also
+that the section entitled "GNU General Public License" is included
+exactly as in the original, and provided that the entire resulting
+derived work is distributed under the terms of a permission notice
+identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that the section entitled "GNU General Public License"
+may be included in a translation approved by the Free Software
+Foundation instead of in the original English.
+
+
+File: internals.info,  Node: Low-level allocation,  Next: Cons,  Prev: lrecords,  Up: Allocation of Objects in XEmacs Lisp
+
+Low-level allocation
+====================
+
+   Memory that you want to allocate directly should be allocated using
+`xmalloc()' rather than `malloc()'.  This implements error-checking on
+the return value, and once upon a time did some more vital stuff (i.e.
+`BLOCK_INPUT', which is no longer necessary).  Free using `xfree()',
+and realloc using `xrealloc()'.  Note that `xmalloc()' will do a
+non-local exit if the memory can't be allocated. (Many functions,
+however, do not expect this, and thus XEmacs will likely crash if this
+happens.  *This is a bug.*  If you can, you should strive to make your
+function handle this OK.  However, it's difficult in the general
+circumstance, perhaps requiring extra unwind-protects and such.)
+
+   Note that XEmacs provides two separate replacements for the standard
+`malloc()' library function.  These are called "old GNU malloc"
+(`malloc.c') and "new GNU malloc" (`gmalloc.c'), respectively.  New GNU
+malloc is better in pretty much every way than old GNU malloc, and
+should be used if possible.  (It used to be that on some systems, the
+old one worked but the new one didn't.  I think this was due
+specifically to a bug in SunOS, which the new one now works around; so
+I don't think the old one ever has to be used any more.) The primary
+difference between both of these mallocs and the standard system malloc
+is that they are much faster, at the expense of increased space.  The
+basic idea is that memory is allocated in fixed chunks of powers of
+two.  This allows for basically constant malloc time, since the various
+chunks can just be kept on a number of free lists. (The standard system
+malloc typically allocates arbitrary-sized chunks and has to spend some
+time, sometimes a significant amount of time, walking the heap looking
+for a free block to use and cleaning things up.)  The new GNU malloc
+improves on things by allocating large objects in chunks of 4096 bytes
+rather than in ever larger powers of two, which results in ever larger
+wastage.  There is a slight speed loss here, but it's of doubtful
+significance.
+
+   NOTE: Apparently there is a third-generation GNU malloc that is
+significantly better than the new GNU malloc, and should probably be
+included in XEmacs.
+
+   There is also the relocating allocator, `ralloc.c'.  This actually
+moves blocks of memory around so that the `sbrk()' pointer shrunk and
+virtual memory released back to the system.  On some systems, this is a
+big win.  On all systems, it causes a noticeable (and sometimes huge)
+speed penalty, so I turn it off by default.  `ralloc.c' only works with
+the new GNU malloc in `gmalloc.c'.  There are also two versions of
+`ralloc.c', one that uses `mmap()' rather than block copies to move
+data around.  This purports to be faster, although that depends on the
+amount of data that would have had to be block copied and the
+system-call overhead for `mmap()'.  I don't know exactly how this
+works, except that the relocating-allocation routines are pretty much
+used only for the memory allocated for a buffer, which is the biggest
+consumer of space, esp. of space that may get freed later.
+
+   Note that the GNU mallocs have some "memory warning" facilities.
+XEmacs taps into them and issues a warning through the standard warning
+system, when memory gets to 75%, 85%, and 95% full.  (On some systems,
+the memory warnings are not functional.)
+
+   Allocated memory that is going to be used to make a Lisp object is
+created using `allocate_lisp_storage()'.  This just calls `xmalloc()'.
+It used to verify that the pointer to the memory can fit into a Lisp
+word, before the current Lisp object representation was introduced.
+`allocate_lisp_storage()' is called by `alloc_lcrecord()',
+`ALLOCATE_FIXED_TYPE()', and the vector and bit-vector creation
+routines.  These routines also call `INCREMENT_CONS_COUNTER()' at the
+appropriate times; this keeps statistics on how much memory is
+allocated, so that garbage-collection can be invoked when the threshold
+is reached.
+
+
+File: internals.info,  Node: Cons,  Next: Vector,  Prev: Low-level allocation,  Up: Allocation of Objects in XEmacs Lisp
+
+Cons
+====
+
+   Conses are allocated in standard frob blocks.  The only thing to
+note is that conses can be explicitly freed using `free_cons()' and
+associated functions `free_list()' and `free_alist()'.  This
+immediately puts the conses onto the cons free list, and decrements the
+statistics on memory allocation appropriately.  This is used to good
+effect by some extremely commonly-used code, to avoid generating extra
+objects and thereby triggering GC sooner.  However, you have to be
+_extremely_ careful when doing this.  If you mess this up, you will get
+BADLY BURNED, and it has happened before.
+
+
+File: internals.info,  Node: Vector,  Next: Bit Vector,  Prev: Cons,  Up: Allocation of Objects in XEmacs Lisp
+
+Vector
+======
+
+   As mentioned above, each vector is `malloc()'ed individually, and
+all are threaded through the variable `all_vectors'.  Vectors are
+marked strangely during garbage collection, by kludging the size field.
+Note that the `struct Lisp_Vector' is declared with its `contents'
+field being a _stretchy_ array of one element.  It is actually
+`malloc()'ed with the right size, however, and access to any element
+through the `contents' array works fine.
+
+
+File: internals.info,  Node: Bit Vector,  Next: Symbol,  Prev: Vector,  Up: Allocation of Objects in XEmacs Lisp
+
+Bit Vector
+==========
+
+   Bit vectors work exactly like vectors, except for more complicated
+code to access an individual bit, and except for the fact that bit
+vectors are lrecords while vectors are not. (The only difference here is
+that there's an lrecord implementation pointer at the beginning and the
+tag field in bit vector Lisp words is "lrecord" rather than "vector".)
+
+
+File: internals.info,  Node: Symbol,  Next: Marker,  Prev: Bit Vector,  Up: Allocation of Objects in XEmacs Lisp
+
+Symbol
+======
+
+   Symbols are also allocated in frob blocks.  Symbols in the awful
+horrible obarray structure are chained through their `next' field.
+
+   Remember that `intern' looks up a symbol in an obarray, creating one
+if necessary.
+
+
+File: internals.info,  Node: Marker,  Next: String,  Prev: Symbol,  Up: Allocation of Objects in XEmacs Lisp
+
+Marker
+======
+
+   Markers are allocated in frob blocks, as usual.  They are kept in a
+buffer unordered, but in a doubly-linked list so that they can easily
+be removed. (Formerly this was a singly-linked list, but in some cases
+garbage collection took an extraordinarily long time due to the O(N^2)
+time required to remove lots of markers from a buffer.) Markers are
+removed from a buffer in the finalize stage, in
+`ADDITIONAL_FREE_marker()'.
+
+
+File: internals.info,  Node: String,  Next: Compiled Function,  Prev: Marker,  Up: Allocation of Objects in XEmacs Lisp
+
+String
+======
+
+   As mentioned above, strings are a special case.  A string is
+logically two parts, a fixed-size object (containing the length,
+property list, and a pointer to the actual data), and the actual data
+in the string.  The fixed-size object is a `struct Lisp_String' and is
+allocated in frob blocks, as usual.  The actual data is stored in
+special "string-chars blocks", which are 8K blocks of memory.
+Currently-allocated strings are simply laid end to end in these
+string-chars blocks, with a pointer back to the `struct Lisp_String'
+stored before each string in the string-chars block.  When a new string
+needs to be allocated, the remaining space at the end of the last
+string-chars block is used if there's enough, and a new string-chars
+block is created otherwise.
+
+   There are never any holes in the string-chars blocks due to the
+string compaction and relocation that happens at the end of garbage
+collection.  During the sweep stage of garbage collection, when objects
+are reclaimed, the garbage collector goes through all string-chars
+blocks, looking for unused strings.  Each chunk of string data is
+preceded by a pointer to the corresponding `struct Lisp_String', which
+indicates both whether the string is used and how big the string is,
+i.e. how to get to the next chunk of string data.  Holes are compressed
+by block-copying the next string into the empty space and relocating the
+pointer stored in the corresponding `struct Lisp_String'.  *This means
+you have to be careful with strings in your code.* See the section
+above on `GCPRO'ing.
+
+   Note that there is one situation not handled: a string that is too
+big to fit into a string-chars block.  Such strings, called "big
+strings", are all `malloc()'ed as their own block. (#### Although it
+would make more sense for the threshold for big strings to be somewhat
+lower, e.g. 1/2 or 1/4 the size of a string-chars block.  It seems that
+this was indeed the case formerly--indeed, the threshold was set at
+1/8--but Mly forgot about this when rewriting things for 19.8.)
+
+   Note also that the string data in string-chars blocks is padded as
+necessary so that proper alignment constraints on the `struct
+Lisp_String' back pointers are maintained.
+
+   Finally, strings can be resized.  This happens in Mule when a
+character is substituted with a different-length character, or during
+modeline frobbing. (You could also export this to Lisp, but it's not
+done so currently.) Resizing a string is a potentially tricky process.
+If the change is small enough that the padding can absorb it, nothing
+other than a simple memory move needs to be done.  Keep in mind,
+however, that the string can't shrink too much because the offset to the
+next string in the string-chars block is computed by looking at the
+length and rounding to the nearest multiple of four or eight.  If the
+string would shrink or expand beyond the correct padding, new string
+data needs to be allocated at the end of the last string-chars block and
+the data moved appropriately.  This leaves some dead string data, which
+is marked by putting a special marker of 0xFFFFFFFF in the `struct
+Lisp_String' pointer before the data (there's no real `struct
+Lisp_String' to point to and relocate), and storing the size of the dead
+string data (which would normally be obtained from the now-non-existent
+`struct Lisp_String') at the beginning of the dead string data gap.
+The string compactor recognizes this special 0xFFFFFFFF marker and
+handles it correctly.
+
+
+File: internals.info,  Node: Compiled Function,  Prev: String,  Up: Allocation of Objects in XEmacs Lisp
+
+Compiled Function
+=================
+
+   Not yet documented.
+
+
+File: internals.info,  Node: Dumping,  Next: Events and the Event Loop,  Prev: Allocation of Objects in XEmacs Lisp,  Up: Top
+
+Dumping
+*******
+
+What is dumping and its justification
+=====================================
+
+   The C code of XEmacs is just a Lisp engine with a lot of built-in
+primitives useful for writing an editor.  The editor itself is written
+mostly in Lisp, and represents around 100K lines of code.  Loading and
+executing the initialization of all this code takes a bit a time (five
+to ten times the usual startup time of current xemacs) and requires
+having all the lisp source files around.  Having to reload them each
+time the editor is started would not be acceptable.
+
+   The traditional solution to this problem is called dumping: the build
+process first creates the lisp engine under the name `temacs', then
+runs it until it has finished loading and initializing all the lisp
+code, and eventually creates a new executable called `xemacs' including
+both the object code in `temacs' and all the contents of the memory
+after the initialization.
+
+   This solution, while working, has a huge problem: the creation of the
+new executable from the actual contents of memory is an extremely
+system-specific process, quite error-prone, and which interferes with a
+lot of system libraries (like malloc).  It is even getting worse
+nowadays with libraries using constructors which are automatically
+called when the program is started (even before main()) which tend to
+crash when they are called multiple times, once before dumping and once
+after (IRIX 6.x libz.so pulls in some C++ image libraries thru
+dependencies which have this problem).  Writing the dumper is also one
+of the most difficult parts of porting XEmacs to a new operating system.
+Basically, `dumping' is an operation that is just not officially
+supported on many operating systems.
+
+   The aim of the portable dumper is to solve the same problem as the
+system-specific dumper, that is to be able to reload quickly, using only
+a small number of files, the fully initialized lisp part of the editor,
+without any system-specific hacks.
+
+* Menu:
+
+* Overview::
+* Data descriptions::
+* Dumping phase::
+* Reloading phase::
+* Remaining issues::
+
+
+File: internals.info,  Node: Overview,  Next: Data descriptions,  Up: Dumping
+
+Overview
+========
+
+   The portable dumping system has to:
+
+  1. At dump time, write all initialized, non-quickly-rebuildable data
+     to a file [Note: currently named `xemacs.dmp', but the name will
+     change], along with all informations needed for the reloading.
+
+  2. When starting xemacs, reload the dump file, relocate it to its new
+     starting address if needed, and reinitialize all pointers to this
+     data.  Also, rebuild all the quickly rebuildable data.
+
+
+File: internals.info,  Node: Data descriptions,  Next: Dumping phase,  Prev: Overview,  Up: Dumping
+
+Data descriptions
+=================
+
+   The more complex task of the dumper is to be able to write lisp
+objects (lrecords) and C structs to disk and reload them at a different
+address, updating all the pointers they include in the process.  This
+is done by using external data descriptions that give information about
+the layout of the structures in memory.
+
+   The specification of these descriptions is in lrecord.h.  A
+description of an lrecord is an array of struct lrecord_description.
+Each of these structs include a type, an offset in the structure and
+some optional parameters depending on the type.  For instance, here is
+the string description:
+
+     static const struct lrecord_description string_description[] = {
+       { XD_BYTECOUNT,         offsetof (Lisp_String, size) },
+       { XD_OPAQUE_DATA_PTR,   offsetof (Lisp_String, data), XD_INDIRECT(0, 1) },
+       { XD_LISP_OBJECT,       offsetof (Lisp_String, plist) },
+       { XD_END }
+     };
+
+   The first line indicates a member of type Bytecount, which is used by
+the next, indirect directive.  The second means "there is a pointer to
+some opaque data in the field `data'".  The length of said data is
+given by the expression `XD_INDIRECT(0, 1)', which means "the value in
+the 0th line of the description (welcome to C) plus one".  The third
+line means "there is a Lisp_Object member `plist' in the Lisp_String
+structure".  `XD_END' then ends the description.
+
+   This gives us all the information we need to move around what is
+pointed to by a structure (C or lrecord) and, by transitivity,
+everything that it points to.  The only missing information for dumping
+is the size of the structure.  For lrecords, this is part of the
+lrecord_implementation, so we don't need to duplicate it.  For C
+structures we use a struct struct_description, which includes a size
+field and a pointer to an associated array of lrecord_description.
+
+
+File: internals.info,  Node: Dumping phase,  Next: Reloading phase,  Prev: Data descriptions,  Up: Dumping
+
+Dumping phase
+=============
+
+   Dumping is done by calling the function pdump() (in dumper.c) which
+is invoked from Fdump_emacs (in emacs.c).  This function performs a
+number of tasks.
+
+* Menu:
+
+* Object inventory::
+* Address allocation::
+* The header::
+* Data dumping::
+* Pointers dumping::
+
+
+File: internals.info,  Node: Object inventory,  Next: Address allocation,  Up: Dumping phase
+
+Object inventory
+----------------
+
+   The first task is to build the list of the objects to dump.  This
+includes:
+
+   * lisp objects
+
+   * C structures
+
+   We end up with one `pdump_entry_list_elmt' per object group (arrays
+of C structs are kept together) which includes a pointer to the first
+object of the group, the per-object size and the count of objects in the
+group, along with some other information which is initialized later.
+
+   These entries are linked together in `pdump_entry_list' structures
+and can be enumerated thru either:
+
+  1. the `pdump_object_table', an array of `pdump_entry_list', one per
+     lrecord type, indexed by type number.
+
+  2. the `pdump_opaque_data_list', used for the opaque data which does
+     not include pointers, and hence does not need descriptions.
+
+  3. the `pdump_struct_table', which is a vector of
+     `struct_description'/`pdump_entry_list' pairs, used for non-opaque
+     C structures.
+
+   This uses a marking strategy similar to the garbage collector.  Some
+differences though:
+
+  1. We do not use the mark bit (which does not exist for C structures
+     anyway); we use a big hash table instead.
+
+  2. We do not use the mark function of lrecords but instead rely on the
+     external descriptions.  This happens essentially because we need to
+     follow pointers to C structures and opaque data in addition to
+     Lisp_Object members.
+
+   This is done by `pdump_register_object()', which handles Lisp_Object
+variables, and `pdump_register_struct()' which handles C structures,
+which both delegate the description management to
+`pdump_register_sub()'.
+
+   The hash table doubles as a map object to pdump_entry_list_elmt (i.e.
+allows us to look up a pdump_entry_list_elmt with the object it points
+to).  Entries are added with `pdump_add_entry()' and looked up with
+`pdump_get_entry()'.  There is no need for entry removal.  The hash
+value is computed quite simply from the object pointer by
+`pdump_make_hash()'.
+
+   The roots for the marking are:
+
+  1. the `staticpro''ed variables (there is a special
+     `staticpro_nodump()' call for protected variables we do not want
+     to dump).
+
+  2. the variables registered via `dump_add_root_object' (`staticpro()'
+     is equivalent to `staticpro_nodump()' + `dump_add_root_object()').
+
+  3. the variables registered via `dump_add_root_struct_ptr', each of
+     which points to a C structure.
+
+   This does not include the GCPRO'ed variables, the specbinds, the
+catchtags, the backlist, the redisplay or the profiling info, since we
+do not want to rebuild the actual chain of lisp calls which end up to
+the dump-emacs call, only the global variables.
+
+   Weak lists and weak hash tables are dumped as if they were their
+non-weak equivalent (without changing their type, of course).  This has
+not yet been a problem.
+
+
+File: internals.info,  Node: Address allocation,  Next: The header,  Prev: Object inventory,  Up: Dumping phase
+
+Address allocation
+------------------
+
+   The next step is to allocate the offsets of each of the objects in
+the final dump file.  This is done by `pdump_allocate_offset()' which
+is called indirectly by `pdump_scan_by_alignment()'.
+
+   The strategy to deal with alignment problems uses these facts:
+
+  1. real world alignment requirements are powers of two.
+
+  2. the C compiler is required to adjust the size of a struct so that
+     you can have an array of them next to each other.  This means you
+     can have an upper bound of the alignment requirements of a given
+     structure by looking at which power of two its size is a multiple.
+
+  3. the non-variant part of variable size lrecords has an alignment
+     requirement of 4.
+
+   Hence, for each lrecord type, C struct type or opaque data block the
+alignment requirement is computed as a power of two, with a minimum of
+2^2 for lrecords.  `pdump_scan_by_alignment()' then scans all the
+`pdump_entry_list_elmt''s, the ones with the highest requirements
+first.  This ensures the best packing.
+
+   The maximum alignment requirement we take into account is 2^8.
+
+   `pdump_allocate_offset()' only has to do a linear allocation,
+starting at offset 256 (this leaves room for the header and keeps the
+alignments happy).
+
+
+File: internals.info,  Node: The header,  Next: Data dumping,  Prev: Address allocation,  Up: Dumping phase
+
+The header
+----------
+
+   The next step creates the file and writes a header with a signature
+and some random information in it.  The `reloc_address' field, which
+indicates at which address the file should be loaded if we want to avoid
+post-reload relocation, is set to 0.  It then seeks to offset 256 (base
+offset for the objects).
+
+
+File: internals.info,  Node: Data dumping,  Next: Pointers dumping,  Prev: The header,  Up: Dumping phase
+
+Data dumping
+------------
+
+   The data is dumped in the same order as the addresses were allocated
+by `pdump_dump_data()', called from `pdump_scan_by_alignment()'.  This
+function copies the data to a temporary buffer, relocates all pointers
+in the object to the addresses allocated in step Address Allocation,
+and writes it to the file.  Using the same order means that, if we are
+careful with lrecords whose size is not a multiple of 4, we are ensured
+that the object is always written at the offset in the file allocated
+in step Address Allocation.
+
+
+File: internals.info,  Node: Pointers dumping,  Prev: Data dumping,  Up: Dumping phase
+
+Pointers dumping
+----------------
+
+   A bunch of tables needed to reassign properly the global pointers are
+then written.  They are:
+
+  1. the pdump_root_struct_ptrs dynarr
+
+  2. the pdump_opaques dynarr
+
+  3. a vector of all the offsets to the objects in the file that
+     include a description (for faster relocation at reload time)
+
+  4. the pdump_root_objects and pdump_weak_object_chains dynarrs.
+
+   For each of the dynarrs we write both the pointer to the variables
+and the relocated offset of the object they point to.  Since these
+variables are global, the pointers are still valid when restarting the
+program and are used to regenerate the global pointers.
+
+   The `pdump_weak_object_chains' dynarr is a special case.  The
+variables it points to are the head of weak linked lists of lisp objects
+of the same type.  Not all objects of this list are dumped so the
+relocated pointer we associate with them points to the first dumped
+object of the list, or Qnil if none is available.  This is also the
+reason why they are not used as roots for the purpose of object
+enumeration.
+
+   Some very important information like the `staticpros' and
+`lrecord_implementations_table' are handled indirectly using
+`dump_add_opaque' or `dump_add_root_struct_ptr'.
+
+   This is the end of the dumping part.
+
+
+File: internals.info,  Node: Reloading phase,  Next: Remaining issues,  Prev: Dumping phase,  Up: Dumping
+
+Reloading phase
+===============
+
+File loading
+------------
+
+   The file is mmap'ed in memory (which ensures a PAGESIZE alignment, at
+least 4096), or if mmap is unavailable or fails, a 256-bytes aligned
+malloc is done and the file is loaded.
+
+   Some variables are reinitialized from the values found in the header.
+
+   The difference between the actual loading address and the
+reloc_address is computed and will be used for all the relocations.
+
+Putting back the pdump_opaques
+------------------------------
+
+   The memory contents are restored in the obvious and trivial way.
+
+Putting back the pdump_root_struct_ptrs
+---------------------------------------
+
+   The variables pointed to by pdump_root_struct_ptrs in the dump phase
+are reset to the right relocated object addresses.
+
+Object relocation
+-----------------
+
+   All the objects are relocated using their description and their
+offset by `pdump_reloc_one'.  This step is unnecessary if the
+reloc_address is equal to the file loading address.
+
+Putting back the pdump_root_objects and pdump_weak_object_chains
+----------------------------------------------------------------
+
+   Same as Putting back the pdump_root_struct_ptrs.
+
+Reorganize the hash tables
+--------------------------
+
+   Since some of the hash values in the lisp hash tables are
+address-dependent, their layout is now wrong.  So we go through each of
+them and have them resorted by calling `pdump_reorganize_hash_table'.
+
+
+File: internals.info,  Node: Remaining issues,  Prev: Reloading phase,  Up: Dumping
+
+Remaining issues
+================
+
+   The build process will have to start a post-dump xemacs, ask it the
+loading address (which will, hopefully, be always the same between
+different xemacs invocations) and relocate the file to the new address.
+This way the object relocation phase will not have to be done, which
+means no writes in the objects and that, because of the use of mmap, the
+dumped data will be shared between all the xemacs running on the
+computer.
+
+   Some executable signature will be necessary to ensure that a given
+dump file is really associated with a given executable, or random
+crashes will occur.  Maybe a random number set at compile or configure
+time thru a define.  This will also allow for having
+differently-compiled xemacsen on the same system (mule and no-mule
+comes to mind).
+
+   The DOC file contents should probably end up in the dump file.
+
+
+File: internals.info,  Node: Events and the Event Loop,  Next: Evaluation; Stack Frames; Bindings,  Prev: Dumping,  Up: Top
+
+Events and the Event Loop
+*************************
+
+* Menu:
+
+* Introduction to Events::
+* Main Loop::
+* Specifics of the Event Gathering Mechanism::
+* Specifics About the Emacs Event::
+* The Event Stream Callback Routines::
+* Other Event Loop Functions::
+* Converting Events::
+* Dispatching Events; The Command Builder::
+
+
+File: internals.info,  Node: Introduction to Events,  Next: Main Loop,  Up: Events and the Event Loop
+
+Introduction to Events
+======================
+
+   An event is an object that encapsulates information about an
+interesting occurrence in the operating system.  Events are generated
+either by user action, direct (e.g. typing on the keyboard or moving
+the mouse) or indirect (moving another window, thereby generating an
+expose event on an Emacs frame), or as a result of some other typically
+asynchronous action happening, such as output from a subprocess being
+ready or a timer expiring.  Events come into the system in an
+asynchronous fashion (typically through a callback being called) and
+are converted into a synchronous event queue (first-in, first-out) in a
+process that we will call "collection".
+
+   Note that each application has its own event queue. (It is
+immaterial whether the collection process directly puts the events in
+the proper application's queue, or puts them into a single system
+queue, which is later split up.)
+
+   The most basic level of event collection is done by the operating
+system or window system.  Typically, XEmacs does its own event
+collection as well.  Often there are multiple layers of collection in
+XEmacs, with events from various sources being collected into a queue,
+which is then combined with other sources to go into another queue
+(i.e. a second level of collection), with perhaps another level on top
+of this, etc.
+
+   XEmacs has its own types of events (called "Emacs events"), which
+provides an abstract layer on top of the system-dependent nature of the
+most basic events that are received.  Part of the complex nature of the
+XEmacs event collection process involves converting from the
+operating-system events into the proper Emacs events--there may not be
+a one-to-one correspondence.
+
+   Emacs events are documented in `events.h'; I'll discuss them later.
+
+
+File: internals.info,  Node: Main Loop,  Next: Specifics of the Event Gathering Mechanism,  Prev: Introduction to Events,  Up: Events and the Event Loop
+
+Main Loop
+=========
+
+   The "command loop" is the top-level loop that the editor is always
+running.  It loops endlessly, calling `next-event' to retrieve an event
+and `dispatch-event' to execute it. `dispatch-event' does the
+appropriate thing with non-user events (process, timeout, magic, eval,
+mouse motion); this involves calling a Lisp handler function, redrawing
+a newly-exposed part of a frame, reading subprocess output, etc.  For
+user events, `dispatch-event' looks up the event in relevant keymaps or
+menubars; when a full key sequence or menubar selection is reached, the
+appropriate function is executed. `dispatch-event' may have to keep
+state across calls; this is done in the "command-builder" structure
+associated with each console (remember, there's usually only one
+console), and the engine that looks up keystrokes and constructs full
+key sequences is called the "command builder".  This is documented
+elsewhere.
+
+   The guts of the command loop are in `command_loop_1()'.  This
+function doesn't catch errors, though--that's the job of
+`command_loop_2()', which is a condition-case (i.e. error-trapping)
+wrapper around `command_loop_1()'.  `command_loop_1()' never returns,
+but may get thrown out of.
+
+   When an error occurs, `cmd_error()' is called, which usually invokes
+the Lisp error handler in `command-error'; however, a default error
+handler is provided if `command-error' is `nil' (e.g. during startup).
+The purpose of the error handler is simply to display the error message
+and do associated cleanup; it does not need to throw anywhere.  When
+the error handler finishes, the condition-case in `command_loop_2()'
+will finish and `command_loop_2()' will reinvoke `command_loop_1()'.
+
+   `command_loop_2()' is invoked from three places: from
+`initial_command_loop()' (called from `main()' at the end of internal
+initialization), from the Lisp function `recursive-edit', and from
+`call_command_loop()'.
+
+   `call_command_loop()' is called when a macro is started and when the
+minibuffer is entered; normal termination of the macro or minibuffer
+causes a throw out of the recursive command loop. (To
+`execute-kbd-macro' for macros and `exit' for minibuffers.  Note also
+that the low-level minibuffer-entering function,
+`read-minibuffer-internal', provides its own error handling and does
+not need `command_loop_2()''s error encapsulation; so it tells
+`call_command_loop()' to invoke `command_loop_1()' directly.)
+
+   Note that both read-minibuffer-internal and recursive-edit set up a
+catch for `exit'; this is why `abort-recursive-edit', which throws to
+this catch, exits out of either one.
+
+   `initial_command_loop()', called from `main()', sets up a catch for
+`top-level' when invoking `command_loop_2()', allowing functions to
+throw all the way to the top level if they really need to.  Before
+invoking `command_loop_2()', `initial_command_loop()' calls
+`top_level_1()', which handles all of the startup stuff (creating the
+initial frame, handling the command-line options, loading the user's
+`.emacs' file, etc.).  The function that actually does this is in Lisp
+and is pointed to by the variable `top-level'; normally this function is
+`normal-top-level'.  `top_level_1()' is just an error-handling wrapper
+similar to `command_loop_2()'.  Note also that `initial_command_loop()'
+sets up a catch for `top-level' when invoking `top_level_1()', just
+like when it invokes `command_loop_2()'.
+
+
+File: internals.info,  Node: Specifics of the Event Gathering Mechanism,  Next: Specifics About the Emacs Event,  Prev: Main Loop,  Up: Events and the Event Loop
+
+Specifics of the Event Gathering Mechanism
+==========================================
+
+   Here is an approximate diagram of the collection processes at work
+in XEmacs, under TTY's (TTY's are simpler than X so we'll look at this
+first):
+
+      asynch.      asynch.    asynch.   asynch.             [Collectors in
+     kbd events  kbd events   process   process                the OS]
+           |         |         output    output
+           |         |           |         |
+           |         |           |         |      SIGINT,   [signal handlers
+           |         |           |         |      SIGQUIT,     in XEmacs]
+           V         V           V         V      SIGWINCH,
+          file      file        file      file    SIGALRM
+          desc.     desc.       desc.     desc.     |
+          (TTY)     (TTY)       (pipe)    (pipe)    |
+           |          |          |         |      fake    timeouts
+           |          |          |         |      file        |
+           |          |          |         |      desc.       |
+           |          |          |         |      (pipe)      |
+           |          |          |         |        |         |
+           |          |          |         |        |         |
+           |          |          |         |        |         |
+           V          V          V         V        V         V
+           ------>-----------<----------------<----------------
+                       |
+                       |
+                       | [collected using select() in emacs_tty_next_event()
+                       |  and converted to the appropriate Emacs event]
+                       |
+                       |
+                       V          (above this line is TTY-specific)
+                     Emacs -----------------------------------------------
+                     event (below this line is the generic event mechanism)
+                       |
+                       |
+     was there     if not, call
+     a SIGINT?  emacs_tty_next_event()
+         |             |
+         |             |
+         |             |
+         V             V
+         --->------<----
+                |
+                |     [collected in event_stream_next_event();
+                |      SIGINT is converted using maybe_read_quit_event()]
+                V
+              Emacs
+              event
+                |
+                \---->------>----- maybe_kbd_translate() ---->---\
+                                                                 |
+                                                                 |
+                                                                 |
+          command event queue                                    |
+                                                    if not from command
+       (contains events that were                   event queue, call
+       read earlier but not processed,              event_stream_next_event()
+       typically when waiting in a                               |
+       sit-for, sleep-for, etc. for                              |
+      a particular event to be received)                         |
+                    |                                            |
+                    |                                            |
+                    V                                            V
+                    ---->------------------------------------<----
+                                                    |
+                                                    | [collected in
+                                                    |  next_event_internal()]
+                                                    |
+      unread-     unread-       event from          |
+      command-    command-       keyboard       else, call
+      events      event           macro      next_event_internal()
+        |           |               |               |
+        |           |               |               |
+        |           |               |               |
+        V           V               V               V
+        --------->----------------------<------------
+                          |
+                          |      [collected in `next-event', which may loop
+                          |       more than once if the event it gets is on
+                          |       a dead frame, device, etc.]
+                          |
+                          |
+                          V
+                 feed into top-level event loop,
+                 which repeatedly calls `next-event'
+                 and then dispatches the event
+                 using `dispatch-event'
+
+   Notice the separation between TTY-specific and generic event
+mechanism.  When using the Xt-based event loop, the TTY-specific stuff
+is replaced but the rest stays the same.
+
+   It's also important to realize that only one different kind of
+system-specific event loop can be operating at a time, and must be able
+to receive all kinds of events simultaneously.  For the two existing
+event loops (implemented in `event-tty.c' and `event-Xt.c',
+respectively), the TTY event loop _only_ handles TTY consoles, while
+the Xt event loop handles _both_ TTY and X consoles.  This situation is
+different from all of the output handlers, where you simply have one
+per console type.
+
+   Here's the Xt Event Loop Diagram (notice that below a certain point,
+it's the same as the above diagram):
+
+     asynch. asynch. asynch. asynch.                 [Collectors in
+      kbd     kbd    process process                    the OS]
+     events  events  output  output
+       |       |       |       |
+       |       |       |       |     asynch. asynch. [Collectors in the
+       |       |       |       |       X        X     OS and X Window System]
+       |       |       |       |     events  events
+       |       |       |       |       |        |
+       |       |       |       |       |        |
+       |       |       |       |       |        |    SIGINT, [signal handlers
+       |       |       |       |       |        |    SIGQUIT,   in XEmacs]
+       |       |       |       |       |        |    SIGWINCH,
+       |       |       |       |       |        |    SIGALRM
+       |       |       |       |       |        |       |
+       |       |       |       |       |        |       |
+       |       |       |       |       |        |       |      timeouts
+       |       |       |       |       |        |       |          |
+       |       |       |       |       |        |       |          |
+       |       |       |       |       |        |       V          |
+       V       V       V       V       V        V      fake        |
+      file    file    file    file    file     file    file        |
+      desc.   desc.   desc.   desc.   desc.    desc.   desc.       |
+      (TTY)   (TTY)   (pipe)  (pipe) (socket) (socket) (pipe)      |
+       |       |       |       |       |        |       |          |
+       |       |       |       |       |        |       |          |
+       |       |       |       |       |        |       |          |
+       V       V       V       V       V        V       V          V
+       --->----------------------------------------<---------<------
+            |              |               |
+            |              |               |[collected using select() in
+            |              |               | _XtWaitForSomething(), called
+            |              |               | from XtAppProcessEvent(), called
+            |              |               | in emacs_Xt_next_event();
+            |              |               | dispatched to various callbacks]
+            |              |               |
+            |              |               |
+       emacs_Xt_        p_s_callback(),    | [popup_selection_callback]
+       event_handler()  x_u_v_s_callback(),| [x_update_vertical_scrollbar_
+            |           x_u_h_s_callback(),|  callback]
+            |           search_callback()  | [x_update_horizontal_scrollbar_
+            |              |               |  callback]
+            |              |               |
+            |              |               |
+       enqueue_Xt_       signal_special_   |
+       dispatch_event()  Xt_user_event()   |
+       [maybe multiple     |               |
+        times, maybe 0     |               |
+        times]             |               |
+            |            enqueue_Xt_       |
+            |            dispatch_event()  |
+            |              |               |
+            |              |               |
+            V              V               |
+            -->----------<--               |
+                   |                       |
+                   |                       |
+                dispatch             Xt_what_callback()
+                event                  sets flags
+                queue                      |
+                   |                       |
+                   |                       |
+                   |                       |
+                   |                       |
+                   ---->-----------<--------
+                        |
+                        |
+                        |     [collected and converted as appropriate in
+                        |            emacs_Xt_next_event()]
+                        |
+                        |
+                        V          (above this line is Xt-specific)
+                      Emacs ------------------------------------------------
+                      event (below this line is the generic event mechanism)
+                        |
+                        |
+     was there      if not, call
+     a SIGINT?   emacs_Xt_next_event()
+         |              |
+         |              |
+         |              |
+         V              V
+         --->-------<----
+                |
+                |        [collected in event_stream_next_event();
+                |         SIGINT is converted using maybe_read_quit_event()]
+                V
+              Emacs
+              event
+                |
+                \---->------>----- maybe_kbd_translate() -->-----\
+                                                                 |
+                                                                 |
+                                                                 |
+          command event queue                                    |
+                                                   if not from command
+       (contains events that were                  event queue, call
+       read earlier but not processed,             event_stream_next_event()
+       typically when waiting in a                               |
+       sit-for, sleep-for, etc. for                              |
+      a particular event to be received)                         |
+                    |                                            |
+                    |                                            |
+                    V                                            V
+                    ---->----------------------------------<------
+                                                    |
+                                                    | [collected in
+                                                    |  next_event_internal()]
+                                                    |
+      unread-     unread-       event from          |
+      command-    command-       keyboard       else, call
+      events      event           macro      next_event_internal()
+        |           |               |               |
+        |           |               |               |
+        |           |               |               |
+        V           V               V               V
+        --------->----------------------<------------
+                          |
+                          |      [collected in `next-event', which may loop
+                          |       more than once if the event it gets is on
+                          |       a dead frame, device, etc.]
+                          |
+                          |
+                          V
+                 feed into top-level event loop,
+                 which repeatedly calls `next-event'
+                 and then dispatches the event
+                 using `dispatch-event'
+
+
+File: internals.info,  Node: Specifics About the Emacs Event,  Next: The Event Stream Callback Routines,  Prev: Specifics of the Event Gathering Mechanism,  Up: Events and the Event Loop
+
+Specifics About the Emacs Event
+===============================
+
+
+File: internals.info,  Node: The Event Stream Callback Routines,  Next: Other Event Loop Functions,  Prev: Specifics About the Emacs Event,  Up: Events and the Event Loop
+
+The Event Stream Callback Routines
+==================================
+
+
+File: internals.info,  Node: Other Event Loop Functions,  Next: Converting Events,  Prev: The Event Stream Callback Routines,  Up: Events and the Event Loop
+
+Other Event Loop Functions
+==========================
+
+   `detect_input_pending()' and `input-pending-p' look for input by
+calling `event_stream->event_pending_p' and looking in
+`[V]unread-command-event' and the `command_event_queue' (they do not
+check for an executing keyboard macro, though).
+
+   `discard-input' cancels any command events pending (and any keyboard
+macros currently executing), and puts the others onto the
+`command_event_queue'.  There is a comment about a "race condition",
+which is not a good sign.
+
+   `next-command-event' and `read-char' are higher-level interfaces to
+`next-event'.  `next-command-event' gets the next "command" event (i.e.
+keypress, mouse event, menu selection, or scrollbar action), calling
+`dispatch-event' on any others.  `read-char' calls `next-command-event'
+and uses `event_to_character()' to return the character equivalent.
+With the right kind of input method support, it is possible for
+(read-char) to return a Kanji character.
+
+
+File: internals.info,  Node: Converting Events,  Next: Dispatching Events; The Command Builder,  Prev: Other Event Loop Functions,  Up: Events and the Event Loop
+
+Converting Events
+=================
+
+   `character_to_event()', `event_to_character()',
+`event-to-character', and `character-to-event' convert between
+characters and keypress events corresponding to the characters.  If the
+event was not a keypress, `event_to_character()' returns -1 and
+`event-to-character' returns `nil'.  These functions convert between
+character representation and the split-up event representation (keysym
+plus mod keys).
+
+
+File: internals.info,  Node: Dispatching Events; The Command Builder,  Prev: Converting Events,  Up: Events and the Event Loop
+
+Dispatching Events; The Command Builder
+=======================================
+
+   Not yet documented.
+
+
+File: internals.info,  Node: Evaluation; Stack Frames; Bindings,  Next: Symbols and Variables,  Prev: Events and the Event Loop,  Up: Top
+
+Evaluation; Stack Frames; Bindings
+**********************************
+
+* Menu:
+
+* Evaluation::
+* Dynamic Binding; The specbinding Stack; Unwind-Protects::
+* Simple Special Forms::
+* Catch and Throw::
+
