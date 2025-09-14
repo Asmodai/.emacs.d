@@ -33,6 +33,7 @@
 
 ;;;; Speelering:
 ;;;;; ISpell:
+
 (use-package ispell
   :ensure nil
   :commands (ispell-word

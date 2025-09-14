@@ -163,13 +163,13 @@
   :demand t
   :commands (diminish))
 
-(defvar *zmacs-diminished-minor-modes* nil
+(defvar zmacs--diminished-minor-modes nil
   "List of diminished minor modes.")
 
 (defun zmacs--prepare-diminish ()
   "Prepare to diminish minor modes."
   (let ((unicodep t))
-    (dolist (mm *zmacs-diminished-minor-modes*)
+    (dolist (mm zmacs--diminished-minor-modes)
       (let ((mode (car mm)))
         (when (and (boundp mode)
                    (symbol-value mode))
@@ -183,7 +183,7 @@
 (defun zmacs-diminish-hook (_)
   "Display diminished lighter in vanilla Emacs mode-line."
   (let ((unicodep t))
-    (cl-loop for (mode uni nouni) in *zmacs-diminished-minor-modes*
+    (cl-loop for (mode uni nouni) in zmacs--diminished-minor-modes
              do (diminish mode (if unicodep uni nouni)))))
 
 (defun zmacs--terminal-fix-mode-line-indicator-overlap (str)
@@ -207,10 +207,10 @@ This fixes an overlapping issue, that occurs when ZMACS is started in a
              (not (display-graphic-p))
              (= (length unicode) 3))
     (setq unicode (zmacs--terminal-fix-mode-line-indicator-overlap unicode)))
-  `(let ((cell (assq ',mode *zmacs-diminished-minor-modes*)))
+  `(let ((cell (assq ',mode zmacs--diminished-minor-modes)))
      (if cell
          (setcdr cell '(,unicode ,ascii))
-       (push '(,mode ,unicode ,ascii) *zmacs-diminished-minor-modes*))))
+       (push '(,mode ,unicode ,ascii) zmacs--diminished-minor-modes))))
 
 ;; Set up diminish stuff.
 (add-hook 'after-load-functions #'zmacs-diminish-hook)
