@@ -86,10 +86,11 @@
 ;;;;; Tree-Sitter:
 
 (use-package go-ts-mode)
-(add-to-list 'major-mode-remap-alist '(go-mode . go-ts-mode))
-(add-to-list 'major-mode-remap-alist '(go-mod-mode . go-mod-ts-mode))
-(add-hook 'go-ts-mode-hook #'eglot-ensure)
-(add-hook 'go-mod-ts-mode-hook #'eglot-ensure)
+;;(add-to-list 'major-mode-remap-alist '(go-mode . go-ts-mode))
+;;(add-to-list 'major-mode-remap-alist '(go-mod-mode . go-mod-ts-mode))
+;;(add-hook 'go-ts-mode-hook #'eglot-ensure)
+;;(add-hook 'go-mod-ts-mode-hook #'eglot-ensure)
+(add-hook 'go-mode-hook #'eglot-ensure)
 
 (when (require 'treesit-fold nil t)
   (add-hook 'go-ts-mode-hook #'treesit-fold-mode))
@@ -118,7 +119,7 @@
 
 (use-package zlisp-go
   :ensure nil
-  :after (go-mode
+  :after (go-ts-mode
           flycheck-golangci-lint)
   :demand t
   :commands (zlisp/setup-go-project
