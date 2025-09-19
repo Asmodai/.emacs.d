@@ -38,13 +38,13 @@
 (defvar zmacs-switch-buffer-hook nil
   "A list of hooks to run after changing the current buffer.")
 
-(defun zmacs-run-switch-buffer-hooks-h (&optional _)
+(defun zmacs--run-switch-buffer-hooks-h (&optional _)
   (let ((gc-cons-threshold most-positive-fixnum)
         (inhibit-redisplay t))
     (run-hooks 'zmacs-switch-buffer-hook)))
 
-(add-hook 'window-buffer-change-functions #'zmacs-run-switch-buffer-hooks-h)
-(add-hook 'server-visit-hook              #'zmacs-run-switch-buffer-hooks-h)
+(add-hook 'window-buffer-change-functions #'zmacs--run-switch-buffer-hooks-h)
+(add-hook 'server-visit-hook              #'zmacs--run-switch-buffer-hooks-h)
 
 ;;;; Scrolling:
 

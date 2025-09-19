@@ -47,7 +47,8 @@
                     (error "Go has not been configured!")))))
   (when (file-exists-p gopls)
     (message (format "ZMACS/GO: Configured '%s' as LSP backend." gopls))
-    (add-to-list 'eglot-server-programs `(go-mode ,gopls))))
+    (add-to-list 'eglot-server-programs `(go-mode ,gopls))
+    (add-to-list 'eglot-server-programs `(go-ts-mode ,gopls))))
 
 ;;;; Customize:
 
@@ -110,7 +111,8 @@
   :ensure t
   :after go-mode
   :demand t
-  :hook (go-mode . flycheck-golangci-lint-setup))
+  :hook ((go-mode    . flycheck-golangci-lint-setup)
+         (go-ts-mode . flycheck-golangci-lint-setup)))
 
 ;;;;; zlisp-go:
 
@@ -132,6 +134,10 @@
     (add-hook 'go-mode-local-vars-hook 'zlisp/go-setup-tab-width)
     (add-hook 'go-mode-local-vars-hook 'zlisp/go-setup-format)
     (add-hook 'go-mode-local-vars-hook 'zlisp/go-enable-flycheck-golangci-lint)
+
+    (add-hook 'go-ts-mode-local-vars-hook 'zlisp/go-setup-tab-width)
+    (add-hook 'go-ts-mode-local-vars-hook 'zlisp/go-setup-format)
+    (add-hook 'go-ts-mode-local-vars-hook 'zlisp/go-enable-flycheck-golangci-lint)
 
     (setq go-packages-function 'zlisp/go-package-gopkgs)
 
