@@ -235,6 +235,7 @@
 (require 'zmacs-prog-go)
 (require 'zmacs-prog-js)
 (require 'zmacs-prog-ruby)
+(require 'zmacs-prog-rust)
 
 ;;;;; Functions:
 (require 'zlisp-memory)

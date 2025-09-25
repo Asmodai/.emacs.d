@@ -33,7 +33,7 @@
 (require 'flycheck-golangci-lint)
 
 (defun zlisp/go-find-cmd (command)
-  "See if a command has been installed into the Go directory structure."
+  "See if COMMAND has been installed into the Go directory structure."
   (let ((path (cond ((zlisp/unix-p)
                      (expand-file-name
                       (concat zmacs-projects-directory "Go/bin/" command)))
@@ -59,7 +59,7 @@
   (sort (process-lines "gopkgs") #'string<))
 
 (defun project-find-go-module (dir)
-  "Locate a Go module."
+  "Locate a Go module for DIR."
   (when-let ((root (locate-dominating-file dir "go.mod")))
     (cons 'go-module root)))
 
