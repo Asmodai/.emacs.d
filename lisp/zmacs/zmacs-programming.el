@@ -176,9 +176,11 @@ If GLOBAL is non-NIL then we work on the global modes."
                     "master" "tsx/src")
         (typescript "https://github.com/tree-sitter/tree-sitter-typescript"
                     "master" "typescript/src")
-        (yaml "https://github.com/ikatyang/tree-sitter-yaml")
-        (rust "https://github.com/tree-sitter/tree-sitter-rust" "v0.23.3")
-        (toml "https://github.com/tree-sitter/tree-sitter-toml" "v0.23.3")))
+        (yaml       "https://github.com/ikatyang/tree-sitter-yaml")
+        (rust       "https://github.com/tree-sitter/tree-sitter-rust"
+                    "v0.23.3")
+        (toml       "https://github.com/tree-sitter/tree-sitter-toml"
+                    "v0.23.3")))
 
 ;; Install all languages
 (defun zmacs-install-treesit-lang-grammar ()
