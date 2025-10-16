@@ -43,7 +43,7 @@
 (use-package cc-mode
   :defer t)
 
-(defconst c-c++-modes '(c-mode c++-mode c-ts-mode c++-ts-mode)
+(defconst c-c++-modes '(c-mode c++-mode)
   "List of known C/C++ modes.")
 
 (defconst c-c++-maps '(c-mode-map c++-mode-map)
@@ -51,11 +51,11 @@
 
 ;;;; Tree-Sitter:
 
-(add-to-list 'major-mode-remap-alist '(c-mode   . c-ts-mode))
-(add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
+;;(add-to-list 'major-mode-remap-alist '(c-mode   . c-ts-mode))
+;;(add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
 
-(add-hook 'c-ts-mode-hook   #'eglot-ensure)
-(add-hook 'c++-ts-mode-hook #'eglot-ensure)
+;;(add-hook 'c-ts-mode-hook   #'eglot-ensure)
+;;(add-hook 'c++-ts-mode-hook #'eglot-ensure)
 
 ;;;; LSP detection:
 

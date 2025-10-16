@@ -159,7 +159,8 @@ If GLOBAL is non-NIL then we work on the global modes."
       '((cmake      "https://github.com/uyha/tree-sitter-cmake")
         (css        "https://github.com/tree-sitter/tree-sitter-css")
         (elisp      "https://github.com/Wilfred/tree-sitter-elisp")
-        (c          "https://github.com/tree-sitter/tree-sitter-c")
+        (c          "https://github.com/tree-sitter/tree-sitter-c"
+                    "v0.23.3")
         (cpp        "https://github.com/tree-sitter/tree-sitter-cpp")
         (go         "https://github.com/tree-sitter/tree-sitter-go"
                     "v0.23.3")
