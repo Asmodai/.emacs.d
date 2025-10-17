@@ -127,12 +127,11 @@
   :bind (:map dired-mode-map
          ("2" . zlisp/dired-updirectory)
          :map peep-dired-mode-map
-          ("RET" . zlisp/peep-dired-open)
-          ("TAB" . zlisp/other-window))
+         ("RET" . zlisp/peep-dired-open)
+         ("TAB" . zlisp/other-window))
   :config
   (require 'zlisp-window)
-  (require 'zlisp-dired)
-  (add-hook 'dired-mode-hook 'zlisp/dired-wrap))
+  (require 'zlisp-dired))
 
 ;;;; Provide package:
 

@@ -40,24 +40,6 @@
   (interactive)
   (find-alternate-file ".."))
 
-;;;; Dired Ranger:
-
-;; Allow for cycling from bottom to top of dired buffer and vice versa.
-(defun zlisp/dired-wrap ()
-  "Cycle from bottom to top of buffer"
-  (make-local-variable 'post-command-hook)
-  (add-hook 'post-command-hook
-            (defun zlisp//dired-wrap-1 ()
-              ""
-              (if (= 1 (save-excursion
-                         (forward-line)))
-                  (goto-line 3))
-              (if (= -1 (save-excursion
-                          (forward-line -1)))
-                  (goto-line (count-lines
-                              (point-min)
-                              (point-max)))))))
-
 ;;;; Peep:
 
 (defun zlisp/peep-dired-open ()
