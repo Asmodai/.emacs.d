@@ -110,6 +110,11 @@ If ARG is provided, it will be used as an argument to `forward-sexp` et al."
         ((looking-at "\\s)") (forward-char) (backward-sexp arg))
         ((looking-back "\\s(" 1) (backward-char) (forward-sexp arg))))
 
+(defun zlisp/insert-hyphen ()
+  "Insert a hyphen at the insertion point."
+  (interactive)
+  (insert "-"))
+
 (provide 'zlisp-text)
 
 ;;; zlisp-text.el ends here.
