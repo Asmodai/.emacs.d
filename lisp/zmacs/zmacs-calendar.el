@@ -59,13 +59,13 @@
 
   (defun zmacs-open-calendar ()
     (interactive)
-    (cfw:open-calendar-buffer
+    (calfw-open-calendar-buffer
      :contents-sources
       (list
-        (cfw:org-create-source "Green")
-        (cfw:cal-create-source "Orange")
+        (calfw-org-create-source org-agenda-files "Org" "Green")
+        (calfw-cal-create-source "Cal" "Orange")
         (when (boundp 'user-gcal-secret)
-           (cfw:ical-create-source "gcal" user-gcal-secret "IndianRed"))))))
+           (calfw-ical-create-source "gcal" user-gcal-secret "IndianRed"))))))
 
 ;;;; Provide package:
 
