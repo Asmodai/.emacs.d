@@ -203,6 +203,9 @@
 (require 'zmacs-search)
 (require 'zmacs-templates)
 
+;;;;; Non-English language tools:
+(require 'zmacs-lang)
+
 ;;;;; Projects and version control:
 (require 'zmacs-vc)
 (require 'zmacs-projects)

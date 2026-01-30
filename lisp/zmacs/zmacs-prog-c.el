@@ -36,7 +36,7 @@
 
 (when (and (not (executable-find "ccls"))
            (not (executable-find "clangd")))
-  (error "You need `ccls' or `clangd' for this to work."))
+  (error "You need `ccls' or `clangd' for this to work"))
 
 ;;;; C/C++ mode.
 
