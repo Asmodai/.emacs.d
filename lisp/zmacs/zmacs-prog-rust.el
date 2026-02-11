@@ -32,58 +32,70 @@
 (require 'cl-lib)
 (require 'zlisp-platform)
 
-;;;; Rust mode:
+;;;; Detection:
 
-(use-package rust-mode
-  :hook (rust-mode . eglot-ensure))
+(defun zmacs//enable-rust-support ()
+  (executable-find "rustc"))
 
-;;;; Configure Treesitter mode:
+;;;; Load rust:
 
-(add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
-(add-to-list 'major-mode-remap-alist '(conf-toml-mode . toml-ts-mode))
+(when (zmacs//enable-rust-support)
 
-;;;; Eglot setup:
+;;;;; Rust mode:
 
-(let* ((cargo-ra     (concat user-home-directory "/.cargo/bin/rust-analyzer"))
-       (rustanalyzer (cond ((file-exists-p cargo-ra)
-                            cargo-ra)
-                           ((file-exists-p "/usr/bin/rust-analyzer")
-                            "/usr/bin/rust-analyzer")
-                           (t
-                            (error "Rust has not been configured!")))))
-  (when (file-exists-p rustanalyzer)
-    (message (format "ZMACS/RUST: Configured '%s' as LSP backend." rustanalyzer))
-    (add-to-list 'eglot-server-programs `(rust-mode ,rustanalyzer))
-    (add-to-list 'eglot-server-programs `(rust-ts-mode ,rustanalyzer))))
+  (use-package rust-mode
+    :hook (rust-mode . eglot-ensure))
 
-;;;; Rust TS mode hooks:
+;;;;; Configure Treesitter mode:
 
-(defun zmacs//ra-config ()
-  "Per-buffer configuration for `rust-analyzer'."
-  (let* ((has-cargo (locate-dominating-file default-directory "Cargo.toml"))
-         (check     (if has-cargo
-                        '((command . "clippy"))
-                      '((enable . :json-false)))))
-    `((cargo . ((allFeatures . t)))
-      (procMacro . ((enable . t)))
-      (checkOnSave . ,check))))
+  (add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(conf-toml-mode . toml-ts-mode))
 
-(add-hook 'rust-ts-mode-hook
-          (lambda ()
-            (let* ((old (or eglot-workspace-configuration '()))
-                   (cfg (assq-delete-all :rust-analyzer (copy-sequence old))))
-              (setq-default eglot-workspace-configuration
-                            (cons (cons :rust-analyzer (zmacs//ra-config)) cfg)))
-            (eglot-ensure)))
+;;;;; Eglot setup:
 
-(add-hook 'rust-ts-mode-hook #'eglot-inlay-hints-mode)
+  (let* ((cargo-ra     (concat user-home-directory "/.cargo/bin/rust-analyzer"))
+         (rustanalyzer (cond ((file-exists-p cargo-ra)
+                              cargo-ra)
+                             ((file-exists-p "/usr/bin/rust-analyzer")
+                              "/usr/bin/rust-analyzer")
+                             (t
+                              (error "Rust has not been configured!")))))
+    (when (file-exists-p rustanalyzer)
+      (message (format "ZMACS/RUST: Configured '%s' as LSP backend." rustanalyzer))
+      (add-to-list 'eglot-server-programs `(rust-mode ,rustanalyzer))
+      (add-to-list 'eglot-server-programs `(rust-ts-mode ,rustanalyzer))))
 
-;;;; Save hook:
+;;;;; Rust TS mode hooks:
 
-(defun zmacs//rust-on-save ()
-  "Add on-save hooks for Rust."
-  (add-hook 'before-save-hook #'eglot-format-buffer -10 t))
-(add-hook 'rust-ts-mode-hook #'zmacs//rust-on-save)
+  (defun zmacs//ra-config ()
+    "Per-buffer configuration for `rust-analyzer'."
+    (let* ((has-cargo (locate-dominating-file default-directory "Cargo.toml"))
+           (check     (if has-cargo
+                          '((command . "clippy"))
+                        '((enable . :json-false)))))
+      `((cargo . ((allFeatures . t)))
+        (procMacro . ((enable . t)))
+        (checkOnSave . ,check))))
+
+  (add-hook 'rust-ts-mode-hook
+            (lambda ()
+              (let* ((old (or eglot-workspace-configuration '()))
+                     (cfg (assq-delete-all :rust-analyzer (copy-sequence old))))
+                (setq-default eglot-workspace-configuration
+                              (cons (cons :rust-analyzer (zmacs//ra-config)) cfg)))
+              (eglot-ensure)))
+
+  (add-hook 'rust-ts-mode-hook #'eglot-inlay-hints-mode)
+
+;;;;; Save hook:
+
+  (defun zmacs//rust-on-save ()
+    "Add on-save hooks for Rust."
+    (add-hook 'before-save-hook #'eglot-format-buffer -10 t))
+  (add-hook 'rust-ts-mode-hook #'zmacs//rust-on-save)
+
+;;;;; End of Rust:
+  )
 
 (provide 'zmacs-prog-rust)
 
