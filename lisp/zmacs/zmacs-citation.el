@@ -56,7 +56,7 @@
   :ensure nil
   :after org
   :config
-  (setq org-cite-global-bibliography `(,zmacs-bibliography-files)
+  (setq org-cite-global-bibliography zmacs-bibliography-files
         org-cite-export-processors   '((beamer csl)
                                        (latex  csl)
                                        (t      csl))))
@@ -82,8 +82,8 @@
   :bind (:map citar-map
          ("b" . #'citar-open-brief))
   :custom
-  (org-cite-global-bibliography `(,zmacs-bibliography-files))
-  (citar-bibliography           `(,zmacs-bibliography-files))
+  (org-cite-global-bibliography zmacs-bibliography-files)
+  (citar-bibliography           zmacs-bibliography-files)
   (org-cite-insert-processor    'citar)
   (org-cite-follow-processor    'citar)
   (org-cite-activate-processor  'citar)
