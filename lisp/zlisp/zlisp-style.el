@@ -167,6 +167,12 @@
     (string-prefix-p (file-truename *zmacs-notes-directory*)
                      (file-truename buffer-file-name))))
 
+(defun zlisp/in-research-p ()
+  "Return T if the buffer refers to a file within the research directory."
+  (when (and buffer-file-name *zmacs-research-directory*)
+    (string-prefix-p (file-truename *zmacs-research-directory*)
+                     (file-truename buffer-file-name))))
+
 ;;;;; Default `writing' style:
 
 (defvar zlisp/org-style-writing
@@ -257,7 +263,7 @@
 
 (defvar zlisp/org-style-research
   (zlisp/org-style :name 'research
-                   :pred (lambda () t)
+                   :pred #'zlisp/in-research-p
                    :remaps '((org-level-1 . zmacs-org-style-denote-level-1)
                              (org-level-2 . zmacs-org-style-denote-level-2)
                              (org-level-3 . zmacs-org-style-denote-level-3)

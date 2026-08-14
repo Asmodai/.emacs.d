@@ -38,6 +38,10 @@
   (expand-file-name (concat zmacs-storage-directory "notes/"))
   "Location of note files.")
 
+(defvar *zmacs-research-directory*
+  (expand-file-name (concat zmacs-storage-directory "research"))
+  "Location of research files.")
+
 ;;;; Packages:
 ;;;;; Denote:
 
