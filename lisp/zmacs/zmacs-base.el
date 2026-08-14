@@ -912,6 +912,25 @@ This fixes an overlapping issue, that occurs when ZMACS is started in a
       calendar-daylight-savings-starts-time 60 ; 01:00 local
       calendar-daylight-savings-ends-time 120)   ; 02:00 local
 
+;;;; Whitespace:
+
+(use-package whitespace
+  :ensure t
+  :custom
+  (whitespace-style '(face              ; Visualise using faces.
+                      trailing          ; Visualise trailing blanks.
+                      tabs              ; Visualise tabs.
+                      spaces            ; Visualise spaces.
+                      newline           ; Visualise newlines.
+                      empty             ; Visualise empty lines.
+                      indentation       ; Visualise indentation.
+                      space-after-tab   ; Visualise spaces after tabs.
+                      space-before-tab  ; Visualise spaces before tabs.
+                      space-mark        ; Visualise spaces using marks.
+                      tab-mark          ; Visualise tabs using marks.
+                      newline-mark      ; Visualise newlines using marks.
+                      missing-newline-at-eof
+                      )))
 ;;;; Provide package:
 
 (provide 'zmacs-base)

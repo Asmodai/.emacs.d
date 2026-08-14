@@ -1000,8 +1000,8 @@ attention."
        ((,class (:inherit fill-column-indicator))))
      `(whitespace-tabmark
        ((,class (:inherit fill-column-indicator))))
-     `(whitespace-line
-       ((,class (:inherit fill-column-indicator))))
+     ;; `(whitespace-line
+     ;;   ((,class (:inherit default)))) ;fill-column-indicator
      `(whitespace-space
        ((,class (:inherit fill-column-indicator))))
      `(whitespace-space-after-tab

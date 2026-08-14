@@ -177,9 +177,11 @@
                             (when (fboundp 'mixed-pitch-mode)
                               (mixed-pitch-mode 1))
                             (visual-line-mode 1)
-                            (hl-line-mode 1))
+                            (hl-line-mode 1)
+                            (whitespace-mode 1))
                    :exit (lambda ()
-                           (visual-line-mode -1)))
+                           (visual-line-mode -1)
+                           (whitespace-mode -1)))
   "Generic Org style.")
 
 ;;;;; `org-present' style:
@@ -243,13 +245,39 @@
                              (org-level-5 . zmacs-org-style-denote-level)
                              (org-level-6 . zmacs-org-style-denote-level)
                              (org-level-7 . zmacs-org-style-denote-level)
-                             (org-level-8 . zmacs-org-style-denote-level)))
+                             (org-level-8 . zmacs-org-style-denote-level))
+                   :enter (lambda ()
+                            (visual-line-mode 1)
+                            (hl-line-mode 1))
+                   :exit (lambda ()
+                           (visual-line-mode -1)))
   "`denote' style.")
+
+;;;;; `research' style:
+
+(defvar zlisp/org-style-research
+  (zlisp/org-style :name 'research
+                   :pred (lambda () t)
+                   :remaps '((org-level-1 . zmacs-org-style-denote-level-1)
+                             (org-level-2 . zmacs-org-style-denote-level-2)
+                             (org-level-3 . zmacs-org-style-denote-level-3)
+                             (org-level-4 . zmacs-org-style-denote-level)
+                             (org-level-5 . zmacs-org-style-denote-level)
+                             (org-level-6 . zmacs-org-style-denote-level)
+                             (org-level-7 . zmacs-org-style-denote-level)
+                             (org-level-8 . zmacs-org-style-denote-level))
+                   :enter (lambda ()
+                            (visual-line-mode 1)
+                            (hl-line-mode 1))
+                   :exit (lambda ()
+                           (visual-line-mode -1)))
+  "`research' style.")
 
 ;;;; Registry:
 
 (setq zlisp--org-style-registry (list zlisp/org-style-agenda
                                       zlisp/org-style-denote
+                                      zlisp/org-style-research
                                       zlisp/org-style-writing))
 
 ;;;; Determining style:

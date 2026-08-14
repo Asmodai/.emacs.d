@@ -157,10 +157,8 @@
   (org-clock-out-when-done      t)
   ;;
   ;; Files.
-  (org-clock-persist-file                       (concat *zmacs-cache-directory*
-                                                        ".org-clock-save.el"))
-  (org-id-locations-file                        (concat *zmacs-cache-directory*
-                                                        ".org-id-locations"))
+  (org-clock-persist-file                       (concat zmacs-org-directory
+                                                        "org-clock-save.el"))
   :config
   (add-hook 'org-mode-hook (lambda ()
                              (display-fill-column-indicator-mode -1)
@@ -489,7 +487,7 @@ _vr_ reset      ^^                       ^^                 ^^
   :ensure nil
   :after org
   :custom
-  (org-id-locations-file (concat *zmacs-cache-directory* ".org-id-locations"))
+  (org-id-locations-file (concat zmacs-org-directory "org-id-locations"))
   (org-id-method 'ts) ;; use timestamp for id
   (org-id-link-to-org-use-id 'create-if-interactive))
 
